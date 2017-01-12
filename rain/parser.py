@@ -92,6 +92,22 @@ def block(ctx):
 
   return A.block_node(stmts)
 
+def if_stmt(ctx):
+  ctx.require(K.keyword_token('if'))
+  pred = expr(ctx)
+  body = block(ctx)
+  els = None
+
+  if ctx.peek == K.keyword_token('else'):
+    ctx.require(newline)
+    ctx.require(K.keyword_token('else'))
+    if ctx.expect(K.keyword_token('if')):
+      els = if_stmt(ctx)
+    else:
+      els = block(ctx)
+
+  return A.if_node(pred, body, els)
+
 def stmt(ctx):
   if ctx.consume(K.keyword_token('let')):
     lhs = A.name_node(ctx.require(K.name_token))
@@ -99,10 +115,8 @@ def stmt(ctx):
     rhs = expr(ctx)
     return A.assn_node(lhs, rhs, let=True)
 
-  if ctx.consume(K.keyword_token('if')):
-    pred = expr(ctx)
-    body = block(ctx)
-    return A.if_node(pred, body)
+  if ctx.expect(K.keyword_token('if')):
+    return if_stmt(ctx)
 
   if ctx.consume(K.keyword_token('while')):
     pred = expr(ctx)

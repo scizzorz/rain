@@ -97,8 +97,18 @@ def emit(self, module):
 
 @if_node.method
 def emit(self, module):
-  with module.builder.if_then(truthy(module, self.pred.emit(module))):
-    self.body.emit(module)
+  pred = truthy(module, self.pred.emit(module))
+
+  if self.els:
+    with module.builder.if_else(pred) as (then, els):
+      with then:
+        self.body.emit(module)
+      with els:
+        self.els.emit(module)
+
+  else:
+    with module.builder.if_then(truthy(module, self.pred.emit(module))):
+      self.body.emit(module)
 
 @loop_node.method
 def emit(self, module):

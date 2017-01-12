@@ -70,12 +70,13 @@ class cont_node(node):
     self.cond = cond
 
 class if_node(node):
-  def __init__(self, pred, body):
+  def __init__(self, pred, body, els=None):
     self.pred = pred
     self.body = body
+    self.els = els
 
   def __str__(self):
-    return 'if {!s} {{ {!s} }}'.format(self.pred, self.body)
+    return 'if {!s} {{ {!s} }} else {{ {!s} }}'.format(self.pred, self.body, self.els)
 
 class loop_node(node):
   def __init__(self, body):
