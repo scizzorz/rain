@@ -14,29 +14,30 @@ from .token import operator_token
 from .token import string_token
 from .token import symbol_token
 from .token import table_token
+from .token import type_token
 from collections import OrderedDict
 
 OPERATORS = (
-  '->', '<-',
   '<=', '>=', '>', '<', '==', '!=',
-  '&', '|', '^', '~',
   '*', '/', '+', '-',
-  '$', '%', '@',
+  '&', '|', '!',
 )
 
 KW_OPERATORS = (
-  'and', 'or', 'xor', 'not',
-  'in', 'is', 'to',
 )
 
 KEYWORDS = (
   'func', 'return', 'let', 'pass', 'print',
-  'if', 'while', 'loop', 'until', 'break', 'continue',
-  'extern',
+  'if', 'else', 'while', 'loop', 'until', 'break', 'continue',
+  'extern', 'is', 'from',
   #'print', 'import',
   #'if', 'else',
   #'for', 'while', 'until', 'loop',
   #'pass', 'break', 'continue', 'return',
+)
+
+TYPES = (
+  'int', 'float', 'bool', 'str', 'data',
 )
 
 def factory(data, *, line=None, col=None):
@@ -44,6 +45,8 @@ def factory(data, *, line=None, col=None):
     return keyword_token(data.lower(), line=line, col=col)
   elif data.lower() in KW_OPERATORS:
     return operator_token(data.lower(), line=line, col=col)
+  elif data.lower() in TYPES:
+    return type_token(data.lower(), line=line, col=col)
   else:
     return name_token(M.Module.normalize_name(data), line=line, col=col)
 

@@ -92,6 +92,22 @@ def block(ctx):
 
   return A.block_node(stmts)
 
+def if_stmt(ctx):
+  ctx.require(K.keyword_token('if'))
+  pred = expr(ctx)
+  body = block(ctx)
+  els = None
+
+  if ctx.peek == K.keyword_token('else'):
+    ctx.require(newline)
+    ctx.require(K.keyword_token('else'))
+    if ctx.expect(K.keyword_token('if')):
+      els = if_stmt(ctx)
+    else:
+      els = block(ctx)
+
+  return A.if_node(pred, body, els)
+
 def stmt(ctx):
   if ctx.consume(K.keyword_token('let')):
     lhs = A.name_node(ctx.require(K.name_token))
@@ -99,10 +115,8 @@ def stmt(ctx):
     rhs = expr(ctx)
     return A.assn_node(lhs, rhs, let=True)
 
-  if ctx.consume(K.keyword_token('if')):
-    pred = expr(ctx)
-    body = block(ctx)
-    return A.if_node(pred, body)
+  if ctx.expect(K.keyword_token('if')):
+    return if_stmt(ctx)
 
   if ctx.consume(K.keyword_token('while')):
     pred = expr(ctx)
@@ -193,15 +207,20 @@ def fnargs(ctx):
   return args
 
 def expr(ctx):
-  return binexpr(ctx)
+  node = binexpr(ctx)
+  if ctx.consume(K.keyword_token('is')):
+    typ = ctx.require(K.type_token, K.null_token, K.table_token, K.keyword_token('func'))
+    return A.is_node(node, typ)
+
+  return node
 
 def binexpr(ctx):
-  lhs = simple(ctx)
+  lhs = unexpr(ctx)
   pairs = []
 
   while ctx.expect(K.operator_token):
     op = ctx.require(K.operator_token)
-    pairs.append((op.value, simple(ctx)))
+    pairs.append((op.value, unexpr(ctx)))
 
   if pairs:
     lhs = bin_merge(lhs, pairs)
@@ -223,7 +242,11 @@ def bin_merge(lhs, pairs):
 
   return A.binary_node(lhs, rhs, op)
 
-# TODO unary operators
+def unexpr(ctx):
+  if ctx.expect(K.operator_token('-'), K.operator_token('!')):
+    return A.unary_node(ctx.require(K.operator_token).value, simple(ctx))
+
+  return simple(ctx)
 
 def simple(ctx):
   # -> fndef
@@ -262,7 +285,11 @@ def simple(ctx):
     return A.null_node()
 
   if ctx.consume(K.table_token):
-    return A.table_node()
+    metatable = None
+    if ctx.consume(K.keyword_token('from')):
+      metatable = prefix(ctx)
+
+    return A.table_node(metatable)
 
   return primary(ctx)
 

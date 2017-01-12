@@ -14,6 +14,8 @@
 
 #define HASH_SIZE 32
 
+#define BOX_IS(x, t) (x->type == ITYP_##t)
+
 struct column_s;
 
 typedef union {
@@ -39,6 +41,9 @@ typedef struct column_s {
 
 int rain_box_to_exit(box *);
 void rain_print(box *);
+
+void rain_neg(box *, box *);
+void rain_not(box *, box *);
 
 void rain_add(box *, box *, box *);
 void rain_sub(box *, box *, box *);

@@ -3,10 +3,10 @@ import rain.token as K
 import pytest
 
 def test_factory():
-  assert L.factory('print') == K.keyword_token('print')
+  assert L.factory('return') == K.keyword_token('return')
   assert L.factory('this') == K.name_token('this')
   assert L.factory('Multi_Word') == K.name_token('multiword')
-  assert L.factory('and') == K.operator_token('and')
+  assert L.factory('int') == K.type_token('int')
 
 def test_keywords():
   stream = L.stream(' '.join(L.KEYWORDS))

@@ -70,12 +70,13 @@ class cont_node(node):
     self.cond = cond
 
 class if_node(node):
-  def __init__(self, pred, body):
+  def __init__(self, pred, body, els=None):
     self.pred = pred
     self.body = body
+    self.els = els
 
   def __str__(self):
-    return 'if {!s} {{ {!s} }}'.format(self.pred, self.body)
+    return 'if {!s} {{ {!s} }} else {{ {!s} }}'.format(self.pred, self.body, self.els)
 
 class loop_node(node):
   def __init__(self, body):
@@ -135,7 +136,8 @@ class str_node(value_node):
   pass
 
 class table_node(node):
-  pass
+  def __init__(self, metatable=None):
+    self.metatable = metatable
 
 class extern_node(node):
   def __init__(self, name):
@@ -169,6 +171,13 @@ class meth_node(node):
   def __str__(self):
     return '{!s}:{!s}({!s})'.format(self.lhs, self.rhs, ', '.join(str(x) for x in self.args))
 
+class is_node(node):
+  def __init__(self, lhs, typ):
+    self.lhs = lhs
+    self.typ = typ
+
+  def __str__(self):
+    return '{!s} is {!s}'.format(self.lhs, self.typ)
 
 class binary_node(node):
   def __init__(self, lhs, rhs, op):
@@ -178,3 +187,11 @@ class binary_node(node):
 
   def __str__(self):
     return '({!s} {!s} {!s})'.format(self.lhs, self.op, self.rhs)
+
+class unary_node(node):
+  def __init__(self, op, val):
+    self.op = op
+    self.val = val
+
+  def __str__(self):
+    return '({!s}{!s})'.format(self.op, self.val)

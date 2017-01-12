@@ -2,11 +2,17 @@ from llvmlite import ir
 from .ast import *
 from . import types as T
 from . import token as K
+from collections import OrderedDict
+
+BOX_SIZE = 24
 
 # structure
 
 @program_node.method
 def emit(self, module):
+  module.metatable_key = module.add_global(T.box)
+  module.metatable_key.initializer = str_node('metatable').emit(module)
+
   for stmt in self.stmts:
     stmt.emit(module)
 
@@ -41,10 +47,13 @@ def emit(self, module):
   ptr = None
 
   if isinstance(self.lhs, name_node):
+
     if not module.builder:
       module[self.lhs] = module.add_global(T.box)
       module[self.lhs].initializer = self.rhs.emit(module)
       return
+
+    rhs = self.rhs.emit(module) # emit this so a function can't close over its undefined binding
 
     if self.let:
       module[self.lhs] = module.builder.alloca(T.box)
@@ -52,7 +61,7 @@ def emit(self, module):
     if self.lhs not in module:
       raise Exception('Undeclared {!r}'.format(self.lhs))
 
-    module.builder.store(self.rhs.emit(module), module[self.lhs])
+    module.builder.store(rhs, module[self.lhs])
 
   elif isinstance(self.lhs, idx_node):
     table = self.lhs.lhs.emit(module)
@@ -91,8 +100,18 @@ def emit(self, module):
 
 @if_node.method
 def emit(self, module):
-  with module.builder.if_then(truthy(module, self.pred.emit(module))):
-    self.body.emit(module)
+  pred = truthy(module, self.pred.emit(module))
+
+  if self.els:
+    with module.builder.if_else(pred) as (then, els):
+      with then:
+        self.body.emit(module)
+      with els:
+        self.els.emit(module)
+
+  else:
+    with module.builder.if_then(truthy(module, self.pred.emit(module))):
+      self.body.emit(module)
 
 @loop_node.method
 def emit(self, module):
@@ -201,17 +220,49 @@ def emit(self, module):
 @table_node.method
 def emit(self, module):
   ptr = module.builder.call(module.extern('rain_new_table'), [])
+
+  if self.metatable:
+    val = self.metatable.emit(module)
+    val_ptr = module.builder.alloca(T.box, name='key_ptr')
+    module.builder.store(val, val_ptr)
+    module.builder.call(module.extern('rain_put'), [ptr, module.metatable_key, val_ptr])
+
   return module.builder.load(ptr)
 
 @func_node.method
 def emit(self, module):
-  typ = T.vfunc(T.ptr(T.box), *[T.ptr(T.box) for x in self.params])
-  func = module.add_func(typ)
+  env = OrderedDict()
+  for scope in module.scopes[1:]:
+    for nm, ptr in scope.items():
+      env[nm] = ptr
+
+  if not env:
+    typ = T.vfunc(T.ptr(T.box), *[T.ptr(T.box) for x in self.params])
+
+    func = module.add_func(typ)
+    func.args[0].add_attribute('sret')
+
+  else:
+    env_typ = T.arr(T.box, len(env))
+    typ = T.vfunc(T.ptr(env_typ), T.ptr(T.box), *[T.ptr(T.box) for x in self.params])
+
+    func = module.add_func(typ)
+    func.args[0].add_attribute('nest')
+    func.args[1].add_attribute('sret')
 
   with module:
     with module.add_func_body(func):
+      func_args = func.args
 
-      for name, ptr in zip(self.params, func.args[1:]):
+      if env:
+        for i, (name, ptr) in enumerate(env.items()):
+          gep = module.builder.gep(func_args[0], [T.i32(0), T.i32(i)])
+          module[name] = gep
+
+        func_args = func_args[1:]
+        module.ret_ptr = func.args[1]
+
+      for name, ptr in zip(self.params, func_args[1:]):
         module[name] = ptr
 
       self.body.emit(module)
@@ -219,6 +270,19 @@ def emit(self, module):
       if not module.builder.block.is_terminated:
         module.builder.store(null_node().emit(module), module.ret_ptr)
         module.builder.ret_void()
+
+  if env:
+    env_raw_ptr = module.builder.call(module.extern('GC_malloc'), [T.i32(BOX_SIZE * len(env))])
+    env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
+    env_val = env_typ(None)
+    for i, (name, ptr) in enumerate(env.items()):
+      env_val = module.builder.insert_value(env_val, module.builder.load(ptr), i)
+    module.builder.store(env_val, env_ptr)
+
+    func = module.add_tramp(func, env_ptr)
+    func_i64 = module.builder.ptrtoint(func, T.i64)
+
+    return module.builder.insert_value(T.box([T.ityp.func, T.i64(0), T.i32(0)]), func_i64, 1)
 
   #val = func.ptrtoint(T.cast.int)
   # need to bullshit around to get this to work - see llvmlite#229
@@ -317,3 +381,26 @@ def emit(self, module):
   module.builder.store(T.box(None), ret_ptr)
   module.builder.call(module.extern(arith[self.op]), [ret_ptr, lhs_ptr, rhs_ptr])
   return module.builder.load(ret_ptr)
+
+@unary_node.method
+def emit(self, module):
+  arith = {
+    '-': 'rain_neg',
+    '!': 'rain_not',
+  }
+
+  val = self.val.emit(module)
+  val_ptr = module.builder.alloca(T.box, name='val_ptr')
+  ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
+  module.builder.store(val, val_ptr)
+  module.builder.store(T.box(None), ret_ptr)
+  module.builder.call(module.extern(arith[self.op]), [ret_ptr, val_ptr])
+  return module.builder.load(ret_ptr)
+
+@is_node.method
+def emit(self, module):
+  lhs = self.lhs.emit(module)
+  lhs_typ = module.builder.extract_value(lhs, 0)
+  res = module.builder.icmp_unsigned('==', getattr(T.ityp, self.typ.value), lhs_typ)
+  res = module.builder.zext(res, T.i64)
+  return module.builder.insert_value(T.box([T.ityp.bool, T.i64(0), T.i32(0)]), res, 1)
