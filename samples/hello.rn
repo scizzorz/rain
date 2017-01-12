@@ -1,0 +1,2 @@
+main = func()
+  print "Hello, world."

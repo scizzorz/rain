@@ -1,0 +1,13 @@
+x = 0 # assign away
+x = true
+x = null
+x = "now I'm a string"
+
+main = func()
+  let x = 10 # use `let` to introduce a new variable in non-global scopes
+  x = true   # this x binding will shadow the global x - changing it does
+  x = null   # NOT change the global variable
+  x = 15
+  let y = 20
+  let z = x + y
+  print z # prints 35

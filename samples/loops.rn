@@ -1,0 +1,23 @@
+main = func()
+  let n = 0
+
+  while n < 10 # a traditional while loop
+    print n
+    n = n + 1
+
+  print "----"
+  until n < 1 # the opposite of a while loop
+    print n
+    n = n - 1
+
+  print "----"
+  loop        # FOREVER
+
+    n = n + 1
+    continue if n >= 4 & n < 6 # skip a few though
+
+    print n
+
+    break if n == 10 # just kidding about the forever
+
+    # non-conditional break and continue statements are also available

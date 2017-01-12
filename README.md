@@ -29,3 +29,5 @@ Use `rainc` on your fun Rain file:
 Then execute the executable:
 
     $ ./funfile
+
+Check out the [samples](https://github.com/scizzorz/rain/tree/master/samples) for some more fun.
