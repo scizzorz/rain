@@ -400,7 +400,6 @@ void rain_get(box *ret, box *table, box *key) {
     column* metatable = rain_has(table, &mt_key);
     if(metatable == NULL) {
       rain_set_null(ret);
-      ret->data.ui = 1;
       return;
     }
 
