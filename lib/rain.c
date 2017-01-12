@@ -340,17 +340,7 @@ unsigned char rain_hash_eq(box *one, box *two) {
   }
 
   if(one->type == ITYP_STR) {
-    if(one->size != two->size) {
-      return 0;
-    }
-
-    for(int i=0; i<one->size; i++) {
-      if(one->data.s[i] != two->data.s[i]) {
-        return 0;
-      }
-    }
-
-    return 1;
+    return strcmp(one->data.s, two->data.s) == 0;
   }
 
   return one->data.ui == two->data.ui;
