@@ -68,6 +68,21 @@ void rain_print(box *val) {
   }
 }
 
+// unary operators
+
+void rain_neg(box *ret, box *val) {
+  if(BOX_IS(val, INT)) {
+    rain_set_int(ret, -(val->data.si));
+  }
+  else if(BOX_IS(val, FLOAT)) {
+    rain_set_float(ret, -(val->data.f));
+  }
+}
+
+void rain_not(box *ret, box *val) {
+  rain_set_bool(ret, !rain_truthy(val));
+}
+
 // arithmetic
 
 void rain_add(box *ret, box *lhs, box *rhs) {
