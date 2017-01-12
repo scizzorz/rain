@@ -2,6 +2,9 @@ from llvmlite import ir
 from .ast import *
 from . import types as T
 from . import token as K
+from collections import OrderedDict
+
+BOX_SIZE = 24
 
 # structure
 
@@ -208,13 +211,38 @@ def emit(self, module):
 
 @func_node.method
 def emit(self, module):
-  typ = T.vfunc(T.ptr(T.box), *[T.ptr(T.box) for x in self.params])
-  func = module.add_func(typ)
+  env = OrderedDict()
+  for scope in module.scopes[1:]:
+    for nm, ptr in scope.items():
+      env[nm] = ptr
+
+  if not env:
+    typ = T.vfunc(T.ptr(T.box), *[T.ptr(T.box) for x in self.params])
+
+    func = module.add_func(typ)
+    func.args[0].add_attribute('sret')
+
+  else:
+    env_typ = T.arr(T.box, len(env))
+    typ = T.vfunc(T.ptr(env_typ), T.ptr(T.box), *[T.ptr(T.box) for x in self.params])
+
+    func = module.add_func(typ)
+    func.args[0].add_attribute('nest')
+    func.args[1].add_attribute('sret')
 
   with module:
     with module.add_func_body(func):
+      func_args = func.args
 
-      for name, ptr in zip(self.params, func.args[1:]):
+      if env:
+        for i, (name, ptr) in enumerate(env.items()):
+          gep = module.builder.gep(func_args[0], [T.i32(0), T.i32(i)])
+          module[name] = gep
+
+        func_args = func_args[1:]
+        module.ret_ptr = func.args[1]
+
+      for name, ptr in zip(self.params, func_args[1:]):
         module[name] = ptr
 
       self.body.emit(module)
@@ -222,6 +250,19 @@ def emit(self, module):
       if not module.builder.block.is_terminated:
         module.builder.store(null_node().emit(module), module.ret_ptr)
         module.builder.ret_void()
+
+  if env:
+    env_raw_ptr = module.builder.call(module.extern('GC_malloc'), [T.i32(BOX_SIZE * len(env))])
+    env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
+    env_val = env_typ(None)
+    for i, (name, ptr) in enumerate(env.items()):
+      env_val = module.builder.insert_value(env_val, module.builder.load(ptr), i)
+    module.builder.store(env_val, env_ptr)
+
+    func = module.add_tramp(func, env_ptr)
+    func_i64 = module.builder.ptrtoint(func, T.i64)
+
+    return module.builder.insert_value(T.box([T.ityp.func, T.i64(0), T.i32(0)]), func_i64, 1)
 
   #val = func.ptrtoint(T.cast.int)
   # need to bullshit around to get this to work - see llvmlite#229
