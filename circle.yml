@@ -2,7 +2,7 @@ machine:
   python:
     version: 3.5.1
 dependencies:
-  post:
+  pre:
     - sudo apt-get install llvm-3.8
 test:
   override:
