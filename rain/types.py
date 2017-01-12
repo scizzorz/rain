@@ -38,3 +38,4 @@ class ityp:
   str = i8(4)
   table = i8(5)
   func = i8(6)
+  data = i8(7)

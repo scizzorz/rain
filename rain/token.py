@@ -50,6 +50,9 @@ class value_token(token):
 class keyword_token(value_token):
   pass
 
+class type_token(value_token):
+  pass
+
 class name_token(value_token):
   pass
 

@@ -193,7 +193,12 @@ def fnargs(ctx):
   return args
 
 def expr(ctx):
-  return binexpr(ctx)
+  node = binexpr(ctx)
+  if ctx.consume(K.keyword_token('is')):
+    typ = ctx.require(K.type_token, K.null_token, K.table_token, K.keyword_token('func'))
+    return A.is_node(node, typ)
+
+  return node
 
 def binexpr(ctx):
   lhs = simple(ctx)

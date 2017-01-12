@@ -361,3 +361,11 @@ def emit(self, module):
   module.builder.store(T.box(None), ret_ptr)
   module.builder.call(module.extern(arith[self.op]), [ret_ptr, lhs_ptr, rhs_ptr])
   return module.builder.load(ret_ptr)
+
+@is_node.method
+def emit(self, module):
+  lhs = self.lhs.emit(module)
+  lhs_typ = module.builder.extract_value(lhs, 0)
+  res = module.builder.icmp_unsigned('==', getattr(T.ityp, self.typ.value), lhs_typ)
+  res = module.builder.zext(res, T.i64)
+  return module.builder.insert_value(T.box([T.ityp.bool, T.i64(0), T.i32(0)]), res, 1)
