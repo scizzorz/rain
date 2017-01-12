@@ -1,11 +1,11 @@
 main = func()
   let f = table # tables are the only composite data structure
-  f.bool = false
-  f.int = 1
-  f.float = 2.0
-  f.string = "bool"
+  f.not_true = false
+  f.one = 1
+  f.ten = 10.0
+  f.number = "one"
 
-  print f["bool"] # x.y is syntactic sugar for x["y"]
-  print f[f.string]
+  print f["one"] # x.y is syntactic sugar for x["y"]
+  print f[f.number]
 
   print f.oops # will result in a null
