@@ -10,6 +10,9 @@ BOX_SIZE = 24
 
 @program_node.method
 def emit(self, module):
+  module.metatable_key = module.add_global(T.box)
+  module.metatable_key.initializer = str_node('metatable').emit(module)
+
   for stmt in self.stmts:
     stmt.emit(module)
 
@@ -217,6 +220,13 @@ def emit(self, module):
 @table_node.method
 def emit(self, module):
   ptr = module.builder.call(module.extern('rain_new_table'), [])
+
+  if self.metatable:
+    val = self.metatable.emit(module)
+    val_ptr = module.builder.alloca(T.box, name='key_ptr')
+    module.builder.store(val, val_ptr)
+    module.builder.call(module.extern('rain_put'), [ptr, module.metatable_key, val_ptr])
+
   return module.builder.load(ptr)
 
 @func_node.method

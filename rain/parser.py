@@ -285,7 +285,11 @@ def simple(ctx):
     return A.null_node()
 
   if ctx.consume(K.table_token):
-    return A.table_node()
+    metatable = None
+    if ctx.consume(K.keyword_token('from')):
+      metatable = prefix(ctx)
+
+    return A.table_node(metatable)
 
   return primary(ctx)
 

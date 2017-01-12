@@ -136,7 +136,8 @@ class str_node(value_node):
   pass
 
 class table_node(node):
-  pass
+  def __init__(self, metatable=None):
+    self.metatable = metatable
 
 class extern_node(node):
   def __init__(self, name):
