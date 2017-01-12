@@ -325,5 +325,6 @@ def emit(self, module):
   ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
   module.builder.store(lhs, lhs_ptr)
   module.builder.store(rhs, rhs_ptr)
+  module.builder.store(T.box(None), ret_ptr)
   module.builder.call(module.extern(arith[self.op]), [ret_ptr, lhs_ptr, rhs_ptr])
   return module.builder.load(ret_ptr)

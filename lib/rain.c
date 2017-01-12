@@ -71,10 +71,6 @@ void rain_print(box *val) {
 // arithmetic
 
 void rain_add(box *ret, box *lhs, box *rhs) {
-  ret->type = ITYP_NULL;
-  ret->data.ui = 1;
-  ret->size = 0;
-
   if(lhs->type == ITYP_INT && rhs->type == ITYP_INT) {
     ret->type = ITYP_INT;
     ret->data.ui = lhs->data.ui + rhs->data.ui;
@@ -103,10 +99,6 @@ void rain_add(box *ret, box *lhs, box *rhs) {
 }
 
 void rain_sub(box *ret, box *lhs, box *rhs) {
-  ret->type = ITYP_NULL;
-  ret->data.ui = 1;
-  ret->size = 0;
-
   if(lhs->type == ITYP_INT && rhs->type == ITYP_INT) {
     ret->type = ITYP_INT;
     ret->data.ui = lhs->data.ui - rhs->data.ui;
@@ -135,10 +127,6 @@ void rain_sub(box *ret, box *lhs, box *rhs) {
 }
 
 void rain_mul(box *ret, box *lhs, box *rhs) {
-  ret->type = ITYP_NULL;
-  ret->data.ui = 1;
-  ret->size = 0;
-
   if(lhs->type == ITYP_INT && rhs->type == ITYP_INT) {
     ret->type = ITYP_INT;
     ret->data.ui = lhs->data.ui * rhs->data.ui;
@@ -167,10 +155,6 @@ void rain_mul(box *ret, box *lhs, box *rhs) {
 }
 
 void rain_div(box *ret, box *lhs, box *rhs) {
-  ret->type = ITYP_NULL;
-  ret->data.ui = 1;
-  ret->size = 0;
-
   if(lhs->type == ITYP_INT && rhs->type == ITYP_INT) {
     ret->type = ITYP_INT;
     ret->data.ui = lhs->data.ui / rhs->data.ui;
@@ -247,10 +231,6 @@ void rain_ne(box *ret, box *lhs, box *rhs) {
 // TODO string comparisons
 
 void rain_gt(box *ret, box *lhs, box *rhs) {
-  ret->type = ITYP_NULL;
-  ret->data.ui = 0;
-  ret->size = 0;
-
   if(lhs->type == ITYP_INT && rhs->type == ITYP_INT) {
     ret->type = ITYP_BOOL;
     ret->data.ui = lhs->data.si > rhs->data.si;
@@ -290,10 +270,6 @@ void rain_ge(box *ret, box *lhs, box *rhs) {
 }
 
 void rain_lt(box *ret, box *lhs, box *rhs) {
-  ret->type = ITYP_NULL;
-  ret->data.ui = 0;
-  ret->size = 0;
-
   if(lhs->type == ITYP_INT && rhs->type == ITYP_INT) {
     ret->type = ITYP_BOOL;
     ret->data.ui = lhs->data.si < rhs->data.si;
