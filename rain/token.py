@@ -19,9 +19,6 @@ class token(metaclass=metatoken):
   def __repr__(self):
     return '<{}>'.format(self)
 
-  def __hash__(self):
-    return hash(repr(self))
-
 class end_token(token):
   pass
 
@@ -49,9 +46,6 @@ class value_token(token):
 
   def __repr__(self):
     return '<{}>'.format(self)
-
-  def __hash__(self):
-    return hash(repr(self))
 
 class keyword_token(value_token):
   pass
