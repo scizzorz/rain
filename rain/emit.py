@@ -41,10 +41,13 @@ def emit(self, module):
   ptr = None
 
   if isinstance(self.lhs, name_node):
+
     if not module.builder:
       module[self.lhs] = module.add_global(T.box)
       module[self.lhs].initializer = self.rhs.emit(module)
       return
+
+    rhs = self.rhs.emit(module) # emit this so a function can't close over its undefined binding
 
     if self.let:
       module[self.lhs] = module.builder.alloca(T.box)
@@ -52,7 +55,7 @@ def emit(self, module):
     if self.lhs not in module:
       raise Exception('Undeclared {!r}'.format(self.lhs))
 
-    module.builder.store(self.rhs.emit(module), module[self.lhs])
+    module.builder.store(rhs, module[self.lhs])
 
   elif isinstance(self.lhs, idx_node):
     table = self.lhs.lhs.emit(module)
