@@ -7,10 +7,14 @@ import re
 from . import types as T
 from . import scope as S
 
+TRAMP_SIZE = 72
+
 name_chars = re.compile('[^a-z0-9]')
 
 externs = {
   'GC_malloc': T.func(T.ptr(T.i8), [T.i32]),
+  'llvm.init.trampoline': T.func(T.void, [T.ptr(T.i8), T.ptr(T.i8), T.ptr(T.i8)]),
+  'llvm.adjust.trampoline': T.func(T.ptr(T.i8), [T.ptr(T.i8)]),
 
   'rain_box_to_exit': T.func(T.i32, [T.ptr(T.box)]),
   'rain_print': T.func(T.void, [T.ptr(T.box)]),
@@ -146,6 +150,17 @@ class Module(S.Scope):
   def goto(self, block):
     with self.builder.goto_block(block):
       yield
+
+  def add_tramp(self, func_ptr, env_ptr):
+    tramp_buf = self.builder.call(self.extern('GC_malloc'), [T.i32(TRAMP_SIZE)])
+    raw_func_ptr = self.builder.bitcast(func_ptr, T.ptr(T.i8))
+    raw_env_ptr = self.builder.bitcast(env_ptr, T.ptr(T.i8))
+
+    self.builder.call(self.extern('llvm.init.trampoline'), [tramp_buf, raw_func_ptr, raw_env_ptr])
+    tramp_ptr = self.builder.call(self.extern('llvm.adjust.trampoline'), [tramp_buf])
+    new_func_ptr = self.builder.bitcast(tramp_ptr, T.ptr(T.i8))
+
+    return new_func_ptr
 
   # normalize a name - remove all special characters and cases
   @staticmethod
