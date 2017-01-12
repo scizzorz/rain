@@ -14,7 +14,8 @@
 
 #define HASH_SIZE 32
 
-#define BOX_IS(x, t) (x->type == ITYP_##t)
+#define BOX_IS(x, t) ((x)->type == ITYP_##t)
+#define BOX_ISNT(x, t) ((x)->type != ITYP_##t)
 
 struct column_s;
 
