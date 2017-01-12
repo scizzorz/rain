@@ -3,7 +3,7 @@ machine:
     version: 3.5.1
 dependencies:
   pre:
-    - sudo apt-get install llvm-3.8
+    - sudo apt-get install llvm-3.8 && export LLVM_CONFIG=$(which llvm-config-3.8)
 test:
   override:
-    - export PYTHONPATH=$(pwd); export LLVM_CONFIG=$(which llvm-config-3.8);  py.test -rap -v --tb=long --cov=pymask --junit-xml=$CIRCLE_TEST_REPORTS/tests.xml
+    - export PYTHONPATH=$(pwd); py.test -rap -v --tb=long --cov=pymask --junit-xml=$CIRCLE_TEST_REPORTS/tests.xml
