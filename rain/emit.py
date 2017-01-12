@@ -164,6 +164,30 @@ def emit(self, module):
       self.body.emit(module)
       module.builder.branch(module.before)
 
+@for_node.method
+def emit(self, module):
+  # evaluate the expression and pull out the function pointer
+  func_box = self.func.emit(module)
+  func_raw = module.builder.extract_value(func_box, 1, name='for_func')
+  func_ptr = module.builder.inttoptr(func_raw, T.ptr(T.vfunc(T.ptr(T.box))), name='for_func_ptr')
+
+  # set up the return pointer
+  ret_ptr = module[self.name] =  module.builder.alloca(T.box, name='for_var')
+  module.builder.store(T.box(None), ret_ptr)
+
+  with module.add_loop() as (before, loop):
+    with before:
+      # call our function and break if it returns null
+      module.builder.call(func_ptr, [ret_ptr])
+      box = module.builder.load(ret_ptr)
+      typ = module.builder.extract_value(box, 0)
+      not_null = module.builder.icmp_unsigned('!=', typ, T.ityp.null)
+      module.builder.cbranch(not_null, module.loop, module.after)
+
+    with loop:
+      self.body.emit(module)
+      module.builder.branch(module.before)
+
 # expressions
 
 @name_node.method

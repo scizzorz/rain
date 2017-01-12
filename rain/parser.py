@@ -118,6 +118,13 @@ def stmt(ctx):
   if ctx.expect(K.keyword_token('if')):
     return if_stmt(ctx)
 
+  if ctx.consume(K.keyword_token('for')):
+    name = ctx.require(K.name_token)
+    ctx.require(K.keyword_token('in'))
+    func = expr(ctx)
+    body = block(ctx)
+    return A.for_node(name, func, body)
+
   if ctx.consume(K.keyword_token('while')):
     pred = expr(ctx)
     body = block(ctx)

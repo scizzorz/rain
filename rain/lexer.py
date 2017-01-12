@@ -28,7 +28,7 @@ KW_OPERATORS = (
 
 KEYWORDS = (
   'func', 'return', 'let', 'pass', 'print',
-  'if', 'else', 'while', 'loop', 'until', 'break', 'continue',
+  'if', 'else', 'while', 'loop', 'until', 'break', 'continue', 'for', 'in',
   'extern', 'is', 'from',
   #'print', 'import',
   #'if', 'else',

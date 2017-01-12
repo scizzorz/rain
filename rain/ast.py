@@ -110,6 +110,15 @@ class while_node(node):
   def __str__(self):
     return 'while {!s} {{ {!s} }}'.format(self.pred, self.body)
 
+class for_node(node):
+  def __init__(self, name, func, body):
+    self.name = name
+    self.func = func
+    self.body = body
+
+  def __str__(self):
+    return 'for {!s} in {!s} {{ {!s} }}'.format(self.name, self.func, self.body)
+
 # expressions
 
 class idx_node(node):
