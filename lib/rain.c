@@ -248,6 +248,11 @@ void rain_gt(box *ret, box *lhs, box *rhs) {
     double ret_f = lhs_f + rhs_f;
     rain_set_bool(ret, lhs_f > rhs_f);
   }
+  else if(lhs->type == ITYP_STR && rhs->type == ITYP_STR) {
+    char *lhs_s = lhs->data.s;
+    char *rhs_s = rhs->data.s;
+    rain_set_bool(ret, strcmp(lhs_s, rhs_s) > 0);
+  }
 }
 
 void rain_ge(box *ret, box *lhs, box *rhs) {
@@ -280,6 +285,11 @@ void rain_lt(box *ret, box *lhs, box *rhs) {
     double rhs_f = rhs->data.f;
     double ret_f = lhs_f + rhs_f;
     rain_set_bool(ret, lhs_f < rhs_f);
+  }
+  else if(lhs->type == ITYP_STR && rhs->type == ITYP_STR) {
+    char *lhs_s = lhs->data.s;
+    char *rhs_s = rhs->data.s;
+    rain_set_bool(ret, strcmp(lhs_s, rhs_s) < 0);
   }
 }
 
