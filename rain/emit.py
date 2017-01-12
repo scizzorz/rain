@@ -305,6 +305,7 @@ def emit(self, module):
     '>=': 'rain_ge',
     '<': 'rain_lt',
     '<=': 'rain_le',
+    '$': 'rain_string_concat',
   }
 
   lhs = self.lhs.emit(module)
