@@ -3,16 +3,16 @@
 // system helpers
 
 int rain_box_to_exit(box* val) {
-  if(val->type == ITYP_NULL) {
+  if(BOX_IS(val, NULL)) {
     return val->data.ui;
   }
-  else if(val->type == ITYP_BOOL) {
+  else if(BOX_IS(val, BOOL)) {
     return !(val->data.ui);
   }
-  else if(val->type == ITYP_INT) {
+  else if(BOX_IS(val, INT)) {
     return val->data.ui;
   }
-  else if(val->type == ITYP_FLOAT) {
+  else if(BOX_IS(val, FLOAT)) {
     return (int)(val->data.f);
   }
 
@@ -71,25 +71,25 @@ void rain_print(box *val) {
 // arithmetic
 
 void rain_add(box *ret, box *lhs, box *rhs) {
-  if(lhs->type == ITYP_INT && rhs->type == ITYP_INT) {
+  if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     ret->type = ITYP_INT;
     ret->data.ui = lhs->data.ui + rhs->data.ui;
   }
-  else if(lhs->type == ITYP_FLOAT && rhs->type == ITYP_INT) {
+  else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
     double lhs_f = lhs->data.f;
     double rhs_f = (double)rhs->data.si;
     double ret_f = lhs_f + rhs_f;
     ret->type = ITYP_FLOAT;
     ret->data.f = ret_f;
   }
-  else if(lhs->type == ITYP_INT && rhs->type == ITYP_FLOAT) {
+  else if(BOX_IS(lhs, INT) && BOX_IS(rhs, FLOAT)) {
     double lhs_f = (double)lhs->data.si;
     double rhs_f = lhs->data.f;
     double ret_f = lhs_f + rhs_f;
     ret->type = ITYP_FLOAT;
     ret->data.f = ret_f;
   }
-  else if(lhs->type == ITYP_FLOAT && rhs->type == ITYP_FLOAT) {
+  else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, FLOAT)) {
     double lhs_f = lhs->data.f;
     double rhs_f = rhs->data.f;
     double ret_f = lhs_f + rhs_f;
@@ -99,25 +99,25 @@ void rain_add(box *ret, box *lhs, box *rhs) {
 }
 
 void rain_sub(box *ret, box *lhs, box *rhs) {
-  if(lhs->type == ITYP_INT && rhs->type == ITYP_INT) {
+  if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     ret->type = ITYP_INT;
     ret->data.ui = lhs->data.ui - rhs->data.ui;
   }
-  else if(lhs->type == ITYP_FLOAT && rhs->type == ITYP_INT) {
+  else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
     double lhs_f = lhs->data.f;
     double rhs_f = (double)rhs->data.si;
     double ret_f = lhs_f - rhs_f;
     ret->type = ITYP_FLOAT;
     ret->data.f = ret_f;
   }
-  else if(lhs->type == ITYP_INT && rhs->type == ITYP_FLOAT) {
+  else if(BOX_IS(lhs, INT) && BOX_IS(rhs, FLOAT)) {
     double lhs_f = (double)lhs->data.si;
     double rhs_f = lhs->data.f;
     double ret_f = lhs_f - rhs_f;
     ret->type = ITYP_FLOAT;
     ret->data.f = ret_f;
   }
-  else if(lhs->type == ITYP_FLOAT && rhs->type == ITYP_FLOAT) {
+  else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, FLOAT)) {
     double lhs_f = lhs->data.f;
     double rhs_f = rhs->data.f;
     double ret_f = lhs_f - rhs_f;
@@ -127,25 +127,25 @@ void rain_sub(box *ret, box *lhs, box *rhs) {
 }
 
 void rain_mul(box *ret, box *lhs, box *rhs) {
-  if(lhs->type == ITYP_INT && rhs->type == ITYP_INT) {
+  if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     ret->type = ITYP_INT;
     ret->data.ui = lhs->data.ui * rhs->data.ui;
   }
-  else if(lhs->type == ITYP_FLOAT && rhs->type == ITYP_INT) {
+  else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
     double lhs_f = lhs->data.f;
     double rhs_f = (double)rhs->data.si;
     double ret_f = lhs_f * rhs_f;
     ret->type = ITYP_FLOAT;
     ret->data.f = ret_f;
   }
-  else if(lhs->type == ITYP_INT && rhs->type == ITYP_FLOAT) {
+  else if(BOX_IS(lhs, INT) && BOX_IS(rhs, FLOAT)) {
     double lhs_f = (double)lhs->data.si;
     double rhs_f = lhs->data.f;
     double ret_f = lhs_f * rhs_f;
     ret->type = ITYP_FLOAT;
     ret->data.f = ret_f;
   }
-  else if(lhs->type == ITYP_FLOAT && rhs->type == ITYP_FLOAT) {
+  else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, FLOAT)) {
     double lhs_f = lhs->data.f;
     double rhs_f = rhs->data.f;
     double ret_f = lhs_f * rhs_f;
@@ -155,25 +155,25 @@ void rain_mul(box *ret, box *lhs, box *rhs) {
 }
 
 void rain_div(box *ret, box *lhs, box *rhs) {
-  if(lhs->type == ITYP_INT && rhs->type == ITYP_INT) {
+  if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     ret->type = ITYP_INT;
     ret->data.ui = lhs->data.ui / rhs->data.ui;
   }
-  else if(lhs->type == ITYP_FLOAT && rhs->type == ITYP_INT) {
+  else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
     double lhs_f = lhs->data.f;
     double rhs_f = (double)rhs->data.si;
     double ret_f = lhs_f / rhs_f;
     ret->type = ITYP_FLOAT;
     ret->data.f = ret_f;
   }
-  else if(lhs->type == ITYP_INT && rhs->type == ITYP_FLOAT) {
+  else if(BOX_IS(lhs, INT) && BOX_IS(rhs, FLOAT)) {
     double lhs_f = (double)lhs->data.si;
     double rhs_f = lhs->data.f;
     double ret_f = lhs_f / rhs_f;
     ret->type = ITYP_FLOAT;
     ret->data.f = ret_f;
   }
-  else if(lhs->type == ITYP_FLOAT && rhs->type == ITYP_FLOAT) {
+  else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, FLOAT)) {
     double lhs_f = lhs->data.f;
     double rhs_f = rhs->data.f;
     double ret_f = lhs_f / rhs_f;
@@ -231,25 +231,25 @@ void rain_ne(box *ret, box *lhs, box *rhs) {
 // TODO string comparisons
 
 void rain_gt(box *ret, box *lhs, box *rhs) {
-  if(lhs->type == ITYP_INT && rhs->type == ITYP_INT) {
+  if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     ret->type = ITYP_BOOL;
     ret->data.ui = lhs->data.si > rhs->data.si;
   }
-  else if(lhs->type == ITYP_FLOAT && rhs->type == ITYP_INT) {
+  else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
     double lhs_f = lhs->data.f;
     double rhs_f = (double)rhs->data.si;
     double ret_f = lhs_f + rhs_f;
     ret->type = ITYP_BOOL;
     ret->data.f = lhs_f > rhs_f;
   }
-  else if(lhs->type == ITYP_INT && rhs->type == ITYP_FLOAT) {
+  else if(BOX_IS(lhs, INT) && BOX_IS(rhs, FLOAT)) {
     double lhs_f = (double)lhs->data.si;
     double rhs_f = lhs->data.f;
     double ret_f = lhs_f + rhs_f;
     ret->type = ITYP_BOOL;
     ret->data.f = lhs_f > rhs_f;
   }
-  else if(lhs->type == ITYP_FLOAT && rhs->type == ITYP_FLOAT) {
+  else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, FLOAT)) {
     double lhs_f = lhs->data.f;
     double rhs_f = rhs->data.f;
     double ret_f = lhs_f + rhs_f;
@@ -270,25 +270,25 @@ void rain_ge(box *ret, box *lhs, box *rhs) {
 }
 
 void rain_lt(box *ret, box *lhs, box *rhs) {
-  if(lhs->type == ITYP_INT && rhs->type == ITYP_INT) {
+  if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     ret->type = ITYP_BOOL;
     ret->data.ui = lhs->data.si < rhs->data.si;
   }
-  else if(lhs->type == ITYP_FLOAT && rhs->type == ITYP_INT) {
+  else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
     double lhs_f = lhs->data.f;
     double rhs_f = (double)rhs->data.si;
     double ret_f = lhs_f + rhs_f;
     ret->type = ITYP_BOOL;
     ret->data.f = lhs_f < rhs_f;
   }
-  else if(lhs->type == ITYP_INT && rhs->type == ITYP_FLOAT) {
+  else if(BOX_IS(lhs, INT) && BOX_IS(rhs, FLOAT)) {
     double lhs_f = (double)lhs->data.si;
     double rhs_f = lhs->data.f;
     double ret_f = lhs_f + rhs_f;
     ret->type = ITYP_BOOL;
     ret->data.f = lhs_f < rhs_f;
   }
-  else if(lhs->type == ITYP_FLOAT && rhs->type == ITYP_FLOAT) {
+  else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, FLOAT)) {
     double lhs_f = lhs->data.f;
     double rhs_f = rhs->data.f;
     double ret_f = lhs_f + rhs_f;
@@ -355,7 +355,7 @@ unsigned char rain_hash_eq(box *one, box *two) {
     return 0;
   }
 
-  if(one->type == ITYP_STR) {
+  if(BOX_IS(one, STR)) {
     if(one->size != two->size) {
       return 0;
     }
