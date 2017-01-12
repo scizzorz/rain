@@ -7,10 +7,6 @@ from . import token as K
 
 @program_node.method
 def emit(self, module):
-  nulls = ['nan', 'empty']
-  for null in nulls:
-    assn_node(null, err_node()).emit(module)
-
   for stmt in self.stmts:
     stmt.emit(module)
 
@@ -176,13 +172,6 @@ def emit(self, module):
 @null_node.method
 def emit(self, module):
   return T.box([T.ityp.null, T.cast.null(0), T.i32(0)])
-
-err_id = 0
-@err_node.method
-def emit(self, module):
-  global err_id
-  err_id += 1
-  return T.box([T.ityp.null, T.cast.null(err_id), T.i32(0)])
 
 @int_node.method
 def emit(self, module):

@@ -88,8 +88,5 @@ class string_token(value_token):
 class null_token(value_token):
   pass
 
-class err_token(value_token):
-  pass
-
 class table_token(value_token):
   pass

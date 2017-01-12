@@ -3,7 +3,6 @@ from . import module as M
 from .token import bool_token
 from .token import dedent_token
 from .token import end_token
-from .token import err_token
 from .token import float_token
 from .token import indent_token
 from .token import int_token
@@ -55,7 +54,6 @@ raw[r'(?:0|[1-9][0-9]*)\.[0-9]+'] = float_token
 raw[r'0|[1-9][0-9]*'] = int_token
 raw[r'true|false'] = bool_token
 raw[r'null'] = null_token
-raw[r'err'] = err_token
 raw[r'table'] = table_token
 raw[r'[a-zA-Z_][a-zA-Z0-9_]*'] = factory
 raw['|'.join(re.escape(x) for x in OPERATORS)] = operator_token

@@ -137,9 +137,6 @@ class str_node(value_node):
 class table_node(node):
   pass
 
-class err_node(node):
-  pass
-
 class extern_node(node):
   def __init__(self, name):
     self.name = name

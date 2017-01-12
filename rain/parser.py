@@ -261,9 +261,6 @@ def simple(ctx):
   if ctx.consume(K.null_token):
     return A.null_node()
 
-  if ctx.consume(K.err_token):
-    return A.err_node()
-
   if ctx.consume(K.table_token):
     return A.table_node()
 
