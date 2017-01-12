@@ -372,6 +372,21 @@ def emit(self, module):
   module.builder.call(module.extern(arith[self.op]), [ret_ptr, lhs_ptr, rhs_ptr])
   return module.builder.load(ret_ptr)
 
+@unary_node.method
+def emit(self, module):
+  arith = {
+    '-': 'rain_neg',
+    '!': 'rain_not',
+  }
+
+  val = self.val.emit(module)
+  val_ptr = module.builder.alloca(T.box, name='val_ptr')
+  ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
+  module.builder.store(val, val_ptr)
+  module.builder.store(T.box(None), ret_ptr)
+  module.builder.call(module.extern(arith[self.op]), [ret_ptr, val_ptr])
+  return module.builder.load(ret_ptr)
+
 @is_node.method
 def emit(self, module):
   lhs = self.lhs.emit(module)

@@ -186,3 +186,11 @@ class binary_node(node):
 
   def __str__(self):
     return '({!s} {!s} {!s})'.format(self.lhs, self.op, self.rhs)
+
+class unary_node(node):
+  def __init__(self, op, val):
+    self.op = op
+    self.val = val
+
+  def __str__(self):
+    return '({!s}{!s})'.format(self.op, self.val)

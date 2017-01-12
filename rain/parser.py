@@ -215,12 +215,12 @@ def expr(ctx):
   return node
 
 def binexpr(ctx):
-  lhs = simple(ctx)
+  lhs = unexpr(ctx)
   pairs = []
 
   while ctx.expect(K.operator_token):
     op = ctx.require(K.operator_token)
-    pairs.append((op.value, simple(ctx)))
+    pairs.append((op.value, unexpr(ctx)))
 
   if pairs:
     lhs = bin_merge(lhs, pairs)
@@ -242,7 +242,11 @@ def bin_merge(lhs, pairs):
 
   return A.binary_node(lhs, rhs, op)
 
-# TODO unary operators
+def unexpr(ctx):
+  if ctx.expect(K.operator_token('-'), K.operator_token('!')):
+    return A.unary_node(ctx.require(K.operator_token).value, simple(ctx))
+
+  return simple(ctx)
 
 def simple(ctx):
   # -> fndef

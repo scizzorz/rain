@@ -17,7 +17,10 @@ externs = {
   'llvm.adjust.trampoline': T.func(T.ptr(T.i8), [T.ptr(T.i8)]),
 
   'rain_box_to_exit': T.func(T.i32, [T.ptr(T.box)]),
-  'rain_print': T.func(T.void, [T.ptr(T.box)]),
+  'rain_print': T.vfunc(T.ptr(T.box)),
+
+  'rain_neg': T.vfunc(T.ptr(T.box), T.ptr(T.box)),
+  'rain_not': T.vfunc(T.ptr(T.box), T.ptr(T.box)),
 
   'rain_add': T.bin,
   'rain_sub': T.bin,
@@ -35,7 +38,7 @@ externs = {
   'rain_le': T.bin,
 
   'rain_new_table': T.func(T.ptr(T.box), []),
-  'rain_new_pair': T.func(T.void, [T.ptr(T.box), T.ptr(T.box)]),
+  'rain_new_pair': T.vfunc(T.ptr(T.box), T.ptr(T.box)),
   'rain_put': T.bin,
   'rain_get': T.bin,
 }
