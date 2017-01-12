@@ -31,7 +31,7 @@ void rain_print(box *val) {
       break;
 
     case ITYP_INT:
-      printf("%lu\n", val->data.ui);
+      printf("%ld\n", val->data.si);
       break;
 
     case ITYP_FLOAT:
