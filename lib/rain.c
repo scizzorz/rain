@@ -239,8 +239,6 @@ void rain_ne(box *ret, box *lhs, box *rhs) {
   rain_set_bool(ret, !rain_hash_eq(lhs, rhs));
 }
 
-// TODO string comparisons
-
 void rain_gt(box *ret, box *lhs, box *rhs) {
   if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     rain_set_bool(ret, lhs->data.si > rhs->data.si);
@@ -263,7 +261,7 @@ void rain_gt(box *ret, box *lhs, box *rhs) {
     double ret_f = lhs_f + rhs_f;
     rain_set_bool(ret, lhs_f > rhs_f);
   }
-  else if(lhs->type == ITYP_STR && rhs->type == ITYP_STR) {
+  else if(BOX_IS(lhs, STR) && BOX_IS(rhs, STR)) {
     char *lhs_s = lhs->data.s;
     char *rhs_s = rhs->data.s;
     rain_set_bool(ret, strcmp(lhs_s, rhs_s) > 0);
@@ -301,7 +299,7 @@ void rain_lt(box *ret, box *lhs, box *rhs) {
     double ret_f = lhs_f + rhs_f;
     rain_set_bool(ret, lhs_f < rhs_f);
   }
-  else if(lhs->type == ITYP_STR && rhs->type == ITYP_STR) {
+  else if(BOX_IS(lhs, STR) && BOX_IS(rhs, STR)) {
     char *lhs_s = lhs->data.s;
     char *rhs_s = rhs->data.s;
     rain_set_bool(ret, strcmp(lhs_s, rhs_s) < 0);
