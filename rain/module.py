@@ -37,6 +37,8 @@ externs = {
   'rain_lt': T.bin,
   'rain_le': T.bin,
 
+  'rain_string_concat': T.bin,
+
   'rain_new_table': T.func(T.ptr(T.box), []),
   'rain_new_pair': T.vfunc(T.ptr(T.box), T.ptr(T.box)),
   'rain_put': T.bin,
