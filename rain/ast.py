@@ -1,3 +1,5 @@
+import fixedint
+
 # Base classes
 
 class metanode(type):
@@ -129,20 +131,32 @@ class idx_node(node):
 class name_node(value_node):
   pass
 
-class null_node(node):
-  pass
+class literal_node:
+  def hash(self):
+    raise Exception("Can't hash {!s}".format(self))
 
-class int_node(value_node):
-  pass
+class null_node(node, literal_node):
+  def hash(self):
+    return 0
 
-class float_node(value_node):
-  pass
+class int_node(value_node, literal_node):
+  def hash(self):
+    return int(fixedint.UInt64(self.value))
 
-class bool_node(value_node):
-  pass
+class float_node(value_node, literal_node):
+  def hash(self):
+    return int(ctypes.c_int.from_buffer(ctypes.c_float(1.0)).value)
 
-class str_node(value_node):
-  pass
+class bool_node(value_node, literal_node):
+  def hash(self):
+    return int(self.value)
+
+class str_node(value_node, literal_node):
+  def hash(self):
+    val = fixedint.MutableUInt64(0)
+    for char in self.value:
+      val += ord(char)
+    return int(val)
 
 class table_node(node):
   def __init__(self, metatable=None):

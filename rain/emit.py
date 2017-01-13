@@ -1,8 +1,9 @@
-from llvmlite import ir
-from .ast import *
-from . import types as T
 from . import token as K
+from . import types as T
+from .ast import *
 from collections import OrderedDict
+from llvmlite import ir
+import sys
 
 BOX_SIZE = 24
 HASH_SIZE = 32
@@ -64,6 +65,32 @@ def emit(self, module):
     module.builder.store(rhs, module[self.lhs])
 
   elif isinstance(self.lhs, idx_node):
+    if not module.builder: # global scope
+      table_ptr = module[self.lhs.lhs].initializer.source
+      table = table_ptr.initializer
+      key_node = self.lhs.rhs
+
+      # we can only hash things that are known to this compiler (not addresses)
+      if not isinstance(key_node, literal_node):
+        print('Unable to hash {!s}'.format(key_node))
+        sys.exit(1)
+        return
+
+      # get these for storing
+      key = self.lhs.rhs.emit(module)
+      val = self.rhs.emit(module)
+      column = T.column([key, val, T.ptr(T.column)(None)])
+
+      # compute the hash and allocate a new column for it
+      idx = key_node.hash() % HASH_SIZE
+      column_ptr = module.add_global(T.column, name=module.uniq('column'))
+      column_ptr.initializer = column
+
+      # update the table array and then update the initializer
+      table.constant[idx] = column_ptr
+      table_ptr.initializer = table.type(table.constant)
+      return
+
     table = self.lhs.lhs.emit(module)
     key = self.lhs.rhs.emit(module)
     val = self.rhs.emit(module)
@@ -195,6 +222,9 @@ def emit(self, module):
   if self.value not in module:
     raise Exception('Unknown {!r}'.format(self.value))
 
+  if not module.builder: # global scope
+    return module[self.value].initializer
+
   return module.builder.load(module[self.value])
 
 @idx_node.method
@@ -244,13 +274,17 @@ def emit(self, module):
 @table_node.method
 def emit(self, module):
   if not module.builder: # global scope
+    # make an empty array of column*
     typ = T.arr(T.ptr(T.column), HASH_SIZE)
     ptr = module.add_global(typ, name=module.uniq('table'))
-    ptr.initializer = typ(None)
+    ptr.initializer = typ([None] * HASH_SIZE)
     gep = ptr.gep([T.i32(0), T.i32(0)])
 
+    # cast the array ptr to an i64
     raw_ir = 'ptrtoint ({0} {1} to {2})'.format(gep.type, gep.get_reference(), T.cast.int)
     val = ir.FormattedConstant(T.cast.int, raw_ir)
+
+    # put the i64 in a box
     box = T.box([T.ityp.table, val, 0])
     box.source = ptr # save this for later!
     return box
