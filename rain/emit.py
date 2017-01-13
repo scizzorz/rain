@@ -48,7 +48,6 @@ def emit(self, module):
   ptr = None
 
   if isinstance(self.lhs, name_node):
-
     if not module.builder: # global scope
       module[self.lhs] = module.add_global(T.box)
       module[self.lhs].initializer = self.rhs.emit(module)
@@ -245,14 +244,16 @@ def emit(self, module):
 @table_node.method
 def emit(self, module):
   if not module.builder: # global scope
-    typ = T.arr(T.column, HASH_SIZE)
+    typ = T.arr(T.ptr(T.column), HASH_SIZE)
     ptr = module.add_global(typ, name=module.uniq('table'))
     ptr.initializer = typ(None)
     gep = ptr.gep([T.i32(0), T.i32(0)])
 
     raw_ir = 'ptrtoint ({0} {1} to {2})'.format(gep.type, gep.get_reference(), T.cast.int)
     val = ir.FormattedConstant(T.cast.int, raw_ir)
-    return T.box([T.ityp.table, val, 0])
+    box = T.box([T.ityp.table, val, 0])
+    box.source = ptr # save this for later!
+    return box
 
   ptr = module.builder.call(module.extern('rain_new_table'), [])
 
