@@ -334,12 +334,6 @@ column *rain_new_pair(box *key, box *val) {
 unsigned long rain_hash(box *val) {
   unsigned int hash = 0;
   switch(val->type) {
-    case ITYP_NULL:
-      return val->data.ui;
-    case ITYP_INT:
-      return val->data.ui;
-    case ITYP_FLOAT:
-      return val->data.ui;
     case ITYP_BOOL:
       return !!val->data.ui;
     case ITYP_STR:
@@ -347,14 +341,9 @@ unsigned long rain_hash(box *val) {
         hash += val->data.s[i];
       }
       return hash;
-    case ITYP_TABLE:
-      return val->data.ui;
-    case ITYP_FUNC:
-      return val->data.ui;
-    case ITYP_DATA:
-      return val->data.ui;
   }
-  return 0;
+
+  return val->data.ui;
 }
 
 unsigned char rain_hash_eq(box *one, box *two) {
