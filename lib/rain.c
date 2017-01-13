@@ -315,6 +315,24 @@ void rain_le(box *ret, box *lhs, box *rhs) {
   rain_lt(ret, lhs, rhs);
 }
 
+// string helpers
+
+void rain_string_concat(box *ret, box *lhs, box *rhs) {
+  if(lhs->type != ITYP_STR || rhs->type != ITYP_STR) {
+    return;
+  }
+
+  int length = lhs->size + rhs->size;
+  char *cat = malloc(length + 1);
+
+  strcat(cat, lhs->data.s);
+  strcat(cat + lhs->size, rhs->data.s);
+
+  rain_set_strcpy(ret, cat, length);
+
+  free(cat);
+}
+
 // table helpers
 
 box* rain_new_table() {
