@@ -229,6 +229,10 @@ def emit(self, module):
 
 @idx_node.method
 def emit(self, module):
+  if not module.builder: # global scope
+    print('Can\'t index at global scope') # TODO eventually, you can
+    sys.exit(1)
+
   table = self.lhs.emit(module)
   key = self.rhs.emit(module)
 
@@ -385,6 +389,10 @@ def emit(self, module):
 
 @call_node.method
 def emit(self, module):
+  if not module.builder: # global scope
+    print('Can\'t call functions at global scope')
+    sys.exit(1)
+
   func_box = self.func.emit(module)
   arg_boxes = [arg.emit(module) for arg in self.args]
   arg_ptrs = [module.builder.alloca(T.box) for arg in arg_boxes]
@@ -405,6 +413,10 @@ def emit(self, module):
 
 @meth_node.method
 def emit(self, module):
+  if not module.builder: # global scope
+    print('Can\'t call methods at global scope')
+    sys.exit(1)
+
   table = self.lhs.emit(module)
   key = self.rhs.emit(module)
 
@@ -440,6 +452,10 @@ def emit(self, module):
 
 @binary_node.method
 def emit(self, module):
+  if not module.builder: # global scope
+    print('Can\'t use binary operators at global scope')
+    sys.exit(1)
+
   arith = {
     '+': 'rain_add',
     '-': 'rain_sub',
@@ -468,6 +484,10 @@ def emit(self, module):
 
 @unary_node.method
 def emit(self, module):
+  if not module.builder: # global scope
+    print('Can\'t use unary operators at global scope')
+    sys.exit(1)
+
   arith = {
     '-': 'rain_neg',
     '!': 'rain_not',
@@ -483,6 +503,10 @@ def emit(self, module):
 
 @is_node.method
 def emit(self, module):
+  if not module.builder: # global scope
+    print('Can\'t check types at global scope')
+    sys.exit(1)
+
   lhs = self.lhs.emit(module)
   lhs_typ = module.builder.extract_value(lhs, 0)
   res = module.builder.icmp_unsigned('==', getattr(T.ityp, self.typ.value), lhs_typ)
