@@ -54,7 +54,8 @@ def emit(self, module):
       module[self.lhs].initializer = self.rhs.emit(module)
       return
 
-    rhs = self.rhs.emit(module) # emit this so a function can't close over its undefined binding
+    # emit this so a function can't close over its undefined binding
+    rhs = self.rhs.emit(module)
 
     if self.let:
       module[self.lhs] = module.builder.alloca(T.box)
@@ -80,6 +81,7 @@ def emit(self, module):
       key = self.lhs.rhs.emit(module)
       val = self.rhs.emit(module)
       column = T.column([key, val, T.ptr(T.column)(None)])
+      column.next = None # for later!
 
       # compute the hash and allocate a new column for it
       idx = key_node.hash() % HASH_SIZE
@@ -87,8 +89,21 @@ def emit(self, module):
       column_ptr.initializer = column
 
       # update the table array and then update the initializer
-      table.constant[idx] = column_ptr
-      table_ptr.initializer = table.type(table.constant)
+      if not isinstance(table.constant[idx], ir.GlobalVariable):
+        # no chain
+        table.constant[idx] = column_ptr
+        table_ptr.initializer = table.type(table.constant)
+
+      else:
+        # chaining
+        chain = table.constant[idx]
+        while chain.initializer.next is not None:
+          chain = chain.initializer.next
+
+        chain.initializer.constant[2] = column_ptr
+        chain.initializer = chain.initializer.type(chain.initializer.constant)
+        chain.initializer.next = column_ptr
+
       return
 
     table = self.lhs.lhs.emit(module)
