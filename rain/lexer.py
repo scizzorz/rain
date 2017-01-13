@@ -20,7 +20,7 @@ from collections import OrderedDict
 OPERATORS = (
   '<=', '>=', '>', '<', '==', '!=',
   '*', '/', '+', '-',
-  '&', '|', '!',
+  '&', '|', '!', '$',
 )
 
 KW_OPERATORS = (
