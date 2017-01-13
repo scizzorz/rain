@@ -284,6 +284,20 @@ def emit(self, module):
     raw_ir = 'ptrtoint ({0} {1} to {2})'.format(gep.type, gep.get_reference(), T.cast.int)
     val = ir.FormattedConstant(T.cast.int, raw_ir)
 
+    if self.metatable:
+      # get these for storing
+      mt_val = self.metatable.emit(module)
+      mt_key = module.metatable_key.initializer
+      mt_column = T.column([mt_key, mt_val, T.ptr(T.column)(None)])
+
+      # compute hash and allocate a column for it
+      mt_idx = str_node('metatable').hash() % HASH_SIZE
+      column_ptr = module.add_global(T.column, name=module.uniq('column'))
+      column_ptr.initializer = mt_column
+
+      ptr.initializer.constant[mt_idx] = column_ptr
+      ptr.initializer = ptr.initializer.type(ptr.initializer.constant)
+
     # put the i64 in a box
     box = T.box([T.ityp.table, val, 0])
     box.source = ptr # save this for later!
