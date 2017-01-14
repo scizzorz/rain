@@ -50,8 +50,14 @@ def emit(self, module):
 
   if isinstance(self.lhs, name_node):
     if not module.builder: # global scope
-      module[self.lhs] = module.add_global(T.box)
-      module[self.lhs].initializer = self.rhs.emit(module)
+      key = str_node(self.lhs.value).emit(module)
+      val = self.rhs.emit(module)
+      column = module.add_global(T.column)
+      column.initializer = T.column([key, val, None])
+      ptr = column.gep([T.i32(0), T.i32(1)])
+
+      module[self.lhs] = ptr
+      module[self.lhs].col = val
       return
 
     # emit this so a function can't close over its undefined binding
@@ -67,7 +73,7 @@ def emit(self, module):
 
   elif isinstance(self.lhs, idx_node):
     if not module.builder: # global scope
-      table_ptr = module[self.lhs.lhs].initializer.source
+      table_ptr = module[self.lhs.lhs].col.source
       table = table_ptr.initializer
       key_node = self.lhs.rhs
 
@@ -80,7 +86,7 @@ def emit(self, module):
       # get these for storing
       key = self.lhs.rhs.emit(module)
       val = self.rhs.emit(module)
-      column = T.column([key, val, T.ptr(T.column)(None)])
+      column = T.column([key, val, None])
       column.next = None # for later!
 
       # compute the hash and allocate a new column for it
