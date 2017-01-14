@@ -18,11 +18,15 @@ compilers = {}
 # USE THIS to get a new compiler. it fuzzy searches for the source file and also prevents
 # multiple compilers from being made for the same file
 def get_compiler(src, target=None, main=False, quiet=False):
+  file = None
   if os.path.isfile(src + '.rn'):
     file = src + '.rn'
 
   elif os.path.isfile(src):
     file = src
+
+  if not file:
+    raise Exception('Unable to find module {!r}'.format(src))
 
   abspath = os.path.abspath(file)
 
