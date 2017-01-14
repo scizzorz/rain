@@ -412,14 +412,18 @@ column *rain_has(box *table, box *key) {
 void rain_get(box *ret, box *table, box *key) {
   if(BOX_IS(table, STR) && BOX_IS(key, INT)) {
     if(key->data.si >= 0 && key->data.si < table->size) {
-      ret->type = ITYP_STR;
-      ret->data.s = table->data.s + key->data.si;
-      ret->size = 1;
+      char *buf = malloc(2);
+      buf[0] = table->data.s[key->data.si];
+      buf[1] = 0;
+      rain_set_strcpy(ret, buf, 2);
+      free(buf);
     }
     else if(key->data.si < 0 && key->data.si >= -(table->size)) {
-      ret->type = ITYP_STR;
-      ret->data.s = table->data.s + table->size + ret->data.si;
-      ret->size = 1;
+      char *buf = malloc(2);
+      buf[0] = table->data.s[table->size + key->data.si];
+      buf[1] = 0;
+      rain_set_strcpy(ret, buf, 2);
+      free(buf);
     }
     return;
   }
