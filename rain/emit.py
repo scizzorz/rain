@@ -16,7 +16,7 @@ def emit(self, module):
   module.metatable_key.initializer = str_node('metatable').emit(module)
 
   module.exports = module.add_global(T.box, name=module.mangle('exports'))
-  module.exports.initializer = table_node().emit(module)
+  module.exports.initializer = static_table_alloc(module, name=module.mangle('exports.table'))
 
   imports = []
   for stmt in self.stmts:
@@ -251,6 +251,25 @@ def emit(self, module):
       self.body.emit(module)
       module.builder.branch(module.before)
 
+@import_node.method
+def emit(self, module):
+  if module.builder: # non-global scope
+    print('Can\'t import modules at non-global scope')
+    sys.exit(1)
+
+  glob = module.add_global(T.box, name=self.name.value + '.exports.table')
+  glob.linkage = 'available_externally'
+
+  key_node = str_node(self.name.value)
+  key = key_node.emit(module)
+  val = static_table_from_ptr(module, glob)
+
+  column_ptr = static_table_put(module, module.exports.initializer.source, key_node, key, val)
+  ptr = column_ptr.gep([T.i32(0), T.i32(1)])
+
+  module[self.name] = ptr
+  module[self.name].col = val
+
 # expressions
 
 @name_node.method
@@ -311,37 +330,43 @@ def emit(self, module):
   val = ir.FormattedConstant(T.cast.int, raw_ir)
   return T.box([T.ityp.str, val, len(self.value)])
 
+def static_table_alloc(module, name, metatable=None):
+  # make an empty array of column*
+  typ = T.arr(T.ptr(T.column), HASH_SIZE)
+  ptr = module.add_global(typ, name=name)
+  ptr.initializer = typ([None] * HASH_SIZE)
+  return static_table_from_ptr(module, ptr, metatable)
+
+def static_table_from_ptr(module, ptr, metatable=None):
+  gep = ptr.gep([T.i32(0), T.i32(0)])
+
+  # cast the array ptr to an i64
+  raw_ir = 'ptrtoint ({0} {1} to {2})'.format(gep.type, gep.get_reference(), T.cast.int)
+  val = ir.FormattedConstant(T.cast.int, raw_ir)
+
+  if metatable:
+    # get these for storing
+    mt_val = metatable.emit(module)
+    mt_key = module.metatable_key.initializer
+    mt_column = T.column([mt_key, mt_val, T.ptr(T.column)(None)])
+
+    # compute hash and allocate a column for it
+    mt_idx = str_node('metatable').hash() % HASH_SIZE
+    column_ptr = module.add_global(T.column, name=module.uniq('column'))
+    column_ptr.initializer = mt_column
+
+    ptr.initializer.constant[mt_idx] = column_ptr
+    ptr.initializer = ptr.initializer.type(ptr.initializer.constant)
+
+  # put the i64 in a box
+  box = T.box([T.ityp.table, val, 0])
+  box.source = ptr # save this for later!
+  return box
+
 @table_node.method
 def emit(self, module):
   if not module.builder: # global scope
-    # make an empty array of column*
-    typ = T.arr(T.ptr(T.column), HASH_SIZE)
-    ptr = module.add_global(typ, name=module.uniq('table'))
-    ptr.initializer = typ([None] * HASH_SIZE)
-    gep = ptr.gep([T.i32(0), T.i32(0)])
-
-    # cast the array ptr to an i64
-    raw_ir = 'ptrtoint ({0} {1} to {2})'.format(gep.type, gep.get_reference(), T.cast.int)
-    val = ir.FormattedConstant(T.cast.int, raw_ir)
-
-    if self.metatable:
-      # get these for storing
-      mt_val = self.metatable.emit(module)
-      mt_key = module.metatable_key.initializer
-      mt_column = T.column([mt_key, mt_val, T.ptr(T.column)(None)])
-
-      # compute hash and allocate a column for it
-      mt_idx = str_node('metatable').hash() % HASH_SIZE
-      column_ptr = module.add_global(T.column, name=module.uniq('column'))
-      column_ptr.initializer = mt_column
-
-      ptr.initializer.constant[mt_idx] = column_ptr
-      ptr.initializer = ptr.initializer.type(ptr.initializer.constant)
-
-    # put the i64 in a box
-    box = T.box([T.ityp.table, val, 0])
-    box.source = ptr # save this for later!
-    return box
+    return static_table_alloc(module, module.uniq('table'), metatable=self.metatable)
 
   ptr = module.builder.call(module.extern('rain_new_table'), [])
 
@@ -422,16 +447,6 @@ def emit(self, module):
   raw_ir = 'ptrtoint ({0} {1} to {2})'.format(func.type, func.get_reference(), T.cast.int)
   val = ir.FormattedConstant(T.cast.int, raw_ir)
   return T.box([T.ityp.func, val, T.i32(0)])
-
-@import_node.method
-def emit(self, module):
-  if module.builder: # non-global scope
-    print('Can\'t import modules at non-global scope')
-    sys.exit(1)
-
-  glob = module.add_global(T.box, name=self.name.value + '.exports')
-  glob.linkage = 'available_externally'
-  module[self.name] = glob
 
 @call_node.method
 def emit(self, module):
