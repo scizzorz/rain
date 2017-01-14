@@ -52,7 +52,7 @@ def truthy(module, box):
   not_zero = module.builder.icmp_unsigned('!=', val, T.i64(0))
   return module.builder.and_(not_null, not_zero)
 
-def static_table_put(module, table_ptr, key_node, key, val):
+def static_table_put(module, table_ptr, column_ptr, key_node, key, val):
   table = table_ptr.initializer
 
   # we can only hash things that are known to this compiler (not addresses)
@@ -68,7 +68,6 @@ def static_table_put(module, table_ptr, key_node, key, val):
 
   # compute the hash and allocate a new column for it
   idx = key_node.hash() % HASH_SIZE
-  column_ptr = module.add_global(T.column, name=module.uniq('column'))
   column_ptr.initializer = column
 
   # update the table array and then update the initializer
@@ -99,8 +98,6 @@ def static_table_put(module, table_ptr, key_node, key, val):
       chain.initializer.next = column_ptr
       chain.initializer.key = save
 
-  return column_ptr
-
 # statements
 
 @assn_node.method
@@ -109,14 +106,16 @@ def emit(self, module):
 
   if isinstance(self.lhs, name_node):
     if not module.builder: # global scope
+      column_ptr = module.add_global(T.column, name=module.uniq('column'))
+      ptr = column_ptr.gep([T.i32(0), T.i32(1)])
+      module[self.lhs] = ptr
+
       key_node = str_node(self.lhs.value)
       key = key_node.emit(module)
       val = self.rhs.emit(module)
 
-      column_ptr = static_table_put(module, module.exports.initializer.source, key_node, key, val)
-      ptr = column_ptr.gep([T.i32(0), T.i32(1)])
+      static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, val)
 
-      module[self.lhs] = ptr
       module[self.lhs].col = val
       return
 
@@ -138,7 +137,8 @@ def emit(self, module):
       key = key_node.emit(module)
       val = self.rhs.emit(module)
 
-      static_table_put(module, table_ptr, key_node, key, val)
+      column_ptr = module.add_global(T.column, name=module.uniq('column'))
+      static_table_put(module, table_ptr, column_ptr, key_node, key, val)
       return
 
     table = self.lhs.lhs.emit(module)
@@ -286,7 +286,8 @@ def emit(self, module):
   key = key_node.emit(module)
   val = static_table_from_ptr(module, glob)
 
-  column_ptr = static_table_put(module, module.exports.initializer.source, key_node, key, val)
+  column_ptr = module.add_global(T.column, name=module.uniq('column'))
+  static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, val)
   ptr = column_ptr.gep([T.i32(0), T.i32(1)])
 
   module[rename] = ptr

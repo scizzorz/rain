@@ -1,0 +1,10 @@
+# recursion sample
+
+fib = func(n)
+  if n <= 1
+    return 1
+
+  return fib(n-1) + fib(n-2)
+
+main = func()
+  print fib(10)
