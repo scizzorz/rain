@@ -53,11 +53,12 @@ def ctx_partial(func, *args, **kwargs):
     yield val
 
 class Module(S.Scope):
-  def __init__(self, name):
+  def __init__(self, file):
     S.Scope.__init__(self)
 
-    self.name = name
-    self.llvm = ir.Module(name=self.name)
+    self.file = file
+    self.qname, self.mname = Module.find_name(self.file)
+    self.llvm = ir.Module(name=self.qname)
     self.llvm.triple = binding.get_default_triple()
 
     self.entry = None
@@ -74,7 +75,7 @@ class Module(S.Scope):
     return str(self.llvm)
 
   def __str__(self):
-    return 'Module {!r}'.format(self.name)
+    return 'Module {!r}'.format(self.qname)
 
   def __repr__(self):
     return '<{!s}>'.format(self)
@@ -188,11 +189,26 @@ class Module(S.Scope):
     path, name = os.path.split(src)
     fname, ext = os.path.splitext(name)
 
-    return Module.normalize_name(fname)
+    if fname == '_pkg':
+      _, fname = os.path.split(path)
+
+    mname = Module.normalize_name(fname)
+
+    proot = []
+    while os.path.isfile(os.path.join(path, '_pkg.rn')):
+      path, name = os.path.split(path)
+      proot.insert(0, Module.normalize_name(name))
+
+    if not src.endswith('_pkg.rn'):
+      proot.append(mname)
+
+    qname = '.'.join(proot)
+
+    return (qname, mname)
 
   # mangle a name
   def mangle(self, name):
-    return self.name + '.' + name
+    return self.qname + '.' + name
 
   # generate a unique name
   def uniq(self, name):

@@ -34,8 +34,8 @@ def get_compiler(src, target=None, main=False, quiet=False):
 class Compiler:
   def __init__(self, file, target=None, main=False, quiet=False):
     self.file = file
-    self.name = M.Module.find_name(file)
-    self.target = target or self.name
+    self.qname, self.mname = M.Module.find_name(file)
+    self.target = target or self.mname
     self.main = main
     self.quiet = quiet
     self.ll = None
@@ -48,7 +48,7 @@ class Compiler:
   @contextmanager
   def okay(self, fmt, *args):
     msg = fmt.format(*args)
-    self.print('{:>10} [{}]...'.format(msg, C(self.name, 'green')))
+    self.print('{:>10} [{}]...'.format(msg, C(self.qname, 'green')))
     try:
       yield
     except Exception as e:
@@ -76,7 +76,7 @@ class Compiler:
     self.ast = P.program(context)
 
   def emit(self):
-    self.mod = M.Module(self.name)
+    self.mod = M.Module(self.file)
     imports = self.ast.emit(self.mod)
     self.links = set()
 
@@ -98,7 +98,7 @@ class Compiler:
       self.ast.emit_main(self.mod)
 
   def write(self):
-    handle, tmp_name = tempfile.mkstemp(prefix=self.name+'.', suffix='.ll')
+    handle, tmp_name = tempfile.mkstemp(prefix=self.qname+'.', suffix='.ll')
     with os.fdopen(handle, 'w') as tmp:
       tmp.write(self.mod.ir)
 

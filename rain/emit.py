@@ -1,5 +1,6 @@
 from . import token as K
 from . import types as T
+from . import module as M
 from .ast import *
 from collections import OrderedDict
 from llvmlite import ir
@@ -270,25 +271,31 @@ def emit(self, module):
     print('Can\'t import modules at non-global scope')
     sys.exit(1)
 
-  glob = module.add_global(T.box, name=self.name.value + '.exports.table')
+  file = M.Module.find_file(self.name.value)
+  if not file:
+    raise Exception('Unable to find module {!r}'.format(self.name.value))
+
+  qname, mname = M.Module.find_name(file)
+
+  glob = module.add_global(T.box, name=qname + '.exports.table')
   glob.linkage = 'available_externally'
 
-  key_node = str_node(self.name.value)
+  key_node = str_node(mname)
   key = key_node.emit(module)
   val = static_table_from_ptr(module, glob)
 
   column_ptr = static_table_put(module, module.exports.initializer.source, key_node, key, val)
   ptr = column_ptr.gep([T.i32(0), T.i32(1)])
 
-  module[self.name] = ptr
-  module[self.name].col = val
+  module[mname] = ptr
+  module[mname].col = val
 
 # expressions
 
 @name_node.method
 def emit(self, module):
   if self.value not in module:
-    raise Exception('Unknown {!r}'.format(self.value))
+    raise Exception('Unknown name {!r}'.format(self.value))
 
   if not module.builder: # global scope
     return module[self.value].col
@@ -571,7 +578,6 @@ def emit(self, module):
   func_i64 = module.builder.ptrtoint(func, T.i64)
 
   return module.builder.insert_value(T.box([T.ityp.func, T.i64(0), T.i32(0)]), func_i64, 1)
-
 
 @binary_node.method
 def emit(self, module):
