@@ -271,24 +271,26 @@ def emit(self, module):
     print('Can\'t import modules at non-global scope')
     sys.exit(1)
 
-  file = M.Module.find_file(self.name.value)
+  file = M.Module.find_file(self.name)
   if not file:
-    raise Exception('Unable to find module {!r}'.format(self.name.value))
+    raise Exception('Unable to find module {!r}'.format(self.name))
 
   qname, mname = M.Module.find_name(file)
 
   glob = module.add_global(T.box, name=qname + '.exports.table')
   glob.linkage = 'available_externally'
 
-  key_node = str_node(mname)
+  rename = self.rename or mname
+
+  key_node = str_node(rename)
   key = key_node.emit(module)
   val = static_table_from_ptr(module, glob)
 
   column_ptr = static_table_put(module, module.exports.initializer.source, key_node, key, val)
   ptr = column_ptr.gep([T.i32(0), T.i32(1)])
 
-  module[mname] = ptr
-  module[mname].col = val
+  module[rename] = ptr
+  module[rename].col = val
 
 # expressions
 

@@ -81,7 +81,7 @@ class Compiler:
     self.links = set()
 
     for mod in imports:
-      comp = get_compiler(mod.name.value, quiet=self.quiet)
+      comp = get_compiler(mod.name, quiet=self.quiet)
       # comp.links is set to [] after code generation
       # so if it's already non-None, then we don't need to regenerate code, but do need to link
       if comp.links is None:

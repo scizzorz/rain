@@ -121,8 +121,12 @@ def stmt(ctx):
     return if_stmt(ctx)
 
   if ctx.consume(K.keyword_token('import')):
-    name = ctx.require(K.name_token, K.string_token)
-    return A.import_node(name)
+    name = ctx.require(K.name_token, K.string_token).value
+    rename = None
+    if ctx.consume(K.keyword_token('as')):
+      rename = ctx.require(K.name_token).value
+
+    return A.import_node(name, rename)
 
   if ctx.consume(K.keyword_token('for')):
     name = ctx.require(K.name_token)

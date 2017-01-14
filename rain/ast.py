@@ -170,8 +170,9 @@ class extern_node(node):
     return 'extern({!s})'.format(self.name)
 
 class import_node(node):
-  def __init__(self, name):
+  def __init__(self, name, rename=None):
     self.name = name
+    self.rename = rename
 
   def __str__(self):
     return 'import({!s})'.format(self.name)
