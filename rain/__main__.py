@@ -11,8 +11,6 @@ parser.add_argument('-o', '--output', metavar='FILE', default=None,
                     help='Executable file to produce.')
 parser.add_argument('-l', '--lib', metavar='FILE', action='append',
                     help='Extra libraries to compile with.')
-parser.add_argument('-S', '--llvm', metavar='FILE',
-                    help='Stop after code generation and write the LLVM IR to this file.')
 parser.add_argument('file', metavar='FILE', type=str,
                     help='Main source file.')
 
