@@ -79,7 +79,7 @@ class Compiler:
   def emit(self):
     self.mod = M.Module(self.name)
     imports = self.ast.emit(self.mod)
-    self.links = []
+    self.links = set()
 
     for mod in imports:
       comp = get_compiler(mod.name.value, quiet=self.quiet)
@@ -88,7 +88,9 @@ class Compiler:
       if comp.links is None:
         comp.goodies()
 
-      self.links.append(comp.ll)
+      self.links.add(comp.ll)
+      for ll in comp.links:
+        self.links.add(ll)
 
     # only spit out the main if this is the main file
     if self.main:
@@ -105,7 +107,7 @@ class Compiler:
     with self.okay('compiling'):
       core = [os.path.join('lib', x) for x in os.listdir('lib') if x.endswith('.c')]
       clang = os.getenv('CLANG', 'clang')
-      cmd = [clang, '-O2', '-o', self.target, '-lgc', '-lm', self.ll] + core + self.links
+      cmd = [clang, '-O2', '-o', self.target, '-lgc', '-lm', self.ll] + core + list(self.links)
       subprocess.run(cmd)
 
   def run(self):
