@@ -63,6 +63,7 @@ def static_table_put(module, table_ptr, key_node, key, val):
   # get these for storing
   column = T.column([key, val, None])
   column.next = None # for later!
+  column.key = key_node
 
   # compute the hash and allocate a new column for it
   idx = key_node.hash() % HASH_SIZE
@@ -76,14 +77,26 @@ def static_table_put(module, table_ptr, key_node, key, val):
     table_ptr.initializer = table.type(table.constant)
 
   else:
-    # chaining
+    # chain through the list until we find the right key node or the end of the list
     chain = table.constant[idx]
-    while chain.initializer.next is not None:
+    while chain.initializer.next is not None and chain.initializer.key != key_node:
       chain = chain.initializer.next
 
-    chain.initializer.constant[2] = column_ptr
-    chain.initializer = chain.initializer.type(chain.initializer.constant)
-    chain.initializer.next = column_ptr
+    if chain.initializer.key == key_node: # we found the same key node in the list
+      save = chain.initializer.next
+      chain.initializer.constant[1] = val
+
+      chain.initializer = chain.initializer.type(chain.initializer.constant)
+      chain.initializer.next = save
+      chain.initializer.key = key_node
+
+    else: # we never found the same key node, but we did find the end of the list
+      save = chain.initializer.key
+      chain.initializer.constant[2] = column_ptr
+
+      chain.initializer = chain.initializer.type(chain.initializer.constant)
+      chain.initializer.next = column_ptr
+      chain.initializer.key = save
 
   return column_ptr
 
