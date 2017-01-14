@@ -12,33 +12,48 @@ from . import parser as P
 from . import types as T
 from termcolor import colored as C
 
+compilers = {}
+
+# USE THIS to get a new compiler. it fuzzy searches for the source file and also prevents
+# multiple compilers from being made for the same file
+def get_compiler(src, target=None, main=False):
+  if os.path.isfile(src + '.rn'):
+    file = src + '.rn'
+
+  elif os.path.isfile(src):
+    file = src
+
+  abspath = os.path.abspath(file)
+
+  if abspath not in compilers:
+    compilers[abspath] = Compiler(file, target, main)
+
+  return compilers[abspath]
+
+
 class Compiler:
-  def __init__(self, src, target=None):
-    self.src = src
-    self.name = M.Module.find_name(src)
+  def __init__(self, file, target=None, main=False):
+    self.file = file
+    self.name = M.Module.find_name(file)
     self.target = target or self.name
+    self.main = main
+    self.ll = None
+    self.links = None
 
   def goodies(self):
-    self.search()
+    # do everything but compile
     self.read()
     self.lex()
     self.parse()
     self.emit()
-    return self.write()
-
-  def search(self):
-    if os.path.isfile(self.src + '.rn'):
-      self.file = self.src + '.rn'
-
-    elif os.path.isfile(self.src):
-      self.file = self.src
+    self.write()
 
   def read(self):
     with open(self.file) as tmp:
-      self.code = tmp.read()
+      self.src = tmp.read()
 
   def lex(self):
-    self.stream = L.stream(self.code)
+    self.stream = L.stream(self.src)
 
   def parse(self):
     context = P.context(self.stream, file=self.file)
@@ -46,14 +61,20 @@ class Compiler:
 
   def emit(self):
     self.mod = M.Module(self.name)
-    self.links = []
     imports = self.ast.emit(self.mod)
+    self.links = []
 
     for mod in imports:
-      comp = Compiler(mod.name.value)
-      self.links.append(comp.goodies())
+      comp = get_compiler(mod.name.value)
+      # comp.links is set to [] after code generation
+      # so if it's already non-None, then we don't need to regenerate code, but do need to link
+      if comp.links is None:
+        comp.goodies()
 
-    if 'main' in self.mod:
+      self.links.append(comp.ll)
+
+    # only spit out the main if this is the main file
+    if self.main:
       self.ast.emit_main(self.mod)
 
   def write(self):
@@ -62,7 +83,6 @@ class Compiler:
       tmp.write(self.mod.ir)
 
     self.ll = tmp_name
-    return self.ll
 
   def compile(self):
     core = [os.path.join('lib', x) for x in os.listdir('lib') if x.endswith('.c')]

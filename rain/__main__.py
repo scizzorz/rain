@@ -18,7 +18,7 @@ parser.add_argument('file', metavar='FILE', type=str,
 
 args = parser.parse_args()
 
-comp = C.Compiler(args.file, args.output)
+comp = C.get_compiler(args.file, target=args.output, main=True)
 comp.goodies()
 comp.compile()
 
