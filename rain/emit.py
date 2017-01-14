@@ -15,6 +15,9 @@ def emit(self, module):
   module.metatable_key = module.add_global(T.box)
   module.metatable_key.initializer = str_node('metatable').emit(module)
 
+  module.exports = module.add_global(T.box)
+  module.exports.initializer = table_node().emit(module)
+
   for stmt in self.stmts:
     stmt.emit(module)
 
@@ -42,6 +45,42 @@ def truthy(module, box):
   not_zero = module.builder.icmp_unsigned('!=', val, T.i64(0))
   return module.builder.and_(not_null, not_zero)
 
+def static_table_put(module, table_ptr, key_node, key, val):
+  table = table_ptr.initializer
+
+  # we can only hash things that are known to this compiler (not addresses)
+  if not isinstance(key_node, literal_node):
+    print('Unable to hash {!s}'.format(key_node))
+    sys.exit(1)
+    return
+
+  # get these for storing
+  column = T.column([key, val, None])
+  column.next = None # for later!
+
+  # compute the hash and allocate a new column for it
+  idx = key_node.hash() % HASH_SIZE
+  column_ptr = module.add_global(T.column, name=module.uniq('column'))
+  column_ptr.initializer = column
+
+  # update the table array and then update the initializer
+  if not isinstance(table.constant[idx], ir.GlobalVariable):
+    # no chain
+    table.constant[idx] = column_ptr
+    table_ptr.initializer = table.type(table.constant)
+
+  else:
+    # chaining
+    chain = table.constant[idx]
+    while chain.initializer.next is not None:
+      chain = chain.initializer.next
+
+    chain.initializer.constant[2] = column_ptr
+    chain.initializer = chain.initializer.type(chain.initializer.constant)
+    chain.initializer.next = column_ptr
+
+  return column_ptr
+
 # statements
 
 @assn_node.method
@@ -50,11 +89,12 @@ def emit(self, module):
 
   if isinstance(self.lhs, name_node):
     if not module.builder: # global scope
-      key = str_node(self.lhs.value).emit(module)
+      key_node = str_node(self.lhs.value)
+      key = key_node.emit(module)
       val = self.rhs.emit(module)
-      column = module.add_global(T.column)
-      column.initializer = T.column([key, val, None])
-      ptr = column.gep([T.i32(0), T.i32(1)])
+
+      column_ptr = static_table_put(module, module.exports.initializer.source, key_node, key, val)
+      ptr = column_ptr.gep([T.i32(0), T.i32(1)])
 
       module[self.lhs] = ptr
       module[self.lhs].col = val
@@ -74,42 +114,11 @@ def emit(self, module):
   elif isinstance(self.lhs, idx_node):
     if not module.builder: # global scope
       table_ptr = module[self.lhs.lhs].col.source
-      table = table_ptr.initializer
       key_node = self.lhs.rhs
-
-      # we can only hash things that are known to this compiler (not addresses)
-      if not isinstance(key_node, literal_node):
-        print('Unable to hash {!s}'.format(key_node))
-        sys.exit(1)
-        return
-
-      # get these for storing
-      key = self.lhs.rhs.emit(module)
+      key = key_node.emit(module)
       val = self.rhs.emit(module)
-      column = T.column([key, val, None])
-      column.next = None # for later!
 
-      # compute the hash and allocate a new column for it
-      idx = key_node.hash() % HASH_SIZE
-      column_ptr = module.add_global(T.column, name=module.uniq('column'))
-      column_ptr.initializer = column
-
-      # update the table array and then update the initializer
-      if not isinstance(table.constant[idx], ir.GlobalVariable):
-        # no chain
-        table.constant[idx] = column_ptr
-        table_ptr.initializer = table.type(table.constant)
-
-      else:
-        # chaining
-        chain = table.constant[idx]
-        while chain.initializer.next is not None:
-          chain = chain.initializer.next
-
-        chain.initializer.constant[2] = column_ptr
-        chain.initializer = chain.initializer.type(chain.initializer.constant)
-        chain.initializer.next = column_ptr
-
+      static_table_put(module, table_ptr, key_node, key, val)
       return
 
     table = self.lhs.lhs.emit(module)
