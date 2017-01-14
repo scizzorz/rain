@@ -1,0 +1,17 @@
+# a strange iterator + for example
+
+range = func(n)
+  let i = 0
+  return func()
+    if i == n
+      return
+
+    let t = i
+    i = i + 1
+    return t
+
+main = func()
+  for i in range(20)
+    continue if i == 4
+    break if i == 8
+    print i

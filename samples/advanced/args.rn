@@ -1,0 +1,16 @@
+# arguments are copied by value (but tables are references!)
+swap = func(a, b)
+  let c = a
+  a = b
+  b = c
+  print a
+  print b
+
+main = func()
+  let a = 1
+  let b = 2
+  print a
+  print b
+  swap(a, b)
+  print a
+  print b

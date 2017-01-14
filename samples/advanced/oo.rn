@@ -1,0 +1,26 @@
+# a trivial OO example using metatables
+
+rect = table
+rect.new = func(self)
+  return table from self   # a new instance of this object
+
+rect.init = func(self, w, h)
+  self.w = w
+  self.h = h
+
+rect.area = func(self)
+  return self.w * self.h
+
+square = table from rect    # inherits from rect
+square.init = func(self, s) # overrides rect.init
+  self.w = s
+  self.h = s
+
+main = func()
+  let a = rect:new()
+  a:init(3, 4)
+  print a:area()
+
+  let b = square:new()
+  b:init(4)
+  print b:area()
