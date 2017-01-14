@@ -15,7 +15,7 @@ def emit(self, module):
   module.metatable_key = module.add_global(T.box)
   module.metatable_key.initializer = str_node('metatable').emit(module)
 
-  module.exports = module.add_global(T.box)
+  module.exports = module.add_global(T.box, name=module.mangle('exports'))
   module.exports.initializer = table_node().emit(module)
 
   for stmt in self.stmts:
@@ -416,6 +416,16 @@ def emit(self, module):
   raw_ir = 'ptrtoint ({0} {1} to {2})'.format(func.type, func.get_reference(), T.cast.int)
   val = ir.FormattedConstant(T.cast.int, raw_ir)
   return T.box([T.ityp.func, val, T.i32(0)])
+
+@import_node.method
+def emit(self, module):
+  if module.builder: # non-global scope
+    print('Can\'t import modules at non-global scope')
+    sys.exit(1)
+
+  glob = module.add_global(T.box, name=self.name.value + '.exports')
+  glob.linkage = 'available_externally'
+  module[self.name] = glob
 
 @call_node.method
 def emit(self, module):

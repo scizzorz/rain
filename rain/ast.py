@@ -169,6 +169,13 @@ class extern_node(node):
   def __str__(self):
     return 'extern({!s})'.format(self.name)
 
+class import_node(node):
+  def __init__(self, name):
+    self.name = name
+
+  def __str__(self):
+    return 'import({!s})'.format(self.name)
+
 class func_node(node):
   def __init__(self, params, body):
     self.params = params
