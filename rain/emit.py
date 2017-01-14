@@ -249,11 +249,11 @@ def emit(self, module):
 
   # set up the return pointer
   ret_ptr = module[self.name] =  module.builder.alloca(T.box, name='for_var')
-  module.builder.store(T.box(None), ret_ptr)
 
   with module.add_loop() as (before, loop):
     with before:
       # call our function and break if it returns null
+      module.builder.store(T.box(None), ret_ptr)
       module.builder.call(func_ptr, [ret_ptr])
       box = module.builder.load(ret_ptr)
       typ = module.builder.extract_value(box, 0)
@@ -523,6 +523,55 @@ def emit(self, module):
   ret = module.builder.load(ret_ptr)
 
   return ret
+
+@bind_node.method
+def emit(self, module):
+  if not module.builder: # global scope
+    print('Can\'t bind methods at global scope')
+    sys.exit(1)
+
+  table = self.lhs.emit(module)
+  key = self.rhs.emit(module)
+
+  ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
+  table_ptr = module.builder.alloca(T.box, name='table_ptr')
+  key_ptr = module.builder.alloca(T.box, name='key_ptr')
+
+  module.builder.store(table, table_ptr)
+  module.builder.store(key, key_ptr)
+  module.builder.call(module.extern('rain_get'), [ret_ptr, table_ptr, key_ptr])
+  bind_func_box = module.builder.load(ret_ptr)
+
+  env_typ = T.arr(T.box, 2)
+  typ = T.vfunc(T.ptr(env_typ), T.ptr(T.box))
+  func = module.add_func(typ)
+  func.args[0].add_attribute('nest')
+  func.args[1].add_attribute('sret')
+
+  with module.add_func_body(func):
+    func_ptr = module.builder.gep(func.args[0], [T.i32(0), T.i32(0)])
+    self_ptr = module.builder.gep(func.args[0], [T.i32(0), T.i32(1)])
+
+    func_typ = T.vfunc(T.ptr(T.box), T.ptr(T.box))
+    real_func_box = module.builder.load(func_ptr)
+    real_func = module.builder.extract_value(real_func_box, 1)
+    real_func_ptr = module.builder.inttoptr(real_func, T.ptr(func_typ))
+
+    module.builder.call(real_func_ptr, [func.args[1], self_ptr])
+    module.builder.ret_void()
+
+  env_raw_ptr = module.builder.call(module.extern('GC_malloc'), [T.i32(BOX_SIZE * 2)])
+  env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
+  env_val = env_typ(None)
+  env_val = module.builder.insert_value(env_val, bind_func_box, 0)
+  env_val = module.builder.insert_value(env_val, table, 1)
+  module.builder.store(env_val, env_ptr)
+
+  func = module.add_tramp(func, env_ptr)
+  func_i64 = module.builder.ptrtoint(func, T.i64)
+
+  return module.builder.insert_value(T.box([T.ityp.func, T.i64(0), T.i32(0)]), func_i64, 1)
+
 
 @binary_node.method
 def emit(self, module):

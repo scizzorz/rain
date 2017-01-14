@@ -201,6 +201,14 @@ class meth_node(node):
   def __str__(self):
     return '{!s}:{!s}({!s})'.format(self.lhs, self.rhs, ', '.join(str(x) for x in self.args))
 
+class bind_node(node):
+  def __init__(self, lhs, rhs):
+    self.lhs = lhs
+    self.rhs = rhs
+
+  def __str__(self):
+    return '{!s}:{!s}'.format(self.lhs, self.rhs)
+
 class is_node(node):
   def __init__(self, lhs, typ):
     self.lhs = lhs
