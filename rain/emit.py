@@ -123,7 +123,8 @@ def emit(self, module):
     rhs = self.rhs.emit(module)
 
     if self.let:
-      module[self.lhs] = module.builder.alloca(T.box)
+      with module.builder.goto_entry_block():
+        module[self.lhs] = module.builder.alloca(T.box)
 
     if self.lhs not in module:
       raise Exception('Undeclared {!r}'.format(self.lhs))
@@ -145,9 +146,10 @@ def emit(self, module):
     key = self.lhs.rhs.emit(module)
     val = self.rhs.emit(module)
 
-    table_ptr = module.builder.alloca(T.box, name='table_ptr')
-    key_ptr = module.builder.alloca(T.box, name='key_ptr')
-    val_ptr = module.builder.alloca(T.box, name='val_ptr')
+    with module.builder.goto_entry_block():
+      table_ptr = module.builder.alloca(T.box, name='table_ptr')
+      key_ptr = module.builder.alloca(T.box, name='key_ptr')
+      val_ptr = module.builder.alloca(T.box, name='val_ptr')
 
     module.builder.store(table, table_ptr)
     module.builder.store(key, key_ptr)
@@ -216,8 +218,10 @@ def emit(self, module):
 
 @print_node.method
 def emit(self, module):
+  with module.builder.goto_entry_block():
+    val_ptr = module.builder.alloca(T.box, name='val_ptr')
+
   val = self.value.emit(module)
-  val_ptr = module.builder.alloca(T.box, name='val_ptr')
   module.builder.store(val, val_ptr)
   module.builder.call(module.extern('rain_print'), [val_ptr])
 
@@ -249,7 +253,8 @@ def emit(self, module):
   func_ptr = module.builder.inttoptr(func_raw, T.ptr(T.vfunc(T.ptr(T.box))), name='for_func_ptr')
 
   # set up the return pointer
-  ret_ptr = module[self.name] =  module.builder.alloca(T.box, name='for_var')
+  with module.builder.goto_entry_block():
+    ret_ptr = module[self.name] =  module.builder.alloca(T.box, name='for_var')
 
   with module.add_loop() as (before, loop):
     with before:
@@ -311,12 +316,13 @@ def emit(self, module):
     print('Can\'t index at global scope') # TODO eventually, you can
     sys.exit(1)
 
+  with module.builder.goto_entry_block():
+    ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
+    table_ptr = module.builder.alloca(T.box, name='table_ptr')
+    key_ptr = module.builder.alloca(T.box, name='key_ptr')
+
   table = self.lhs.emit(module)
   key = self.rhs.emit(module)
-
-  ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
-  table_ptr = module.builder.alloca(T.box, name='table_ptr')
-  key_ptr = module.builder.alloca(T.box, name='key_ptr')
 
   module.builder.store(table, table_ptr)
   module.builder.store(key, key_ptr)
@@ -395,7 +401,10 @@ def emit(self, module):
 
   if self.metatable:
     val = self.metatable.emit(module)
-    val_ptr = module.builder.alloca(T.box, name='key_ptr')
+
+    with module.builder.goto_entry_block():
+      val_ptr = module.builder.alloca(T.box, name='key_ptr')
+
     module.builder.store(val, val_ptr)
     module.builder.call(module.extern('rain_put'), [ptr, module.metatable_key, val_ptr])
 
@@ -477,15 +486,17 @@ def emit(self, module):
     print('Can\'t call functions at global scope')
     sys.exit(1)
 
+  with module.builder.goto_entry_block():
+    arg_ptrs = [module.builder.alloca(T.box) for arg in self.args]
+    ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
+
   func_box = self.func.emit(module)
   arg_boxes = [arg.emit(module) for arg in self.args]
-  arg_ptrs = [module.builder.alloca(T.box) for arg in arg_boxes]
 
+  module.builder.store(T.box(None), ret_ptr)
   for box, ptr in zip(arg_boxes, arg_ptrs):
     module.builder.store(box, ptr)
 
-  ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
-  module.builder.store(T.box(None), ret_ptr)
 
   func = module.builder.extract_value(func_box, 1, name='func')
   func_ptr = module.builder.inttoptr(func, T.ptr(T.vfunc(T.ptr(T.box), *[T.ptr(T.box) for arg in arg_ptrs])))
@@ -501,12 +512,13 @@ def emit(self, module):
     print('Can\'t call methods at global scope')
     sys.exit(1)
 
+  with module.builder.goto_entry_block():
+    ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
+    table_ptr = module.builder.alloca(T.box, name='table_ptr')
+    key_ptr = module.builder.alloca(T.box, name='key_ptr')
+
   table = self.lhs.emit(module)
   key = self.rhs.emit(module)
-
-  ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
-  table_ptr = module.builder.alloca(T.box, name='table_ptr')
-  key_ptr = module.builder.alloca(T.box, name='key_ptr')
 
   module.builder.store(table, table_ptr)
   module.builder.store(key, key_ptr)
@@ -515,16 +527,18 @@ def emit(self, module):
 
   #
 
-  arg_boxes = [arg.emit(module) for arg in self.args]
-  arg_ptrs = [module.builder.alloca(T.box) for arg in arg_boxes]
+  with module.builder.goto_entry_block():
+    arg_ptrs = [module.builder.alloca(T.box) for arg in self.args]
+    ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
 
+  arg_boxes = [arg.emit(module) for arg in self.args]
+
+  module.builder.store(T.box(None), ret_ptr)
   for box, ptr in zip(arg_boxes, arg_ptrs):
     module.builder.store(box, ptr)
 
-  arg_ptrs = [table_ptr] + arg_ptrs
 
-  ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
-  module.builder.store(T.box(None), ret_ptr)
+  arg_ptrs = [table_ptr] + arg_ptrs
 
   func = module.builder.extract_value(func_box, 1, name='func')
   func_ptr = module.builder.inttoptr(func, T.ptr(T.vfunc(T.ptr(T.box), *[T.ptr(T.box) for arg in arg_ptrs])))
@@ -540,12 +554,13 @@ def emit(self, module):
     print('Can\'t bind methods at global scope')
     sys.exit(1)
 
+  with module.builder.goto_entry_block():
+    ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
+    table_ptr = module.builder.alloca(T.box, name='table_ptr')
+    key_ptr = module.builder.alloca(T.box, name='key_ptr')
+
   table = self.lhs.emit(module)
   key = self.rhs.emit(module)
-
-  ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
-  table_ptr = module.builder.alloca(T.box, name='table_ptr')
-  key_ptr = module.builder.alloca(T.box, name='key_ptr')
 
   module.builder.store(table, table_ptr)
   module.builder.store(key, key_ptr)
@@ -604,11 +619,14 @@ def emit(self, module):
     '$': 'rain_string_concat',
   }
 
+  with module.builder.goto_entry_block():
+    lhs_ptr = module.builder.alloca(T.box, name='lhs_ptr')
+    rhs_ptr = module.builder.alloca(T.box, name='rhs_ptr')
+    ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
+
   lhs = self.lhs.emit(module)
   rhs = self.rhs.emit(module)
-  lhs_ptr = module.builder.alloca(T.box, name='lhs_ptr')
-  rhs_ptr = module.builder.alloca(T.box, name='rhs_ptr')
-  ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
+
   module.builder.store(lhs, lhs_ptr)
   module.builder.store(rhs, rhs_ptr)
   module.builder.store(T.box(None), ret_ptr)
@@ -626,9 +644,11 @@ def emit(self, module):
     '!': 'rain_not',
   }
 
+  with module.builder.goto_entry_block():
+    val_ptr = module.builder.alloca(T.box, name='val_ptr')
+    ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
+
   val = self.val.emit(module)
-  val_ptr = module.builder.alloca(T.box, name='val_ptr')
-  ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
   module.builder.store(val, val_ptr)
   module.builder.store(T.box(None), ret_ptr)
   module.builder.call(module.extern(arith[self.op]), [ret_ptr, val_ptr])
