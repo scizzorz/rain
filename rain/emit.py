@@ -324,6 +324,7 @@ def emit(self, module):
   table = self.lhs.emit(module)
   key = self.rhs.emit(module)
 
+  module.builder.store(T.box(None), ret_ptr)
   module.builder.store(table, table_ptr)
   module.builder.store(key, key_ptr)
   module.builder.call(module.extern('rain_get'), [ret_ptr, table_ptr, key_ptr])
@@ -520,6 +521,7 @@ def emit(self, module):
   table = self.lhs.emit(module)
   key = self.rhs.emit(module)
 
+  module.builder.store(T.box(None), ret_ptr)
   module.builder.store(table, table_ptr)
   module.builder.store(key, key_ptr)
   module.builder.call(module.extern('rain_get'), [ret_ptr, table_ptr, key_ptr])
@@ -562,6 +564,7 @@ def emit(self, module):
   table = self.lhs.emit(module)
   key = self.rhs.emit(module)
 
+  module.builder.store(T.box(None), ret_ptr)
   module.builder.store(table, table_ptr)
   module.builder.store(key, key_ptr)
   module.builder.call(module.extern('rain_get'), [ret_ptr, table_ptr, key_ptr])
