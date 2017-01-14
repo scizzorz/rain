@@ -495,7 +495,8 @@ void rain_set_strcpy(box *ret, const char *s, int size) {
   ret->type = ITYP_STR;
   ret->data.s = GC_malloc(size + 1);
   ret->size = size;
-  memcpy(ret->data.s, s, size + 1);
+  memcpy(ret->data.s, s, size);
+  ret->data.s[size] = 0;
 }
 
 void rain_set_table(box *ret) {
