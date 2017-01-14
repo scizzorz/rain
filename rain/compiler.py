@@ -11,12 +11,13 @@ from . import module as M
 from . import parser as P
 from . import types as T
 from termcolor import colored as C
+from contextlib import contextmanager
 
 compilers = {}
 
 # USE THIS to get a new compiler. it fuzzy searches for the source file and also prevents
 # multiple compilers from being made for the same file
-def get_compiler(src, target=None, main=False):
+def get_compiler(src, target=None, main=False, quiet=False):
   if os.path.isfile(src + '.rn'):
     file = src + '.rn'
 
@@ -26,27 +27,43 @@ def get_compiler(src, target=None, main=False):
   abspath = os.path.abspath(file)
 
   if abspath not in compilers:
-    compilers[abspath] = Compiler(file, target, main)
+    compilers[abspath] = Compiler(file, target, main, quiet)
 
   return compilers[abspath]
 
 
 class Compiler:
-  def __init__(self, file, target=None, main=False):
+  def __init__(self, file, target=None, main=False, quiet=False):
     self.file = file
     self.name = M.Module.find_name(file)
     self.target = target or self.name
     self.main = main
+    self.quiet = quiet
     self.ll = None
     self.links = None
 
+  def print(self, msg, end='\n'):
+    if not self.quiet:
+      print(msg, end=end)
+
+  @contextmanager
+  def okay(self, fmt, *args):
+    msg = fmt.format(*args)
+    self.print('{:>10} [{}]...'.format(msg, C(self.name, 'green')))
+    try:
+      yield
+    except Exception as e:
+      self.print(C('error!', 'red'))
+      raise
+
   def goodies(self):
     # do everything but compile
-    self.read()
-    self.lex()
-    self.parse()
-    self.emit()
-    self.write()
+    with self.okay('building'):
+      self.read()
+      self.lex()
+      self.parse()
+      self.emit()
+      self.write()
 
   def read(self):
     with open(self.file) as tmp:
@@ -65,7 +82,7 @@ class Compiler:
     self.links = []
 
     for mod in imports:
-      comp = get_compiler(mod.name.value)
+      comp = get_compiler(mod.name.value, quiet=self.quiet)
       # comp.links is set to [] after code generation
       # so if it's already non-None, then we don't need to regenerate code, but do need to link
       if comp.links is None:
@@ -85,9 +102,12 @@ class Compiler:
     self.ll = tmp_name
 
   def compile(self):
-    core = [os.path.join('lib', x) for x in os.listdir('lib') if x.endswith('.c')]
-    clang = os.getenv('CLANG', 'clang')
-    subprocess.check_call([clang, '-O2', '-o', self.target, '-lgc', '-lm', self.ll] + core + self.links)
+    with self.okay('compiling'):
+      core = [os.path.join('lib', x) for x in os.listdir('lib') if x.endswith('.c')]
+      clang = os.getenv('CLANG', 'clang')
+      cmd = [clang, '-O2', '-o', self.target, '-lgc', '-lm', self.ll] + core + self.links
+      subprocess.run(cmd)
 
   def run(self):
-    subprocess.check_call([self.target])
+    with self.okay('running'):
+      subprocess.check_call([self.target])
