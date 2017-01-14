@@ -27,17 +27,13 @@ KW_OPERATORS = (
 )
 
 KEYWORDS = (
-  'func', 'return', 'let', 'pass', 'print',
-  'if', 'else', 'while', 'loop', 'until', 'break', 'continue', 'for', 'in',
-  'extern', 'is', 'from', 'import', 'as',
-  #'print', 'import',
-  #'if', 'else',
-  #'for', 'while', 'until', 'loop',
-  #'pass', 'break', 'continue', 'return',
+  'as', 'break', 'continue', 'else', 'extern', 'for', 'from', 'func', 'if',
+  'import', 'in', 'is', 'let', 'loop', 'pass', 'print', 'return', 'until',
+  'while',
 )
 
 TYPES = (
-  'int', 'float', 'bool', 'str', 'data',
+  'bool', 'data', 'float', 'int', 'str',
 )
 
 def factory(data, *, line=None, col=None):
