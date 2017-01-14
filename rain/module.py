@@ -2,6 +2,7 @@ from contextlib import contextmanager
 from llvmlite import binding
 from llvmlite import ir
 import os
+import os.path
 import re
 
 from . import types as T
@@ -171,6 +172,15 @@ class Module(S.Scope):
   @staticmethod
   def normalize_name(name):
     return name_chars.sub('', name.lower())
+
+  @staticmethod
+  def find_file(src):
+    if os.path.isfile(src + '.rn'):
+      return src + '.rn'
+    elif os.path.isfile(src):
+      return src
+    elif os.path.isdir(src) and os.path.isfile(os.path.join(src, '_pkg.rn')):
+      return os.path.join(src, '_pkg.rn')
 
   # find a module name
   @staticmethod
