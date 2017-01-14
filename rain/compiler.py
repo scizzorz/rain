@@ -109,7 +109,7 @@ class Compiler:
       core = [os.path.join('lib', x) for x in os.listdir('lib') if x.endswith('.c')]
       clang = os.getenv('CLANG', 'clang')
       cmd = [clang, '-O2', '-o', self.target, '-lgc', '-lm', self.ll] + core + list(self.links)
-      subprocess.run(cmd)
+      subprocess.check_call(cmd)
 
   def run(self):
     with self.okay('running'):
