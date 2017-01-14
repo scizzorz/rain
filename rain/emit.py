@@ -120,16 +120,18 @@ def emit(self, module):
       return
 
     # emit this so a function can't close over its undefined binding
-    rhs = self.rhs.emit(module)
-
     if self.let:
       with module.builder.goto_entry_block():
         module[self.lhs] = module.builder.alloca(T.box)
+        module[self.lhs].bound = False # cheesy hack - see @func_node
+
+    rhs = self.rhs.emit(module)
 
     if self.lhs not in module:
       raise Exception('Undeclared {!r}'.format(self.lhs))
 
     module.builder.store(rhs, module[self.lhs])
+    module[self.lhs].bound = True
 
   elif isinstance(self.lhs, idx_node):
     if not module.builder: # global scope
@@ -456,15 +458,25 @@ def emit(self, module):
   if env:
     env_raw_ptr = module.builder.call(module.extern('GC_malloc'), [T.i32(BOX_SIZE * len(env))])
     env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
-    env_val = env_typ(None)
-    for i, (name, ptr) in enumerate(env.items()):
-      env_val = module.builder.insert_value(env_val, module.builder.load(ptr), i)
-    module.builder.store(env_val, env_ptr)
 
     func = module.add_tramp(func, env_ptr)
     func_i64 = module.builder.ptrtoint(func, T.i64)
+    func_box = module.builder.insert_value(T.box([T.ityp.func, T.i64(0), T.i32(0)]), func_i64, 1)
 
-    return module.builder.insert_value(T.box([T.ityp.func, T.i64(0), T.i32(0)]), func_i64, 1)
+    env_val = env_typ(None)
+
+    for i, (name, ptr) in enumerate(env.items()):
+      # cheesy hack - the only time any of these values will ever
+      # have a bound value of False will be when it's the item
+      # currently being bound, ie, it's this function
+      if getattr(ptr, 'bound', None) == False:
+        env_val = module.builder.insert_value(env_val, func_box, i)
+      else:
+        env_val = module.builder.insert_value(env_val, module.builder.load(ptr), i)
+
+    module.builder.store(env_val, env_ptr)
+
+    return func_box
 
   #val = func.ptrtoint(T.cast.int)
   # need to bullshit around to get this to work - see llvmlite#229
