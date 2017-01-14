@@ -291,7 +291,7 @@ def emit(self, module):
     raise Exception('Unknown {!r}'.format(self.value))
 
   if not module.builder: # global scope
-    return module[self.value].initializer
+    return module[self.value].col
 
   return module.builder.load(module[self.value])
 
