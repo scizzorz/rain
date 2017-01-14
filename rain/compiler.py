@@ -93,7 +93,9 @@ class Compiler:
         comp.goodies()
 
       self.links.add(comp.ll)
+
       for ll in comp.links:
+        if not ll: continue
         self.links.add(ll)
 
     # only spit out the main if this is the main file
