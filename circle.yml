@@ -3,9 +3,9 @@ machine:
     version: 3.5.1
 dependencies:
   pre:
-    - sudo apt-get install llvm-3.8
+    - sudo apt-get install llvm-3.8 clang-3.8 libgc-dev
     - sudo rm /usr/bin/llvm-config
     - sudo ln -s /usr/bin/llvm-config-3.8 /usr/bin/llvm-config
 test:
   override:
-    - export PYTHONPATH=$(pwd); py.test -rap -v --tb=long --cov=pymask --junit-xml=$CIRCLE_TEST_REPORTS/tests.xml
+    - export PYTHONPATH=$(pwd); export CLANG=$(which clang-3.8); py.test -rap -v --tb=long --cov=pymask --junit-xml=$CIRCLE_TEST_REPORTS/tests.xml
