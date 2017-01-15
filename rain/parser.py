@@ -280,6 +280,12 @@ def simple(ctx):
         params.append(ctx.require(K.name_token))
 
     ctx.require(K.symbol_token(')'))
+
+    # -> quick function
+    if ctx.consume(K.operator_token('->')):
+      exp = expr(ctx)
+      return A.func_node(params, A.return_node(exp))
+
     body = block(ctx)
     return A.func_node(params, body)
 

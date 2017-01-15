@@ -18,6 +18,7 @@ from .token import type_token
 from collections import OrderedDict
 
 OPERATORS = (
+  '->',
   '<=', '>=', '>', '<', '==', '!=',
   '*', '/', '+', '-',
   '&', '|', '!', '$',
