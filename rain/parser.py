@@ -173,6 +173,9 @@ def stmt(ctx):
 
     return A.return_node(expr(ctx))
 
+  if ctx.consume(K.keyword_token('save')):
+    return A.save_node(expr(ctx))
+
   lhs = assn_prefix(ctx)
 
   if ctx.consume(K.symbol_token('=')):

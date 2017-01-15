@@ -96,6 +96,9 @@ class print_node(value_node):
 class return_node(value_node):
   pass
 
+class save_node(value_node):
+  pass
+
 class until_node(node):
   def __init__(self, pred, body):
     self.pred = pred

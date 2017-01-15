@@ -218,6 +218,10 @@ def emit(self, module):
   module.builder.store(ret.emit(module), module.ret_ptr)
   module.builder.ret_void()
 
+@save_node.method
+def emit(self, module):
+  module.builder.store(self.value.emit(module), module.ret_ptr)
+
 @print_node.method
 def emit(self, module):
   with module.builder.goto_entry_block():
@@ -452,7 +456,6 @@ def emit(self, module):
       self.body.emit(module)
 
       if not module.builder.block.is_terminated:
-        module.builder.store(null_node().emit(module), module.ret_ptr)
         module.builder.ret_void()
 
   if env:
