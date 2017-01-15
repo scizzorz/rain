@@ -21,8 +21,8 @@ entry.set_body(ptr(box), ptr(box), ptr(entry))
 
 bin = func(void, [ptr(box), ptr(box), ptr(box)])
 
-def vfunc(*args):
-  return func(void, args)
+def vfunc(*args, var_arg=False):
+  return func(void, args, var_arg=var_arg)
 
 class cast:
   null = i64
