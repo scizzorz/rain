@@ -499,7 +499,7 @@ def emit(self, module):
   func_box = module.builder.load(ptrs[0])
   arg_boxes = [table] + [arg.emit(module) for arg in self.args]
 
-  func = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
+  func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
 
   _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
 
