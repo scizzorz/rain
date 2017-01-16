@@ -214,11 +214,8 @@ def emit(self, module):
 @return_node.method
 def emit(self, module):
   if self.value:
-    ret = self.value
-  else:
-    ret = null_node()
+    module.builder.store(self.value.emit(module), module.ret_ptr)
 
-  module.builder.store(ret.emit(module), module.ret_ptr)
   module.builder.ret_void()
 
 @save_node.method
