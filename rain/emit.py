@@ -120,7 +120,7 @@ def emit(self, module):
 
     # emit this so a function can't close over its undefined binding
     if self.let:
-      with module.builder.goto_entry_block():
+      with module.goto_entry():
         module[self.lhs] = module.builder.alloca(T.box)
         module[self.lhs].bound = False # cheesy hack - see @func_node
 
@@ -241,7 +241,7 @@ def emit(self, module):
   func_ptr = module.get_value(func_box, T.vfunc(T.arg))
 
   # set up the return pointer
-  with module.builder.goto_entry_block():
+  with module.goto_entry():
     ret_ptr = module[self.name] =  module.builder.alloca(T.box, name='for_var')
 
   with module.add_loop() as (before, loop):
@@ -383,7 +383,7 @@ def emit(self, module):
   if self.metatable:
     val = self.metatable.emit(module)
 
-    with module.builder.goto_entry_block():
+    with module.goto_entry():
       val_ptr = module.builder.alloca(T.box, name='key_ptr')
 
     module.builder.store(val, val_ptr)

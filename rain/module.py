@@ -158,6 +158,11 @@ class Module(S.Scope):
     with self.builder.goto_block(block):
       yield
 
+  @contextmanager
+  def goto_entry(self):
+    with self.builder.goto_entry_block():
+      yield
+
   def get_type(self, box):
     return self.builder.extract_value(box, 0)
 
