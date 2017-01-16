@@ -158,6 +158,19 @@ class Module(S.Scope):
     with self.builder.goto_block(block):
       yield
 
+  def get_type(self, box):
+    return self.builder.extract_value(box, 0)
+
+  def get_value(self, box, typ=None):
+    val = self.builder.extract_value(box, 1)
+    if isinstance(typ, T.func):
+      return self.builder.inttoptr(val, T.ptr(typ))
+
+    return val
+
+  def get_size(self, box):
+    return self.builder.extract_value(box, 2)
+
   def fncall(self, fn, *args):
     with self.builder.goto_entry_block():
       ptrs = [self.builder.alloca(T.box) for arg in args]
@@ -166,7 +179,6 @@ class Module(S.Scope):
       self.builder.store(arg, ptr)
 
     return self.builder.call(fn, ptrs), ptrs
-
 
   def add_tramp(self, func_ptr, env_ptr):
     tramp_buf = self.builder.call(self.extern('GC_malloc'), [T.i32(TRAMP_SIZE)])
