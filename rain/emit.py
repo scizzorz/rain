@@ -6,9 +6,6 @@ from collections import OrderedDict
 from llvmlite import ir
 import sys
 
-BOX_SIZE = 24
-HASH_SIZE = 32
-
 # structure
 
 @program_node.method
@@ -66,7 +63,7 @@ def static_table_put(module, table_ptr, column_ptr, key_node, key, val):
   column.key = key_node
 
   # compute the hash and allocate a new column for it
-  idx = key_node.hash() % HASH_SIZE
+  idx = key_node.hash() % T.HASH_SIZE
   column_ptr.initializer = column
 
   # update the table array and then update the initializer
@@ -342,9 +339,9 @@ def emit(self, module):
 
 def static_table_alloc(module, name, metatable=None):
   # make an empty array of column*
-  typ = T.arr(T.ptr(T.column), HASH_SIZE)
+  typ = T.arr(T.ptr(T.column), T.HASH_SIZE)
   ptr = module.add_global(typ, name=name)
-  ptr.initializer = typ([None] * HASH_SIZE)
+  ptr.initializer = typ([None] * T.HASH_SIZE)
   return static_table_from_ptr(module, ptr, metatable)
 
 def static_table_from_ptr(module, ptr, metatable=None):
@@ -361,7 +358,7 @@ def static_table_from_ptr(module, ptr, metatable=None):
     mt_column = T.column([mt_key, mt_val, T.ptr(T.column)(None)])
 
     # compute hash and allocate a column for it
-    mt_idx = str_node('metatable').hash() % HASH_SIZE
+    mt_idx = str_node('metatable').hash() % T.HASH_SIZE
     column_ptr = module.add_global(T.column, name=module.uniq('column'))
     column_ptr.initializer = mt_column
 
@@ -398,19 +395,19 @@ def emit(self, module):
     for nm, ptr in scope.items():
       env[nm] = ptr
 
-  if not env:
-    typ = T.vfunc(T.ptr(T.box), *[T.ptr(T.box) for x in self.params])
-
-    func = module.add_func(typ)
-    func.args[0].add_attribute('sret')
-
-  else:
+  if env:
     env_typ = T.arr(T.box, len(env))
-    typ = T.vfunc(T.ptr(env_typ), T.ptr(T.box), *[T.ptr(T.box) for x in self.params])
+    typ = T.vfunc(T.ptr(env_typ), T.arg, *[T.arg for x in self.params])
 
     func = module.add_func(typ)
     func.args[0].add_attribute('nest')
     func.args[1].add_attribute('sret')
+
+  else:
+    typ = T.vfunc(T.arg, *[T.arg for x in self.params])
+
+    func = module.add_func(typ)
+    func.args[0].add_attribute('sret')
 
   with module:
     with module.add_func_body(func):
@@ -433,7 +430,7 @@ def emit(self, module):
         module.builder.ret_void()
 
   if env:
-    env_raw_ptr = module.builder.call(module.extern('GC_malloc'), [T.i32(BOX_SIZE * len(env))])
+    env_raw_ptr = module.builder.call(module.extern('GC_malloc'), [T.i32(T.BOX_SIZE * len(env))])
     env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
 
     func = module.add_tramp(func, env_ptr)
@@ -520,7 +517,7 @@ def emit(self, module):
   bind_func_box = module.builder.load(ptrs[0])
 
   env_typ = T.arr(T.box, 2)
-  typ = T.vfunc(T.ptr(env_typ), T.ptr(T.box))
+  typ = T.vfunc(T.ptr(env_typ), T.arg)
   func = module.add_func(typ)
   func.args[0].add_attribute('nest')
   func.args[1].add_attribute('sret')
@@ -536,7 +533,7 @@ def emit(self, module):
     module.builder.call(real_func_ptr, [func.args[1], self_ptr])
     module.builder.ret_void()
 
-  env_raw_ptr = module.builder.call(module.extern('GC_malloc'), [T.i32(BOX_SIZE * 2)])
+  env_raw_ptr = module.builder.call(module.extern('GC_malloc'), [T.i32(T.BOX_SIZE * 2)])
   env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
   env_val = env_typ(None)
   env_val = module.builder.insert_value(env_val, bind_func_box, 0)

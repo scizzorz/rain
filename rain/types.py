@@ -1,5 +1,16 @@
 from llvmlite import ir
 
+# indices into a box
+TYPE = 0
+DATA = 1
+SIZE = 2
+
+# sizes of things
+BOX_SIZE = 24
+HASH_SIZE = 32
+TRAMP_SIZE = 72
+
+# all sorts of type aliases
 i8 = ir.IntType(8)
 i32 = ir.IntType(32)
 i64 = ir.IntType(64)
@@ -9,19 +20,18 @@ void = ir.VoidType()
 func = ir.FunctionType
 ptr = ir.PointerType
 arr = ir.ArrayType
-
 box = ir.context.global_context.get_identified_type('box')
-box.set_body(i8, i64, i32)
-
-null = box(None)
+column = ir.context.global_context.get_identified_type('column')
+entry = ir.context.global_context.get_identified_type('entry')
 arg = ptr(box)
 
-column = ir.context.global_context.get_identified_type('column')
+# set struct bodies
+box.set_body(i8, i64, i32)
 column.set_body(box, box, ptr(column))
-
-entry = ir.context.global_context.get_identified_type('entry')
 entry.set_body(ptr(box), ptr(box), ptr(entry))
 
+# constant aliases
+null = box(None)
 bin = func(void, [ptr(box), ptr(box), ptr(box)])
 
 def vfunc(*args, var_arg=False):

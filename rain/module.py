@@ -8,7 +8,6 @@ import re
 from . import types as T
 from . import scope as S
 
-TRAMP_SIZE = 72
 
 name_chars = re.compile('[^a-z0-9]')
 
@@ -164,17 +163,17 @@ class Module(S.Scope):
       yield
 
   def get_type(self, box):
-    return self.builder.extract_value(box, 0)
+    return self.builder.extract_value(box, T.TYPE)
 
   def get_value(self, box, typ=None):
-    val = self.builder.extract_value(box, 1)
+    val = self.builder.extract_value(box, T.DATA)
     if isinstance(typ, T.func):
       return self.builder.inttoptr(val, T.ptr(typ))
 
     return val
 
   def get_size(self, box):
-    return self.builder.extract_value(box, 2)
+    return self.builder.extract_value(box, T.SIZE)
 
   def fncall(self, fn, *args):
     with self.builder.goto_entry_block():
@@ -186,7 +185,7 @@ class Module(S.Scope):
     return self.builder.call(fn, ptrs), ptrs
 
   def add_tramp(self, func_ptr, env_ptr):
-    tramp_buf = self.builder.call(self.extern('GC_malloc'), [T.i32(TRAMP_SIZE)])
+    tramp_buf = self.builder.call(self.extern('GC_malloc'), [T.i32(T.TRAMP_SIZE)])
     raw_func_ptr = self.builder.bitcast(func_ptr, T.ptr(T.i8))
     raw_env_ptr = self.builder.bitcast(env_ptr, T.ptr(T.i8))
 
