@@ -31,7 +31,7 @@ def emit(self, module):
 def emit_main(self, module):
   with module.add_main():
     ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
-    module.builder.store(T.box(None), ret_ptr)
+    module.builder.store(T.null, ret_ptr)
 
     box = module.builder.load(module['main'], name='main_box')
     func = module.builder.extract_value(box, 1, name='main_func')
@@ -252,7 +252,7 @@ def emit(self, module):
   with module.add_loop() as (before, loop):
     with before:
       # call our function and break if it returns null
-      module.builder.store(T.box(None), ret_ptr)
+      module.builder.store(T.null, ret_ptr)
       module.builder.call(func_ptr, [ret_ptr])
       box = module.builder.load(ret_ptr)
       typ = module.builder.extract_value(box, 0)
@@ -312,7 +312,7 @@ def emit(self, module):
   table = self.lhs.emit(module)
   key = self.rhs.emit(module)
 
-  _, ptrs = module.fncall(module.extern('rain_get'), T.box(None), table, key)
+  _, ptrs = module.fncall(module.extern('rain_get'), T.null, table, key)
 
   return module.builder.load(ptrs[0])
 
@@ -487,7 +487,7 @@ def emit(self, module):
   func = module.builder.extract_value(func_box, 1, name='func')
   func_ptr = module.builder.inttoptr(func, T.ptr(T.vfunc(T.ptr(T.box), *[T.ptr(T.box) for arg in arg_boxes])))
 
-  _, ptrs = module.fncall(func_ptr, T.box(None), *arg_boxes)
+  _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
 
   return module.builder.load(ptrs[0])
 
@@ -500,7 +500,7 @@ def emit(self, module):
   table = self.lhs.emit(module)
   key = self.rhs.emit(module)
 
-  _, ptrs = module.fncall(module.extern('rain_get'), T.box(None), table, key)
+  _, ptrs = module.fncall(module.extern('rain_get'), T.null, table, key)
 
   func_box = module.builder.load(ptrs[0])
   arg_boxes = [table] + [arg.emit(module) for arg in self.args]
@@ -508,7 +508,7 @@ def emit(self, module):
   func = module.builder.extract_value(func_box, 1, name='func')
   func_ptr = module.builder.inttoptr(func, T.ptr(T.vfunc(T.ptr(T.box), *[T.ptr(T.box) for arg in arg_boxes])))
 
-  _, ptrs = module.fncall(func_ptr, T.box(None), *arg_boxes)
+  _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
 
   return module.builder.load(ptrs[0])
 
@@ -522,7 +522,7 @@ def emit(self, module):
   table = self.lhs.emit(module)
   key = self.rhs.emit(module)
 
-  _, ptrs = module.fncall(module.extern('rain_get'), T.box(None), table, key)
+  _, ptrs = module.fncall(module.extern('rain_get'), T.null, table, key)
 
   bind_func_box = module.builder.load(ptrs[0])
 
@@ -581,7 +581,7 @@ def emit(self, module):
   lhs = self.lhs.emit(module)
   rhs = self.rhs.emit(module)
 
-  _, ptrs = module.fncall(module.extern(arith[self.op]), T.box(None), lhs, rhs)
+  _, ptrs = module.fncall(module.extern(arith[self.op]), T.null, lhs, rhs)
 
   return module.builder.load(ptrs[0])
 
@@ -598,7 +598,7 @@ def emit(self, module):
 
   val = self.val.emit(module)
 
-  _, ptrs = module.fncall(module.extern(arith[self.op]), T.box(None), val)
+  _, ptrs = module.fncall(module.extern(arith[self.op]), T.null, val)
 
   return module.builder.load(ptrs[0])
 
