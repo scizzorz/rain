@@ -14,6 +14,7 @@ box = ir.context.global_context.get_identified_type('box')
 box.set_body(i8, i64, i32)
 
 null = box(None)
+arg = ptr(box)
 
 column = ir.context.global_context.get_identified_type('column')
 column.set_body(box, box, ptr(column))

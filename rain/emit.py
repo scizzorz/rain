@@ -30,15 +30,11 @@ def emit(self, module):
 @program_node.method
 def emit_main(self, module):
   with module.add_main():
-    ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
-    module.builder.store(T.null, ret_ptr)
-
     box = module.builder.load(module['main'], name='main_box')
-    func = module.builder.extract_value(box, 1, name='main_func')
-    func_ptr = module.builder.inttoptr(func, T.ptr(T.vfunc(T.ptr(T.box))), name='main_func_ptr')
-    module.builder.call(func_ptr, [ret_ptr])
+    func_ptr = module.get_value(box, typ=T.vfunc(T.arg))
+    _, ptrs = module.fncall(func_ptr, T.null)
 
-    ret_code = module.builder.call(module.extern('rain_box_to_exit'), [ret_ptr], name='ret_code')
+    ret_code = module.builder.call(module.extern('rain_box_to_exit'), ptrs, name='ret_code')
     module.builder.ret(ret_code);
 
 @block_node.method
@@ -49,8 +45,8 @@ def emit(self, module):
 # helpers
 
 def truthy(module, box):
-  typ = module.builder.extract_value(box, 0)
-  val = module.builder.extract_value(box, 1)
+  typ = module.get_type(box)
+  val = module.get_value(box)
   not_null = module.builder.icmp_unsigned('!=', typ, T.ityp.null)
   not_zero = module.builder.icmp_unsigned('!=', val, T.i64(0))
   return module.builder.and_(not_null, not_zero)
@@ -242,8 +238,7 @@ def emit(self, module):
 def emit(self, module):
   # evaluate the expression and pull out the function pointer
   func_box = self.func.emit(module)
-  func_raw = module.builder.extract_value(func_box, 1, name='for_func')
-  func_ptr = module.builder.inttoptr(func_raw, T.ptr(T.vfunc(T.ptr(T.box))), name='for_func_ptr')
+  func_ptr = module.get_value(func_box, T.vfunc(T.arg))
 
   # set up the return pointer
   with module.builder.goto_entry_block():
@@ -255,7 +250,7 @@ def emit(self, module):
       module.builder.store(T.null, ret_ptr)
       module.builder.call(func_ptr, [ret_ptr])
       box = module.builder.load(ret_ptr)
-      typ = module.builder.extract_value(box, 0)
+      typ = module.get_type(box)
       not_null = module.builder.icmp_unsigned('!=', typ, T.ityp.null)
       module.builder.cbranch(not_null, module.loop, module.after)
 
@@ -484,8 +479,7 @@ def emit(self, module):
   func_box = self.func.emit(module)
   arg_boxes = [arg.emit(module) for arg in self.args]
 
-  func = module.builder.extract_value(func_box, 1, name='func')
-  func_ptr = module.builder.inttoptr(func, T.ptr(T.vfunc(T.ptr(T.box), *[T.ptr(T.box) for arg in arg_boxes])))
+  func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
 
   _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
 
@@ -505,8 +499,7 @@ def emit(self, module):
   func_box = module.builder.load(ptrs[0])
   arg_boxes = [table] + [arg.emit(module) for arg in self.args]
 
-  func = module.builder.extract_value(func_box, 1, name='func')
-  func_ptr = module.builder.inttoptr(func, T.ptr(T.vfunc(T.ptr(T.box), *[T.ptr(T.box) for arg in arg_boxes])))
+  func = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
 
   _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
 
@@ -536,10 +529,9 @@ def emit(self, module):
     func_ptr = module.builder.gep(func.args[0], [T.i32(0), T.i32(0)])
     self_ptr = module.builder.gep(func.args[0], [T.i32(0), T.i32(1)])
 
-    func_typ = T.vfunc(T.ptr(T.box), T.ptr(T.box))
+    func_typ = T.vfunc(T.arg, T.arg)
     real_func_box = module.builder.load(func_ptr)
-    real_func = module.builder.extract_value(real_func_box, 1)
-    real_func_ptr = module.builder.inttoptr(real_func, T.ptr(func_typ))
+    real_func_ptr = module.get_value(real_func_box, typ=func_typ)
 
     module.builder.call(real_func_ptr, [func.args[1], self_ptr])
     module.builder.ret_void()
@@ -609,7 +601,7 @@ def emit(self, module):
     sys.exit(1)
 
   lhs = self.lhs.emit(module)
-  lhs_typ = module.builder.extract_value(lhs, 0)
+  lhs_typ = module.get_type(lhs)
   res = module.builder.icmp_unsigned('==', getattr(T.ityp, self.typ.value), lhs_typ)
   res = module.builder.zext(res, T.i64)
   return module.builder.insert_value(T.box([T.ityp.bool, T.i64(0), T.i32(0)]), res, 1)
