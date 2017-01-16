@@ -30,11 +30,14 @@ def emit(self, module):
 @program_node.method
 def emit_main(self, module):
   with module.add_main():
+    ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
+    module.builder.store(T.box(None), ret_ptr)
+
     box = module.builder.load(module['main'], name='main_box')
     func = module.builder.extract_value(box, 1, name='main_func')
-    ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
     func_ptr = module.builder.inttoptr(func, T.ptr(T.vfunc(T.ptr(T.box))), name='main_func_ptr')
     module.builder.call(func_ptr, [ret_ptr])
+
     ret_code = module.builder.call(module.extern('rain_box_to_exit'), [ret_ptr], name='ret_code')
     module.builder.ret(ret_code);
 
