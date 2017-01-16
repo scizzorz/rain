@@ -158,6 +158,16 @@ class Module(S.Scope):
     with self.builder.goto_block(block):
       yield
 
+  def fncall(self, fn, *args):
+    with self.builder.goto_entry_block():
+      ptrs = [self.builder.alloca(T.box) for arg in args]
+
+    for arg, ptr in zip(args, ptrs):
+      self.builder.store(arg, ptr)
+
+    return self.builder.call(fn, ptrs), ptrs
+
+
   def add_tramp(self, func_ptr, env_ptr):
     tramp_buf = self.builder.call(self.extern('GC_malloc'), [T.i32(TRAMP_SIZE)])
     raw_func_ptr = self.builder.bitcast(func_ptr, T.ptr(T.i8))
@@ -174,6 +184,7 @@ class Module(S.Scope):
   def normalize_name(name):
     return name_chars.sub('', name.lower())
 
+  # find a source file from a module identifier
   @staticmethod
   def find_file(src):
     if os.path.isfile(src + '.rn'):
