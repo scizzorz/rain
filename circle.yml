@@ -8,4 +8,4 @@ dependencies:
     - sudo ln -s /usr/bin/llvm-config-3.8 /usr/bin/llvm-config
 test:
   override:
-    - export PYTHONPATH=$(pwd); export CLANG=$(which clang-3.8); py.test -rap -v --tb=long --cov=pymask --junit-xml=$CIRCLE_TEST_REPORTS/tests.xml
+    - export PYTHONPATH=$(pwd); export RAINLIB=$(pwd)/lib; export CLANG=$(which clang-3.8); py.test -rap -v --tb=long --cov=pymask --junit-xml=$CIRCLE_TEST_REPORTS/tests.xml
