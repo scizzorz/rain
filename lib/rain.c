@@ -345,6 +345,14 @@ void rain_string_concat(box *ret, box *lhs, box *rhs) {
   rain_set_strcpy(ret, cat, length);
 }
 
+void rain_string_length(box *ret, box *str) {
+  if(BOX_ISNT(str, STR)) {
+    return;
+  }
+
+  rain_set_int(ret, str->size);
+}
+
 // table helpers
 
 box* rain_new_table() {
