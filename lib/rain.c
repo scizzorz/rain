@@ -332,7 +332,7 @@ void rain_le(box *ret, box *lhs, box *rhs) {
 // string helpers
 
 void rain_string_concat(box *ret, box *lhs, box *rhs) {
-  if(lhs->type != ITYP_STR || rhs->type != ITYP_STR) {
+  if(BOX_ISNT(lhs, STR) || BOX_ISNT(rhs, STR)) {
     return;
   }
 
