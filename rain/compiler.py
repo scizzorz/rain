@@ -1,19 +1,20 @@
-import os.path
-import subprocess
-import sys
-import tempfile
-import traceback
-from os.path import join
-from os import listdir as ls
-
 from . import ast as A
 from . import emit
 from . import lexer as L
 from . import module as M
 from . import parser as P
 from . import types as T
-from termcolor import colored as C
 from contextlib import contextmanager
+from llvmlite import ir
+from os import environ as ENV
+from os import listdir as ls
+from os.path import join
+from termcolor import colored as C
+import os.path
+import subprocess
+import sys
+import tempfile
+import traceback
 
 compilers = {}
 
@@ -40,7 +41,7 @@ class Compiler:
     self.target = target or self.mname
     self.main = main
     self.quiet = quiet
-    self.lib = os.environ['RAINLIB']
+    self.lib = ENV['RAINLIB']
     self.ll = None
     self.links = None
 
@@ -51,7 +52,7 @@ class Compiler:
   @contextmanager
   def okay(self, fmt, *args):
     msg = fmt.format(*args)
-    self.print('{:>10} [{}]...'.format(msg, C(self.qname, 'green')))
+    self.print('{:>10} {}...'.format(msg, C(self.qname, 'green')))
     try:
       yield
     except Exception as e:
@@ -59,6 +60,10 @@ class Compiler:
       raise
 
   def goodies(self):
+    # don't do this twice
+    if self.links is not None:
+      return
+
     # do everything but compile
     with self.okay('building'):
       self.read()
@@ -80,20 +85,35 @@ class Compiler:
 
   def emit(self):
     self.mod = M.Module(self.file)
-    imports = [mod.name for mod in self.ast.emit(self.mod)]
     self.links = set()
 
-    libs = [join(self.lib, x) for x in ls(self.lib) if x.endswith('.rn')]
+    builtin = get_compiler(join(ENV['RAINLIB'], 'builtin.rn'), quiet=self.quiet)
 
-    for mod in imports + libs:
+    if self is not builtin: # don't try to import builtin into builtin
+      builtin.goodies()
+      self.links.add(builtin.ll)
+
+      # copy builtins into scope
+      for name, val in builtin.mod.globals.items():
+        self.mod[name] = val
+
+      # add LLVM globals
+      for val in builtin.mod.llvm.global_values:
+        if isinstance(val, ir.Function):
+          ir.Function(self.mod.llvm, val.ftype, name=val.name)
+        else:
+          g = ir.GlobalVariable(self.mod.llvm, val.type.pointee, name=val.name)
+          g.linkage = 'available_externally'
+          g.initializer = val.initializer
+
+    # compile the imports
+    imports = [mod.name for mod in self.ast.emit(self.mod)]
+    for mod in imports:
       comp = get_compiler(mod, quiet=self.quiet)
-      # comp.links is set to [] after code generation
-      # so if it's already non-None, then we don't need to regenerate code, but do need to link
-      if comp.links is None:
-        comp.goodies()
+      comp.goodies()
 
+      # add the module's IR as well as all of its imports' IR
       self.links.add(comp.ll)
-
       for ll in comp.links:
         if not ll: continue
         self.links.add(ll)
