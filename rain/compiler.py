@@ -87,7 +87,7 @@ class Compiler:
     self.mod = M.Module(self.file)
     self.links = set()
 
-    builtin = get_compiler(join(ENV['RAINLIB'], 'builtin.rn'), quiet=self.quiet)
+    builtin = get_compiler(ENV['RAINLIB'], quiet=self.quiet)
 
     if self is not builtin: # don't try to import builtin into builtin
       builtin.goodies()
