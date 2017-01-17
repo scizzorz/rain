@@ -19,8 +19,8 @@ square.init = func(self, s) # overrides rect.init
 main = func()
   let a = rect:new()
   a:init(3, 4)
-  print a:area()
+  print(a:area())
 
   let b = square:new()
   b:init(4)
-  print b:area()
+  print(b:area())

@@ -5,7 +5,7 @@ main = func()
   f.ten = 10.0
   f.number = "one"
 
-  print f["one"] # x.y is syntactic sugar for x["y"]
-  print f[f.number]
+  print(f["one"]) # x.y is syntactic sugar for x["y"]
+  print(f[f.number])
 
-  print f.oops # will result in a null
+  print(f.oops) # will result in a null

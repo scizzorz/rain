@@ -2,4 +2,4 @@ main = func()
   let s = "hello"
   let p = "world"
   let sp = s $ " " $ p
-  print sp
+  print(sp)

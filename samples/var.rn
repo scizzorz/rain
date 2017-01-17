@@ -10,4 +10,4 @@ main = func()
   x = 15
   let y = 20
   let z = x + y
-  print z # prints 35
+  print(z) # prints 35

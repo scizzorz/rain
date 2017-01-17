@@ -171,9 +171,6 @@ def stmt(ctx):
 
     return A.cont_node()
 
-  if ctx.consume(K.keyword_token('print')):
-    return A.print_node(expr(ctx))
-
   if ctx.consume(K.keyword_token('return')):
     if ctx.expect(newline):
       return A.return_node()

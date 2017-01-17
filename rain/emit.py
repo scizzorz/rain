@@ -227,11 +227,6 @@ def emit(self, module):
 def emit(self, module):
   pass
 
-@print_node.method
-def emit(self, module):
-  val = self.value.emit(module)
-  module.fncall(module.extern('rain_print'), val)
-
 @return_node.method
 def emit(self, module):
   if self.value:

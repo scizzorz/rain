@@ -90,9 +90,6 @@ class loop_node(node):
 class pass_node(node):
   pass
 
-class print_node(value_node):
-  pass
-
 class return_node(value_node):
   pass
 
