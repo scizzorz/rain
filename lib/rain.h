@@ -1,3 +1,6 @@
+#ifndef RAIN_H
+#define RAIN_H
+
 #include <gc.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -84,3 +87,5 @@ void rain_set_strcpy(box *, const char *, int);
 void rain_set_table(box *);
 void rain_set_func(box *, void *);
 void rain_set_cdata(box *, void *);
+
+#endif
