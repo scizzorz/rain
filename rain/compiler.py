@@ -21,12 +21,7 @@ compilers = {}
 # USE THIS to get a new compiler. it fuzzy searches for the source file and also prevents
 # multiple compilers from being made for the same file
 def get_compiler(src, target=None, main=False, quiet=False):
-  file = M.Module.find_file(src)
-
-  if not file:
-    raise Exception('Unable to find module {!r}'.format(src))
-
-  abspath = os.path.abspath(file)
+  abspath = os.path.abspath(src)
 
   if abspath not in compilers:
     compilers[abspath] = Compiler(abspath, target, main, quiet)
@@ -87,7 +82,7 @@ class Compiler:
     self.mod = M.Module(self.file)
     self.links = set()
 
-    builtin = get_compiler(ENV['RAINLIB'], quiet=self.quiet)
+    builtin = get_compiler(join(ENV['RAINLIB'], '_pkg.rn'), quiet=self.quiet)
 
     if self is not builtin: # don't try to import builtin into builtin
       builtin.goodies()
@@ -107,7 +102,7 @@ class Compiler:
           g.initializer = val.initializer
 
     # compile the imports
-    imports = [mod.name for mod in self.ast.emit(self.mod)]
+    imports = self.ast.emit(self.mod)
     for mod in imports:
       comp = get_compiler(mod, quiet=self.quiet)
       comp.goodies()

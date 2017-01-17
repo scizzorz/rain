@@ -4,6 +4,7 @@ import sys
 import traceback
 
 from . import compiler as C
+from . import module as M
 
 parser = argparse.ArgumentParser(description='Compile Rain code.')
 parser.add_argument('-r', '--run', action='store_true',
@@ -21,7 +22,10 @@ args = parser.parse_args()
 
 os.environ['RAINHOME'] = os.path.normpath(os.path.join(sys.argv[0], '../../'))
 os.environ['RAINLIB'] = os.path.join(os.environ['RAINHOME'], 'lib')
-comp = C.get_compiler(args.file, target=args.output, main=True, quiet=args.quiet)
+src = M.Module.find_file(args.file)
+if not src:
+  raise Exception('Unable to find module {!r}'.format(args.file))
+comp = C.get_compiler(src, target=args.output, main=True, quiet=args.quiet)
 comp.goodies()
 comp.compile()
 

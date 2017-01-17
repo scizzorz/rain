@@ -4,6 +4,7 @@ from . import types as T
 from .ast import *
 from collections import OrderedDict
 from llvmlite import ir
+import os.path
 import sys
 
 # structure
@@ -18,9 +19,9 @@ def emit(self, module):
 
   imports = []
   for stmt in self.stmts:
-    stmt.emit(module)
+    ret = stmt.emit(module)
     if isinstance(stmt, import_node):
-      imports.append(stmt)
+      imports.append(ret)
 
   return imports
 
@@ -201,7 +202,9 @@ def emit(self, module):
     print('Can\'t import modules at non-global scope')
     sys.exit(1)
 
-  file = M.Module.find_file(self.name)
+  # add the module's directory to the lookup path
+  base, name = os.path.split(module.file)
+  file = M.Module.find_file(self.name, paths=[base])
   if not file:
     raise Exception('Unable to find module {!r}'.format(self.name))
 
@@ -222,6 +225,8 @@ def emit(self, module):
 
   module[rename] = ptr
   module[rename].col = val
+
+  return file
 
 @pass_node.method
 def emit(self, module):

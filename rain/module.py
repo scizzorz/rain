@@ -203,8 +203,8 @@ class Module(S.Scope):
 
   # find a source file from a module identifier
   @staticmethod
-  def find_file(src):
-    paths = ['.', os.environ['RAINLIB']]
+  def find_file(src, paths=[]):
+    paths = ['.'] + paths + os.getenv('RAINPATH', '').split(':') + [os.environ['RAINLIB']]
 
     for path in paths:
       if os.path.isfile(join(path, src) + '.rn'):
