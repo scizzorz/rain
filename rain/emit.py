@@ -450,7 +450,7 @@ def emit(self, module):
 def emit(self, module):
   typ = T.vfunc()
   func = module.find_func(typ, name=self.name.value)
-  return T._func(val)
+  return T._func(func)
 
 @call_node.method
 def emit(self, module):
