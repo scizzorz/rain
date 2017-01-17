@@ -9,8 +9,6 @@
 
 void rain_process_output(box *, box *);
 
-
-
 void rain_process_output(box *ret, box *command) {
   if(BOX_ISNT(command, TABLE)) {
     return;
@@ -18,7 +16,7 @@ void rain_process_output(box *ret, box *command) {
 
   /* create the cmd array to pass to exec */
 
-  int cmd_len = rain_table_array_len(command);
+  int cmd_len = rain_array_length(command);
 
   if (cmd_len == 0) {
     return;

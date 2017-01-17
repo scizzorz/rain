@@ -345,14 +345,6 @@ void rain_string_concat(box *ret, box *lhs, box *rhs) {
   rain_set_strcpy(ret, cat, length);
 }
 
-void rain_string_length(box *ret, box *str) {
-  if(BOX_ISNT(str, STR)) {
-    return;
-  }
-
-  rain_set_int(ret, str->size);
-}
-
 // table helpers
 
 box* rain_new_table() {
@@ -394,6 +386,18 @@ unsigned char rain_hash_eq(box *one, box *two) {
   }
 
   return one->data.ui == two->data.ui;
+}
+
+int rain_array_length(box *table) {
+  int length = 0;
+  box i_box;
+
+  rain_set_int(&i_box, 0);
+  while(rain_has(table, &i_box)) {
+    i_box.data.si++;
+  }
+
+  return i_box.data.si;
 }
 
 column *rain_has(box *table, box *key) {
@@ -462,6 +466,19 @@ void rain_put(box *table, box *key, box *val) {
     row = &((*row)->next);
   }
 }
+
+// string AND table helpers
+
+void rain_length(box *ret, box *val) {
+  if(BOX_IS(val, STR)) {
+    rain_set_int(ret, val->size);
+  }
+  else if(BOX_IS(val, TABLE)) {
+    rain_set_int(ret, rain_array_length(val));
+  }
+}
+
+// box helpers
 
 void rain_set_null(box *ret) {
   ret->type = ITYP_NULL;
