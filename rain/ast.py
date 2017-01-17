@@ -124,6 +124,12 @@ class for_node(node):
   def __str__(self):
     return 'for {!s} in {!s} {{ {!s} }}'.format(self.name, self.func, self.body)
 
+class with_node(node):
+  def __init__(self, expr, params, body):
+    self.expr = expr
+    self.params = params
+    self.body = body
+
 # expressions
 
 class idx_node(node):

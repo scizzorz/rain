@@ -135,6 +135,13 @@ def stmt(ctx):
     body = block(ctx)
     return A.for_node(name, func, body)
 
+  if ctx.consume(K.keyword_token('with')):
+    func = expr(ctx)
+    ctx.require(K.keyword_token('as'))
+    params = fnparams(ctx)
+    body = block(ctx)
+    return A.with_node(func, params, body)
+
   if ctx.consume(K.keyword_token('while')):
     pred = expr(ctx)
     body = block(ctx)
@@ -226,6 +233,19 @@ def fnargs(ctx):
   ctx.require(K.symbol_token(')'))
   return args
 
+def fnparams(ctx):
+  ctx.require(K.symbol_token('('))
+  params = []
+  if ctx.expect(K.name_token):
+    params.append(ctx.require(K.name_token))
+    while not ctx.expect(K.symbol_token(')')):
+      ctx.require(K.symbol_token(','))
+      params.append(ctx.require(K.name_token))
+
+  ctx.require(K.symbol_token(')'))
+
+  return params
+
 def expr(ctx):
   node = binexpr(ctx)
   if ctx.consume(K.keyword_token('is')):
@@ -271,15 +291,7 @@ def unexpr(ctx):
 def simple(ctx):
   # -> fndef
   if ctx.consume(K.keyword_token('func')):
-    ctx.require(K.symbol_token('('))
-    params = []
-    if ctx.expect(K.name_token):
-      params.append(ctx.require(K.name_token))
-      while not ctx.expect(K.symbol_token(')')):
-        ctx.require(K.symbol_token(','))
-        params.append(ctx.require(K.name_token))
-
-    ctx.require(K.symbol_token(')'))
+    params = fnparams(ctx)
 
     # -> quick function
     if ctx.consume(K.operator_token('->')):

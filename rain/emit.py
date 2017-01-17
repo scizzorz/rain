@@ -260,6 +260,14 @@ def emit(self, module):
     with module.builder.if_then(truthy(module, self.pred.emit(module))):
       self.body.emit(module)
 
+@with_node.method
+def emit(self, module):
+  user_box = self.expr.emit(module)
+  func_box = func_node(self.params, self.body).emit(module)
+
+  user_ptr = module.get_value(user_box, typ=T.vfunc(T.arg, T.arg))
+  module.fncall(user_ptr, T.null, func_box)
+
 @loop_node.method
 def emit(self, module):
   with module.add_loop() as (before, loop):
