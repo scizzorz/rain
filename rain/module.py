@@ -1,7 +1,8 @@
 from contextlib import contextmanager
 from llvmlite import binding
 from llvmlite import ir
-import os
+from os.path import abspath
+from os.path import join
 import os.path
 import re
 
@@ -203,12 +204,15 @@ class Module(S.Scope):
   # find a source file from a module identifier
   @staticmethod
   def find_file(src):
-    if os.path.isfile(src + '.rn'):
-      return src + '.rn'
-    elif os.path.isfile(src):
-      return src
-    elif os.path.isdir(src) and os.path.isfile(os.path.join(src, '_pkg.rn')):
-      return os.path.join(src, '_pkg.rn')
+    paths = [os.environ['RAINLIB'], '.']
+
+    for path in paths:
+      if os.path.isfile(join(path, src) + '.rn'):
+        return join(path, src) + '.rn'
+      elif os.path.isfile(join(path, src)):
+        return join(path, src)
+      elif os.path.isdir(join(path, src)) and os.path.isfile(join(path, src, '_pkg.rn')):
+        return join(path, src, '_pkg.rn')
 
   # find a module name
   @staticmethod
@@ -223,7 +227,7 @@ class Module(S.Scope):
     mname = Module.normalize_name(fname)
 
     proot = []
-    while path and os.path.isfile(os.path.join(path, '_pkg.rn')):
+    while path and os.path.isfile(join(path, '_pkg.rn')):
       path, name = os.path.split(path)
       proot.insert(0, Module.normalize_name(name))
 

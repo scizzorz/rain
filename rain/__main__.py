@@ -19,8 +19,9 @@ parser.add_argument('file', metavar='FILE', type=str, default='.', nargs='?',
 
 args = parser.parse_args()
 
-home = os.path.normpath(os.path.join(sys.argv[0], '../../'))
-comp = C.get_compiler(args.file, target=args.output, main=True, quiet=args.quiet, home=home)
+os.environ['RAINHOME'] = os.path.normpath(os.path.join(sys.argv[0], '../../'))
+os.environ['RAINLIB'] = os.path.join(os.environ['RAINHOME'], 'lib')
+comp = C.get_compiler(args.file, target=args.output, main=True, quiet=args.quiet)
 comp.goodies()
 comp.compile()
 
