@@ -1,9 +1,9 @@
-run = extern "rain_process_output"
+import process
 
 main = func()
   let args = table
   args[0] = "echo"
   args[1] = "hi"
   args[2] = "there"
-  let out = run(args)
+  let out = process.run(args)
   print(out)
