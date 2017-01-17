@@ -1,0 +1,9 @@
+run = extern "rain_process_output"
+
+main = func()
+  let args = table
+  args[0] = "echo"
+  args[1] = "hi"
+  args[2] = "there"
+  let out = run(args)
+  print out
