@@ -17,7 +17,7 @@ compilers = {}
 
 # USE THIS to get a new compiler. it fuzzy searches for the source file and also prevents
 # multiple compilers from being made for the same file
-def get_compiler(src, target=None, main=False, quiet=False):
+def get_compiler(src, target=None, main=False, quiet=False, home='.'):
   file = M.Module.find_file(src)
 
   if not file:
@@ -26,18 +26,19 @@ def get_compiler(src, target=None, main=False, quiet=False):
   abspath = os.path.abspath(file)
 
   if abspath not in compilers:
-    compilers[abspath] = Compiler(file, target, main, quiet)
+    compilers[abspath] = Compiler(file, target, main, quiet, home)
 
   return compilers[abspath]
 
 
 class Compiler:
-  def __init__(self, file, target=None, main=False, quiet=False):
+  def __init__(self, file, target=None, main=False, quiet=False, home='.'):
     self.file = file
     self.qname, self.mname = M.Module.find_name(file)
     self.target = target or self.mname
     self.main = main
     self.quiet = quiet
+    self.home = home
     self.ll = None
     self.links = None
 
@@ -106,7 +107,8 @@ class Compiler:
 
   def compile(self):
     with self.okay('compiling'):
-      core = [os.path.join('lib', x) for x in os.listdir('lib') if x.endswith('.c')]
+      lib = os.path.join(self.home, 'lib')
+      core = [os.path.join(lib, x) for x in os.listdir(lib) if x.endswith('.c')]
       clang = os.getenv('CLANG', 'clang')
       cmd = [clang, '-O2', '-o', self.target, '-lgc', '-lm', self.ll] + core + list(self.links)
       subprocess.check_call(cmd)

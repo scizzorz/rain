@@ -1,5 +1,6 @@
 import argparse
-import os
+import os.path
+import sys
 import traceback
 
 from . import compiler as C
@@ -18,7 +19,8 @@ parser.add_argument('file', metavar='FILE', type=str, default='.', nargs='?',
 
 args = parser.parse_args()
 
-comp = C.get_compiler(args.file, target=args.output, main=True, quiet=args.quiet)
+home = os.path.normpath(os.path.join(sys.argv[0], '../../'))
+comp = C.get_compiler(args.file, target=args.output, main=True, quiet=args.quiet, home=home)
 comp.goodies()
 comp.compile()
 
