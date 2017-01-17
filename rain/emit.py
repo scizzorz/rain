@@ -1,6 +1,6 @@
+from . import module as M
 from . import token as K
 from . import types as T
-from . import module as M
 from .ast import *
 from collections import OrderedDict
 from llvmlite import ir
@@ -94,7 +94,36 @@ def static_table_put(module, table_ptr, column_ptr, key_node, key, val):
       chain.initializer.next = column_ptr
       chain.initializer.key = save
 
-# statements
+def static_table_alloc(module, name, metatable=None):
+  # make an empty array of column*
+  typ = T.arr(T.ptr(T.column), T.HASH_SIZE)
+  ptr = module.add_global(typ, name=name)
+  ptr.initializer = typ([None] * T.HASH_SIZE)
+  return static_table_from_ptr(module, ptr, metatable)
+
+def static_table_from_ptr(module, ptr, metatable=None):
+  gep = ptr.gep([T.i32(0), T.i32(0)])
+
+  box = T._table(gep)
+  box.source = ptr # save this for later!
+
+  if metatable:
+    # get these for storing
+    mt_val = metatable.emit(module)
+    mt_key = module.metatable_key.initializer
+    mt_column = T.column([mt_key, mt_val, T.ptr(T.column)(None)])
+
+    # compute hash and allocate a column for it
+    mt_idx = str_node('metatable').hash() % T.HASH_SIZE
+    column_ptr = module.add_global(T.column, name=module.uniq('column'))
+    column_ptr.initializer = mt_column
+
+    ptr.initializer.constant[mt_idx] = column_ptr
+    ptr.initializer = ptr.initializer.type(ptr.initializer.constant)
+
+  return box
+
+# simple statements
 
 @assn_node.method
 def emit(self, module):
@@ -166,6 +195,56 @@ def emit(self, module):
   module.builder.cbranch(cond, module.before, nocont)
   module.builder.position_at_end(nocont)
 
+@import_node.method
+def emit(self, module):
+  if module.builder: # non-global scope
+    print('Can\'t import modules at non-global scope')
+    sys.exit(1)
+
+  file = M.Module.find_file(self.name)
+  if not file:
+    raise Exception('Unable to find module {!r}'.format(self.name))
+
+  qname, mname = M.Module.find_name(file)
+
+  glob = module.add_global(T.box, name=qname + '.exports.table')
+  glob.linkage = 'available_externally'
+
+  rename = self.rename or mname
+
+  key_node = str_node(rename)
+  key = key_node.emit(module)
+  val = static_table_from_ptr(module, glob)
+
+  column_ptr = module.add_global(T.column, name=module.uniq('column'))
+  static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, val)
+  ptr = column_ptr.gep([T.i32(0), T.i32(1)])
+
+  module[rename] = ptr
+  module[rename].col = val
+
+@pass_node.method
+def emit(self, module):
+  pass
+
+@print_node.method
+def emit(self, module):
+  val = self.value.emit(module)
+  module.fncall(module.extern('rain_print'), val)
+
+@return_node.method
+def emit(self, module):
+  if self.value:
+    module.builder.store(self.value.emit(module), module.ret_ptr)
+
+  module.builder.ret_void()
+
+@save_node.method
+def emit(self, module):
+  module.builder.store(self.value.emit(module), module.ret_ptr)
+
+# block statements
+
 @if_node.method
 def emit(self, module):
   pred = truthy(module, self.pred.emit(module))
@@ -190,26 +269,6 @@ def emit(self, module):
     with loop:
       self.body.emit(module)
       module.builder.branch(module.loop)
-
-@pass_node.method
-def emit(self, module):
-  pass
-
-@return_node.method
-def emit(self, module):
-  if self.value:
-    module.builder.store(self.value.emit(module), module.ret_ptr)
-
-  module.builder.ret_void()
-
-@save_node.method
-def emit(self, module):
-  module.builder.store(self.value.emit(module), module.ret_ptr)
-
-@print_node.method
-def emit(self, module):
-  val = self.value.emit(module)
-  module.fncall(module.extern('rain_print'), val)
 
 @until_node.method
 def emit(self, module):
@@ -255,35 +314,7 @@ def emit(self, module):
       self.body.emit(module)
       module.builder.branch(module.before)
 
-@import_node.method
-def emit(self, module):
-  if module.builder: # non-global scope
-    print('Can\'t import modules at non-global scope')
-    sys.exit(1)
-
-  file = M.Module.find_file(self.name)
-  if not file:
-    raise Exception('Unable to find module {!r}'.format(self.name))
-
-  qname, mname = M.Module.find_name(file)
-
-  glob = module.add_global(T.box, name=qname + '.exports.table')
-  glob.linkage = 'available_externally'
-
-  rename = self.rename or mname
-
-  key_node = str_node(rename)
-  key = key_node.emit(module)
-  val = static_table_from_ptr(module, glob)
-
-  column_ptr = module.add_global(T.column, name=module.uniq('column'))
-  static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, val)
-  ptr = column_ptr.gep([T.i32(0), T.i32(1)])
-
-  module[rename] = ptr
-  module[rename].col = val
-
-# expressions
+# simple expressions
 
 @name_node.method
 def emit(self, module):
@@ -294,19 +325,6 @@ def emit(self, module):
     return module[self.value].col
 
   return module.builder.load(module[self.value])
-
-@idx_node.method
-def emit(self, module):
-  if not module.builder: # global scope
-    print('Can\'t index at global scope') # TODO eventually, you can
-    sys.exit(1)
-
-  table = self.lhs.emit(module)
-  key = self.rhs.emit(module)
-
-  _, ptrs = module.fncall(module.extern('rain_get'), T.null, table, key)
-
-  return module.builder.load(ptrs[0])
 
 @null_node.method
 def emit(self, module):
@@ -333,34 +351,11 @@ def emit(self, module):
 
   return T._str(gep, len(self.value))
 
-def static_table_alloc(module, name, metatable=None):
-  # make an empty array of column*
-  typ = T.arr(T.ptr(T.column), T.HASH_SIZE)
-  ptr = module.add_global(typ, name=name)
-  ptr.initializer = typ([None] * T.HASH_SIZE)
-  return static_table_from_ptr(module, ptr, metatable)
-
-def static_table_from_ptr(module, ptr, metatable=None):
-  gep = ptr.gep([T.i32(0), T.i32(0)])
-
-  box = T._table(gep)
-  box.source = ptr # save this for later!
-
-  if metatable:
-    # get these for storing
-    mt_val = metatable.emit(module)
-    mt_key = module.metatable_key.initializer
-    mt_column = T.column([mt_key, mt_val, T.ptr(T.column)(None)])
-
-    # compute hash and allocate a column for it
-    mt_idx = str_node('metatable').hash() % T.HASH_SIZE
-    column_ptr = module.add_global(T.column, name=module.uniq('column'))
-    column_ptr.initializer = mt_column
-
-    ptr.initializer.constant[mt_idx] = column_ptr
-    ptr.initializer = ptr.initializer.type(ptr.initializer.constant)
-
-  return box
+@extern_node.method
+def emit(self, module):
+  typ = T.vfunc()
+  func = module.find_func(typ, name=self.name.value)
+  return T._func(func)
 
 @table_node.method
 def emit(self, module):
@@ -446,11 +441,7 @@ def emit(self, module):
 
   return T._func(func)
 
-@extern_node.method
-def emit(self, module):
-  typ = T.vfunc()
-  func = module.find_func(typ, name=self.name.value)
-  return T._func(func)
+# complex expressions
 
 @call_node.method
 def emit(self, module):
@@ -464,6 +455,19 @@ def emit(self, module):
   func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
 
   _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
+
+  return module.builder.load(ptrs[0])
+
+@idx_node.method
+def emit(self, module):
+  if not module.builder: # global scope
+    print('Can\'t index at global scope') # TODO eventually, you can
+    sys.exit(1)
+
+  table = self.lhs.emit(module)
+  key = self.rhs.emit(module)
+
+  _, ptrs = module.fncall(module.extern('rain_get'), T.null, table, key)
 
   return module.builder.load(ptrs[0])
 
@@ -486,7 +490,6 @@ def emit(self, module):
   _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
 
   return module.builder.load(ptrs[0])
-
 
 @bind_node.method
 def emit(self, module):
@@ -530,6 +533,25 @@ def emit(self, module):
 
   return module.builder.insert_value(T._func(), func_i64, 1)
 
+# operator expressions
+
+@unary_node.method
+def emit(self, module):
+  if not module.builder: # global scope
+    print('Can\'t use unary operators at global scope')
+    sys.exit(1)
+
+  arith = {
+    '-': 'rain_neg',
+    '!': 'rain_not',
+  }
+
+  val = self.val.emit(module)
+
+  _, ptrs = module.fncall(module.extern(arith[self.op]), T.null, val)
+
+  return module.builder.load(ptrs[0])
+
 @binary_node.method
 def emit(self, module):
   if not module.builder: # global scope
@@ -556,23 +578,6 @@ def emit(self, module):
   rhs = self.rhs.emit(module)
 
   _, ptrs = module.fncall(module.extern(arith[self.op]), T.null, lhs, rhs)
-
-  return module.builder.load(ptrs[0])
-
-@unary_node.method
-def emit(self, module):
-  if not module.builder: # global scope
-    print('Can\'t use unary operators at global scope')
-    sys.exit(1)
-
-  arith = {
-    '-': 'rain_neg',
-    '!': 'rain_not',
-  }
-
-  val = self.val.emit(module)
-
-  _, ptrs = module.fncall(module.extern(arith[self.op]), T.null, val)
 
   return module.builder.load(ptrs[0])
 
