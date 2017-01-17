@@ -1,3 +1,6 @@
+#ifndef RAIN_H
+#define RAIN_H
+
 #include <gc.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,6 +69,7 @@ void rain_lt(box *, box *, box *);
 void rain_le(box *, box *, box *);
 
 void rain_string_concat(box *, box *, box*);
+void rain_string_length(box *, box *);
 
 box* rain_new_table();
 column *rain_new_pair(box *, box *);
@@ -84,3 +88,5 @@ void rain_set_strcpy(box *, const char *, int);
 void rain_set_table(box *);
 void rain_set_func(box *, void *);
 void rain_set_cdata(box *, void *);
+
+#endif
