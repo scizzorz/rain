@@ -310,20 +310,19 @@ def emit(self, module):
 
 @null_node.method
 def emit(self, module):
-  return T.box([T.ityp.null, T.cast.null(0), T.i32(0)])
+  return T.null
 
 @int_node.method
 def emit(self, module):
-  return T.box([T.ityp.int, T.cast.int(self.value), T.i32(0)])
+  return T._int(self.value)
 
 @float_node.method
 def emit(self, module):
-  val = T.cast.float(self.value).bitcast(T.cast.int)
-  return T.box([T.ityp.float, val, T.i32(0)])
+  return T._float(self.value)
 
 @bool_node.method
 def emit(self, module):
-  return T.box([T.ityp.bool, T.cast.bool(int(self.value)), T.i32(0)])
+  return T._bool(self.value)
 
 @str_node.method
 def emit(self, module):
@@ -332,10 +331,7 @@ def emit(self, module):
   ptr.initializer = typ(bytearray(self.value + '\0', 'utf-8'))
   gep = ptr.gep([T.i32(0), T.i32(0)])
 
-  # need to bullshit around to get this to work - see llvmlite#229
-  raw_ir = 'ptrtoint ({0} {1} to {2})'.format(gep.type, gep.get_reference(), T.cast.int)
-  val = ir.FormattedConstant(T.cast.int, raw_ir)
-  return T.box([T.ityp.str, val, len(self.value)])
+  return T._str(gep, len(self.value))
 
 def static_table_alloc(module, name, metatable=None):
   # make an empty array of column*
@@ -347,9 +343,8 @@ def static_table_alloc(module, name, metatable=None):
 def static_table_from_ptr(module, ptr, metatable=None):
   gep = ptr.gep([T.i32(0), T.i32(0)])
 
-  # cast the array ptr to an i64
-  raw_ir = 'ptrtoint ({0} {1} to {2})'.format(gep.type, gep.get_reference(), T.cast.int)
-  val = ir.FormattedConstant(T.cast.int, raw_ir)
+  box = T._table(gep)
+  box.source = ptr # save this for later!
 
   if metatable:
     # get these for storing
@@ -365,9 +360,6 @@ def static_table_from_ptr(module, ptr, metatable=None):
     ptr.initializer.constant[mt_idx] = column_ptr
     ptr.initializer = ptr.initializer.type(ptr.initializer.constant)
 
-  # put the i64 in a box
-  box = T.box([T.ityp.table, val, 0])
-  box.source = ptr # save this for later!
   return box
 
 @table_node.method
@@ -435,7 +427,7 @@ def emit(self, module):
 
     func = module.add_tramp(func, env_ptr)
     func_i64 = module.builder.ptrtoint(func, T.i64)
-    func_box = module.builder.insert_value(T.box([T.ityp.func, T.i64(0), T.i32(0)]), func_i64, 1)
+    func_box = module.builder.insert_value(T._func(), func_i64, 1)
 
     env_val = env_typ(None)
 
@@ -452,20 +444,13 @@ def emit(self, module):
 
     return func_box
 
-  #val = func.ptrtoint(T.cast.int)
-  # need to bullshit around to get this to work - see llvmlite#229
-  raw_ir = 'ptrtoint ({0} {1} to {2})'.format(func.type, func.get_reference(), T.cast.int)
-  val = ir.FormattedConstant(T.cast.int, raw_ir)
-  return T.box([T.ityp.func, val, T.i32(0)])
+  return T._func(func)
 
 @extern_node.method
 def emit(self, module):
   typ = T.vfunc()
   func = module.find_func(typ, name=self.name.value)
-
-  raw_ir = 'ptrtoint ({0} {1} to {2})'.format(func.type, func.get_reference(), T.cast.int)
-  val = ir.FormattedConstant(T.cast.int, raw_ir)
-  return T.box([T.ityp.func, val, T.i32(0)])
+  return T._func(val)
 
 @call_node.method
 def emit(self, module):
@@ -543,7 +528,7 @@ def emit(self, module):
   func = module.add_tramp(func, env_ptr)
   func_i64 = module.builder.ptrtoint(func, T.i64)
 
-  return module.builder.insert_value(T.box([T.ityp.func, T.i64(0), T.i32(0)]), func_i64, 1)
+  return module.builder.insert_value(T._func(), func_i64, 1)
 
 @binary_node.method
 def emit(self, module):
@@ -601,4 +586,4 @@ def emit(self, module):
   lhs_typ = module.get_type(lhs)
   res = module.builder.icmp_unsigned('==', getattr(T.ityp, self.typ.value), lhs_typ)
   res = module.builder.zext(res, T.i64)
-  return module.builder.insert_value(T.box([T.ityp.bool, T.i64(0), T.i32(0)]), res, 1)
+  return module.builder.insert_value(T._bool(False), res, 1)

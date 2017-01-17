@@ -25,6 +25,9 @@ column = ir.context.global_context.get_identified_type('column')
 entry = ir.context.global_context.get_identified_type('entry')
 arg = ptr(box)
 
+def vfunc(*args, var_arg=False):
+  return func(void, args, var_arg=var_arg)
+
 # set struct bodies
 box.set_body(i8, i64, i32)
 column.set_body(box, box, ptr(column))
@@ -34,8 +37,32 @@ entry.set_body(ptr(box), ptr(box), ptr(entry))
 null = box(None)
 bin = func(void, [ptr(box), ptr(box), ptr(box)])
 
-def vfunc(*args, var_arg=False):
-  return func(void, args, var_arg=var_arg)
+def _int(val):
+  return box([ityp.int, cast.int(val), i32(0)])
+
+def _float(val):
+  val = cast.float(val).bitcast(cast.int)
+  return box([ityp.float, val, i32(0)])
+
+def _bool(val):
+  return box([ityp.bool, cast.bool(int(val)), i32(0)])
+
+def ptrtoint(ptr):
+  # need to bullshit around to get this to work - see llvmlite#229
+  raw_ir = 'ptrtoint ({0} {1} to {2})'.format(ptr.type, ptr.get_reference(), cast.int)
+  return ir.FormattedConstant(cast.int, raw_ir)
+
+def _str(ptr, size):
+  return box([ityp.str, ptrtoint(ptr), i32(size)])
+
+def _table(ptr):
+  return box([ityp.table, ptrtoint(ptr), i32(0)])
+
+def _func(ptr=None):
+  if ptr:
+    return box([ityp.func, ptrtoint(ptr), i32(0)])
+
+  return box([ityp.func, i64(0), i32(0)])
 
 class cast:
   null = i64
