@@ -94,6 +94,9 @@ class Compiler:
 
       # add LLVM globals
       for val in builtin.mod.llvm.global_values:
+        if val.name in self.mod.llvm.globals:
+          continue
+
         if isinstance(val, ir.Function):
           ir.Function(self.mod.llvm, val.ftype, name=val.name)
         else:

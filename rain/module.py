@@ -61,6 +61,9 @@ class Module(S.Scope):
     self.llvm = ir.Module(name=self.qname)
     self.llvm.triple = binding.get_default_triple()
 
+    for name in externs:
+      self.extern(name)
+
     self.entry = None
     self.builder = None
     self.before = None
