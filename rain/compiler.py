@@ -115,4 +115,4 @@ class Compiler:
 
   def run(self):
     with self.okay('running'):
-      subprocess.check_call([self.target])
+      subprocess.check_call([os.path.abspath(self.target)])
