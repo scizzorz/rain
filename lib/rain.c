@@ -59,8 +59,8 @@ void rain_print(box *val) {
       printf("func 0x%08lx\n", val->data.ui);
       break;
 
-    case ITYP_DATA:
-      printf("data 0x%08lx\n", val->data.ui);
+    case ITYP_CDATA:
+      printf("cdata 0x%08lx\n", val->data.ui);
       break;
 
     default:
@@ -510,8 +510,8 @@ void rain_set_func(box *ret, void *vp) {
   ret->size = 0;
 }
 
-void rain_set_data(box *ret, void *vp) {
-  ret->type = ITYP_DATA;
+void rain_set_cdata(box *ret, void *vp) {
+  ret->type = ITYP_CDATA;
   ret->data.vp = vp;
   ret->size = 0;
 }

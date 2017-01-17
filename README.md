@@ -7,7 +7,7 @@ A programming language.
 * Compiled
   * via Python + LLVM
 * Dynamically typed
-  * Types: `null`, `int`, `float`, `bool`, `string`, `table`, `func`, `data`
+  * Types: `null`, `int`, `float`, `bool`, `string`, `table`, `func`, `cdata`
 * Whitespace block delimiters
 * Garbage-collected
 

@@ -34,7 +34,7 @@ KEYWORDS = (
 )
 
 TYPES = (
-  'bool', 'data', 'float', 'int', 'str',
+  'bool', 'cdata', 'float', 'int', 'str',
 )
 
 def factory(data, *, line=None, col=None):

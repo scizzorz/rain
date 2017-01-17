@@ -22,7 +22,7 @@ void rain_fopen(box *ret, box *fname, box *mode) {
   rain_set_table(ret);
 
   rain_set_str(&key, "_file");
-  rain_set_data(&val, (void*)fp);
+  rain_set_cdata(&val, (void*)fp);
   rain_put(ret, &key, &val);
 
   rain_set_str(&key, "readline");
