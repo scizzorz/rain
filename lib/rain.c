@@ -337,14 +337,12 @@ void rain_string_concat(box *ret, box *lhs, box *rhs) {
   }
 
   int length = lhs->size + rhs->size;
-  char *cat = malloc(length + 1);
+  char *cat = GC_malloc(length + 1);
 
   strcat(cat, lhs->data.s);
   strcat(cat + lhs->size, rhs->data.s);
 
   rain_set_strcpy(ret, cat, length);
-
-  free(cat);
 }
 
 // table helpers
