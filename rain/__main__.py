@@ -13,7 +13,7 @@ parser.add_argument('-l', '--lib', metavar='FILE', action='append',
                     help='Extra libraries to compile with.')
 parser.add_argument('-q', '--quiet', action='store_true',
                     help='Quiet the compiler.')
-parser.add_argument('file', metavar='FILE', type=str,
+parser.add_argument('file', metavar='FILE', type=str, default='.', nargs='?',
                     help='Main source file.')
 
 args = parser.parse_args()

@@ -213,7 +213,8 @@ class Module(S.Scope):
   # find a module name
   @staticmethod
   def find_name(src):
-    path, name = os.path.split(src)
+    path = os.path.abspath(src)
+    path, name = os.path.split(path)
     fname, ext = os.path.splitext(name)
 
     if fname == '_pkg':
@@ -222,7 +223,7 @@ class Module(S.Scope):
     mname = Module.normalize_name(fname)
 
     proot = []
-    while os.path.isfile(os.path.join(path, '_pkg.rn')):
+    while path and os.path.isfile(os.path.join(path, '_pkg.rn')):
       path, name = os.path.split(path)
       proot.insert(0, Module.normalize_name(name))
 
