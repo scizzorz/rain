@@ -1,0 +1,6 @@
+import file
+
+main = func()
+  let f = file.open("test.rn", "r")
+  for line in f:readline
+    print(line)
