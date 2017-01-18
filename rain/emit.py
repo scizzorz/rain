@@ -488,6 +488,10 @@ def emit(self, module):
 def emit(self, module):
   if module.is_global: # global scope
     table_ptr = module[self.lhs].col.source
+    if table_ptr.linkage == 'available_externally':
+      print('Unable to resolve {!r} attributes.'.format(self.lhs))
+      sys.exit(1)
+
     key_node = self.rhs
     key = key_node.emit(module)
 
