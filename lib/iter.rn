@@ -5,3 +5,7 @@ range = func(end)
       save i
     i = i + 1
 
+map = func(iter, fn) -> func()
+  let val = iter()
+  if val != null
+    return fn(val)

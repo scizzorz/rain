@@ -16,3 +16,9 @@ keys = func(self)
 
     save i
     i = i + 1
+
+map = func(self, fn)
+  let ret = table from self.metatable
+  save ret
+  for i in keys(self)
+    ret[i] = fn(self[i])
