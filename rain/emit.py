@@ -95,6 +95,24 @@ def static_table_put(module, table_ptr, column_ptr, key_node, key, val):
       chain.initializer.next = column_ptr
       chain.initializer.key = save
 
+def static_table_get(module, table_ptr, key_node, key):
+  table = table_ptr.initializer
+
+  idx = key_node.hash() % T.HASH_SIZE
+  chain = table.constant[idx]
+
+  if not isinstance(chain, ir.GlobalVariable):
+    return T.null
+
+  while chain.initializer.next is not None and chain.initializer.key != key_node:
+    chain = chain.initializer.next
+
+  if chain.initializer.key == key_node:
+    return chain.initializer.constant[1]
+
+  return T.null
+
+
 def static_table_alloc(module, name, metatable=None):
   # make an empty array of column*
   typ = T.arr(T.ptr(T.column), T.HASH_SIZE)
@@ -469,8 +487,11 @@ def emit(self, module):
 @idx_node.method
 def emit(self, module):
   if module.is_global: # global scope
-    print('Can\'t index at global scope') # TODO eventually, you can
-    sys.exit(1)
+    table_ptr = module[self.lhs].col.source
+    key_node = self.rhs
+    key = key_node.emit(module)
+
+    return static_table_get(module, table_ptr, key_node, key)
 
   table = self.lhs.emit(module)
   key = self.rhs.emit(module)
