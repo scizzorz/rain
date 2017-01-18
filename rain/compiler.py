@@ -93,16 +93,7 @@ class Compiler:
         self.mod[name] = val
 
       # add LLVM globals
-      for val in builtin.mod.llvm.global_values:
-        if val.name in self.mod.llvm.globals:
-          continue
-
-        if isinstance(val, ir.Function):
-          ir.Function(self.mod.llvm, val.ftype, name=val.name)
-        else:
-          g = ir.GlobalVariable(self.mod.llvm, val.type.pointee, name=val.name)
-          g.linkage = 'available_externally'
-          g.initializer = val.initializer
+      self.mod.import_from(builtin.mod)
 
     # compile the imports
     imports = self.ast.emit(self.mod)

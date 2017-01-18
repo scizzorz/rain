@@ -135,6 +135,19 @@ class Module(S.Scope):
   def extern(self, name):
     return self.find_func(externs[name], name=name)
 
+  # import globals from another module
+  def import_from(self, other):
+    for val in other.llvm.global_values:
+      if val.name in self.llvm.globals:
+        continue
+
+      if isinstance(val, ir.Function):
+        ir.Function(self.llvm, val.ftype, name=val.name)
+      else:
+        g = ir.GlobalVariable(self.llvm, val.type.pointee, name=val.name)
+        g.linkage = 'available_externally'
+        g.initializer = val.initializer
+
   # add a function body block
   @contextmanager
   def add_func_body(self, func):
