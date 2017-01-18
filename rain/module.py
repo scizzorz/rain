@@ -212,7 +212,7 @@ class Module(S.Scope):
     for path in paths:
       if os.path.isfile(join(path, src) + '.rn'):
         return join(path, src) + '.rn'
-      elif os.path.isfile(join(path, src)):
+      elif os.path.isfile(join(path, src)) and src.endswith('.rn'):
         return join(path, src)
       elif os.path.isdir(join(path, src)) and os.path.isfile(join(path, src, '_pkg.rn')):
         return join(path, src, '_pkg.rn')
