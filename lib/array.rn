@@ -1,0 +1,18 @@
+import core
+
+length = core.length
+
+values = func(self)
+  let i = 0
+  return func()
+    save self[i]
+    i = i + 1
+
+keys = func(self)
+  let i = 0
+  return func()
+    if self[i] == null
+      return
+
+    save i
+    i = i + 1

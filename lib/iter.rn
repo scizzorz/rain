@@ -5,18 +5,3 @@ range = func(end)
       save i
     i = i + 1
 
-array = table
-array.values = func(self)
-  let i = 0
-  return func()
-    save self[i]
-    i = i + 1
-
-array.keys = func(self)
-  let i = 0
-  return func()
-    if self[i] == null
-      return
-
-    save i
-    i = i + 1
