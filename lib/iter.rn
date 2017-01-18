@@ -1,0 +1,6 @@
+range = func(end)
+  let i = 0
+  return func()
+    if i < end
+      save i
+    i = i + 1
