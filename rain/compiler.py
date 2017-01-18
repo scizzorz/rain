@@ -99,7 +99,7 @@ class Compiler:
     imports = self.ast.emit(self.mod)
     for mod in imports:
       comp = get_compiler(mod, quiet=self.quiet)
-      comp.goodies()
+      comp.goodies() # should be done during import but might as well be safe
 
       # add the module's IR as well as all of its imports' IR
       self.links.add(comp.ll)

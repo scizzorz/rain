@@ -1,2 +1,5 @@
+import core
+
+length = core.length
 to_str = extern "rain_to_string"
 fmt = extern "rain_fmt"

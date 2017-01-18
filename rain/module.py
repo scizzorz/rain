@@ -124,6 +124,9 @@ class Module(S.Scope):
       name = self.uniq('glob')
     return ir.GlobalVariable(self.llvm, typ, name=name)
 
+  def get_global(self, name):
+    return self.llvm.get_global(name)
+
   # add or get an existing function
   def find_func(self, typ, name):
     if name in self.llvm.globals:

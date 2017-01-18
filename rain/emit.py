@@ -1,3 +1,4 @@
+from . import compiler as C
 from . import module as M
 from . import token as K
 from . import types as T
@@ -226,12 +227,13 @@ def emit(self, module):
   if not file:
     raise Exception('Unable to find module {!r}'.format(self.name))
 
-  qname, mname = M.Module.find_name(file)
+  comp = C.get_compiler(file, quiet=True)
+  comp.goodies()
 
-  glob = module.add_global(T.box, name=qname + '.exports.table')
-  glob.linkage = 'available_externally'
+  module.import_from(comp.mod)
+  glob = module.get_global(comp.mod.mangle('exports.table'))
 
-  rename = self.rename or mname
+  rename = self.rename or comp.mod.mname
 
   key_node = str_node(rename)
   key = key_node.emit(module)
@@ -243,6 +245,7 @@ def emit(self, module):
 
   module[rename] = ptr
   module[rename].col = val
+  module[rename].mod = comp.mod
 
   return file
 
@@ -487,11 +490,13 @@ def emit(self, module):
 @idx_node.method
 def emit(self, module):
   if module.is_global: # global scope
-    table_ptr = module[self.lhs].col.source
-    if table_ptr.linkage == 'available_externally':
-      print('Unable to resolve {!r} attributes.'.format(self.lhs))
-      sys.exit(1)
 
+    # check if LHS is a module
+    if getattr(module[self.lhs], 'mod', None):
+      return module[self.lhs].mod[self.rhs].col
+
+    # otherwise, do normal lookups
+    table_ptr = module[self.lhs].col.source
     key_node = self.rhs
     key = key_node.emit(module)
 
