@@ -322,7 +322,7 @@ def simple(ctx):
   if ctx.consume(K.table_token):
     metatable = None
     if ctx.consume(K.keyword_token('from')):
-      metatable = prefix(ctx)
+      metatable = expr(ctx)
 
     return A.table_node(metatable)
 
