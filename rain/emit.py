@@ -131,7 +131,7 @@ def emit(self, module):
   ptr = None
 
   if isinstance(self.lhs, name_node):
-    if not module.builder: # global scope
+    if module.is_global: # global scope
       column_ptr = module.add_global(T.column, name=module.uniq('column'))
       ptr = column_ptr.gep([T.i32(0), T.i32(1)])
       module[self.lhs] = ptr
@@ -160,7 +160,7 @@ def emit(self, module):
     module[self.lhs].bound = True
 
   elif isinstance(self.lhs, idx_node):
-    if not module.builder: # global scope
+    if module.is_global: # global scope
       table_ptr = module[self.lhs.lhs].col.source
       key_node = self.lhs.rhs
       key = key_node.emit(module)
@@ -329,7 +329,7 @@ def emit(self, module):
   if self.value not in module:
     raise Exception('Unknown name {!r}'.format(self.value))
 
-  if not module.builder: # global scope
+  if module.is_global: # global scope
     return module[self.value].col
 
   return module.builder.load(module[self.value])
@@ -367,7 +367,7 @@ def emit(self, module):
 
 @table_node.method
 def emit(self, module):
-  if not module.builder: # global scope
+  if module.is_global: # global scope
     return static_table_alloc(module, module.uniq('table'), metatable=self.metatable)
 
   ptr = module.builder.call(module.extern('rain_new_table'), [])
@@ -453,7 +453,7 @@ def emit(self, module):
 
 @call_node.method
 def emit(self, module):
-  if not module.builder: # global scope
+  if module.is_global: # global scope
     print('Can\'t call functions at global scope')
     sys.exit(1)
 
@@ -468,7 +468,7 @@ def emit(self, module):
 
 @idx_node.method
 def emit(self, module):
-  if not module.builder: # global scope
+  if module.is_global: # global scope
     print('Can\'t index at global scope') # TODO eventually, you can
     sys.exit(1)
 
@@ -481,7 +481,7 @@ def emit(self, module):
 
 @meth_node.method
 def emit(self, module):
-  if not module.builder: # global scope
+  if module.is_global: # global scope
     print('Can\'t call methods at global scope')
     sys.exit(1)
 
@@ -501,7 +501,7 @@ def emit(self, module):
 
 @bind_node.method
 def emit(self, module):
-  if not module.builder: # global scope
+  if module.is_global: # global scope
     print('Can\'t bind methods at global scope')
     sys.exit(1)
 
@@ -545,7 +545,7 @@ def emit(self, module):
 
 @unary_node.method
 def emit(self, module):
-  if not module.builder: # global scope
+  if module.is_global: # global scope
     print('Can\'t use unary operators at global scope')
     sys.exit(1)
 
@@ -562,7 +562,7 @@ def emit(self, module):
 
 @binary_node.method
 def emit(self, module):
-  if not module.builder: # global scope
+  if module.is_global: # global scope
     print('Can\'t use binary operators at global scope')
     sys.exit(1)
 
@@ -591,7 +591,7 @@ def emit(self, module):
 
 @is_node.method
 def emit(self, module):
-  if not module.builder: # global scope
+  if module.is_global: # global scope
     print('Can\'t check types at global scope')
     sys.exit(1)
 

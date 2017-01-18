@@ -77,6 +77,14 @@ class Module(S.Scope):
   def ir(self):
     return str(self.llvm)
 
+  @property
+  def is_global(self):
+    return (not self.builder)
+
+  @property
+  def is_local(self):
+    return bool(self.builder)
+
   def __str__(self):
     return 'Module {!r}'.format(self.qname)
 
