@@ -227,7 +227,7 @@ def emit(self, module):
   if not file:
     raise Exception('Unable to find module {!r}'.format(self.name))
 
-  comp = C.get_compiler(file, quiet=True)
+  comp = C.get_compiler(file)
   comp.goodies()
 
   module.import_from(comp.mod)

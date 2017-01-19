@@ -20,28 +20,30 @@ compilers = {}
 
 # USE THIS to get a new compiler. it fuzzy searches for the source file and also prevents
 # multiple compilers from being made for the same file
-def get_compiler(src, target=None, main=False, quiet=False):
+def get_compiler(src, target=None, main=False):
   abspath = os.path.abspath(src)
 
   if abspath not in compilers:
-    compilers[abspath] = Compiler(abspath, target, main, quiet)
+    compilers[abspath] = Compiler(abspath, target, main)
 
   return compilers[abspath]
 
 
 class Compiler:
-  def __init__(self, file, target=None, main=False, quiet=False):
+  quiet = False
+
+  def __init__(self, file, target=None, main=False):
     self.file = file
     self.qname, self.mname = M.Module.find_name(file)
     self.target = target or self.mname
     self.main = main
-    self.quiet = quiet
     self.lib = ENV['RAINLIB']
     self.ll = None
     self.links = None
 
-  def print(self, msg, end='\n'):
-    if not self.quiet:
+  @classmethod
+  def print(cls, msg, end='\n'):
+    if not cls.quiet:
       print(msg, end=end)
 
   @contextmanager
@@ -82,7 +84,7 @@ class Compiler:
     self.mod = M.Module(self.file)
     self.links = set()
 
-    builtin = get_compiler(join(ENV['RAINLIB'], '_pkg.rn'), quiet=self.quiet)
+    builtin = get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
 
     if self is not builtin: # don't try to import builtin into builtin
       builtin.goodies()
@@ -98,7 +100,7 @@ class Compiler:
     # compile the imports
     imports = self.ast.emit(self.mod)
     for mod in imports:
-      comp = get_compiler(mod, quiet=self.quiet)
+      comp = get_compiler(mod)
       comp.goodies() # should be done during import but might as well be safe
 
       # add the module's IR as well as all of its imports' IR
