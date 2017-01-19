@@ -1,9 +1,27 @@
-ctx = func(block)
+ctx0 = func(block)
+  print("Initialization")
+  block()
+  print("Clean up")
+
+ctx1 = func(block)
   print("Initialization")
   block("One")
   block("Two")
   print("Clean up")
 
+ctx2 = func(block)
+  print("Initialization")
+  block("One", "1")
+  block("Two", "2")
+  print("Clean up")
+
 main = func()
-  with ctx as (msg)
-    print("Anonymous block: " $ msg)
+  with ctx0
+    print("Anonymous block")
+
+  with ctx1 as a
+    print("Anonymous block: " $ a)
+
+
+  with ctx2 as a, b
+    print("Anonymous block: " $ a $ " + " $ b)

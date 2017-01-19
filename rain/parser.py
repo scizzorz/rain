@@ -137,8 +137,12 @@ def stmt(ctx):
 
   if ctx.consume(K.keyword_token('with')):
     func = expr(ctx)
-    ctx.require(K.keyword_token('as'))
-    params = fnparams(ctx)
+
+    if ctx.consume(K.keyword_token('as')):
+      params = fnparams(ctx, parens=False)
+    else:
+      params = []
+
     body = block(ctx)
     return A.with_node(func, params, body)
 
