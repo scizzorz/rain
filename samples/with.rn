@@ -1,0 +1,9 @@
+ctx = func(block)
+  print("Initialization")
+  block("One")
+  block("Two")
+  print("Clean up")
+
+main = func()
+  with ctx as (msg)
+    print("Anonymous block: " $ msg)
