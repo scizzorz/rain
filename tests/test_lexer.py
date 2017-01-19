@@ -118,9 +118,9 @@ def test_comments():
   assert next(stream) == K.end_token()
 
 def test_prints():
-  assert str(K.end_token) == 'end_token'
-  assert repr(K.end_token) == '<end_token>'
-  assert str(K.end_token()) == 'end_token'
-  assert repr(K.end_token()) == '<end_token>'
-  assert str(K.int_token(5)) == 'int_token(5)'
-  assert repr(K.int_token(5)) == '<int_token(5)>'
+  assert str(K.end_token) == 'EOF'
+  assert repr(K.end_token) == '<EOF>'
+  assert str(K.end_token()) == 'EOF'
+  assert repr(K.end_token()) == '<EOF>'
+  assert str(K.int_token(5)) == 'int 5'
+  assert repr(K.int_token(5)) == '<int 5>'
