@@ -230,16 +230,18 @@ def fnargs(ctx):
   ctx.require(K.symbol_token(')'))
   return args
 
-def fnparams(ctx):
-  ctx.require(K.symbol_token('('))
+def fnparams(ctx, parens=True):
+  if parens:
+    ctx.require(K.symbol_token('('))
+
   params = []
   if ctx.expect(K.name_token):
     params.append(ctx.require(K.name_token))
-    while not ctx.expect(K.symbol_token(')')):
-      ctx.require(K.symbol_token(','))
+    while ctx.consume(K.symbol_token(',')):
       params.append(ctx.require(K.name_token))
 
-  ctx.require(K.symbol_token(')'))
+  if parens:
+    ctx.require(K.symbol_token(')'))
 
   return params
 
