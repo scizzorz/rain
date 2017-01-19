@@ -56,7 +56,12 @@ class context:
       self.next()
       return token
 
-    self.panic('expected one of {}, found {!r}', ' | '.join(repr(x) for x in tokens), self.token, line=self.token.line, col=self.token.col)
+    if len(tokens) > 1:
+      msg = 'Unexpected {!s}; expected one of {}'.format(self.token, ' | '.join(str(x) for x in tokens))
+    else:
+      msg = 'Unexpected {!s}; expected {!s}'.format(self.token, tokens[0])
+
+    self.panic(msg, line=self.token.line, col=self.token.col)
 
   def panic(self, fmt, *args, line=None, col=None):
     prefix = ''
