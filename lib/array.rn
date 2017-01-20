@@ -24,10 +24,6 @@ map = func(self, fn)
     ret[i] = fn(self[i])
 
 foldl = func(f, z, l)
-  let length = core.length(l)
-  if length == 0
-    return z
-
   let a = z
   for v in values(l)
     a = f(a, v)
