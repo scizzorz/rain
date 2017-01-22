@@ -1,12 +1,18 @@
 #ifndef LSDA_H
 #define LSDA_H
 
+#include "../lib/rain.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <unwind.h>
 
 typedef struct _Unwind_Context exception_context_t;
-typedef struct _Unwind_Exception exception_t;
+typedef struct _Unwind_Exception unwind_exception_t;
+
+typedef struct exception_t {
+  unwind_exception_t base;
+  box val;
+} exception_t;
 
 bool ponyint_lsda_scan(exception_context_t* context, uintptr_t* lp);
 

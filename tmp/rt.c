@@ -8,36 +8,41 @@ static exception_t exception;
 static uintptr_t landing_pad;
 
 static void exception_cleanup(_Unwind_Reason_Code reason,
-    exception_t* exception) {
+    unwind_exception_t* exception) {
   (void)reason;
   (void)exception;
 }
 
-static void set_registers(exception_t* exception,
-    exception_context_t* context) {
+static void set_registers(unwind_exception_t* exception, exception_context_t* context) {
   _Unwind_SetGR(context, __builtin_eh_return_data_regno(0),
       (uintptr_t)exception);
   _Unwind_SetGR(context, __builtin_eh_return_data_regno(1), 0);
   _Unwind_SetIP(context, landing_pad);
 }
 
-void rain_catch(int x) {
-  printf("caught = %d!\n", x);
-}
+void rain_throw(box *val) {
+  printf("throwing ");
+  rain_print(val);
 
-void rain_throw() {
-  exception.exception_class = 0x5261696E00000000; // "Rain"
-  exception.exception_cleanup = exception_cleanup;
-  printf("throwing!\n");
-  _Unwind_RaiseException(&exception);
-  printf("thrown!\n");
+  exception.base.exception_class = 0x5261696E00000000; // "Rain"
+  exception.base.exception_cleanup = exception_cleanup;
+
+  rain_set_box(&exception.val, val);
+
+  _Unwind_RaiseException((unwind_exception_t *)&exception);
   abort();
 }
 
-_Unwind_Reason_Code rain_personality(int version, _Unwind_Action actions,
-    uint64_t ex_class, exception_t* exception,
-    exception_context_t* context)
-{
+void rain_catch(box *ret) {
+  rain_set_box(ret, &exception.val);
+
+  printf("catching ");
+  rain_print(ret);
+}
+
+_Unwind_Reason_Code rain_personality_v0(int version, _Unwind_Action actions,
+    uint64_t ex_class, unwind_exception_t* exception,
+    exception_context_t* context) {
   (void)ex_class;
 
   if(version != 1 || exception == NULL || context == NULL)
