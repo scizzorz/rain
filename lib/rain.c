@@ -480,6 +480,12 @@ void rain_length(box *ret, box *val) {
 
 // box helpers
 
+void rain_set_box(box *ret, box *from) {
+  ret->type = from->type;
+  ret->data.ui = from->data.ui;
+  ret->size = from->size;
+}
+
 void rain_set_null(box *ret) {
   ret->type = ITYP_NULL;
   ret->data.ui = 0;
