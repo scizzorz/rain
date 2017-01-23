@@ -23,10 +23,10 @@ map = func(self, fn)
   for i in keys(self)
     ret[i] = fn(self[i])
 
-foldl = func(f, z, l)
+foldl = func(self, fn, z)
   let a = z
-  for v in values(l)
-    a = f(a, v)
+  for v in values(self)
+    a = fn(a, v)
   return a
 
 from_iter = func(iter)
