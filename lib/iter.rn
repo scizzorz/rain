@@ -9,3 +9,9 @@ map = func(iter, fn) -> func()
   let val = iter()
   if val != null
     return fn(val)
+
+foldl = func(iter, fn, z)
+  let a = z
+  for v in iter
+    a = fn(a, v)
+  return a
