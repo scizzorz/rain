@@ -14,7 +14,7 @@ typedef struct exception_t {
   box val;
 } exception_t;
 
-bool ponyint_lsda_scan(exception_context_t* context, uintptr_t* lp);
+bool rain_lsda_scan(exception_context_t* context, uintptr_t* lp);
 
 typedef struct lsda_t {
   uintptr_t region_start;

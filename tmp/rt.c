@@ -7,8 +7,7 @@
 static exception_t exception;
 static uintptr_t landing_pad;
 
-static void exception_cleanup(_Unwind_Reason_Code reason,
-    unwind_exception_t* exception) {
+static void exception_cleanup(_Unwind_Reason_Code reason, unwind_exception_t* exception) {
   (void)reason;
   (void)exception;
 }
@@ -50,7 +49,7 @@ _Unwind_Reason_Code rain_personality_v0(int version, _Unwind_Action actions,
 
   // The search phase sets up the landing pad.
   if(actions & _UA_SEARCH_PHASE) {
-    if(!ponyint_lsda_scan(context, &landing_pad))
+    if(!rain_lsda_scan(context, &landing_pad))
       return _URC_CONTINUE_UNWIND;
 
     return _URC_HANDLER_FOUND;

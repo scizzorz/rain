@@ -153,11 +153,11 @@ static bool lsda_init(lsda_t* lsda, exception_context_t* context) {
   lsda->landing_pads = read_with_encoding(&data, lsda->region_start);
   lsda->type_table_encoding = *data++;
 
-  if(lsda->type_table_encoding != DW_EH_PE_omit)
-  {
+  if(lsda->type_table_encoding != DW_EH_PE_omit) {
     lsda->type_table = (const uint8_t*)read_uleb128(&data);
     lsda->type_table += (uintptr_t)data;
-  } else {
+  }
+  else {
     lsda->type_table = NULL;
   }
 
@@ -170,7 +170,7 @@ static bool lsda_init(lsda_t* lsda, exception_context_t* context) {
   return true;
 }
 
-bool ponyint_lsda_scan(exception_context_t* context, uintptr_t* lp) {
+bool rain_lsda_scan(exception_context_t* context, uintptr_t* lp) {
   lsda_t lsda;
 
   if(!lsda_init(&lsda, context))
@@ -178,8 +178,7 @@ bool ponyint_lsda_scan(exception_context_t* context, uintptr_t* lp) {
 
   const uint8_t* p = lsda.call_site_table;
 
-  while(p < lsda.action_table)
-  {
+  while(p < lsda.action_table) {
     uintptr_t start = read_encoded_ptr(&p, lsda.call_site_encoding);
     uintptr_t length = read_encoded_ptr(&p, lsda.call_site_encoding);
     uintptr_t landing_pad = read_encoded_ptr(&p, lsda.call_site_encoding);
@@ -187,8 +186,7 @@ bool ponyint_lsda_scan(exception_context_t* context, uintptr_t* lp) {
     // Pony ignores the action index, since it uses only cleanup landing pads.
     read_uleb128(&p);
 
-    if((start <= lsda.ip_offset) && (lsda.ip_offset < (start + length)))
-    {
+    if((start <= lsda.ip_offset) && (lsda.ip_offset < (start + length))) {
       // No landing pad.
       if(landing_pad == 0)
         return false;
