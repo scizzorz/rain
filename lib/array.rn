@@ -22,3 +22,17 @@ map = func(self, fn)
   save ret
   for i in keys(self)
     ret[i] = fn(self[i])
+
+foldl = func(self, fn, z)
+  let a = z
+  for v in values(self)
+    a = fn(a, v)
+  return a
+
+from_iter = func(iter)
+  let ret = table
+  save ret
+  let idx = 0
+  for i in iter
+    ret[idx] = i
+    idx = idx + 1
