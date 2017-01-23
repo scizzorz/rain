@@ -1,7 +1,7 @@
-#ifndef LSDA_H
-#define LSDA_H
+#ifndef EXCEPT_H
+#define EXCEPT_H
 
-#include "../lib/rain.h"
+#include "rain.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <unwind.h>
