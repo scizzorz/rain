@@ -14,8 +14,6 @@ typedef struct exception_t {
   box val;
 } exception_t;
 
-bool rain_lsda_scan(exception_context_t* context, uintptr_t* lp);
-
 typedef struct lsda_t {
   uintptr_t region_start;
   uintptr_t ip;
@@ -48,5 +46,9 @@ enum {
   DW_EH_PE_indirect = 0x80,
   DW_EH_PE_omit = 0xFF
 };
+
+void rain_throw(box *);
+void rain_catch(box *);
+_Unwind_Reason_Code rain_personality_v0(int, _Unwind_Action, uint64_t, unwind_exception_t *, exception_context_t *);
 
 #endif
