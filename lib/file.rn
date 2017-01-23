@@ -1,1 +1,3 @@
 open = extern "rain_fopen"
+readline = extern "rain_freadline"
+close = extern "rain_fclose"
