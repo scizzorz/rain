@@ -78,6 +78,20 @@ class Module(S.Scope):
 
     self.name_counter = 0
 
+  def panic(self, fmt, *args, line=None, col=None):
+    prefix = ''
+    if self.qname:
+      prefix += self.qname + ':'
+    if line and col:
+      prefix += str(line) + ':' + str(col) + ':'
+
+    msg = fmt.format(*args)
+
+    if prefix:
+      raise Exception('{} {}'.format(prefix, msg))
+
+    raise Exception(msg)
+
   @property
   def ir(self):
     return str(self.llvm)

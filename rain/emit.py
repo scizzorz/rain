@@ -6,7 +6,6 @@ from .ast import *
 from collections import OrderedDict
 from llvmlite import ir
 import os.path
-import sys
 
 # structure
 
@@ -64,9 +63,7 @@ def static_table_put(module, table_ptr, column_ptr, key_node, key, val):
 
   # we can only hash things that are known to this compiler (not addresses)
   if not isinstance(key_node, literal_node):
-    print('Unable to hash {!s}'.format(key_node))
-    sys.exit(1)
-    return
+    module.panic('Unable to hash {!s}', key_node)
 
   # get these for storing
   column = T.column([key, val, None])
@@ -182,7 +179,7 @@ def emit(self, module):
     rhs = self.rhs.emit(module)
 
     if self.lhs not in module:
-      raise Exception('Undeclared {!r}'.format(self.lhs))
+      module.panic("Undeclared name {!r}", self.lhs.value)
 
     module.builder.store(rhs, module[self.lhs])
     module[self.lhs].bound = True
@@ -227,11 +224,10 @@ def emit(self, module):
 @export_node.method
 def emit(self, module):
   if module.builder: # non-global scope
-    print('Can\'t export values at non-global scope')
-    sys.exit(1)
+    module.panic("Can't export value {!r} at non-global scope", self.val)
 
   if self.val not in module:
-    print('Can\'t export unknown value {!r}'.format(self.val))
+    module.panic("Can't export unknown value {!r}", self.val)
 
   glob = module.add_global(T.box, name=self.name)
   glob.initializer = module[self.val].col
@@ -239,14 +235,13 @@ def emit(self, module):
 @import_node.method
 def emit(self, module):
   if module.builder: # non-global scope
-    print('Can\'t import modules at non-global scope')
-    sys.exit(1)
+    module.panic("Can't import module {!r} at non-global scope", self.name)
 
   # add the module's directory to the lookup path
   base, name = os.path.split(module.file)
   file = M.Module.find_file(self.name, paths=[base])
   if not file:
-    raise Exception('Unable to find module {!r}'.format(self.name))
+    module.panic("Can't find module {!r}", self.name)
 
   comp = C.get_compiler(file)
   comp.goodies()
@@ -369,7 +364,7 @@ def emit(self, module):
 @name_node.method
 def emit(self, module):
   if self.value not in module:
-    raise Exception('Unknown name {!r}'.format(self.value))
+    module.panic("Unknown name {!r}", self.value)
 
   if module.is_global: # global scope
     return module[self.value].col
@@ -498,8 +493,7 @@ def emit(self, module):
 @call_node.method
 def emit(self, module):
   if module.is_global: # global scope
-    print('Can\'t call functions at global scope')
-    sys.exit(1)
+    module.panic("Can't call functions at global scope")
 
   func_box = self.func.emit(module)
   arg_boxes = [arg.emit(module) for arg in self.args]
@@ -548,8 +542,7 @@ def emit(self, module):
 @meth_node.method
 def emit(self, module):
   if module.is_global: # global scope
-    print('Can\'t call methods at global scope')
-    sys.exit(1)
+    module.panic("Can't call methods at global scope")
 
   table = self.lhs.emit(module)
   key = self.rhs.emit(module)
@@ -568,8 +561,7 @@ def emit(self, module):
 @bind_node.method
 def emit(self, module):
   if module.is_global: # global scope
-    print('Can\'t bind methods at global scope')
-    sys.exit(1)
+    module.panic("Can't bind methods at global scope")
 
   table = self.lhs.emit(module)
   key = self.rhs.emit(module)
@@ -612,8 +604,7 @@ def emit(self, module):
 @unary_node.method
 def emit(self, module):
   if module.is_global: # global scope
-    print('Can\'t use unary operators at global scope')
-    sys.exit(1)
+    module.panic("Can't use unary operators at global scope")
 
   arith = {
     '-': 'rain_neg',
@@ -629,8 +620,7 @@ def emit(self, module):
 @binary_node.method
 def emit(self, module):
   if module.is_global: # global scope
-    print('Can\'t use binary operators at global scope')
-    sys.exit(1)
+    module.panic("Can't use binary operators at global scope")
 
   arith = {
     '+': 'rain_add',
@@ -658,8 +648,7 @@ def emit(self, module):
 @is_node.method
 def emit(self, module):
   if module.is_global: # global scope
-    print('Can\'t check types at global scope')
-    sys.exit(1)
+    module.panic("Can't check types at global scope")
 
   lhs = self.lhs.emit(module)
   lhs_typ = module.get_type(lhs)
