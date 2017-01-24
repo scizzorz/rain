@@ -20,6 +20,7 @@ externs = {
   'rain_box_to_exit': T.func(T.i32, [T.ptr(T.box)]),
   'rain_print': T.vfunc(T.ptr(T.box)),
   'rain_catch': T.vfunc(T.ptr(T.box)),
+  'rain_personality_v0': T.func(T.i32, [], var_arg=True),
 
   'rain_neg': T.vfunc(T.ptr(T.box), T.ptr(T.box)),
   'rain_not': T.vfunc(T.ptr(T.box), T.ptr(T.box)),
@@ -67,6 +68,8 @@ class Module(S.Scope):
 
     self.entry = None
     self.builder = None
+    self.catch = None
+    self.resume = None
     self.before = None
     self.loop = None
     self.after = None
@@ -171,9 +174,20 @@ class Module(S.Scope):
       self.builder.branch(self.before)
 
       yield (ctx_partial(self.goto, self.before),
-            ctx_partial(self.goto, self.loop))
+             ctx_partial(self.goto, self.loop))
 
       self.builder.position_at_end(self.after)
+
+  @contextmanager
+  def add_catch(self):
+    with self.stack('catch', 'resume'):
+      self.catch = self.builder.append_basic_block('catch')
+      self.resume = self.builder.append_basic_block('resume')
+
+      yield (ctx_partial(self.goto, self.catch),
+             ctx_partial(self.goto, self.resume))
+
+      self.builder.position_at_end(self.resume)
 
   @contextmanager
   def add_main(self):
@@ -204,12 +218,15 @@ class Module(S.Scope):
   def get_size(self, box):
     return self.builder.extract_value(box, T.SIZE)
 
-  def fncall(self, fn, *args):
+  def fncall(self, fn, *args, ret=None, unwind=None):
     with self.builder.goto_entry_block():
       ptrs = [self.builder.alloca(T.box) for arg in args]
 
     for arg, ptr in zip(args, ptrs):
       self.builder.store(arg, ptr)
+
+    if ret and unwind:
+      return self.builder.invoke(fn, ptrs, ret, unwind), ptrs
 
     return self.builder.call(fn, ptrs), ptrs
 

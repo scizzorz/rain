@@ -343,6 +343,11 @@ def primary(ctx):
   node = prefix(ctx)
 
   while True:
+    if ctx.consume(K.symbol_token('?')):
+      args = fnargs(ctx)
+      node = A.call_node(node, args, catch=True)
+      continue
+
     if ctx.expect(K.symbol_token('(')):
       args = fnargs(ctx)
       node = A.call_node(node, args)

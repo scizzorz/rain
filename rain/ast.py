@@ -192,9 +192,10 @@ class func_node(node):
     return 'func({!s}) {{ {!s} }}'.format(', '.join(str(x) for x in self.params), self.body)
 
 class call_node(node):
-  def __init__(self, func, args):
+  def __init__(self, func, args, catch=False):
     self.func = func
     self.args = args
+    self.catch = catch
 
   def __str__(self):
     return '{!s}({!s})'.format(self.func, ', '.join(str(x) for x in self.args))

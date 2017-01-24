@@ -416,6 +416,7 @@ def emit(self, module):
     typ = T.vfunc(T.ptr(env_typ), T.arg, *[T.arg for x in self.params])
 
     func = module.add_func(typ)
+    func.attributes.personality = module.extern('rain_personality_v0')
     func.args[0].add_attribute('nest')
     func.args[1].add_attribute('sret')
 
@@ -423,6 +424,7 @@ def emit(self, module):
     typ = T.vfunc(T.arg, *[T.arg for x in self.params])
 
     func = module.add_func(typ)
+    func.attributes.personality = module.extern('rain_personality_v0')
     func.args[0].add_attribute('sret')
 
   with module:
@@ -482,6 +484,18 @@ def emit(self, module):
   arg_boxes = [arg.emit(module) for arg in self.args]
 
   func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
+
+  if self.catch:
+    with module.add_catch() as (catch, resume):
+      _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes, ret=module.resume, unwind=module.catch)
+      with catch:
+        lp = module.builder.landingpad(T.lp)
+        lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
+        module.builder.call(module.extern('rain_catch'), [ptrs[0]])
+        module.builder.branch(module.resume)
+
+      with resume:
+        return module.builder.load(ptrs[0])
 
   _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
 

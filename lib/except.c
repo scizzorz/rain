@@ -224,9 +224,6 @@ static void set_registers(unwind_exception_t* exception, exception_context_t* co
 // Rain API
 
 void rain_throw(box *val) {
-  printf("throwing ");
-  rain_print(val);
-
   exception.base.exception_class = 0x5261696E00000000; // "Rain"
   exception.base.exception_cleanup = exception_cleanup;
 
@@ -242,9 +239,6 @@ void rain_ext_throw(box *ret, box *val) {
 
 void rain_catch(box *ret) {
   rain_set_box(ret, &exception.val);
-
-  printf("catching ");
-  rain_print(ret);
 }
 
 _Unwind_Reason_Code rain_personality_v0(int version, _Unwind_Action actions,
