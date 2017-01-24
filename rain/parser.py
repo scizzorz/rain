@@ -32,6 +32,7 @@ class context:
     self.file = file
     self.stream = stream
     self.peek = next(stream)
+    self.coord = (0, 0)
     self.next()
 
   def next(self):

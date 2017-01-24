@@ -92,10 +92,12 @@ class Module(S.Scope):
       self.coord = getattr(node, 'origin', (0, 0))
       return node.emit(self)
 
-  def panic(self, fmt, *args, line=None, col=None):
+  def panic(self, fmt, *args):
     prefix = ''
     if self.qname:
       prefix += self.qname + ':'
+
+    line, col = self.coord
     if line and col:
       prefix += str(line) + ':' + str(col) + ':'
 
