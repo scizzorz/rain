@@ -28,11 +28,11 @@ def emit(self, module):
 @program_node.method
 def emit_main(self, module):
   with module.add_main():
-    box = module.builder.load(module['main'], name='main_box')
-    func_ptr = module.get_value(box, typ=T.vfunc(T.arg))
+    ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
+    module.builder.store(T.null, ret_ptr)
 
     with module.add_catch() as (catch, resume):
-      _, ptrs = module.fncall(func_ptr, T.null, ret=module.resume, unwind=module.catch)
+      module.call(module.extern('rain_main'), ret_ptr, module['main'], ret=module.resume, unwind=module.catch)
 
       with catch:
         lp = module.builder.landingpad(T.lp)
@@ -41,7 +41,7 @@ def emit_main(self, module):
         module.builder.branch(module.resume)
 
       with resume:
-        ret_code = module.call(module.extern('rain_box_to_exit'), *ptrs)
+        ret_code = module.call(module.extern('rain_box_to_exit'), ret_ptr)
         module.builder.ret(ret_code);
 
 @block_node.method

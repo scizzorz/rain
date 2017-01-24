@@ -2,13 +2,23 @@ error = table
 error.msg = "error"
 export error as "rain_exc_error"
 
-div_by_zero = table from error
-div_by_zero.msg = "division by zero"
-export div_by_zero as "rain_exc_div_by_zero"
-
 arg_mismatch = table from error
 arg_mismatch.msg = "argument mismatch"
 export arg_mismatch as "rain_exc_arg_mismatch"
+
+interrupt = table from error
+interrupt.msg = "received interrupt signal"
+export interrupt as "rain_exc_interrupt"
+
+fpe = table from error
+fpe.msg = "floating point error"
+export fpe as "rain_exc_fpe"
+
+segfault = table from error
+segfault.msg = "segmentation fault"
+export segfault as "rain_exc_segfault"
+
+
 
 safe = func(val)
   while val is table

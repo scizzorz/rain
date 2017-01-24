@@ -3,6 +3,11 @@
 
 // system helpers
 
+void rain_main(box *ret, box *func) {
+  void (*func_ptr)(box *) = (void (*)(box *))(func->data.vp);
+  func_ptr(ret);
+}
+
 int rain_box_to_exit(box* val) {
   if(BOX_IS(val, NULL)) {
     return val->data.ui;
@@ -180,10 +185,6 @@ void rain_mul(box *ret, box *lhs, box *rhs) {
 
 void rain_div(box *ret, box *lhs, box *rhs) {
   if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
-    if(rhs->data.si == 0) {
-      rain_throw(&rain_exc_div_by_zero);
-    }
-
     ret->type = ITYP_INT;
     ret->data.si = lhs->data.si / rhs->data.si;
   }

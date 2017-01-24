@@ -56,7 +56,9 @@ _Unwind_Reason_Code rain_personality_v0(int, _Unwind_Action, uint64_t, unwind_ex
 // from the standard lib
 
 box rain_exc_error;
-box rain_exc_div_by_zero;
 box rain_exc_arg_mismatch;
+box rain_exc_interrupt;
+box rain_exc_fpe;
+box rain_exc_segfault;
 
 #endif

@@ -17,14 +17,15 @@ externs = {
   'llvm.init.trampoline': T.func(T.void, [T.ptr(T.i8), T.ptr(T.i8), T.ptr(T.i8)]),
   'llvm.adjust.trampoline': T.func(T.ptr(T.i8), [T.ptr(T.i8)]),
 
-  'rain_box_to_exit': T.func(T.i32, [T.ptr(T.box)]),
-  'rain_print': T.vfunc(T.ptr(T.box)),
+  'rain_main': T.vfunc(T.arg, T.arg),
+  'rain_box_to_exit': T.func(T.i32, [T.arg]),
+  'rain_print': T.vfunc(T.arg),
   'rain_abort': T.vfunc(),
-  'rain_catch': T.vfunc(T.ptr(T.box)),
+  'rain_catch': T.vfunc(T.arg),
   'rain_personality_v0': T.func(T.i32, [], var_arg=True),
 
-  'rain_neg': T.vfunc(T.ptr(T.box), T.ptr(T.box)),
-  'rain_not': T.vfunc(T.ptr(T.box), T.ptr(T.box)),
+  'rain_neg': T.vfunc(T.arg, T.arg),
+  'rain_not': T.vfunc(T.arg, T.arg),
 
   'rain_add': T.bin,
   'rain_sub': T.bin,
@@ -43,8 +44,8 @@ externs = {
 
   'rain_string_concat': T.bin,
 
-  'rain_new_table': T.func(T.ptr(T.box), []),
-  'rain_new_pair': T.vfunc(T.ptr(T.box), T.ptr(T.box)),
+  'rain_new_table': T.func(T.arg, []),
+  'rain_new_pair': T.vfunc(T.arg, T.arg),
   'rain_put': T.bin,
   'rain_get': T.bin,
 }
