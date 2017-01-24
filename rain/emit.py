@@ -31,10 +31,19 @@ def emit_main(self, module):
   with module.add_main():
     box = module.builder.load(module['main'], name='main_box')
     func_ptr = module.get_value(box, typ=T.vfunc(T.arg))
-    _, ptrs = module.fncall(func_ptr, T.null)
 
-    ret_code = module.builder.call(module.extern('rain_box_to_exit'), ptrs, name='ret_code')
-    module.builder.ret(ret_code);
+    with module.add_catch() as (catch, resume):
+      _, ptrs = module.fncall(func_ptr, T.null, ret=module.resume, unwind=module.catch)
+
+      with catch:
+        lp = module.builder.landingpad(T.lp)
+        lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
+        module.builder.call(module.extern('rain_abort'), [])
+        module.builder.branch(module.resume)
+
+      with resume:
+        ret_code = module.builder.call(module.extern('rain_box_to_exit'), ptrs, name='ret_code')
+        module.builder.ret(ret_code);
 
 @block_node.method
 def emit(self, module):
@@ -488,6 +497,7 @@ def emit(self, module):
   if self.catch:
     with module.add_catch() as (catch, resume):
       _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes, ret=module.resume, unwind=module.catch)
+
       with catch:
         lp = module.builder.landingpad(T.lp)
         lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))

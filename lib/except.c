@@ -241,6 +241,12 @@ void rain_catch(box *ret) {
   rain_set_box(ret, &exception.val);
 }
 
+void rain_abort() {
+  printf("caught panic: ");
+  rain_print(&exception.val);
+  exit(1);
+}
+
 _Unwind_Reason_Code rain_personality_v0(int version, _Unwind_Action actions,
     uint64_t ex_class, unwind_exception_t* exception,
     exception_context_t* context) {

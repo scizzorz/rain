@@ -19,6 +19,7 @@ externs = {
 
   'rain_box_to_exit': T.func(T.i32, [T.ptr(T.box)]),
   'rain_print': T.vfunc(T.ptr(T.box)),
+  'rain_abort': T.vfunc(),
   'rain_catch': T.vfunc(T.ptr(T.box)),
   'rain_personality_v0': T.func(T.i32, [], var_arg=True),
 
@@ -114,7 +115,9 @@ class Module(S.Scope):
   @property
   def main(self):
     typ = T.func(T.i32, (T.ptr(T.ptr(T.i8)), T.i32))
-    return self.find_func(typ, name='main')
+    func = self.find_func(typ, name='main')
+    func.attributes.personality = self.extern('rain_personality_v0')
+    return func
 
   # add a new function
   def add_func(self, typ, name=None):
