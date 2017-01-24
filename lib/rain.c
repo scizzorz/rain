@@ -179,6 +179,7 @@ void rain_mul(box *ret, box *lhs, box *rhs) {
 }
 
 void rain_div(box *ret, box *lhs, box *rhs) {
+  RAIN_PUSH
   if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     if(rhs->data.si == 0) {
       rain_throw(&rain_exc_div_by_zero);
@@ -208,6 +209,7 @@ void rain_div(box *ret, box *lhs, box *rhs) {
     ret->type = ITYP_FLOAT;
     ret->data.f = ret_f;
   }
+  RAIN_POP
 }
 
 // boolean binary operators
