@@ -84,9 +84,9 @@ class Compiler:
     self.mod = M.Module(self.file)
     self.links = set()
 
+    # always link with lib/_pkg.rn
     builtin = get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
-
-    if self is not builtin: # don't try to import builtin into builtin
+    if self is not builtin: # unless we ARE lib/_pkg.rn
       builtin.goodies()
       self.links.add(builtin.ll)
 
@@ -94,8 +94,14 @@ class Compiler:
       for name, val in builtin.mod.globals.items():
         self.mod[name] = val
 
-      # add LLVM globals
+      # import LLVM globals
       self.mod.import_from(builtin.mod)
+
+    # always link with lib/except.rn
+    exc = get_compiler(join(ENV['RAINLIB'], 'except.rn'))
+    if self is not exc:
+      exc.goodies()
+      self.links.add(exc.ll)
 
     # compile the imports
     imports = self.ast.emit(self.mod)

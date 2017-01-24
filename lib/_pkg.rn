@@ -1,5 +1,3 @@
-import except
-
 print = extern "rain_ext_print"
 exit = extern "rain_exit"
 panic = extern "rain_ext_throw"
