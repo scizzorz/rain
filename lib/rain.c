@@ -181,8 +181,7 @@ void rain_mul(box *ret, box *lhs, box *rhs) {
 void rain_div(box *ret, box *lhs, box *rhs) {
   if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     if(rhs->data.si == 0) {
-      rain_set_str(ret, "division by zero");
-      rain_throw(ret);
+      rain_throw(&rain_exc_div_by_zero);
     }
 
     ret->type = ITYP_INT;

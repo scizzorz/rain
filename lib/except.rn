@@ -1,0 +1,19 @@
+error = table
+error.msg = "error"
+
+div_by_zero = table from error
+div_by_zero.msg = "division by zero"
+
+arg_mismatch = table from error
+arg_mismatch.msg = "argument mismatch"
+
+export error as "rain_exc_error"
+export div_by_zero as "rain_exc_div_by_zero"
+export arg_mismatch as "rain_exc_arg_mismatch"
+
+safe = func(val)
+  while val is table
+    break if !(val.metatable)
+    val = val.metatable
+
+  return val != error

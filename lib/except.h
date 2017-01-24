@@ -53,4 +53,10 @@ void rain_abort();
 void rain_catch(box *);
 _Unwind_Reason_Code rain_personality_v0(int, _Unwind_Action, uint64_t, unwind_exception_t *, exception_context_t *);
 
+// from the standard lib
+
+box rain_exc_error;
+box rain_exc_div_by_zero;
+box rain_exc_arg_mismatch;
+
 #endif
