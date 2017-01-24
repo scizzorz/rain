@@ -1,4 +1,5 @@
 #include "rain.h"
+#include "except.h"
 
 // system helpers
 
@@ -179,6 +180,11 @@ void rain_mul(box *ret, box *lhs, box *rhs) {
 
 void rain_div(box *ret, box *lhs, box *rhs) {
   if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
+    if(rhs->data.si == 0) {
+      rain_set_str(ret, "division by zero");
+      rain_throw(ret);
+    }
+
     ret->type = ITYP_INT;
     ret->data.si = lhs->data.si / rhs->data.si;
   }
