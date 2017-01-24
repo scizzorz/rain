@@ -133,6 +133,13 @@ def stmt(ctx):
 
     return A.import_node(name, rename)
 
+  if ctx.consume(K.keyword_token('export')):
+    val = ctx.require(K.name_token, K.string_token).value
+    ctx.require(K.keyword_token('as'))
+    name = ctx.require(K.name_token, K.string_token).value
+
+    return A.export_node(val, name)
+
   if ctx.consume(K.keyword_token('for')):
     name = ctx.require(K.name_token)
     ctx.require(K.keyword_token('in'))

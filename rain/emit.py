@@ -224,6 +224,18 @@ def emit(self, module):
   module.builder.cbranch(cond, module.before, nocont)
   module.builder.position_at_end(nocont)
 
+@export_node.method
+def emit(self, module):
+  if module.builder: # non-global scope
+    print('Can\'t export values at non-global scope')
+    sys.exit(1)
+
+  if self.val not in module:
+    print('Can\'t export unknown value {!r}'.format(self.val))
+
+  glob = module.add_global(T.box, name=self.name)
+  glob.initializer = module[self.val].col
+
 @import_node.method
 def emit(self, module):
   if module.builder: # non-global scope

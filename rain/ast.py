@@ -71,6 +71,14 @@ class cont_node(node):
   def __init__(self, cond=None):
     self.cond = cond
 
+class export_node(node):
+  def __init__(self, val, name):
+    self.val = val
+    self.name = name
+
+  def __str__(self):
+    return 'export({!s} as {!s})'.format(self.val, self.name)
+
 class if_node(node):
   def __init__(self, pred, body, els=None):
     self.pred = pred
