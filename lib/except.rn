@@ -7,9 +7,13 @@ div_by_zero.msg = "division by zero"
 arg_mismatch = table from error
 arg_mismatch.msg = "argument mismatch"
 
+stack_overflow = table from error
+stack_overflow.msg = "stack overflow"
+
 export error as "rain_exc_error"
 export div_by_zero as "rain_exc_div_by_zero"
 export arg_mismatch as "rain_exc_arg_mismatch"
+export stack_overflow as "rain_exc_stack_overflow"
 
 safe = func(val)
   while val is table

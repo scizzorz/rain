@@ -21,6 +21,9 @@ externs = {
   'rain_print': T.vfunc(T.ptr(T.box)),
   'rain_abort': T.vfunc(),
   'rain_catch': T.vfunc(T.ptr(T.box)),
+  'rain_push': T.vfunc(T.ptr(T.i8), T.i32, T.i32),
+  'rain_pop': T.vfunc(),
+  'rain_dump': T.vfunc(),
   'rain_personality_v0': T.func(T.i32, [], var_arg=True),
 
   'rain_neg': T.vfunc(T.ptr(T.box), T.ptr(T.box)),

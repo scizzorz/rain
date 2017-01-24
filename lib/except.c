@@ -5,6 +5,8 @@
 #include <stdlib.h>
 
 static exception_t exception;
+static stack_entry_t traceback[TRACEBACK_DEPTH];
+static uint32_t depth = 0;
 static uintptr_t landing_pad;
 
 // LEB encoding
@@ -223,6 +225,26 @@ static void set_registers(unwind_exception_t* exception, exception_context_t* co
 
 // Rain API
 
+void rain_push(char *mod, int line, int col) {
+  traceback[depth].mod = mod;
+  traceback[depth].line = line;
+  traceback[depth].col = col;
+  depth++;
+  if(depth > TRACEBACK_DEPTH-1) {
+    rain_throw(&rain_exc_stack_overflow);
+  }
+}
+
+void rain_pop() {
+  depth--;
+}
+
+void rain_dump() {
+  for(uint32_t i=0; i<depth; i++) {
+    printf("%s:%d:%d\n", traceback[i].mod, traceback[i].line, traceback[i].col);
+  }
+}
+
 void rain_throw(box *val) {
   exception.base.exception_class = 0x5261696E00000000; // "Rain"
   exception.base.exception_cleanup = exception_cleanup;
@@ -244,6 +266,8 @@ void rain_catch(box *ret) {
 void rain_abort() {
   printf("caught panic: ");
   rain_print(&exception.val);
+  printf("stack dump: ");
+  rain_dump();
   exit(1);
 }
 
