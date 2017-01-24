@@ -102,7 +102,7 @@ void rain_not(box *ret, box *val) {
 void rain_add(box *ret, box *lhs, box *rhs) {
   if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     ret->type = ITYP_INT;
-    ret->data.ui = lhs->data.ui + rhs->data.ui;
+    ret->data.si = lhs->data.si + rhs->data.si;
   }
   else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
     double lhs_f = lhs->data.f;
@@ -130,7 +130,7 @@ void rain_add(box *ret, box *lhs, box *rhs) {
 void rain_sub(box *ret, box *lhs, box *rhs) {
   if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     ret->type = ITYP_INT;
-    ret->data.ui = lhs->data.ui - rhs->data.ui;
+    ret->data.si = lhs->data.si - rhs->data.si;
   }
   else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
     double lhs_f = lhs->data.f;
@@ -158,7 +158,7 @@ void rain_sub(box *ret, box *lhs, box *rhs) {
 void rain_mul(box *ret, box *lhs, box *rhs) {
   if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     ret->type = ITYP_INT;
-    ret->data.ui = lhs->data.ui * rhs->data.ui;
+    ret->data.si = lhs->data.si * rhs->data.si;
   }
   else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
     double lhs_f = lhs->data.f;
@@ -186,7 +186,7 @@ void rain_mul(box *ret, box *lhs, box *rhs) {
 void rain_div(box *ret, box *lhs, box *rhs) {
   if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     ret->type = ITYP_INT;
-    ret->data.ui = lhs->data.ui / rhs->data.ui;
+    ret->data.si = lhs->data.si / rhs->data.si;
   }
   else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
     double lhs_f = lhs->data.f;
