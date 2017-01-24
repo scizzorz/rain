@@ -19,7 +19,7 @@ def emit(self, module):
 
   imports = []
   for stmt in self.stmts:
-    ret = stmt.emit(module)
+    ret = module.emit(stmt)
     if isinstance(stmt, import_node):
       imports.append(ret)
 
@@ -47,11 +47,12 @@ def emit_main(self, module):
 @block_node.method
 def emit(self, module):
   for stmt in self.stmts:
-    stmt.emit(module)
+    module.emit(stmt)
 
 # helpers
 
-def truthy(module, box):
+def truthy(module, node):
+  box = module.emit(node)
   typ = module.get_type(box)
   val = module.get_value(box)
   not_null = module.builder.icmp_unsigned('!=', typ, T.ityp.null)
@@ -135,7 +136,7 @@ def static_table_from_ptr(module, ptr, metatable=None):
 
   if metatable:
     # get these for storing
-    mt_val = metatable.emit(module)
+    mt_val = module.emit(metatable)
     mt_key = module.metatable_key.initializer
     mt_column = T.column([mt_key, mt_val, T.ptr(T.column)(None)])
 
@@ -162,8 +163,8 @@ def emit(self, module):
       module[self.lhs] = ptr
 
       key_node = str_node(self.lhs.value)
-      key = key_node.emit(module)
-      val = self.rhs.emit(module)
+      key = module.emit(key_node)
+      val = module.emit(self.rhs)
 
       static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, val)
 
@@ -176,7 +177,7 @@ def emit(self, module):
         module[self.lhs] = module.builder.alloca(T.box)
         module[self.lhs].bound = False # cheesy hack - see @func_node
 
-    rhs = self.rhs.emit(module)
+    rhs = module.emit(self.rhs)
 
     if self.lhs not in module:
       module.panic("Undeclared name {!r}", self.lhs.value)
@@ -188,16 +189,16 @@ def emit(self, module):
     if module.is_global: # global scope
       table_ptr = module[self.lhs.lhs].col.source
       key_node = self.lhs.rhs
-      key = key_node.emit(module)
-      val = self.rhs.emit(module)
+      key = module.emit(key_node)
+      val = module.emit(self.rhs)
 
       column_ptr = module.add_global(T.column, name=module.uniq('column'))
       static_table_put(module, table_ptr, column_ptr, key_node, key, val)
       return
 
-    table = self.lhs.lhs.emit(module)
-    key = self.lhs.rhs.emit(module)
-    val = self.rhs.emit(module)
+    table = module.emit(self.lhs.lhs)
+    key = module.emit(self.lhs.rhs)
+    val = module.emit(self.rhs)
 
     module.fncall(module.extern('rain_put'), table, key, val)
 
@@ -206,7 +207,7 @@ def emit(self, module):
   if not self.cond:
     return module.builder.branch(module.after)
 
-  cond = truthy(module, self.cond.emit(module))
+  cond = truthy(module, self.cond)
   nobreak = module.builder.append_basic_block('nobreak')
   module.builder.cbranch(cond, module.after, nobreak)
   module.builder.position_at_end(nobreak)
@@ -216,7 +217,7 @@ def emit(self, module):
   if not self.cond:
     return module.builder.branch(module.before)
 
-  cond = truthy(module, self.cond.emit(module))
+  cond = truthy(module, self.cond)
   nocont = module.builder.append_basic_block('nocont')
   module.builder.cbranch(cond, module.before, nocont)
   module.builder.position_at_end(nocont)
@@ -252,7 +253,7 @@ def emit(self, module):
   rename = self.rename or comp.mod.mname
 
   key_node = str_node(rename)
-  key = key_node.emit(module)
+  key = module.emit(key_node)
   val = static_table_from_ptr(module, glob)
 
   column_ptr = module.add_global(T.column, name=module.uniq('column'))
@@ -272,35 +273,35 @@ def emit(self, module):
 @return_node.method
 def emit(self, module):
   if self.value:
-    module.builder.store(self.value.emit(module), module.ret_ptr)
+    module.builder.store(module.emit(self.value), module.ret_ptr)
 
   module.builder.ret_void()
 
 @save_node.method
 def emit(self, module):
-  module.builder.store(self.value.emit(module), module.ret_ptr)
+  module.builder.store(module.emit(self.value), module.ret_ptr)
 
 # block statements
 
 @if_node.method
 def emit(self, module):
-  pred = truthy(module, self.pred.emit(module))
+  pred = truthy(module, self.pred)
 
   if self.els:
     with module.builder.if_else(pred) as (then, els):
       with then:
-        self.body.emit(module)
+        module.emit(self.body)
       with els:
-        self.els.emit(module)
+        module.emit(self.els)
 
   else:
-    with module.builder.if_then(truthy(module, self.pred.emit(module))):
-      self.body.emit(module)
+    with module.builder.if_then(pred):
+      module.emit(self.body)
 
 @with_node.method
 def emit(self, module):
-  user_box = self.expr.emit(module)
-  func_box = func_node(self.params, self.body).emit(module)
+  user_box = module.emit(self.expr)
+  func_box = module.emit(func_node(self.params, self.body))
 
   user_ptr = module.get_value(user_box, typ=T.vfunc(T.arg, T.arg))
   module.fncall(user_ptr, T.null, func_box)
@@ -312,33 +313,33 @@ def emit(self, module):
       module.builder.branch(module.loop)
 
     with loop:
-      self.body.emit(module)
+      module.emit(self.body)
       module.builder.branch(module.loop)
 
 @until_node.method
 def emit(self, module):
   with module.add_loop() as (before, loop):
     with before:
-      module.builder.cbranch(truthy(module, self.pred.emit(module)), module.after, module.loop)
+      module.builder.cbranch(truthy(module, self.pred), module.after, module.loop)
 
     with loop:
-      self.body.emit(module)
+      module.emit(self.body)
       module.builder.branch(module.before)
 
 @while_node.method
 def emit(self, module):
   with module.add_loop() as (before, loop):
     with before:
-      module.builder.cbranch(truthy(module, self.pred.emit(module)), module.loop, module.after)
+      module.builder.cbranch(truthy(module, self.pred), module.loop, module.after)
 
     with loop:
-      self.body.emit(module)
+      module.emit(self.body)
       module.builder.branch(module.before)
 
 @for_node.method
 def emit(self, module):
   # evaluate the expression and pull out the function pointer
-  func_box = self.func.emit(module)
+  func_box = module.emit(self.func)
   func_ptr = module.get_value(func_box, T.vfunc(T.arg))
 
   # set up the return pointer
@@ -356,7 +357,7 @@ def emit(self, module):
       module.builder.cbranch(not_null, module.loop, module.after)
 
     with loop:
-      self.body.emit(module)
+      module.emit(self.body)
       module.builder.branch(module.before)
 
 # simple expressions
@@ -410,7 +411,7 @@ def emit(self, module):
   ptr = module.call(module.extern('rain_new_table'))
 
   if self.metatable:
-    val = self.metatable.emit(module)
+    val = module.emit(self.metatable)
 
     with module.goto_entry():
       val_ptr = module.builder.alloca(T.box, name='key_ptr')
@@ -458,7 +459,7 @@ def emit(self, module):
       for name, ptr in zip(self.params, func_args[1:]):
         module[name] = ptr
 
-      self.body.emit(module)
+      module.emit(self.body)
 
       if not module.builder.block.is_terminated:
         module.builder.ret_void()
@@ -495,8 +496,8 @@ def emit(self, module):
   if module.is_global: # global scope
     module.panic("Can't call functions at global scope")
 
-  func_box = self.func.emit(module)
-  arg_boxes = [arg.emit(module) for arg in self.args]
+  func_box = module.emit(self.func)
+  arg_boxes = [module.emit(arg) for arg in self.args]
 
   func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
 
@@ -528,12 +529,12 @@ def emit(self, module):
     # otherwise, do normal lookups
     table_ptr = module[self.lhs].col.source
     key_node = self.rhs
-    key = key_node.emit(module)
+    key = module.emit(key_node)
 
     return static_table_get(module, table_ptr, key_node, key)
 
-  table = self.lhs.emit(module)
-  key = self.rhs.emit(module)
+  table = module.emit(self.lhs)
+  key = module.emit(self.rhs)
 
   _, ptrs = module.fncall(module.extern('rain_get'), T.null, table, key)
 
@@ -544,13 +545,13 @@ def emit(self, module):
   if module.is_global: # global scope
     module.panic("Can't call methods at global scope")
 
-  table = self.lhs.emit(module)
-  key = self.rhs.emit(module)
+  table = module.emit(self.lhs)
+  key = module.emit(self.rhs)
 
   _, ptrs = module.fncall(module.extern('rain_get'), T.null, table, key)
 
   func_box = module.builder.load(ptrs[0])
-  arg_boxes = [table] + [arg.emit(module) for arg in self.args]
+  arg_boxes = [table] + [module.emit(arg) for arg in self.args]
 
   func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
 
@@ -563,8 +564,8 @@ def emit(self, module):
   if module.is_global: # global scope
     module.panic("Can't bind methods at global scope")
 
-  table = self.lhs.emit(module)
-  key = self.rhs.emit(module)
+  table = module.emit(self.lhs)
+  key = module.emit(self.rhs)
 
   _, ptrs = module.fncall(module.extern('rain_get'), T.null, table, key)
 
@@ -611,7 +612,7 @@ def emit(self, module):
     '!': 'rain_not',
   }
 
-  val = self.val.emit(module)
+  val = module.emit(self.val)
 
   _, ptrs = module.fncall(module.extern(arith[self.op]), T.null, val)
 
@@ -638,8 +639,8 @@ def emit(self, module):
     '$': 'rain_string_concat',
   }
 
-  lhs = self.lhs.emit(module)
-  rhs = self.rhs.emit(module)
+  lhs = module.emit(self.lhs)
+  rhs = module.emit(self.rhs)
 
   _, ptrs = module.fncall(module.extern(arith[self.op]), T.null, lhs, rhs)
 
@@ -650,7 +651,7 @@ def emit(self, module):
   if module.is_global: # global scope
     module.panic("Can't check types at global scope")
 
-  lhs = self.lhs.emit(module)
+  lhs = module.emit(self.lhs)
   lhs_typ = module.get_type(lhs)
   res = module.builder.icmp_unsigned('==', getattr(T.ityp, self.typ.value), lhs_typ)
   res = module.builder.zext(res, T.i64)

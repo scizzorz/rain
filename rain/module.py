@@ -75,6 +75,7 @@ class Module(S.Scope):
     for name in externs:
       self.extern(name)
 
+    self.coord = (0, 0)
     self.entry = None
     self.builder = None
     self.catch = None
@@ -85,6 +86,11 @@ class Module(S.Scope):
     self.ret_ptr = None
 
     self.name_counter = 0
+
+  def emit(self, node):
+    with self.stack('coord'):
+      self.coord = getattr(node, 'origin', (0, 0))
+      return node.emit(self)
 
   def panic(self, fmt, *args, line=None, col=None):
     prefix = ''
@@ -215,12 +221,6 @@ class Module(S.Scope):
       self.builder.position_at_end(self.resume)
 
   @contextmanager
-  def add_main(self):
-    block = self.main.append_basic_block(name='entry')
-    with self.add_builder(block):
-      yield self.main
-
-  @contextmanager
   def goto(self, block):
     with self.builder.goto_block(block):
       yield
@@ -230,6 +230,13 @@ class Module(S.Scope):
     with self.builder.goto_entry_block():
       yield
 
+  @contextmanager
+  def add_main(self):
+    block = self.main.append_basic_block(name='entry')
+    with self.add_builder(block):
+      yield self.main
+
+  # box extractions
   def get_type(self, box):
     return self.builder.extract_value(box, T.TYPE)
 
@@ -251,7 +258,8 @@ class Module(S.Scope):
     for arg, ptr in zip(args, ptrs):
       self.builder.store(arg, ptr)
 
-    self.builder.call(self.extern('rain_push'), [self.name_ptr, T.i32(0), T.i32(1)])
+    x, y = self.coord
+    self.builder.call(self.extern('rain_push'), [self.name_ptr, T.i32(x), T.i32(y)])
 
     if ret and unwind:
       val = self.builder.invoke(fn, ptrs, ret, unwind)
@@ -265,7 +273,8 @@ class Module(S.Scope):
 
   # call a function and push/pop information to the traceback
   def call(self, fn, *args):
-    self.builder.call(self.extern('rain_push'), [self.name_ptr, T.i32(0), T.i32(1)])
+    x, y = self.coord
+    self.builder.call(self.extern('rain_push'), [self.name_ptr, T.i32(x), T.i32(y)])
     val = self.builder.call(fn, args)
     self.builder.call(self.extern('rain_pop'), [])
     return val
