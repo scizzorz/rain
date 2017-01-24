@@ -37,11 +37,11 @@ def emit_main(self, module):
       with catch:
         lp = module.builder.landingpad(T.lp)
         lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-        module.builder.call(module.extern('rain_abort'), [])
+        module.call(module.extern('rain_abort'))
         module.builder.branch(module.resume)
 
       with resume:
-        ret_code = module.builder.call(module.extern('rain_box_to_exit'), ptrs, name='ret_code')
+        ret_code = module.call(module.extern('rain_box_to_exit'), *ptrs)
         module.builder.ret(ret_code);
 
 @block_node.method
@@ -349,7 +349,7 @@ def emit(self, module):
     with before:
       # call our function and break if it returns null
       module.builder.store(T.null, ret_ptr)
-      module.builder.call(func_ptr, [ret_ptr])
+      module.call(func_ptr, ret_ptr)
       box = module.builder.load(ret_ptr)
       typ = module.get_type(box)
       not_null = module.builder.icmp_unsigned('!=', typ, T.ityp.null)
@@ -407,7 +407,7 @@ def emit(self, module):
   if module.is_global: # global scope
     return static_table_alloc(module, module.uniq('table'), metatable=self.metatable)
 
-  ptr = module.builder.call(module.extern('rain_new_table'), [])
+  ptr = module.call(module.extern('rain_new_table'))
 
   if self.metatable:
     val = self.metatable.emit(module)
@@ -416,7 +416,7 @@ def emit(self, module):
       val_ptr = module.builder.alloca(T.box, name='key_ptr')
 
     module.builder.store(val, val_ptr)
-    module.builder.call(module.extern('rain_put'), [ptr, module.metatable_key, val_ptr])
+    module.call(module.extern('rain_put'), ptr, module.metatable_key, val_ptr)
 
   return module.builder.load(ptr)
 
@@ -464,7 +464,7 @@ def emit(self, module):
         module.builder.ret_void()
 
   if env:
-    env_raw_ptr = module.builder.call(module.extern('GC_malloc'), [T.i32(T.BOX_SIZE * len(env))])
+    env_raw_ptr = module.call(module.extern('GC_malloc'), T.i32(T.BOX_SIZE * len(env)))
     env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
 
     func = module.add_tramp(func, env_ptr)
@@ -507,7 +507,7 @@ def emit(self, module):
       with catch:
         lp = module.builder.landingpad(T.lp)
         lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-        module.builder.call(module.extern('rain_catch'), [ptrs[0]])
+        module.call(module.extern('rain_catch'), ptrs[0])
         module.builder.branch(module.resume)
 
       with resume:
@@ -584,10 +584,10 @@ def emit(self, module):
     real_func_box = module.builder.load(func_ptr)
     real_func_ptr = module.get_value(real_func_box, typ=func_typ)
 
-    module.builder.call(real_func_ptr, [func.args[1], self_ptr])
+    module.call(real_func_ptr, func.args[1], self_ptr)
     module.builder.ret_void()
 
-  env_raw_ptr = module.builder.call(module.extern('GC_malloc'), [T.i32(T.BOX_SIZE * 2)])
+  env_raw_ptr = module.call(module.extern('GC_malloc'), T.i32(T.BOX_SIZE * 2))
   env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
   env_val = env_typ(None)
   env_val = module.builder.insert_value(env_val, bind_func_box, 0)

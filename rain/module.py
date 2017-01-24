@@ -243,6 +243,7 @@ class Module(S.Scope):
   def get_size(self, box):
     return self.builder.extract_value(box, T.SIZE)
 
+  # allocate stack space for a function arguments, then call/invoke the function
   def fncall(self, fn, *args, ret=None, unwind=None):
     with self.builder.goto_entry_block():
       ptrs = [self.builder.alloca(T.box) for arg in args]
@@ -261,6 +262,13 @@ class Module(S.Scope):
     val = self.builder.call(fn, ptrs)
     self.builder.call(self.extern('rain_pop'), [])
     return val, ptrs
+
+  # call a function and push/pop information to the traceback
+  def call(self, fn, *args):
+    self.builder.call(self.extern('rain_push'), [self.name_ptr, T.i32(0), T.i32(1)])
+    val = self.builder.call(fn, args)
+    self.builder.call(self.extern('rain_pop'), [])
+    return val
 
   def add_tramp(self, func_ptr, env_ptr):
     tramp_buf = self.builder.call(self.extern('GC_malloc'), [T.i32(T.TRAMP_SIZE)])
