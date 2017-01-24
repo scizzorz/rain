@@ -67,6 +67,11 @@ class Module(S.Scope):
     self.llvm = ir.Module(name=self.qname)
     self.llvm.triple = binding.get_default_triple()
 
+    typ = T.arr(T.i8, len(self.qname) + 1)
+    ptr = self.add_global(typ, name=self.mangle('name'))
+    ptr.initializer = typ(bytearray(self.qname + '\0', 'utf-8'))
+    self.name_ptr = ptr.gep([T.i32(0), T.i32(0)])
+
     for name in externs:
       self.extern(name)
 
@@ -245,10 +250,17 @@ class Module(S.Scope):
     for arg, ptr in zip(args, ptrs):
       self.builder.store(arg, ptr)
 
-    if ret and unwind:
-      return self.builder.invoke(fn, ptrs, ret, unwind), ptrs
+    self.builder.call(self.extern('rain_push'), [self.name_ptr, T.i32(0), T.i32(1)])
 
-    return self.builder.call(fn, ptrs), ptrs
+    if ret and unwind:
+      val = self.builder.invoke(fn, ptrs, ret, unwind)
+      with self.goto(ret):
+        self.builder.call(self.extern('rain_pop'), [])
+      return val, ptrs
+
+    val = self.builder.call(fn, ptrs)
+    self.builder.call(self.extern('rain_pop'), [])
+    return val, ptrs
 
   def add_tramp(self, func_ptr, env_ptr):
     tramp_buf = self.builder.call(self.extern('GC_malloc'), [T.i32(T.TRAMP_SIZE)])
