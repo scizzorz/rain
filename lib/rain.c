@@ -76,12 +76,6 @@ void rain_exit(box *ret, box *val) {
   exit(rain_box_to_exit(val));
 }
 
-void rain_panic(box *ret, box *val) {
-  printf("panic: ");
-  rain_print(val);
-  exit(1);
-}
-
 // unary operators
 
 void rain_neg(box *ret, box *val) {
