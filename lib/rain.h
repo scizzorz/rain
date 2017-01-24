@@ -17,9 +17,6 @@
 
 #define HASH_SIZE 32
 
-#define RAIN_PUSH rain_push(__FILE__, __LINE__, 0);
-#define RAIN_POP rain_pop();
-
 #define BOX_IS(x, t) ((x)->type == ITYP_##t)
 #define BOX_ISNT(x, t) ((x)->type != ITYP_##t)
 

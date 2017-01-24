@@ -21,9 +21,6 @@ externs = {
   'rain_print': T.vfunc(T.ptr(T.box)),
   'rain_abort': T.vfunc(),
   'rain_catch': T.vfunc(T.ptr(T.box)),
-  'rain_push': T.vfunc(T.ptr(T.i8), T.i32, T.i32),
-  'rain_pop': T.vfunc(),
-  'rain_dump': T.vfunc(),
   'rain_personality_v0': T.func(T.i32, [], var_arg=True),
 
   'rain_neg': T.vfunc(T.ptr(T.box), T.ptr(T.box)),
@@ -260,25 +257,16 @@ class Module(S.Scope):
     for arg, ptr in zip(args, ptrs):
       self.builder.store(arg, ptr)
 
-    x, y = self.coord
-    self.builder.call(self.extern('rain_push'), [self.name_ptr, T.i32(x), T.i32(y)])
-
-    if ret and unwind:
-      val = self.builder.invoke(fn, ptrs, ret, unwind)
-      with self.goto(ret):
-        self.builder.call(self.extern('rain_pop'), [])
-      return val, ptrs
-
-    val = self.builder.call(fn, ptrs)
-    self.builder.call(self.extern('rain_pop'), [])
+    val = self.call(fn, *ptrs, ret=ret, unwind=unwind)
     return val, ptrs
 
   # call a function and push/pop information to the traceback
-  def call(self, fn, *args):
-    x, y = self.coord
-    self.builder.call(self.extern('rain_push'), [self.name_ptr, T.i32(x), T.i32(y)])
-    val = self.builder.call(fn, args)
-    self.builder.call(self.extern('rain_pop'), [])
+  def call(self, fn, *args, ret=None, unwind=None):
+    if ret and unwind:
+      val = self.builder.invoke(fn, args, ret, unwind)
+    else:
+      val = self.builder.call(fn, args)
+
     return val
 
   def add_tramp(self, func_ptr, env_ptr):

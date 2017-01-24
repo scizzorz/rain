@@ -6,8 +6,6 @@
 #include <stdint.h>
 #include <unwind.h>
 
-#define TRACEBACK_DEPTH 255
-
 typedef struct _Unwind_Context exception_context_t;
 typedef struct _Unwind_Exception unwind_exception_t;
 
@@ -30,12 +28,6 @@ typedef struct lsda_t {
   uint8_t call_site_encoding;
 } lsda_t;
 
-typedef struct stack_entry_t {
-  char *mod;
-  int line;
-  int col;
-} stack_entry_t;
-
 enum {
   DW_EH_PE_absptr = 0x00,
   DW_EH_PE_uleb128 = 0x01,
@@ -55,9 +47,6 @@ enum {
   DW_EH_PE_omit = 0xFF
 };
 
-void rain_push(char *, int, int);
-void rain_pop();
-void rain_dump();
 void rain_throw(box *);
 void rain_ext_throw(box *, box *);
 void rain_abort();
@@ -69,6 +58,5 @@ _Unwind_Reason_Code rain_personality_v0(int, _Unwind_Action, uint64_t, unwind_ex
 box rain_exc_error;
 box rain_exc_div_by_zero;
 box rain_exc_arg_mismatch;
-box rain_exc_stack_overflow;
 
 #endif
