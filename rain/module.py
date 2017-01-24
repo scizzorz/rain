@@ -19,6 +19,7 @@ externs = {
 
   'rain_box_to_exit': T.func(T.i32, [T.ptr(T.box)]),
   'rain_print': T.vfunc(T.ptr(T.box)),
+  'rain_catch': T.vfunc(T.ptr(T.box)),
 
   'rain_neg': T.vfunc(T.ptr(T.box), T.ptr(T.box)),
   'rain_not': T.vfunc(T.ptr(T.box), T.ptr(T.box)),

@@ -24,6 +24,7 @@ box = ir.context.global_context.get_identified_type('box')
 column = ir.context.global_context.get_identified_type('column')
 entry = ir.context.global_context.get_identified_type('entry')
 arg = ptr(box)
+lp = ir.LiteralStructType([ptr(i8), i32])
 
 def vfunc(*args, var_arg=False):
   return func(void, args, var_arg=var_arg)

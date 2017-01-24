@@ -48,6 +48,7 @@ enum {
 };
 
 void rain_throw(box *);
+void rain_ext_throw(box *, box *);
 void rain_catch(box *);
 _Unwind_Reason_Code rain_personality_v0(int, _Unwind_Action, uint64_t, unwind_exception_t *, exception_context_t *);
 
