@@ -1,0 +1,10 @@
+import env
+import array
+
+main = func()
+  print(array.length(env.args))
+  for arg in array.values(env.args)
+    print(arg)
+
+  print("my PATH is...")
+  print(env.get("PATH"))

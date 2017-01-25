@@ -103,6 +103,12 @@ class Compiler:
       exc.goodies()
       self.links.add(exc.ll)
 
+    # always link with lib/env.rn
+    env = get_compiler(join(ENV['RAINLIB'], 'env.rn'))
+    if self is not env:
+      env.goodies()
+      self.links.add(env.ll)
+
     # compile the imports
     imports = self.ast.emit(self.mod)
     for mod in imports:

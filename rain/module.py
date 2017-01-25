@@ -17,7 +17,7 @@ externs = {
   'llvm.init.trampoline': T.func(T.void, [T.ptr(T.i8), T.ptr(T.i8), T.ptr(T.i8)]),
   'llvm.adjust.trampoline': T.func(T.ptr(T.i8), [T.ptr(T.i8)]),
 
-  'rain_main': T.vfunc(T.arg, T.arg),
+  'rain_main': T.vfunc(T.arg, T.arg, T.i32, T.ptr(T.ptr(T.i8))),
   'rain_box_to_exit': T.func(T.i32, [T.arg]),
   'rain_print': T.vfunc(T.arg),
   'rain_abort': T.vfunc(),
@@ -141,7 +141,7 @@ class Module(S.Scope):
   # main function
   @property
   def main(self):
-    typ = T.func(T.i32, (T.ptr(T.ptr(T.i8)), T.i32))
+    typ = T.func(T.i32, (T.i32, T.ptr(T.ptr(T.i8))))
     func = self.find_func(typ, name='main')
     func.attributes.personality = self.extern('rain_personality_v0')
     return func
