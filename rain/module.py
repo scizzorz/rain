@@ -74,7 +74,6 @@ class Module(S.Scope):
       self.extern(name)
 
     self.coord = (0, 0)
-    self.entry = None
     self.builder = None
     self.catch = None
     self.resume = None
@@ -189,10 +188,14 @@ class Module(S.Scope):
   # add a function body block
   @contextmanager
   def add_func_body(self, func):
-    with self.stack('entry', 'ret_ptr'):
-      self.entry = func.append_basic_block('entry')
+    with self.stack('ret_ptr'):
+      entry = func.append_basic_block('entry')
+      body = func.append_basic_block('body')
       self.ret_ptr = func.args[0]
-      with self.add_builder(self.entry):
+      with self.add_builder(entry):
+        self.builder.branch(body)
+
+      with self.add_builder(body):
         yield
 
   @contextmanager
