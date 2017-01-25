@@ -1,6 +1,12 @@
 #ifndef EXCEPT_H
 #define EXCEPT_H
 
+/*
+DISCLAIMER: Much of this code was borrowed and modified from the Pony language.
+Please see the PONY-LICENSE in the repository root, or view it at
+https://github.com/ponylang/ponyc
+*/
+
 #include "rain.h"
 #include <stdbool.h>
 #include <stdint.h>

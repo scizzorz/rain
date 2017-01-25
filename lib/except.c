@@ -4,6 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/*
+DISCLAIMER: Much of this code was borrowed and modified from the Pony language.
+Please see the PONY-LICENSE in the repository root, or view it at
+https://github.com/ponylang/ponyc
+*/
+
 static exception_t exception;
 static uintptr_t landing_pad;
 
