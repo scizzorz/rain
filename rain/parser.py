@@ -365,7 +365,10 @@ def primary(ctx):
       name = ctx.require(K.name_token)
       rhs = A.str_node(name.value)
 
-      if ctx.expect(K.symbol_token('(')):
+      if ctx.consume(K.symbol_token('?')):
+        args = fnargs(ctx)
+        node = A.meth_node(node, rhs, args, catch=True)
+      elif ctx.expect(K.symbol_token('(')):
         args = fnargs(ctx)
         node = A.meth_node(node, rhs, args)
       else:

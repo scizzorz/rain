@@ -515,7 +515,6 @@ def emit(self, module):
         return module.builder.load(ptrs[0])
 
   _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
-
   return module.builder.load(ptrs[0])
 
 @idx_node.method
@@ -555,8 +554,20 @@ def emit(self, module):
 
   func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
 
-  _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
+  if self.catch:
+    with module.add_catch() as (catch, resume):
+      _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes, ret=module.resume, unwind=module.catch)
 
+      with catch:
+        lp = module.builder.landingpad(T.lp)
+        lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
+        module.call(module.extern('rain_catch'), ptrs[0])
+        module.builder.branch(module.resume)
+
+      with resume:
+        return module.builder.load(ptrs[0])
+
+  _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
   return module.builder.load(ptrs[0])
 
 @bind_node.method

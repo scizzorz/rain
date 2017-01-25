@@ -209,10 +209,11 @@ class call_node(node):
     return '{!s}({!s})'.format(self.func, ', '.join(str(x) for x in self.args))
 
 class meth_node(node):
-  def __init__(self, lhs, rhs, args):
+  def __init__(self, lhs, rhs, args, catch=False):
     self.lhs = lhs
     self.rhs = rhs
     self.args = args
+    self.catch = catch
 
   def __str__(self):
     return '{!s}:{!s}({!s})'.format(self.lhs, self.rhs, ', '.join(str(x) for x in self.args))
