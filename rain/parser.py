@@ -141,6 +141,11 @@ def stmt(ctx):
 
     return A.export_node(val, name)
 
+  if ctx.consume(K.keyword_token('catch')):
+    name = ctx.require(K.name_token)
+    body = block(ctx)
+    return A.catch_node(name, body)
+
   if ctx.consume(K.keyword_token('for')):
     name = ctx.require(K.name_token)
     ctx.require(K.keyword_token('in'))

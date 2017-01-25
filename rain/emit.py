@@ -355,6 +355,21 @@ def emit(self, module):
       module.emit(self.body)
       module.builder.branch(module.before)
 
+@catch_node.method
+def emit(self, module):
+  with module.goto_entry():
+    ret_ptr = module[self.name] = module.builder.alloca(T.box, name='exc_var')
+
+  module.builder.store(T.null, ret_ptr)
+  end = module.builder.append_basic_block('end_catch')
+
+  with module.add_catch(True) as catch:
+    module.emit(self.body)
+    catch(ret_ptr, end)
+
+  module.builder.branch(end)
+  module.builder.position_at_end(end)
+
 # simple expressions
 
 @name_node.method

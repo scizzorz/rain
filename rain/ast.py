@@ -67,6 +67,11 @@ class break_node(node):
   def __init__(self, cond=None):
     self.cond = cond
 
+class catch_node(node):
+  def __init__(self, name, body):
+    self.name = name
+    self.body = body
+
 class cont_node(node):
   def __init__(self, cond=None):
     self.cond = cond

@@ -28,9 +28,9 @@ KW_OPERATORS = (
 )
 
 KEYWORDS = (
-  'as', 'break', 'continue', 'else', 'export', 'extern', 'for', 'from', 'func',
-  'if', 'import', 'in', 'is', 'let', 'loop', 'pass', 'return', 'save', 'until',
-  'while', 'with',
+  'as', 'break', 'catch', 'continue', 'else', 'export', 'extern', 'for',
+  'from', 'func', 'if', 'import', 'in', 'is', 'let', 'loop', 'pass', 'return',
+  'save', 'until', 'while', 'with',
 )
 
 TYPES = (

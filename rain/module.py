@@ -76,6 +76,7 @@ class Module(S.Scope):
     self.coord = (0, 0)
     self.builder = None
     self.catch = None
+    self.catchall = None
     self.before = None
     self.loop = None
     self.after = None
@@ -187,10 +188,11 @@ class Module(S.Scope):
   # add a function body block
   @contextmanager
   def add_func_body(self, func):
-    with self.stack('ret_ptr'):
+    with self.stack('ret_ptr', 'catchall'):
       entry = func.append_basic_block('entry')
       body = func.append_basic_block('body')
       self.ret_ptr = func.args[0]
+      self.catchall = False
       with self.add_builder(entry):
         self.builder.branch(body)
 
@@ -212,8 +214,9 @@ class Module(S.Scope):
       self.builder.position_at_end(self.after)
 
   @contextmanager
-  def add_catch(self):
-    with self.stack('catch'):
+  def add_catch(self, catchall=False):
+    with self.stack('catch', 'catchall'):
+      self.catchall = catchall
       catch = self.catch = self.builder.append_basic_block('catch')
 
       def catcher(ptr, branch):
@@ -269,7 +272,7 @@ class Module(S.Scope):
   def get_size(self, box):
     return self.builder.extract_value(box, T.SIZE)
 
-  # allocate stack space for a function arguments, then call/invoke the function
+  # allocate stack space for a function arguments, then call it
   def fncall(self, fn, *args, unwind=None):
     with self.builder.goto_entry_block():
       ptrs = [self.builder.alloca(T.box) for arg in args]
@@ -280,8 +283,11 @@ class Module(S.Scope):
     val = self.call(fn, *ptrs, unwind=unwind)
     return val, ptrs
 
-  # call a function and push/pop information to the traceback
+  # call/invoke a function based on unwind
   def call(self, fn, *args, unwind=None):
+    if self.catchall:
+      unwind = self.catch
+
     if unwind:
       resume = self.builder.append_basic_block('resume')
       val = self.builder.invoke(fn, args, resume, unwind)
