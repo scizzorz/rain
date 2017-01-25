@@ -31,18 +31,13 @@ def emit_main(self, module):
     ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
     module.builder.store(T.null, ret_ptr)
 
-    with module.add_catch() as (catch, resume):
-      module.call(module.extern('rain_main'), ret_ptr, module['main'], ret=module.resume, unwind=module.catch)
+    with module.add_abort() as abort:
+      module.call(module.extern('rain_main'), ret_ptr, module['main'], unwind=module.catch)
 
-      with catch:
-        lp = module.builder.landingpad(T.lp)
-        lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-        module.call(module.extern('rain_abort'))
-        module.builder.branch(module.resume)
+      abort(module.builder.block)
 
-      with resume:
-        ret_code = module.call(module.extern('rain_box_to_exit'), ret_ptr)
-        module.builder.ret(ret_code);
+      ret_code = module.call(module.extern('rain_box_to_exit'), ret_ptr)
+      module.builder.ret(ret_code);
 
 @block_node.method
 def emit(self, module):
@@ -344,7 +339,7 @@ def emit(self, module):
 
   # set up the return pointer
   with module.goto_entry():
-    ret_ptr = module[self.name] =  module.builder.alloca(T.box, name='for_var')
+    ret_ptr = module[self.name] = module.builder.alloca(T.box, name='for_var')
 
   with module.add_loop() as (before, loop):
     with before:
@@ -502,17 +497,12 @@ def emit(self, module):
   func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
 
   if self.catch:
-    with module.add_catch() as (catch, resume):
-      _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes, ret=module.resume, unwind=module.catch)
+    with module.add_catch() as catch:
+      _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes, unwind=module.catch)
 
-      with catch:
-        lp = module.builder.landingpad(T.lp)
-        lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-        module.call(module.extern('rain_catch'), ptrs[0])
-        module.builder.branch(module.resume)
+      catch(ptrs[0], module.builder.block)
 
-      with resume:
-        return module.builder.load(ptrs[0])
+      return module.builder.load(ptrs[0])
 
   _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
   return module.builder.load(ptrs[0])
@@ -555,17 +545,12 @@ def emit(self, module):
   func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
 
   if self.catch:
-    with module.add_catch() as (catch, resume):
-      _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes, ret=module.resume, unwind=module.catch)
+    with module.add_catch() as catch:
+      _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes, unwind=module.catch)
 
-      with catch:
-        lp = module.builder.landingpad(T.lp)
-        lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-        module.call(module.extern('rain_catch'), ptrs[0])
-        module.builder.branch(module.resume)
+      catch(ptrs[0], module.builder.block)
 
-      with resume:
-        return module.builder.load(ptrs[0])
+      return module.builder.load(ptrs[0])
 
   _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
   return module.builder.load(ptrs[0])

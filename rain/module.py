@@ -76,7 +76,6 @@ class Module(S.Scope):
     self.coord = (0, 0)
     self.builder = None
     self.catch = None
-    self.resume = None
     self.before = None
     self.loop = None
     self.after = None
@@ -214,14 +213,31 @@ class Module(S.Scope):
 
   @contextmanager
   def add_catch(self):
-    with self.stack('catch', 'resume'):
-      self.catch = self.builder.append_basic_block('catch')
-      self.resume = self.builder.append_basic_block('resume')
+    with self.stack('catch'):
+      catch = self.catch = self.builder.append_basic_block('catch')
 
-      yield (ctx_partial(self.goto, self.catch),
-             ctx_partial(self.goto, self.resume))
+      def catcher(ptr, branch):
+        with self.goto(catch):
+          lp = self.builder.landingpad(T.lp)
+          lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
+          self.call(self.extern('rain_catch'), ptr)
+          self.builder.branch(branch)
 
-      self.builder.position_at_end(self.resume)
+      yield catcher
+
+  @contextmanager
+  def add_abort(self):
+    with self.stack('catch'):
+      catch = self.catch = self.builder.append_basic_block('catch')
+
+      def aborter(branch):
+        with self.goto(catch):
+          lp = self.builder.landingpad(T.lp)
+          lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
+          self.call(self.extern('rain_abort'))
+          self.builder.branch(branch)
+
+      yield aborter
 
   @contextmanager
   def goto(self, block):
@@ -254,20 +270,22 @@ class Module(S.Scope):
     return self.builder.extract_value(box, T.SIZE)
 
   # allocate stack space for a function arguments, then call/invoke the function
-  def fncall(self, fn, *args, ret=None, unwind=None):
+  def fncall(self, fn, *args, unwind=None):
     with self.builder.goto_entry_block():
       ptrs = [self.builder.alloca(T.box) for arg in args]
 
     for arg, ptr in zip(args, ptrs):
       self.builder.store(arg, ptr)
 
-    val = self.call(fn, *ptrs, ret=ret, unwind=unwind)
+    val = self.call(fn, *ptrs, unwind=unwind)
     return val, ptrs
 
   # call a function and push/pop information to the traceback
-  def call(self, fn, *args, ret=None, unwind=None):
-    if ret and unwind:
-      val = self.builder.invoke(fn, args, ret, unwind)
+  def call(self, fn, *args, unwind=None):
+    if unwind:
+      resume = self.builder.append_basic_block('resume')
+      val = self.builder.invoke(fn, args, resume, unwind)
+      self.builder.position_at_end(resume)
     else:
       val = self.builder.call(fn, args)
 
