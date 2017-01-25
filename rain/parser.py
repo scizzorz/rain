@@ -32,6 +32,7 @@ class context:
     self.file = file
     self.stream = stream
     self.peek = next(stream)
+    self.coord = (0, 0)
     self.next()
 
   def next(self):
@@ -132,6 +133,18 @@ def stmt(ctx):
       rename = ctx.require(K.name_token).value
 
     return A.import_node(name, rename)
+
+  if ctx.consume(K.keyword_token('export')):
+    val = ctx.require(K.name_token, K.string_token).value
+    ctx.require(K.keyword_token('as'))
+    name = ctx.require(K.name_token, K.string_token).value
+
+    return A.export_node(val, name)
+
+  if ctx.consume(K.keyword_token('catch')):
+    name = ctx.require(K.name_token)
+    body = block(ctx)
+    return A.catch_node(name, body)
 
   if ctx.consume(K.keyword_token('for')):
     name = ctx.require(K.name_token)
@@ -343,6 +356,11 @@ def primary(ctx):
   node = prefix(ctx)
 
   while True:
+    if ctx.consume(K.symbol_token('?')):
+      args = fnargs(ctx)
+      node = A.call_node(node, args, catch=True)
+      continue
+
     if ctx.expect(K.symbol_token('(')):
       args = fnargs(ctx)
       node = A.call_node(node, args)
@@ -352,7 +370,10 @@ def primary(ctx):
       name = ctx.require(K.name_token)
       rhs = A.str_node(name.value)
 
-      if ctx.expect(K.symbol_token('(')):
+      if ctx.consume(K.symbol_token('?')):
+        args = fnargs(ctx)
+        node = A.meth_node(node, rhs, args, catch=True)
+      elif ctx.expect(K.symbol_token('(')):
         args = fnargs(ctx)
         node = A.meth_node(node, rhs, args)
       else:

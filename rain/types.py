@@ -22,8 +22,8 @@ ptr = ir.PointerType
 arr = ir.ArrayType
 box = ir.context.global_context.get_identified_type('box')
 column = ir.context.global_context.get_identified_type('column')
-entry = ir.context.global_context.get_identified_type('entry')
 arg = ptr(box)
+lp = ir.LiteralStructType([ptr(i8), i32])
 
 def vfunc(*args, var_arg=False):
   return func(void, args, var_arg=var_arg)
@@ -31,11 +31,10 @@ def vfunc(*args, var_arg=False):
 # set struct bodies
 box.set_body(i8, i64, i32)
 column.set_body(box, box, ptr(column))
-entry.set_body(ptr(box), ptr(box), ptr(entry))
 
 # constant aliases
 null = box(None)
-bin = func(void, [ptr(box), ptr(box), ptr(box)])
+bin = func(void, [arg, arg, arg])
 
 def _int(val):
   return box([ityp.int, cast.int(val), i32(0)])
@@ -70,7 +69,7 @@ class cast:
   float = f64
   bool = i64
   str = ptr(i8)
-  table = ptr(ptr(entry))
+  table = ptr(ptr(column))
   func = ptr(i8)
 
 class ityp:

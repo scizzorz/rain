@@ -43,6 +43,7 @@ typedef struct column_s {
   struct column_s *next;
 } column;
 
+void rain_main(box *, box *);
 int rain_box_to_exit(box *);
 void rain_print(box *);
 void rain_ext_print(box *, box *);
@@ -80,6 +81,7 @@ column *rain_has(box *, box *);
 void rain_get(box *, box *, box *);
 void rain_put(box *, box *, box *);
 
+void rain_set_box(box *, box *);
 void rain_set_null(box *);
 void rain_set_int(box *, signed long);
 void rain_set_float(box *, double);

@@ -17,11 +17,15 @@ externs = {
   'llvm.init.trampoline': T.func(T.void, [T.ptr(T.i8), T.ptr(T.i8), T.ptr(T.i8)]),
   'llvm.adjust.trampoline': T.func(T.ptr(T.i8), [T.ptr(T.i8)]),
 
-  'rain_box_to_exit': T.func(T.i32, [T.ptr(T.box)]),
-  'rain_print': T.vfunc(T.ptr(T.box)),
+  'rain_main': T.vfunc(T.arg, T.arg),
+  'rain_box_to_exit': T.func(T.i32, [T.arg]),
+  'rain_print': T.vfunc(T.arg),
+  'rain_abort': T.vfunc(),
+  'rain_catch': T.vfunc(T.arg),
+  'rain_personality_v0': T.func(T.i32, [], var_arg=True),
 
-  'rain_neg': T.vfunc(T.ptr(T.box), T.ptr(T.box)),
-  'rain_not': T.vfunc(T.ptr(T.box), T.ptr(T.box)),
+  'rain_neg': T.vfunc(T.arg, T.arg),
+  'rain_not': T.vfunc(T.arg, T.arg),
 
   'rain_add': T.bin,
   'rain_sub': T.bin,
@@ -40,8 +44,8 @@ externs = {
 
   'rain_string_concat': T.bin,
 
-  'rain_new_table': T.func(T.ptr(T.box), []),
-  'rain_new_pair': T.vfunc(T.ptr(T.box), T.ptr(T.box)),
+  'rain_new_table': T.func(T.arg, []),
+  'rain_new_pair': T.vfunc(T.arg, T.arg),
   'rain_put': T.bin,
   'rain_get': T.bin,
 }
@@ -61,17 +65,45 @@ class Module(S.Scope):
     self.llvm = ir.Module(name=self.qname)
     self.llvm.triple = binding.get_default_triple()
 
+    typ = T.arr(T.i8, len(self.qname) + 1)
+    ptr = self.add_global(typ, name=self.mangle('name'))
+    ptr.initializer = typ(bytearray(self.qname + '\0', 'utf-8'))
+    self.name_ptr = ptr.gep([T.i32(0), T.i32(0)])
+
     for name in externs:
       self.extern(name)
 
-    self.entry = None
+    self.coord = (0, 0)
     self.builder = None
+    self.catch = None
+    self.catchall = None
     self.before = None
     self.loop = None
     self.after = None
     self.ret_ptr = None
 
     self.name_counter = 0
+
+  def emit(self, node):
+    with self.stack('coord'):
+      self.coord = getattr(node, 'origin', (0, 0))
+      return node.emit(self)
+
+  def panic(self, fmt, *args):
+    prefix = ''
+    if self.qname:
+      prefix += self.qname + ':'
+
+    line, col = self.coord
+    if line and col:
+      prefix += str(line) + ':' + str(col) + ':'
+
+    msg = fmt.format(*args)
+
+    if prefix:
+      raise Exception('{} {}'.format(prefix, msg))
+
+    raise Exception(msg)
 
   @property
   def ir(self):
@@ -110,7 +142,9 @@ class Module(S.Scope):
   @property
   def main(self):
     typ = T.func(T.i32, (T.ptr(T.ptr(T.i8)), T.i32))
-    return self.find_func(typ, name='main')
+    func = self.find_func(typ, name='main')
+    func.attributes.personality = self.extern('rain_personality_v0')
+    return func
 
   # add a new function
   def add_func(self, typ, name=None):
@@ -154,10 +188,15 @@ class Module(S.Scope):
   # add a function body block
   @contextmanager
   def add_func_body(self, func):
-    with self.stack('entry', 'ret_ptr'):
-      self.entry = func.append_basic_block('entry')
+    with self.stack('ret_ptr', 'catchall'):
+      entry = func.append_basic_block('entry')
+      body = func.append_basic_block('body')
       self.ret_ptr = func.args[0]
-      with self.add_builder(self.entry):
+      self.catchall = False
+      with self.add_builder(entry):
+        self.builder.branch(body)
+
+      with self.add_builder(body):
         yield
 
   @contextmanager
@@ -170,15 +209,38 @@ class Module(S.Scope):
       self.builder.branch(self.before)
 
       yield (ctx_partial(self.goto, self.before),
-            ctx_partial(self.goto, self.loop))
+             ctx_partial(self.goto, self.loop))
 
       self.builder.position_at_end(self.after)
 
   @contextmanager
-  def add_main(self):
-    block = self.main.append_basic_block(name='entry')
-    with self.add_builder(block):
-      yield self.main
+  def add_catch(self, catchall=False):
+    with self.stack('catch', 'catchall'):
+      self.catchall = catchall
+      catch = self.catch = self.builder.append_basic_block('catch')
+
+      def catcher(ptr, branch):
+        with self.goto(catch):
+          lp = self.builder.landingpad(T.lp)
+          lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
+          self.call(self.extern('rain_catch'), ptr)
+          self.builder.branch(branch)
+
+      yield catcher
+
+  @contextmanager
+  def add_abort(self):
+    with self.stack('catch'):
+      catch = self.catch = self.builder.append_basic_block('catch')
+
+      def aborter(branch):
+        with self.goto(catch):
+          lp = self.builder.landingpad(T.lp)
+          lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
+          self.call(self.extern('rain_abort'))
+          self.builder.branch(branch)
+
+      yield aborter
 
   @contextmanager
   def goto(self, block):
@@ -190,6 +252,13 @@ class Module(S.Scope):
     with self.builder.goto_entry_block():
       yield
 
+  @contextmanager
+  def add_main(self):
+    block = self.main.append_basic_block(name='entry')
+    with self.add_builder(block):
+      yield self.main
+
+  # box extractions
   def get_type(self, box):
     return self.builder.extract_value(box, T.TYPE)
 
@@ -203,14 +272,30 @@ class Module(S.Scope):
   def get_size(self, box):
     return self.builder.extract_value(box, T.SIZE)
 
-  def fncall(self, fn, *args):
+  # allocate stack space for a function arguments, then call it
+  def fncall(self, fn, *args, unwind=None):
     with self.builder.goto_entry_block():
       ptrs = [self.builder.alloca(T.box) for arg in args]
 
     for arg, ptr in zip(args, ptrs):
       self.builder.store(arg, ptr)
 
-    return self.builder.call(fn, ptrs), ptrs
+    val = self.call(fn, *ptrs, unwind=unwind)
+    return val, ptrs
+
+  # call/invoke a function based on unwind
+  def call(self, fn, *args, unwind=None):
+    if self.catchall:
+      unwind = self.catch
+
+    if unwind:
+      resume = self.builder.append_basic_block('resume')
+      val = self.builder.invoke(fn, args, resume, unwind)
+      self.builder.position_at_end(resume)
+    else:
+      val = self.builder.call(fn, args)
+
+    return val
 
   def add_tramp(self, func_ptr, env_ptr):
     tramp_buf = self.builder.call(self.extern('GC_malloc'), [T.i32(T.TRAMP_SIZE)])
