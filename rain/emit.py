@@ -32,7 +32,7 @@ def emit_main(self, module):
     module.builder.store(T.null, ret_ptr)
 
     with module.add_abort() as abort:
-      module.call(module.extern('rain_main'), ret_ptr, module['main'], unwind=module.catch)
+      module.call(module.extern('rain_main'), ret_ptr, module['main'], *module.main.args, unwind=module.catch)
 
       abort(module.builder.block)
 
