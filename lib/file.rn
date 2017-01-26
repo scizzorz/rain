@@ -1,1 +1,1 @@
-open = extern "rain_fopen"
+open = extern "rain_fopen"(name, mode)

@@ -561,10 +561,10 @@ void rain_set_table(box *ret) {
   ret->size = 0;
 }
 
-void rain_set_func(box *ret, void *vp) {
+void rain_set_func(box *ret, void *vp, int num_args) {
   ret->type = ITYP_FUNC;
   ret->data.vp = vp;
-  ret->size = 0;
+  ret->size = num_args;
 }
 
 void rain_set_cdata(box *ret, void *vp) {

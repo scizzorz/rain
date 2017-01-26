@@ -237,11 +237,12 @@ class table_node(node):
 
 class extern_node(node):
   __tag__ = 'extern'
-  __version__ = 1
-  __slots__ = ['name']
+  __version__ = 2
+  __slots__ = ['name', 'params']
 
-  def __init__(self, name):
+  def __init__(self, name, params):
     self.name = name
+    self.params = params
 
 class import_node(node):
   __tag__ = 'import'
