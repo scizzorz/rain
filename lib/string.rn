@@ -5,6 +5,8 @@ length = core.length
 to_str = extern "rain_to_string"(val)
 fmt = extern "rain_fmt"(val, fmt)
 
+to_int = extern "rain_string_to_int"
+
 substring = func(s, start, end)
   let length = length(s)
   if start >= end | end >= length

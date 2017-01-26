@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "rain.h"
 #include "string.h"
 
@@ -63,4 +65,8 @@ void rain_fmt(box *ret, box *val, box *fmt) {
     default:
       rain_to_string(ret, val);
   }
+}
+
+void rain_string_to_int(box *ret, box *str) {
+  rain_set_int(ret, atoi(str->data.s));
 }
