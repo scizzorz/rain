@@ -28,9 +28,9 @@ KW_OPERATORS = (
 )
 
 KEYWORDS = (
-  'as', 'break', 'continue', 'else', 'extern', 'for', 'from', 'func', 'if',
-  'import', 'in', 'is', 'let', 'loop', 'pass', 'return', 'save',
-  'until', 'while', 'with',
+  'as', 'break', 'catch', 'continue', 'else', 'export', 'extern', 'for',
+  'from', 'func', 'if', 'import', 'in', 'is', 'let', 'loop', 'pass', 'return',
+  'save', 'until', 'while', 'with',
 )
 
 TYPES = (
@@ -68,7 +68,7 @@ indent = re.compile('^[ ]*')
 def stream(source):
   indents = [0]
   line = 1
-  col = 0
+  col = 1
 
   def skip(amt):
     nonlocal source, col
@@ -81,7 +81,7 @@ def stream(source):
       # skip repeated newlines
       while source and source[0] == '\n':
         skip(1)
-        col = 0
+        col = 1
         line += 1
 
       # get this line's indentation
@@ -91,7 +91,7 @@ def stream(source):
       # skip this line if it was just an indentation
       if source and source[depth_amt] == '\n':
         skip(1)
-        col = 0
+        col = 1
         line += 1
         continue
 
@@ -128,10 +128,10 @@ def stream(source):
       match = rule.match(source)
       if match:
         value = match.group(0)
-        skip(len(value))
         if kind:
           last = kind(value, line=line, col=col)
           yield last
+        skip(len(value))
         break
 
   yield end_token(line=line, col=col)

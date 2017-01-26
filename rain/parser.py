@@ -32,6 +32,7 @@ class context:
     self.file = file
     self.stream = stream
     self.peek = next(stream)
+    self.coord = (0, 0)
     self.next()
 
   def next(self):
@@ -56,7 +57,12 @@ class context:
       self.next()
       return token
 
-    self.panic('expected one of {}, found {!r}', ' | '.join(repr(x) for x in tokens), self.token, line=self.token.line, col=self.token.col)
+    if len(tokens) > 1:
+      msg = 'Unexpected {!s}; expected one of {}'.format(self.token, ' | '.join(str(x) for x in tokens))
+    else:
+      msg = 'Unexpected {!s}; expected {!s}'.format(self.token, tokens[0])
+
+    self.panic(msg, line=self.token.line, col=self.token.col)
 
   def panic(self, fmt, *args, line=None, col=None):
     prefix = ''
@@ -128,6 +134,18 @@ def stmt(ctx):
 
     return A.import_node(name, rename)
 
+  if ctx.consume(K.keyword_token('export')):
+    val = ctx.require(K.name_token, K.string_token).value
+    ctx.require(K.keyword_token('as'))
+    name = ctx.require(K.name_token, K.string_token).value
+
+    return A.export_node(val, name)
+
+  if ctx.consume(K.keyword_token('catch')):
+    name = ctx.require(K.name_token)
+    body = block(ctx)
+    return A.catch_node(name, body)
+
   if ctx.consume(K.keyword_token('for')):
     name = ctx.require(K.name_token)
     ctx.require(K.keyword_token('in'))
@@ -137,8 +155,12 @@ def stmt(ctx):
 
   if ctx.consume(K.keyword_token('with')):
     func = expr(ctx)
-    ctx.require(K.keyword_token('as'))
-    params = fnparams(ctx)
+
+    if ctx.consume(K.keyword_token('as')):
+      params = fnparams(ctx, parens=False)
+    else:
+      params = []
+
     body = block(ctx)
     return A.with_node(func, params, body)
 
@@ -230,16 +252,18 @@ def fnargs(ctx):
   ctx.require(K.symbol_token(')'))
   return args
 
-def fnparams(ctx):
-  ctx.require(K.symbol_token('('))
+def fnparams(ctx, parens=True):
+  if parens:
+    ctx.require(K.symbol_token('('))
+
   params = []
   if ctx.expect(K.name_token):
     params.append(ctx.require(K.name_token))
-    while not ctx.expect(K.symbol_token(')')):
-      ctx.require(K.symbol_token(','))
+    while ctx.consume(K.symbol_token(',')):
       params.append(ctx.require(K.name_token))
 
-  ctx.require(K.symbol_token(')'))
+  if parens:
+    ctx.require(K.symbol_token(')'))
 
   return params
 
@@ -332,6 +356,11 @@ def primary(ctx):
   node = prefix(ctx)
 
   while True:
+    if ctx.consume(K.symbol_token('?')):
+      args = fnargs(ctx)
+      node = A.call_node(node, args, catch=True)
+      continue
+
     if ctx.expect(K.symbol_token('(')):
       args = fnargs(ctx)
       node = A.call_node(node, args)
@@ -341,7 +370,10 @@ def primary(ctx):
       name = ctx.require(K.name_token)
       rhs = A.str_node(name.value)
 
-      if ctx.expect(K.symbol_token('(')):
+      if ctx.consume(K.symbol_token('?')):
+        args = fnargs(ctx)
+        node = A.meth_node(node, rhs, args, catch=True)
+      elif ctx.expect(K.symbol_token('(')):
         args = fnargs(ctx)
         node = A.meth_node(node, rhs, args)
       else:

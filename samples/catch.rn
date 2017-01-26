@@ -1,0 +1,40 @@
+import string
+
+three = func()
+  panic("three!")
+
+two = func()
+  let x = three?()
+  print("two caught " $ string.tostr(x))
+
+one = func()
+  catch x
+    two()
+  print("one caught " $ string.tostr(x))
+
+main = func()
+  print("----")
+  catch x
+    print("before")
+    one()
+    print("after")
+  print("main caught " $ string.tostr(x))
+
+  print("----")
+  print("before")
+  x = one?()
+  print("after")
+  print("main caught " $ string.tostr(x))
+
+  print("----")
+  catch x
+    print("before")
+    panic("obvious")
+    print("after")
+  print("main caught " $ string.tostr(x))
+
+  print("----")
+  print("before")
+  x = panic?("obvious")
+  print("after")
+  print("main caught " $ string.tostr(x))

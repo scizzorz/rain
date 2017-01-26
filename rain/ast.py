@@ -67,9 +67,22 @@ class break_node(node):
   def __init__(self, cond=None):
     self.cond = cond
 
+class catch_node(node):
+  def __init__(self, name, body):
+    self.name = name
+    self.body = body
+
 class cont_node(node):
   def __init__(self, cond=None):
     self.cond = cond
+
+class export_node(node):
+  def __init__(self, val, name):
+    self.val = val
+    self.name = name
+
+  def __str__(self):
+    return 'export({!s} as {!s})'.format(self.val, self.name)
 
 class if_node(node):
   def __init__(self, pred, body, els=None):
@@ -192,18 +205,20 @@ class func_node(node):
     return 'func({!s}) {{ {!s} }}'.format(', '.join(str(x) for x in self.params), self.body)
 
 class call_node(node):
-  def __init__(self, func, args):
+  def __init__(self, func, args, catch=False):
     self.func = func
     self.args = args
+    self.catch = catch
 
   def __str__(self):
     return '{!s}({!s})'.format(self.func, ', '.join(str(x) for x in self.args))
 
 class meth_node(node):
-  def __init__(self, lhs, rhs, args):
+  def __init__(self, lhs, rhs, args, catch=False):
     self.lhs = lhs
     self.rhs = rhs
     self.args = args
+    self.catch = catch
 
   def __str__(self):
     return '{!s}:{!s}({!s})'.format(self.lhs, self.rhs, ', '.join(str(x) for x in self.args))
