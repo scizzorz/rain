@@ -175,7 +175,7 @@ def emit(self, module):
     rhs = module.emit(self.rhs)
 
     if self.lhs not in module:
-      module.panic("Undeclared name {!r}", self.lhs.value)
+      module.panic("Undeclared name {!r}", self.lhs)
 
     module.builder.store(rhs, module[self.lhs])
     module[self.lhs].bound = True
@@ -410,7 +410,7 @@ def emit(self, module):
 @extern_node.method
 def emit(self, module):
   typ = T.vfunc()
-  func = module.find_func(typ, name=self.name.value)
+  func = module.find_func(typ, name=self.name)
   return T._func(func)
 
 @table_node.method
@@ -664,6 +664,6 @@ def emit(self, module):
 
   lhs = module.emit(self.lhs)
   lhs_typ = module.get_type(lhs)
-  res = module.builder.icmp_unsigned('==', getattr(T.ityp, self.typ.value), lhs_typ)
+  res = module.builder.icmp_unsigned('==', getattr(T.ityp, self.typ), lhs_typ)
   res = module.builder.zext(res, T.i64)
   return module.builder.insert_value(T._bool(False), res, 1)

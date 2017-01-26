@@ -118,7 +118,7 @@ def if_stmt(ctx):
 
 def stmt(ctx):
   if ctx.consume(K.keyword_token('let')):
-    lhs = A.name_node(ctx.require(K.name_token))
+    lhs = A.name_node(ctx.require(K.name_token).value)
     ctx.require(K.symbol_token('='))
     rhs = expr(ctx)
     return A.assn_node(lhs, rhs, let=True)
@@ -142,12 +142,12 @@ def stmt(ctx):
     return A.export_node(val, name)
 
   if ctx.consume(K.keyword_token('catch')):
-    name = ctx.require(K.name_token)
+    name = ctx.require(K.name_token).value
     body = block(ctx)
     return A.catch_node(name, body)
 
   if ctx.consume(K.keyword_token('for')):
-    name = ctx.require(K.name_token)
+    name = ctx.require(K.name_token).value
     ctx.require(K.keyword_token('in'))
     func = expr(ctx)
     body = block(ctx)
@@ -213,8 +213,8 @@ def stmt(ctx):
     return A.call_node(lhs, args)
 
   if ctx.consume(K.symbol_token(':')):
-    name = ctx.require(K.name_token)
-    rhs = A.str_node(name.value)
+    name = ctx.require(K.name_token).value
+    rhs = A.str_node(name)
     args = fnargs(ctx)
     return A.meth_node(lhs, rhs, args)
 
@@ -225,8 +225,8 @@ def assn_prefix(ctx):
   while True:
 
     if ctx.consume(K.symbol_token('.')):
-      name = ctx.require(K.name_token)
-      rhs = A.str_node(name.value)
+      name = ctx.require(K.name_token).value
+      rhs = A.str_node(name)
       lhs = A.idx_node(lhs, rhs)
       continue
 
@@ -258,9 +258,9 @@ def fnparams(ctx, parens=True):
 
   params = []
   if ctx.expect(K.name_token):
-    params.append(ctx.require(K.name_token))
+    params.append(ctx.require(K.name_token).value)
     while ctx.consume(K.symbol_token(',')):
-      params.append(ctx.require(K.name_token))
+      params.append(ctx.require(K.name_token).value)
 
   if parens:
     ctx.require(K.symbol_token(')'))
@@ -270,7 +270,7 @@ def fnparams(ctx, parens=True):
 def expr(ctx):
   node = binexpr(ctx)
   if ctx.consume(K.keyword_token('is')):
-    typ = ctx.require(K.type_token, K.null_token, K.table_token, K.keyword_token('func'))
+    typ = ctx.require(K.type_token, K.null_token, K.table_token, K.keyword_token('func')).value
     return A.is_node(node, typ)
 
   return node
@@ -324,7 +324,7 @@ def simple(ctx):
 
   # -> extern
   if ctx.consume(K.keyword_token('extern')):
-    name = ctx.require(K.name_token, K.string_token)
+    name = ctx.require(K.name_token, K.string_token).value
     return A.extern_node(name)
 
   # -> LITERAL
@@ -367,8 +367,8 @@ def primary(ctx):
       continue
 
     if ctx.consume(K.symbol_token(':')):
-      name = ctx.require(K.name_token)
-      rhs = A.str_node(name.value)
+      name = ctx.require(K.name_token).value
+      rhs = A.str_node(name)
 
       if ctx.consume(K.symbol_token('?')):
         args = fnargs(ctx)
@@ -382,8 +382,8 @@ def primary(ctx):
       continue
 
     if ctx.consume(K.symbol_token('.')):
-      name = ctx.require(K.name_token)
-      rhs = A.str_node(name.value)
+      name = ctx.require(K.name_token).value
+      rhs = A.str_node(name)
       node = A.idx_node(node, rhs)
       continue
 
