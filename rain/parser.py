@@ -325,7 +325,8 @@ def simple(ctx):
   # -> extern
   if ctx.consume(K.keyword_token('extern')):
     name = ctx.require(K.name_token, K.string_token).value
-    return A.extern_node(name)
+    params = fnparams(ctx)
+    return A.extern_node(name, params)
 
   # -> LITERAL
   if ctx.expect(K.int_token):

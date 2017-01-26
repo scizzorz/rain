@@ -26,15 +26,15 @@ void rain_fopen(box *ret, box *fname, box *mode) {
   rain_put(ret, &key, &val);
 
   rain_set_str(&key, "readline");
-  rain_set_func(&val, (void*)rain_freadline);
+  rain_set_func(&val, (void*)rain_freadline, 1);
   rain_put(ret, &key, &val);
 
   rain_set_str(&key, "writeline");
-  rain_set_func(&val, (void*)rain_fwriteline);
+  rain_set_func(&val, (void*)rain_fwriteline, 1);
   rain_put(ret, &key, &val);
 
   rain_set_str(&key, "close");
-  rain_set_func(&val, (void*)rain_fclose);
+  rain_set_func(&val, (void*)rain_fclose, 1);
   rain_put(ret, &key, &val);
 }
 

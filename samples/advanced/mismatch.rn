@@ -1,0 +1,43 @@
+import except
+
+none = func()
+  print("no args")
+
+one = func(a)
+  print("one arg")
+
+two = func(a, b)
+  print("two args")
+
+main = func()
+  let a = 1
+  let b = "str"
+
+  catch r
+    a(b)
+  if !except.safe(r)
+    print(r.msg)
+
+  catch r
+    for x in null
+      print(x)
+  if !except.safe(r)
+    print(r.msg)
+
+  catch r
+    none()
+    none(1)
+  if !except.safe(r)
+    print(r.msg)
+
+  catch r
+    one(1)
+    one()
+  if !except.safe(r)
+    print(r.msg)
+
+  catch r
+    two(1, 2)
+    two(1, 2, 3)
+  if !except.safe(r)
+    print(r.msg)

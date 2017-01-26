@@ -57,9 +57,9 @@ def _str(ptr, size):
 def _table(ptr):
   return box([ityp.table, ptrtoint(ptr), i32(0)])
 
-def _func(ptr=None):
+def _func(ptr=None, args=0):
   if ptr:
-    return box([ityp.func, ptrtoint(ptr), i32(0)])
+    return box([ityp.func, ptrtoint(ptr), i32(args)])
 
   return box([ityp.func, i64(0), i32(0)])
 
