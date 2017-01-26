@@ -1,0 +1,67 @@
+!program;1
+stmts:
+- !import;1
+  name: process
+  rename: null
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: args
+        rhs: !table;1
+          metatable: null
+      - !assn;1
+        let: false
+        lhs: !index;1
+          lhs: !name;1
+            value: args
+          rhs: !int;1
+            value: 0
+        rhs: !str;1
+          value: echo
+      - !assn;1
+        let: false
+        lhs: !index;1
+          lhs: !name;1
+            value: args
+          rhs: !int;1
+            value: 1
+        rhs: !str;1
+          value: hi
+      - !assn;1
+        let: false
+        lhs: !index;1
+          lhs: !name;1
+            value: args
+          rhs: !int;1
+            value: 2
+        rhs: !str;1
+          value: there
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: out
+        rhs: !call;1
+          args:
+          - !name;1
+            value: args
+          catch: false
+          func: !index;1
+            lhs: !name;1
+              value: process
+            rhs: !str;1
+              value: run
+      - !call;1
+        args:
+        - !name;1
+          value: out
+        catch: false
+        func: !name;1
+          value: print
+    params: []

@@ -1,5 +1,5 @@
 # arguments are copied by value (but tables are references!)
-# so this won't actually swap anything
+# so this only swaps the locals
 swap = func(a, b)
   let c = a
   a = b

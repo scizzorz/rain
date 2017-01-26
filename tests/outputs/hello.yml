@@ -1,0 +1,17 @@
+!program;1
+stmts:
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !str;1
+          value: Hello, world.
+        catch: false
+        func: !name;1
+          value: print
+    params: []

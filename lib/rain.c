@@ -94,6 +94,9 @@ void rain_neg(box *ret, box *val) {
   else if(BOX_IS(val, FLOAT)) {
     rain_set_float(ret, -(val->data.f));
   }
+  else {
+    rain_throw(&rain_exc_arg_mismatch);
+  }
 }
 
 void rain_not(box *ret, box *val) {
@@ -128,6 +131,9 @@ void rain_add(box *ret, box *lhs, box *rhs) {
     ret->type = ITYP_FLOAT;
     ret->data.f = ret_f;
   }
+  else {
+    rain_throw(&rain_exc_arg_mismatch);
+  }
 }
 
 void rain_sub(box *ret, box *lhs, box *rhs) {
@@ -155,6 +161,9 @@ void rain_sub(box *ret, box *lhs, box *rhs) {
     double ret_f = lhs_f - rhs_f;
     ret->type = ITYP_FLOAT;
     ret->data.f = ret_f;
+  }
+  else {
+    rain_throw(&rain_exc_arg_mismatch);
   }
 }
 
@@ -184,9 +193,13 @@ void rain_mul(box *ret, box *lhs, box *rhs) {
     ret->type = ITYP_FLOAT;
     ret->data.f = ret_f;
   }
+  else {
+    rain_throw(&rain_exc_arg_mismatch);
+  }
 }
 
 void rain_div(box *ret, box *lhs, box *rhs) {
+  // probably best to catch div by zero errors as SIG_FPE somehow?
   if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     ret->type = ITYP_INT;
     ret->data.si = lhs->data.si / rhs->data.si;
@@ -211,6 +224,9 @@ void rain_div(box *ret, box *lhs, box *rhs) {
     double ret_f = lhs_f / rhs_f;
     ret->type = ITYP_FLOAT;
     ret->data.f = ret_f;
+  }
+  else {
+    rain_throw(&rain_exc_arg_mismatch);
   }
 }
 
@@ -335,17 +351,24 @@ void rain_le(box *ret, box *lhs, box *rhs) {
 // string helpers
 
 void rain_string_concat(box *ret, box *lhs, box *rhs) {
-  if(BOX_ISNT(lhs, STR) || BOX_ISNT(rhs, STR)) {
-    return;
+  if(BOX_ISNT(lhs, STR) && BOX_ISNT(rhs, STR)) {
+    rain_throw(&rain_exc_arg_mismatch);
   }
+  else if(BOX_ISNT(rhs, STR)) {
+    rain_set_box(ret, lhs);
+  }
+  else if(BOX_ISNT(lhs, STR)) {
+    rain_set_box(ret, rhs);
+  }
+  else {
+    int length = lhs->size + rhs->size;
+    char *cat = GC_malloc(length + 1);
 
-  int length = lhs->size + rhs->size;
-  char *cat = GC_malloc(length + 1);
+    strcat(cat, lhs->data.s);
+    strcat(cat + lhs->size, rhs->data.s);
 
-  strcat(cat, lhs->data.s);
-  strcat(cat + lhs->size, rhs->data.s);
-
-  rain_set_strcpy(ret, cat, length);
+    rain_set_strcpy(ret, cat, length);
+  }
 }
 
 // table helpers
@@ -473,7 +496,7 @@ void rain_put(box *table, box *key, box *val) {
 // string AND table helpers
 
 void rain_length(box *ret, box *val) {
-  if(BOX_IS(val, STR)) {
+  if(BOX_IS(val, STR) || BOX_IS(val, FUNC)) {
     rain_set_int(ret, val->size);
   }
   else if(BOX_IS(val, TABLE)) {
@@ -538,10 +561,10 @@ void rain_set_table(box *ret) {
   ret->size = 0;
 }
 
-void rain_set_func(box *ret, void *vp) {
+void rain_set_func(box *ret, void *vp, int num_args) {
   ret->type = ITYP_FUNC;
   ret->data.vp = vp;
-  ret->size = 0;
+  ret->size = num_args;
 }
 
 void rain_set_cdata(box *ret, void *vp) {

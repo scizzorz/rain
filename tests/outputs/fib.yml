@@ -1,0 +1,69 @@
+!program;1
+stmts:
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: fib
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !if;1
+        body: !block;1
+          stmts:
+          - !return;1
+            value: !int;1
+              value: 1
+        els: null
+        pred: !binary;1
+          lhs: !name;1
+            value: n
+          op: <=
+          rhs: !int;1
+            value: 1
+      - !return;1
+        value: !binary;1
+          lhs: !call;1
+            args:
+            - !binary;1
+              lhs: !name;1
+                value: n
+              op: '-'
+              rhs: !int;1
+                value: 1
+            catch: false
+            func: !name;1
+              value: fib
+          op: +
+          rhs: !call;1
+            args:
+            - !binary;1
+              lhs: !name;1
+                value: n
+              op: '-'
+              rhs: !int;1
+                value: 2
+            catch: false
+            func: !name;1
+              value: fib
+    params:
+    - n
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !call;1
+          args:
+          - !int;1
+            value: 10
+          catch: false
+          func: !name;1
+            value: fib
+        catch: false
+        func: !name;1
+          value: print
+    params: []

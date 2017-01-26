@@ -175,7 +175,7 @@ def emit(self, module):
     rhs = module.emit(self.rhs)
 
     if self.lhs not in module:
-      module.panic("Undeclared name {!r}", self.lhs.value)
+      module.panic("Undeclared name {!r}", self.lhs)
 
     module.builder.store(rhs, module[self.lhs])
     module[self.lhs].bound = True
@@ -296,9 +296,11 @@ def emit(self, module):
 @with_node.method
 def emit(self, module):
   user_box = module.emit(self.expr)
+  user_ptr = module.get_value(user_box, typ=T.vfunc(T.arg, T.arg))
+  check_callable(module, user_box, 1)
+
   func_box = module.emit(func_node(self.params, self.body))
 
-  user_ptr = module.get_value(user_box, typ=T.vfunc(T.arg, T.arg))
   module.fncall(user_ptr, T.null, func_box)
 
 @loop_node.method
@@ -336,6 +338,7 @@ def emit(self, module):
   # evaluate the expression and pull out the function pointer
   func_box = module.emit(self.func)
   func_ptr = module.get_value(func_box, T.vfunc(T.arg))
+  check_callable(module, func_box, 0)
 
   # set up the return pointer
   with module.goto_entry():
@@ -410,8 +413,8 @@ def emit(self, module):
 @extern_node.method
 def emit(self, module):
   typ = T.vfunc()
-  func = module.find_func(typ, name=self.name.value)
-  return T._func(func)
+  func = module.find_func(typ, name=self.name)
+  return T._func(func, len(self.params))
 
 @table_node.method
 def emit(self, module):
@@ -497,9 +500,20 @@ def emit(self, module):
 
     return func_box
 
-  return T._func(func)
+  return T._func(func, len(self.params))
 
 # complex expressions
+
+def check_callable(module, box, args):
+  func_typ = module.get_type(box)
+  is_func = module.builder.icmp_unsigned('!=', T.ityp.func, func_typ)
+  with module.builder.if_then(is_func):
+    module.call(module.extern('rain_throw'), module.find_global(T.box, 'rain_exc_uncallable'))
+
+  exp_args = module.get_size(box)
+  arg_match = module.builder.icmp_unsigned('!=', exp_args, T.i32(args))
+  with module.builder.if_then(arg_match):
+    module.call(module.extern('rain_throw'), module.find_global(T.box, 'rain_exc_arg_mismatch'))
 
 @call_node.method
 def emit(self, module):
@@ -508,8 +522,10 @@ def emit(self, module):
 
   func_box = module.emit(self.func)
   arg_boxes = [module.emit(arg) for arg in self.args]
-
   func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
+
+  check_callable(module, func_box, len(arg_boxes))
+
 
   if self.catch:
     with module.add_catch() as catch:
@@ -556,8 +572,9 @@ def emit(self, module):
 
   func_box = module.builder.load(ptrs[0])
   arg_boxes = [table] + [module.emit(arg) for arg in self.args]
-
   func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
+
+  check_callable(module, func_box, len(arg_boxes))
 
   if self.catch:
     with module.add_catch() as catch:
@@ -581,6 +598,7 @@ def emit(self, module):
   _, ptrs = module.fncall(module.extern('rain_get'), T.null, table, key)
 
   bind_func_box = module.builder.load(ptrs[0])
+  check_callable(module, bind_func_box, 1)
 
   env_typ = T.arr(T.box, 2)
   typ = T.vfunc(T.ptr(env_typ), T.arg)
@@ -664,6 +682,6 @@ def emit(self, module):
 
   lhs = module.emit(self.lhs)
   lhs_typ = module.get_type(lhs)
-  res = module.builder.icmp_unsigned('==', getattr(T.ityp, self.typ.value), lhs_typ)
+  res = module.builder.icmp_unsigned('==', getattr(T.ityp, self.typ), lhs_typ)
   res = module.builder.zext(res, T.i64)
   return module.builder.insert_value(T._bool(False), res, 1)

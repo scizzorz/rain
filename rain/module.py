@@ -20,6 +20,7 @@ externs = {
   'rain_main': T.vfunc(T.arg, T.arg, T.i32, T.ptr(T.ptr(T.i8))),
   'rain_box_to_exit': T.func(T.i32, [T.arg]),
   'rain_print': T.vfunc(T.arg),
+  'rain_throw': T.vfunc(T.arg),
   'rain_abort': T.vfunc(),
   'rain_catch': T.vfunc(T.arg),
   'rain_personality_v0': T.func(T.i32, [], var_arg=True),
@@ -152,6 +153,13 @@ class Module(S.Scope):
       name = self.uniq('func')
     return ir.Function(self.llvm, typ, name=name)
 
+  # add or get an existing function
+  def find_func(self, typ, name):
+    if name in self.llvm.globals:
+      return self.llvm.get_global(name)
+
+    return self.add_func(typ, name=name)
+
   # add a new global
   def add_global(self, typ, name=None):
     if not name:
@@ -161,12 +169,12 @@ class Module(S.Scope):
   def get_global(self, name):
     return self.llvm.get_global(name)
 
-  # add or get an existing function
-  def find_func(self, typ, name):
+  # add or get an existing global
+  def find_global(self, typ, name):
     if name in self.llvm.globals:
       return self.llvm.get_global(name)
 
-    return self.add_func(typ, name=name)
+    return self.add_global(typ, name=name)
 
   # add or find an external function
   def extern(self, name):

@@ -17,10 +17,10 @@ square.init = func(self, s) # overrides rect.init
   self.h = s
 
 main = func()
-  let a = rect:new()
-  a:init(3, 4)
-  print(a:area())
+  let a = rect:new() # a:b() is syntactic sugar for a.b(a), except a is only evaluated once
+  a:init(3, 4)       # init isn't found in A, so it looks up the metatable list and finds rect.init
+  print(a:area())    # area also looks up the metatable list
 
   let b = square:new()
-  b:init(4)
-  print(b:area())
+  b:init(4)          # square is earlier in the metatable list, so it's found first
+  print(b:area())    # but square has no area, so it continues up the list

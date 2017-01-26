@@ -1,0 +1,275 @@
+!program;1
+stmts:
+- !import;1
+  name: except
+  rename: null
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: none
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !str;1
+          value: no args
+        catch: false
+        func: !name;1
+          value: print
+    params: []
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: one
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !str;1
+          value: one arg
+        catch: false
+        func: !name;1
+          value: print
+    params:
+    - a
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: two
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !str;1
+          value: two args
+        catch: false
+        func: !name;1
+          value: print
+    params:
+    - a
+    - b
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: a
+        rhs: !int;1
+          value: 1
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: b
+        rhs: !str;1
+          value: str
+      - !catch;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !name;1
+              value: b
+            catch: false
+            func: !name;1
+              value: a
+        name: r
+      - !if;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !index;1
+              lhs: !name;1
+                value: r
+              rhs: !str;1
+                value: msg
+            catch: false
+            func: !name;1
+              value: print
+        els: null
+        pred: !unary;1
+          op: '!'
+          val: !call;1
+            args:
+            - !name;1
+              value: r
+            catch: false
+            func: !index;1
+              lhs: !name;1
+                value: except
+              rhs: !str;1
+                value: safe
+      - !catch;1
+        body: !block;1
+          stmts:
+          - !for;1 {}
+        name: r
+      - !if;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !index;1
+              lhs: !name;1
+                value: r
+              rhs: !str;1
+                value: msg
+            catch: false
+            func: !name;1
+              value: print
+        els: null
+        pred: !unary;1
+          op: '!'
+          val: !call;1
+            args:
+            - !name;1
+              value: r
+            catch: false
+            func: !index;1
+              lhs: !name;1
+                value: except
+              rhs: !str;1
+                value: safe
+      - !catch;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args: []
+            catch: false
+            func: !name;1
+              value: none
+          - !call;1
+            args:
+            - !int;1
+              value: 1
+            catch: false
+            func: !name;1
+              value: none
+        name: r
+      - !if;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !index;1
+              lhs: !name;1
+                value: r
+              rhs: !str;1
+                value: msg
+            catch: false
+            func: !name;1
+              value: print
+        els: null
+        pred: !unary;1
+          op: '!'
+          val: !call;1
+            args:
+            - !name;1
+              value: r
+            catch: false
+            func: !index;1
+              lhs: !name;1
+                value: except
+              rhs: !str;1
+                value: safe
+      - !catch;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !int;1
+              value: 1
+            catch: false
+            func: !name;1
+              value: one
+          - !call;1
+            args: []
+            catch: false
+            func: !name;1
+              value: one
+        name: r
+      - !if;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !index;1
+              lhs: !name;1
+                value: r
+              rhs: !str;1
+                value: msg
+            catch: false
+            func: !name;1
+              value: print
+        els: null
+        pred: !unary;1
+          op: '!'
+          val: !call;1
+            args:
+            - !name;1
+              value: r
+            catch: false
+            func: !index;1
+              lhs: !name;1
+                value: except
+              rhs: !str;1
+                value: safe
+      - !catch;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !int;1
+              value: 1
+            - !int;1
+              value: 2
+            catch: false
+            func: !name;1
+              value: two
+          - !call;1
+            args:
+            - !int;1
+              value: 1
+            - !int;1
+              value: 2
+            - !int;1
+              value: 3
+            catch: false
+            func: !name;1
+              value: two
+        name: r
+      - !if;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !index;1
+              lhs: !name;1
+                value: r
+              rhs: !str;1
+                value: msg
+            catch: false
+            func: !name;1
+              value: print
+        els: null
+        pred: !unary;1
+          op: '!'
+          val: !call;1
+            args:
+            - !name;1
+              value: r
+            catch: false
+            func: !index;1
+              lhs: !name;1
+                value: except
+              rhs: !str;1
+                value: safe
+    params: []

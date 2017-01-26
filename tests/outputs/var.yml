@@ -1,0 +1,79 @@
+!program;1
+stmts:
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: x
+  rhs: !int;1
+    value: 0
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: x
+  rhs: !bool;1
+    value: true
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: x
+  rhs: !null;1 {}
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: x
+  rhs: !str;1
+    value: now I'm a string
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: x
+        rhs: !int;1
+          value: 10
+      - !assn;1
+        let: false
+        lhs: !name;1
+          value: x
+        rhs: !bool;1
+          value: true
+      - !assn;1
+        let: false
+        lhs: !name;1
+          value: x
+        rhs: !null;1 {}
+      - !assn;1
+        let: false
+        lhs: !name;1
+          value: x
+        rhs: !int;1
+          value: 15
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: y
+        rhs: !int;1
+          value: 20
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: z
+        rhs: !binary;1
+          lhs: !name;1
+            value: x
+          op: +
+          rhs: !name;1
+            value: y
+      - !call;1
+        args:
+        - !name;1
+          value: z
+        catch: false
+        func: !name;1
+          value: print
+    params: []

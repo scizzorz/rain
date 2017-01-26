@@ -1,0 +1,43 @@
+!program;1
+stmts:
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: s
+        rhs: !str;1
+          value: hello
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: p
+        rhs: !str;1
+          value: world
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: sp
+        rhs: !binary;1
+          lhs: !binary;1
+            lhs: !name;1
+              value: s
+            op: $
+            rhs: !str;1
+              value: ' '
+          op: $
+          rhs: !name;1
+            value: p
+      - !call;1
+        args:
+        - !name;1
+          value: sp
+        catch: false
+        func: !name;1
+          value: print
+    params: []

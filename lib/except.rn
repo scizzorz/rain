@@ -6,6 +6,10 @@ arg_mismatch = table from error
 arg_mismatch.msg = "argument mismatch"
 export arg_mismatch as "rain_exc_arg_mismatch"
 
+uncallable = table from error
+uncallable.msg = "uncallable value"
+export uncallable as "rain_exc_uncallable"
+
 interrupt = table from error
 interrupt.msg = "received interrupt signal"
 export interrupt as "rain_exc_interrupt"
@@ -17,8 +21,6 @@ export fpe as "rain_exc_fpe"
 segfault = table from error
 segfault.msg = "segmentation fault"
 export segfault as "rain_exc_segfault"
-
-
 
 safe = func(val)
   while val is table
