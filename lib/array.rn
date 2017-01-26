@@ -36,3 +36,14 @@ from_iter = func(iter)
   for i in iter
     ret[idx] = i
     idx = idx + 1
+
+slice = func(self, start, end)
+  let ret = table
+  save ret
+  let length = length(self)
+  let to_idx = 0
+  let from_idx = start
+  while from_idx < end
+    ret[to_idx] = self[from_idx]
+    from_idx = from_idx + 1
+    to_idx = to_idx + 1
