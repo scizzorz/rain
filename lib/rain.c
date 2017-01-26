@@ -1,6 +1,15 @@
 #include "rain.h"
+#include "except.h"
+#include "env.h"
 
 // system helpers
+
+void rain_main(box *ret, box *func, int argc, char **argv) {
+  rain_init_args(argc, argv);
+
+  void (*func_ptr)(box *) = (void (*)(box *))(func->data.vp);
+  func_ptr(ret);
+}
 
 int rain_box_to_exit(box* val) {
   if(BOX_IS(val, NULL)) {
@@ -76,12 +85,6 @@ void rain_exit(box *ret, box *val) {
   exit(rain_box_to_exit(val));
 }
 
-void rain_panic(box *ret, box *val) {
-  printf("panic: ");
-  rain_print(val);
-  exit(1);
-}
-
 // unary operators
 
 void rain_neg(box *ret, box *val) {
@@ -102,7 +105,7 @@ void rain_not(box *ret, box *val) {
 void rain_add(box *ret, box *lhs, box *rhs) {
   if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     ret->type = ITYP_INT;
-    ret->data.ui = lhs->data.ui + rhs->data.ui;
+    ret->data.si = lhs->data.si + rhs->data.si;
   }
   else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
     double lhs_f = lhs->data.f;
@@ -130,7 +133,7 @@ void rain_add(box *ret, box *lhs, box *rhs) {
 void rain_sub(box *ret, box *lhs, box *rhs) {
   if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     ret->type = ITYP_INT;
-    ret->data.ui = lhs->data.ui - rhs->data.ui;
+    ret->data.si = lhs->data.si - rhs->data.si;
   }
   else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
     double lhs_f = lhs->data.f;
@@ -158,7 +161,7 @@ void rain_sub(box *ret, box *lhs, box *rhs) {
 void rain_mul(box *ret, box *lhs, box *rhs) {
   if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     ret->type = ITYP_INT;
-    ret->data.ui = lhs->data.ui * rhs->data.ui;
+    ret->data.si = lhs->data.si * rhs->data.si;
   }
   else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
     double lhs_f = lhs->data.f;
@@ -186,7 +189,7 @@ void rain_mul(box *ret, box *lhs, box *rhs) {
 void rain_div(box *ret, box *lhs, box *rhs) {
   if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
     ret->type = ITYP_INT;
-    ret->data.ui = lhs->data.ui / rhs->data.ui;
+    ret->data.si = lhs->data.si / rhs->data.si;
   }
   else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
     double lhs_f = lhs->data.f;
@@ -479,6 +482,12 @@ void rain_length(box *ret, box *val) {
 }
 
 // box helpers
+
+void rain_set_box(box *ret, box *from) {
+  ret->type = from->type;
+  ret->data.ui = from->data.ui;
+  ret->size = from->size;
+}
 
 void rain_set_null(box *ret) {
   ret->type = ITYP_NULL;

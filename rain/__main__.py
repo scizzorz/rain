@@ -25,7 +25,9 @@ os.environ['RAINLIB'] = os.path.join(os.environ['RAINHOME'], 'lib')
 src = M.Module.find_file(args.file)
 if not src:
   raise Exception('Unable to find module {!r}'.format(args.file))
-comp = C.get_compiler(src, target=args.output, main=True, quiet=args.quiet)
+
+C.Compiler.quiet = args.quiet
+comp = C.get_compiler(src, target=args.output, main=True)
 comp.goodies()
 comp.compile()
 

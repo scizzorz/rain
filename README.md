@@ -30,4 +30,4 @@ Then execute the executable:
 
     $ ./funfile
 
-Check out the [samples](https://github.com/scizzorz/rain/tree/master/samples) for some more fun.
+Check out the [samples](https://github.com/scizzorz/rain/tree/master/samples) for some more fun. All of them should compile and run successfully.

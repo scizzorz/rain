@@ -1,0 +1,38 @@
+import core
+
+length = core.length
+
+values = func(self)
+  let i = 0
+  return func()
+    save self[i]
+    i = i + 1
+
+keys = func(self)
+  let i = 0
+  return func()
+    if self[i] == null
+      return
+
+    save i
+    i = i + 1
+
+map = func(self, fn)
+  let ret = table from self.metatable
+  save ret
+  for i in keys(self)
+    ret[i] = fn(self[i])
+
+foldl = func(self, fn, z)
+  let a = z
+  for v in values(self)
+    a = fn(a, v)
+  return a
+
+from_iter = func(iter)
+  let ret = table
+  save ret
+  let idx = 0
+  for i in iter
+    ret[idx] = i
+    idx = idx + 1

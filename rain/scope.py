@@ -44,6 +44,10 @@ class Scope:
   def top(self):
     return self.scopes[-1]
 
+  @property
+  def depth(self):
+    return len(self.scopes) - 1
+
   def __enter__(self):
     return self.add()
 

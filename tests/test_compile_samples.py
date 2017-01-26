@@ -16,6 +16,7 @@ def lsrn(*path, recurse=False):
 
 @pytest.mark.parametrize('src', lsrn('samples', recurse=True))
 def test_sample(src):
-  comp = C.get_compiler(src, main=True, quiet=True)
+  C.Compiler.quiet = True
+  comp = C.get_compiler(src, main=True)
   comp.goodies()
   comp.compile()
