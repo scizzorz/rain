@@ -1,0 +1,128 @@
+!program;1
+stmts:
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !int;1
+            value: 3
+          op: +
+          rhs: !binary;1
+            lhs: !int;1
+              value: 4
+            op: '*'
+            rhs: !int;1
+              value: 5
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !binary;1
+            lhs: !int;1
+              value: 3
+            op: '*'
+            rhs: !int;1
+              value: 4
+          op: +
+          rhs: !int;1
+            value: 5
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !int;1
+            value: 3
+          op: '>'
+          rhs: !int;1
+            value: 4
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !int;1
+            value: 3
+          op: <
+          rhs: !int;1
+            value: 4
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !int;1
+            value: 4
+          op: '>='
+          rhs: !int;1
+            value: 4
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !int;1
+            value: 4
+          op: <=
+          rhs: !int;1
+            value: 4
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !int;1
+            value: 3
+          op: '>='
+          rhs: !int;1
+            value: 4
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !int;1
+            value: 3
+          op: <=
+          rhs: !int;1
+            value: 4
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !int;1
+            value: 3
+          op: ==
+          rhs: !int;1
+            value: 4
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !int;1
+            value: 3
+          op: '!='
+          rhs: !int;1
+            value: 4
+        catch: false
+        func: !name;1
+          value: print
+    params: []

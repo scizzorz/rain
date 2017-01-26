@@ -1,0 +1,85 @@
+!program;1
+stmts:
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: f
+        rhs: !table;1
+          metatable: null
+      - !assn;1
+        let: false
+        lhs: !index;1
+          lhs: !name;1
+            value: f
+          rhs: !str;1
+            value: nottrue
+        rhs: !bool;1
+          value: false
+      - !assn;1
+        let: false
+        lhs: !index;1
+          lhs: !name;1
+            value: f
+          rhs: !str;1
+            value: one
+        rhs: !int;1
+          value: 1
+      - !assn;1
+        let: false
+        lhs: !index;1
+          lhs: !name;1
+            value: f
+          rhs: !str;1
+            value: ten
+        rhs: !float;1
+          value: 10.0
+      - !assn;1
+        let: false
+        lhs: !index;1
+          lhs: !name;1
+            value: f
+          rhs: !str;1
+            value: number
+        rhs: !str;1
+          value: one
+      - !call;1
+        args:
+        - !index;1
+          lhs: !name;1
+            value: f
+          rhs: !str;1
+            value: one
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !index;1
+          lhs: !name;1
+            value: f
+          rhs: !index;1
+            lhs: !name;1
+              value: f
+            rhs: !str;1
+              value: number
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !index;1
+          lhs: !name;1
+            value: f
+          rhs: !str;1
+            value: oops
+        catch: false
+        func: !name;1
+          value: print
+    params: []

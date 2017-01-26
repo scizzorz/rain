@@ -1,0 +1,159 @@
+!program;1
+stmts:
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: add
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !return;1
+        value: !binary;1
+          lhs: !name;1
+            value: x
+          op: +
+          rhs: !name;1
+            value: y
+    params:
+    - x
+    - y
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: mul
+  rhs: !func;1
+    body: !return;1
+      value: !binary;1
+        lhs: !name;1
+          value: x
+        op: '*'
+        rhs: !name;1
+          value: y
+    params:
+    - x
+    - y
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: apply
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !return;1
+        value: !call;1
+          args:
+          - !name;1
+            value: x
+          - !name;1
+            value: y
+          catch: false
+          func: !name;1
+            value: fn
+    params:
+    - fn
+    - x
+    - y
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !call;1
+          args:
+          - !int;1
+            value: 3
+          - !int;1
+            value: 4
+          catch: false
+          func: !name;1
+            value: add
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !call;1
+          args:
+          - !int;1
+            value: 3
+          - !int;1
+            value: 4
+          catch: false
+          func: !name;1
+            value: mul
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !str;1
+          value: '-----'
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !call;1
+          args:
+          - !name;1
+            value: add
+          - !int;1
+            value: 3
+          - !int;1
+            value: 4
+          catch: false
+          func: !name;1
+            value: apply
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !call;1
+          args:
+          - !name;1
+            value: mul
+          - !int;1
+            value: 3
+          - !int;1
+            value: 4
+          catch: false
+          func: !name;1
+            value: apply
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !call;1
+          args:
+          - !func;1
+            body: !return;1
+              value: !binary;1
+                lhs: !binary;1
+                  lhs: !int;1
+                    value: 2
+                  op: '*'
+                  rhs: !name;1
+                    value: x
+                op: +
+                rhs: !name;1
+                  value: y
+            params:
+            - x
+            - y
+          - !int;1
+            value: 3
+          - !int;1
+            value: 4
+          catch: false
+          func: !name;1
+            value: apply
+        catch: false
+        func: !name;1
+          value: print
+    params: []

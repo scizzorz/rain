@@ -6,5 +6,4 @@ main = func()
   for arg in array.values(env.args)
     print(arg)
 
-  print("my PATH is...")
-  print(env.get("PATH"))
+  print("$RAIN_TEST = " $ env.get("RAIN_TEST"))

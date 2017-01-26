@@ -1,0 +1,300 @@
+!program;1
+stmts:
+- !import;1
+  name: string
+  rename: null
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: three
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !str;1
+          value: three!
+        catch: false
+        func: !name;1
+          value: panic
+    params: []
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: two
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: x
+        rhs: !call;1
+          args: []
+          catch: true
+          func: !name;1
+            value: three
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !str;1
+            value: 'two caught '
+          op: $
+          rhs: !call;1
+            args:
+            - !name;1
+              value: x
+            catch: false
+            func: !index;1
+              lhs: !name;1
+                value: string
+              rhs: !str;1
+                value: tostr
+        catch: false
+        func: !name;1
+          value: print
+    params: []
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: one
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !catch;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args: []
+            catch: false
+            func: !name;1
+              value: two
+        name: x
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !str;1
+            value: 'one caught '
+          op: $
+          rhs: !call;1
+            args:
+            - !name;1
+              value: x
+            catch: false
+            func: !index;1
+              lhs: !name;1
+                value: string
+              rhs: !str;1
+                value: tostr
+        catch: false
+        func: !name;1
+          value: print
+    params: []
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !str;1
+          value: '----'
+        catch: false
+        func: !name;1
+          value: print
+      - !catch;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !str;1
+              value: before
+            catch: false
+            func: !name;1
+              value: print
+          - !call;1
+            args: []
+            catch: false
+            func: !name;1
+              value: one
+          - !call;1
+            args:
+            - !str;1
+              value: after
+            catch: false
+            func: !name;1
+              value: print
+        name: x
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !str;1
+            value: 'main caught '
+          op: $
+          rhs: !call;1
+            args:
+            - !name;1
+              value: x
+            catch: false
+            func: !index;1
+              lhs: !name;1
+                value: string
+              rhs: !str;1
+                value: tostr
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !str;1
+          value: '----'
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !str;1
+          value: before
+        catch: false
+        func: !name;1
+          value: print
+      - !assn;1
+        let: false
+        lhs: !name;1
+          value: x
+        rhs: !call;1
+          args: []
+          catch: true
+          func: !name;1
+            value: one
+      - !call;1
+        args:
+        - !str;1
+          value: after
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !str;1
+            value: 'main caught '
+          op: $
+          rhs: !call;1
+            args:
+            - !name;1
+              value: x
+            catch: false
+            func: !index;1
+              lhs: !name;1
+                value: string
+              rhs: !str;1
+                value: tostr
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !str;1
+          value: '----'
+        catch: false
+        func: !name;1
+          value: print
+      - !catch;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !str;1
+              value: before
+            catch: false
+            func: !name;1
+              value: print
+          - !call;1
+            args:
+            - !str;1
+              value: obvious
+            catch: false
+            func: !name;1
+              value: panic
+          - !call;1
+            args:
+            - !str;1
+              value: after
+            catch: false
+            func: !name;1
+              value: print
+        name: x
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !str;1
+            value: 'main caught '
+          op: $
+          rhs: !call;1
+            args:
+            - !name;1
+              value: x
+            catch: false
+            func: !index;1
+              lhs: !name;1
+                value: string
+              rhs: !str;1
+                value: tostr
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !str;1
+          value: '----'
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !str;1
+          value: before
+        catch: false
+        func: !name;1
+          value: print
+      - !assn;1
+        let: false
+        lhs: !name;1
+          value: x
+        rhs: !call;1
+          args:
+          - !str;1
+            value: obvious
+          catch: true
+          func: !name;1
+            value: panic
+      - !call;1
+        args:
+        - !str;1
+          value: after
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !str;1
+            value: 'main caught '
+          op: $
+          rhs: !call;1
+            args:
+            - !name;1
+              value: x
+            catch: false
+            func: !index;1
+              lhs: !name;1
+                value: string
+              rhs: !str;1
+                value: tostr
+        catch: false
+        func: !name;1
+          value: print
+    params: []

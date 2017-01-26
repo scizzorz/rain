@@ -1,0 +1,56 @@
+!program;1
+stmts:
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: range
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: i
+        rhs: !int;1
+          value: 0
+      - !return;1
+        value: !func;1
+          body: !block;1
+            stmts:
+            - !if;1
+              body: !block;1
+                stmts:
+                - !return;1
+                  value: null
+              els: null
+              pred: !binary;1
+                lhs: !name;1
+                  value: i
+                op: ==
+                rhs: !name;1
+                  value: n
+            - !save;1
+              value: !name;1
+                value: i
+            - !assn;1
+              let: false
+              lhs: !name;1
+                value: i
+              rhs: !binary;1
+                lhs: !name;1
+                  value: i
+                op: +
+                rhs: !int;1
+                  value: 1
+          params: []
+    params:
+    - n
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !for;1 {}
+    params: []

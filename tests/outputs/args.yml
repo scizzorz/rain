@@ -1,0 +1,101 @@
+!program;1
+stmts:
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: swap
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: c
+        rhs: !name;1
+          value: a
+      - !assn;1
+        let: false
+        lhs: !name;1
+          value: a
+        rhs: !name;1
+          value: b
+      - !assn;1
+        let: false
+        lhs: !name;1
+          value: b
+        rhs: !name;1
+          value: c
+      - !call;1
+        args:
+        - !name;1
+          value: a
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !name;1
+          value: b
+        catch: false
+        func: !name;1
+          value: print
+    params:
+    - a
+    - b
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: a
+        rhs: !int;1
+          value: 1
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: b
+        rhs: !int;1
+          value: 2
+      - !call;1
+        args:
+        - !name;1
+          value: a
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !name;1
+          value: b
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !name;1
+          value: a
+        - !name;1
+          value: b
+        catch: false
+        func: !name;1
+          value: swap
+      - !call;1
+        args:
+        - !name;1
+          value: a
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !name;1
+          value: b
+        catch: false
+        func: !name;1
+          value: print
+    params: []

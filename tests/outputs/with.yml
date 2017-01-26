@@ -1,0 +1,119 @@
+!program;1
+stmts:
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: ctx0
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !str;1
+          value: Initialization
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args: []
+        catch: false
+        func: !name;1
+          value: block
+      - !call;1
+        args:
+        - !str;1
+          value: Clean up
+        catch: false
+        func: !name;1
+          value: print
+    params:
+    - block
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: ctx1
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !str;1
+          value: Initialization
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !str;1
+          value: One
+        catch: false
+        func: !name;1
+          value: block
+      - !call;1
+        args:
+        - !str;1
+          value: Two
+        catch: false
+        func: !name;1
+          value: block
+      - !call;1
+        args:
+        - !str;1
+          value: Clean up
+        catch: false
+        func: !name;1
+          value: print
+    params:
+    - block
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: ctx2
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !str;1
+          value: Initialization
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !str;1
+          value: One
+        - !str;1
+          value: '1'
+        catch: false
+        func: !name;1
+          value: block
+      - !call;1
+        args:
+        - !str;1
+          value: Two
+        - !str;1
+          value: '2'
+        catch: false
+        func: !name;1
+          value: block
+      - !call;1
+        args:
+        - !str;1
+          value: Clean up
+        catch: false
+        func: !name;1
+          value: print
+    params:
+    - block
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !with;1 {}
+      - !with;1 {}
+      - !with;1 {}
+    params: []

@@ -1,4 +1,4 @@
-x = 0 # assign away
+x = 0 # dynamic typing - assign away!
 x = true
 x = null
 x = "now I'm a string"

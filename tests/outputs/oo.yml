@@ -1,0 +1,193 @@
+!program;1
+stmts:
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: rect
+  rhs: !table;1
+    metatable: null
+- !assn;1
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: rect
+    rhs: !str;1
+      value: new
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !return;1
+        value: !table;1
+          metatable: !name;1
+            value: self
+    params:
+    - self
+- !assn;1
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: rect
+    rhs: !str;1
+      value: init
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !assn;1
+        let: false
+        lhs: !index;1
+          lhs: !name;1
+            value: self
+          rhs: !str;1
+            value: w
+        rhs: !name;1
+          value: w
+      - !assn;1
+        let: false
+        lhs: !index;1
+          lhs: !name;1
+            value: self
+          rhs: !str;1
+            value: h
+        rhs: !name;1
+          value: h
+    params:
+    - self
+    - w
+    - h
+- !assn;1
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: rect
+    rhs: !str;1
+      value: area
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !return;1
+        value: !binary;1
+          lhs: !index;1
+            lhs: !name;1
+              value: self
+            rhs: !str;1
+              value: w
+          op: '*'
+          rhs: !index;1
+            lhs: !name;1
+              value: self
+            rhs: !str;1
+              value: h
+    params:
+    - self
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: square
+  rhs: !table;1
+    metatable: !name;1
+      value: rect
+- !assn;1
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: square
+    rhs: !str;1
+      value: init
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !assn;1
+        let: false
+        lhs: !index;1
+          lhs: !name;1
+            value: self
+          rhs: !str;1
+            value: w
+        rhs: !name;1
+          value: s
+      - !assn;1
+        let: false
+        lhs: !index;1
+          lhs: !name;1
+            value: self
+          rhs: !str;1
+            value: h
+        rhs: !name;1
+          value: s
+    params:
+    - self
+    - s
+- !assn;1
+  let: false
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: a
+        rhs: !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: rect
+          rhs: !str;1
+            value: new
+      - !method;1
+        args:
+        - !int;1
+          value: 3
+        - !int;1
+          value: 4
+        catch: false
+        lhs: !name;1
+          value: a
+        rhs: !str;1
+          value: init
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: a
+          rhs: !str;1
+            value: area
+        catch: false
+        func: !name;1
+          value: print
+      - !assn;1
+        let: true
+        lhs: !name;1
+          value: b
+        rhs: !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: square
+          rhs: !str;1
+            value: new
+      - !method;1
+        args:
+        - !int;1
+          value: 4
+        catch: false
+        lhs: !name;1
+          value: b
+        rhs: !str;1
+          value: init
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: b
+          rhs: !str;1
+            value: area
+        catch: false
+        func: !name;1
+          value: print
+    params: []

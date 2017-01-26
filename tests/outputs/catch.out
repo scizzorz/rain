@@ -1,0 +1,19 @@
+----
+before
+two caught three!
+one caught null
+after
+main caught null
+----
+before
+two caught three!
+one caught null
+after
+main caught null
+----
+before
+main caught obvious
+----
+before
+after
+main caught obvious
