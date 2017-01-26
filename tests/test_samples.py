@@ -74,7 +74,7 @@ def test_run(src):
   comp.compile()
 
   with open(comp.target + '.out', 'w') as tmp:
-    subprocess.call([comp.target], stdout=tmp)
+    subprocess.call([os.path.abspath(comp.target)], stdout=tmp)
 
   check_file(comp.target + '.out')
   os.remove(comp.target + '.out')
