@@ -9,4 +9,4 @@ dependencies:
 test:
   override:
     - export PYTHONPATH=$(pwd); export RAINLIB=$(pwd)/lib; export CLANG=$(which clang-3.8); py.test -rap -v --tb=long --cov=rain --junit-xml=$CIRCLE_TEST_REPORTS/tests.xml
-    - export PYTHONPATH=$(pwd); cd test/lib && make init suite && ./suite --xml=$CIRCLE_TEST_REPORTS/tests.xml
+    - export PYTHONPATH=$(pwd); cd test/lib && make init suite && ./suite --xml=$CIRCLE_TEST_REPORTS/tests_c.xml
