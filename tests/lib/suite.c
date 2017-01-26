@@ -2,6 +2,8 @@
 
 #include "../../lib/rain.h"
 
+#include "suite.h"
+
 Test(array, length) {
   box arr;
   box i_box;
