@@ -1,0 +1,45 @@
+program :: (stmt NEWLINE)+ EOF
+
+block :: INDENT (stmt NEWLINE)+ DEDENT
+
+stmt :: 'let' NAME '=' expr
+      | if_stmt
+      | 'import' (NAME | STRING) ('as' NAME)?
+      | 'export' (NAME | STRING) 'as' (NAME | STRING)
+      | 'catch' NAME block
+      | 'for' NAME 'in' expr block
+      | 'with' expr ('as' NAME (',' NAME)*)
+      | 'while' expr block
+      | 'until' expr block
+      | 'loop' block
+      | 'pass'
+      | 'break' ('if' expr)?
+      | 'continue' ('if' expr)?
+      | 'return' expr?
+      | 'save' expr
+      | assn_prefix ('=' expr | fnargs | ':' NAME  fnargs)
+
+if_stmt :: 'if' expr block (NEWLINE 'else' (if_stmt | block))?
+
+assn_prefix :: prefix ('.' NAME | '[' expr ']')*
+
+fnargs :: '(' (expr (',' expr)*)? ')'
+
+fnparams :: '(' (NAME (',' NAME)*)? ')'
+
+expr :: binexpr ('is' (TYPE | NULL | TABLE | 'func'))?
+
+binexpr :: unexpr (OPERATOR unexpr)*
+
+unexpr :: ('-' | '!') simple
+        | simple
+
+simple :: 'func' fnparams ('->' expr | block)
+        | 'extern' (NAME | STRING) fnparams
+        | INT | FLOAT | BOOL | STRING | NULL | TABLE ('from' expr)?
+        | primary
+
+primary :: prefix ('?'? fnargs | ':' NAME ('?'? fnargs)? | '.' NAME | '[' expr ']')*
+
+prefix :: '(' expr ')'
+        | NAME
