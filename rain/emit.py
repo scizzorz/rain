@@ -483,7 +483,7 @@ def emit(self, module):
 
     func = module.add_tramp(func, env_ptr)
     func_i64 = module.builder.ptrtoint(func, T.i64)
-    func_box = module.builder.insert_value(T._func(), func_i64, 1)
+    func_box = module.builder.insert_value(T._func(args=len(self.params)), func_i64, 1)
 
     env_val = env_typ(None)
 
