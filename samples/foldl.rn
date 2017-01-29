@@ -1,0 +1,13 @@
+import array
+
+gadd = func(a, b) -> a + b
+main = func()
+  let ladd = func(a, b) -> a + b
+
+  let a = table
+  a[0] = 1
+  a[1] = 2
+  a[2] = 3
+
+  print(array.foldl(a, gadd, 0))
+  print(array.foldl(a, ladd, 0))
