@@ -153,10 +153,14 @@ def emit(self, module):
 
   if isinstance(self.lhs, name_node):
     if module.is_global: # global scope
-      column_ptr = module.add_global(T.column, name=module.uniq('column'))
-      ptr = column_ptr.gep([T.i32(0), T.i32(1)])
-      module[self.lhs] = ptr
+      if self.let:
+        column_ptr = module.add_global(T.column, name=module.mangle(self.lhs.value))
+        module[self.lhs] = column_ptr.gep([T.i32(0), T.i32(1)])
 
+      if self.lhs not in module:
+        module.panic("Undeclared name {!r}", self.lhs.value)
+
+      column_ptr = module.get_global(name=module.mangle(self.lhs.value))
       key_node = str_node(self.lhs.value)
       key = module.emit(key_node)
       val = module.emit(self.rhs)
@@ -175,7 +179,7 @@ def emit(self, module):
     rhs = module.emit(self.rhs)
 
     if self.lhs not in module:
-      module.panic("Undeclared name {!r}", self.lhs)
+      module.panic("Undeclared name {!r}", self.lhs.value)
 
     module.builder.store(rhs, module[self.lhs])
     module[self.lhs].bound = True

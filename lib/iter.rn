@@ -1,16 +1,16 @@
-range = func(end)
+let range = func(end)
   let i = 0
   return func()
     if i < end
       save i
     i = i + 1
 
-map = func(iter, fn) -> func()
+let map = func(iter, fn) -> func()
   let val = iter()
   if val != null
     return fn(val)
 
-foldl = func(iter, fn, z)
+let foldl = func(iter, fn, z)
   let a = z
   for v in iter
     a = fn(a, v)

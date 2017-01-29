@@ -1,7 +1,7 @@
 !program;1
 stmts:
 - !assn;1
-  let: false
+  let: true
   lhs: !name;1
     value: add
   rhs: !func;1
@@ -18,7 +18,7 @@ stmts:
     - x
     - y
 - !assn;1
-  let: false
+  let: true
   lhs: !name;1
     value: mul
   rhs: !func;1
@@ -33,7 +33,7 @@ stmts:
     - x
     - y
 - !assn;1
-  let: false
+  let: true
   lhs: !name;1
     value: apply
   rhs: !func;1
@@ -54,7 +54,7 @@ stmts:
     - x
     - y
 - !assn;1
-  let: false
+  let: true
   lhs: !name;1
     value: main
   rhs: !func;1

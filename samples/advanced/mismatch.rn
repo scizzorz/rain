@@ -1,15 +1,15 @@
 import except
 
-none = func()
+let none = func()
   print("no args")
 
-one = func(a)
+let one = func(a)
   print("one arg")
 
-two = func(a, b)
+let two = func(a, b)
   print("two args")
 
-main = func()
+let main = func()
   let a = 1
   let b = "str"
 

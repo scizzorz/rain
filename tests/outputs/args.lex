@@ -1,3 +1,4 @@
+keyword 'let'
 name 'swap'
 symbol '='
 keyword 'func'
@@ -32,6 +33,7 @@ symbol ')'
 newline
 dedent
 newline
+keyword 'let'
 name 'main'
 symbol '='
 keyword 'func'

@@ -1,6 +1,7 @@
 keyword 'import'
 name 'except'
 newline
+keyword 'let'
 name 'none'
 symbol '='
 keyword 'func'
@@ -14,6 +15,7 @@ symbol ')'
 newline
 dedent
 newline
+keyword 'let'
 name 'one'
 symbol '='
 keyword 'func'
@@ -28,6 +30,7 @@ symbol ')'
 newline
 dedent
 newline
+keyword 'let'
 name 'two'
 symbol '='
 keyword 'func'
@@ -44,6 +47,7 @@ symbol ')'
 newline
 dedent
 newline
+keyword 'let'
 name 'main'
 symbol '='
 keyword 'func'

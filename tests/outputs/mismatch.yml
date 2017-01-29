@@ -4,7 +4,7 @@ stmts:
   name: except
   rename: null
 - !assn;1
-  let: false
+  let: true
   lhs: !name;1
     value: none
   rhs: !func;1
@@ -19,7 +19,7 @@ stmts:
           value: print
     params: []
 - !assn;1
-  let: false
+  let: true
   lhs: !name;1
     value: one
   rhs: !func;1
@@ -35,7 +35,7 @@ stmts:
     params:
     - a
 - !assn;1
-  let: false
+  let: true
   lhs: !name;1
     value: two
   rhs: !func;1
@@ -52,7 +52,7 @@ stmts:
     - a
     - b
 - !assn;1
-  let: false
+  let: true
   lhs: !name;1
     value: main
   rhs: !func;1

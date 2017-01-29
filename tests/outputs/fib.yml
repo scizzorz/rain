@@ -1,7 +1,7 @@
 !program;1
 stmts:
 - !assn;1
-  let: false
+  let: true
   lhs: !name;1
     value: fib
   rhs: !func;1
@@ -48,7 +48,7 @@ stmts:
     params:
     - n
 - !assn;1
-  let: false
+  let: true
   lhs: !name;1
     value: main
   rhs: !func;1

@@ -4,7 +4,7 @@ stmts:
   name: string
   rename: null
 - !assn;1
-  let: false
+  let: true
   lhs: !name;1
     value: three
   rhs: !func;1
@@ -19,7 +19,7 @@ stmts:
           value: panic
     params: []
 - !assn;1
-  let: false
+  let: true
   lhs: !name;1
     value: two
   rhs: !func;1
@@ -55,7 +55,7 @@ stmts:
           value: print
     params: []
 - !assn;1
-  let: false
+  let: true
   lhs: !name;1
     value: one
   rhs: !func;1
@@ -91,7 +91,7 @@ stmts:
           value: print
     params: []
 - !assn;1
-  let: false
+  let: true
   lhs: !name;1
     value: main
   rhs: !func;1

@@ -1,6 +1,7 @@
 keyword 'import'
 name 'string'
 newline
+keyword 'let'
 name 'three'
 symbol '='
 keyword 'func'
@@ -14,6 +15,7 @@ symbol ')'
 newline
 dedent
 newline
+keyword 'let'
 name 'two'
 symbol '='
 keyword 'func'
@@ -42,6 +44,7 @@ symbol ')'
 newline
 dedent
 newline
+keyword 'let'
 name 'one'
 symbol '='
 keyword 'func'
@@ -71,6 +74,7 @@ symbol ')'
 newline
 dedent
 newline
+keyword 'let'
 name 'main'
 symbol '='
 keyword 'func'

@@ -1,17 +1,16 @@
 # a function that adds two numbers
-add = func(x, y)
+let add = func(x, y)
   return x + y
 
 # a function that multiplies two numbers
 # uses shorthand notation for simple functions
-mul = func(x, y) -> x * y
+let mul = func(x, y) -> x * y
 
 # a function that applies two numbers to another function
-apply = func(fn, x, y)
+let apply = func(fn, x, y)
   return fn(x, y)
 
-
-main = func()
+let main = func()
   print(add(3, 4))
   print(mul(3, 4))
   print("-----")

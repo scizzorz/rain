@@ -10,6 +10,7 @@ newline
 keyword 'import'
 name 'string'
 newline
+keyword 'let'
 name 'double'
 symbol '='
 keyword 'func'
@@ -21,6 +22,7 @@ name 'n'
 operator '*'
 int 2
 newline
+keyword 'let'
 name 'main'
 symbol '='
 keyword 'func'

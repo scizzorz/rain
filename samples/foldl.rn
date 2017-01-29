@@ -1,7 +1,7 @@
 import array
 
-gadd = func(a, b) -> a + b
-main = func()
+let gadd = func(a, b) -> a + b
+let main = func()
   let ladd = func(a, b) -> a + b
 
   let a = table

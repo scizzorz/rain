@@ -1,4 +1,4 @@
-main = func()
+let main = func()
   let f = table # tables are the only composite data structure
   f.not_true = false
   f.one = 1

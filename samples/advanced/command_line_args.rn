@@ -1,7 +1,7 @@
 import env
 import array
 
-main = func()
+let main = func()
   print(array.length(env.args))
   for arg in array.values(env.args)
     print(arg)

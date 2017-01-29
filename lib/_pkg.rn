@@ -1,3 +1,3 @@
-print = extern "rain_ext_print"(val)
-exit = extern "rain_exit"(val)
-panic = extern "rain_ext_throw"(val)
+let print = extern "rain_ext_print"(val)
+let exit = extern "rain_exit"(val)
+let panic = extern "rain_ext_throw"(val)

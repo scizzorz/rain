@@ -1,6 +1,6 @@
 import process
 
-main = func()
+let main = func()
   let args = table
   args[0] = "echo"
   args[1] = "hi"

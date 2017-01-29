@@ -1,3 +1,4 @@
+keyword 'let'
 name 'x'
 symbol '='
 int 0
@@ -14,6 +15,7 @@ name 'x'
 symbol '='
 string "now I'm a string"
 newline
+keyword 'let'
 name 'main'
 symbol '='
 keyword 'func'

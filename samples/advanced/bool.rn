@@ -1,5 +1,5 @@
 # short-circuiting booleans
-main = func()
+let main = func()
   print(0 & 0)
   print(0 & 2)
   print(1 & 0)

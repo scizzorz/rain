@@ -4,6 +4,7 @@ newline
 keyword 'import'
 name 'array'
 newline
+keyword 'let'
 name 'main'
 symbol '='
 keyword 'func'

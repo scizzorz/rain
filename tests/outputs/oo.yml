@@ -1,7 +1,7 @@
 !program;1
 stmts:
 - !assn;1
-  let: false
+  let: true
   lhs: !name;1
     value: rect
   rhs: !table;1
@@ -80,7 +80,7 @@ stmts:
     params:
     - self
 - !assn;1
-  let: false
+  let: true
   lhs: !name;1
     value: square
   rhs: !table;1
@@ -118,7 +118,7 @@ stmts:
     - self
     - s
 - !assn;1
-  let: false
+  let: true
   lhs: !name;1
     value: main
   rhs: !func;1
