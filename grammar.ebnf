@@ -6,6 +6,7 @@ stmt :: 'let' NAME '=' expr
       | if_stmt
       | 'import' (NAME | STRING) ('as' NAME)?
       | 'export' (NAME | STRING) 'as' (NAME | STRING)
+      | 'import' 'foreign' (NAME | STRING) fnparams? 'as' NAME
       | 'catch' NAME block
       | 'for' NAME 'in' expr block
       | 'with' expr ('as' NAME (',' NAME)*)

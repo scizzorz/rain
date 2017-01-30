@@ -244,6 +244,16 @@ class extern_node(node):
     self.name = name
     self.params = params
 
+class foreign_node(node):
+  __tag__ = 'foreign'
+  __version__ = 1
+  __slots__ = ['name', 'params', 'val']
+
+  def __init__(self, name, params, val):
+    self.name = name
+    self.params = params
+    self.val = val
+
 class import_node(node):
   __tag__ = 'import'
   __version__ = 1

@@ -105,6 +105,7 @@ def block(ctx):
 #       | if_stmt
 #       | 'import' (NAME | STRING) ('as' NAME)?
 #       | 'export' (NAME | STRING) 'as' (NAME | STRING)
+#       | 'import' 'foreign' (NAME | STRING) fnparams? 'as' NAME
 #       | 'catch' NAME block
 #       | 'for' NAME 'in' expr block
 #       | 'with' expr ('as' NAME (',' NAME)*)
@@ -128,6 +129,18 @@ def stmt(ctx):
     return if_stmt(ctx)
 
   if ctx.consume(K.keyword_token('import')):
+    if ctx.consume(K.keyword_token('foreign')):
+      name = ctx.require(K.name_token, K.string_token).value
+      params = None
+
+      if ctx.expect(K.symbol_token('(')):
+        params = fnparams(ctx)
+
+      ctx.require(K.keyword_token('as'))
+      val = ctx.require(K.name_token).value
+
+      return A.foreign_node(name, params, val)
+
     name = ctx.require(K.name_token, K.string_token).value
     rename = None
     if ctx.consume(K.keyword_token('as')):
