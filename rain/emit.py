@@ -223,17 +223,6 @@ def emit(self, module):
   module.builder.cbranch(cond, module.before, nocont)
   module.builder.position_at_end(nocont)
 
-@export_node.method
-def emit(self, module):
-  if module.builder: # non-global scope
-    module.panic("Can't export value {!r} at non-global scope", self.val)
-
-  if self.val not in module:
-    module.panic("Can't export unknown value {!r}", self.val)
-
-  glob = module.add_global(T.box, name=self.name)
-  glob.initializer = module[self.val].col
-
 @foreign_node.method
 def emit(self, module):
   if module.builder:
@@ -444,12 +433,6 @@ def emit(self, module):
   gep = ptr.gep([T.i32(0), T.i32(0)])
 
   return T._str(gep, len(self.value))
-
-@extern_node.method
-def emit(self, module):
-  typ = T.vfunc()
-  func = module.find_func(typ, name=self.name)
-  return T._func(func, len(self.params))
 
 @table_node.method
 def emit(self, module):

@@ -5,7 +5,6 @@ block :: INDENT (stmt NEWLINE)+ DEDENT
 stmt :: 'let' NAME '=' expr
       | if_stmt
       | 'import' (NAME | STRING) ('as' NAME)?
-      | 'export' (NAME | STRING) 'as' (NAME | STRING)
       | 'import' 'foreign' (NAME | STRING) fnparams? 'as' NAME
       | 'catch' NAME block
       | 'for' NAME 'in' expr block
@@ -36,7 +35,6 @@ unexpr :: ('-' | '!') simple
         | simple
 
 simple :: 'func' fnparams ('->' expr | block)
-        | 'extern' (NAME | STRING) fnparams
         | INT | FLOAT | BOOL | STRING | NULL | TABLE ('from' expr)?
         | primary
 

@@ -104,7 +104,6 @@ def block(ctx):
 # stmt :: 'let' NAME '=' expr
 #       | if_stmt
 #       | 'import' (NAME | STRING) ('as' NAME)?
-#       | 'export' (NAME | STRING) 'as' (NAME | STRING)
 #       | 'import' 'foreign' (NAME | STRING) fnparams? 'as' NAME
 #       | 'catch' NAME block
 #       | 'for' NAME 'in' expr block
@@ -147,13 +146,6 @@ def stmt(ctx):
       rename = ctx.require(K.name_token).value
 
     return A.import_node(name, rename)
-
-  if ctx.consume(K.keyword_token('export')):
-    val = ctx.require(K.name_token, K.string_token).value
-    ctx.require(K.keyword_token('as'))
-    name = ctx.require(K.name_token, K.string_token).value
-
-    return A.export_node(val, name)
 
   if ctx.consume(K.keyword_token('catch')):
     name = ctx.require(K.name_token).value
@@ -348,7 +340,6 @@ def unexpr(ctx):
   return simple(ctx)
 
 # simple :: 'func' fnparams ('->' expr | block)
-#         | 'extern' (NAME | STRING) fnparams
 #         | INT | FLOAT | BOOL | STRING | NULL | TABLE ('from' expr)?
 #         | primary
 def simple(ctx):
@@ -361,11 +352,6 @@ def simple(ctx):
 
     body = block(ctx)
     return A.func_node(params, body)
-
-  if ctx.consume(K.keyword_token('extern')):
-    name = ctx.require(K.name_token, K.string_token).value
-    params = fnparams(ctx)
-    return A.extern_node(name, params)
 
   if ctx.expect(K.int_token):
     return A.int_node(ctx.require(K.int_token).value)

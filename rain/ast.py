@@ -102,15 +102,6 @@ class cont_node(node):
   def __init__(self, cond=None):
     self.cond = cond
 
-class export_node(node):
-  __tag__ = 'export'
-  __version__ = 1
-  __slots__ = ['val', 'name']
-
-  def __init__(self, val, name):
-    self.val = val
-    self.name = name
-
 class if_node(node):
   __tag__ = 'if'
   __version__ = 1
@@ -234,15 +225,6 @@ class table_node(node):
 
   def __init__(self, metatable=None):
     self.metatable = metatable
-
-class extern_node(node):
-  __tag__ = 'extern'
-  __version__ = 2
-  __slots__ = ['name', 'params']
-
-  def __init__(self, name, params):
-    self.name = name
-    self.params = params
 
 class foreign_node(node):
   __tag__ = 'foreign'
