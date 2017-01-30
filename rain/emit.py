@@ -183,8 +183,10 @@ def emit(self, module):
     if self.lhs not in module:
       module.panic("Undeclared name {!r}", self.lhs.value)
 
-    module.builder.store(rhs, module[self.lhs])
     module[self.lhs].bound = True
+    module.builder.store(rhs, module[self.lhs])
+    if getattr(module[self.lhs], 'foreign', None):
+      module.builder.store(rhs, module[self.lhs].foreign)
 
   elif isinstance(self.lhs, idx_node):
     if module.is_global: # global scope
