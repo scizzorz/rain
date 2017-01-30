@@ -115,7 +115,6 @@ def static_table_get(module, table_ptr, key_node, key):
 
   return T.null
 
-
 def static_table_alloc(module, name, metatable=None):
   # make an empty array of column*
   typ = T.arr(T.ptr(T.column), T.HASH_SIZE)

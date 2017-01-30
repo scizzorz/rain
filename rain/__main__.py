@@ -11,8 +11,8 @@ parser.add_argument('-r', '--run', action='store_true',
                     help='Execute the compiled code.')
 parser.add_argument('-o', '--output', metavar='FILE', default=None,
                     help='Executable file to produce.')
-parser.add_argument('-l', '--lib', metavar='FILE', action='append',
-                    help='Extra libraries to compile with.')
+parser.add_argument('-l', '--link', metavar='FILE', action='append',
+                    help='Extra files to link with.')
 parser.add_argument('-q', '--quiet', action='store_true',
                     help='Quiet the compiler.')
 
@@ -36,6 +36,10 @@ if not src:
 
 C.Compiler.quiet = args.quiet
 comp = C.get_compiler(src, target=args.output, main=True)
+
+if args.link:
+  for tmp in args.link:
+    comp.links.add(tmp)
 
 phase = C.phases.building
 

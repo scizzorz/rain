@@ -45,10 +45,10 @@ class Compiler:
     self.target = target
     self.main = main
     self.lib = ENV['RAINLIB']
+    self.links = set()
     self.stream = None # set after lexing
     self.ast = None    # set after parsing
     self.mod = None    # set before emitting
-    self.links = None  # set before emitting
     self.ll = None     # set after writing
 
   @classmethod
@@ -68,7 +68,7 @@ class Compiler:
 
   def goodies(self, phase=phases.building):
     # don't do this twice
-    if self.links is not None:
+    if self.mod is not None:
       return
 
     # do everything but compile
@@ -96,7 +96,6 @@ class Compiler:
 
   def emit(self):
     self.mod = M.Module(self.file)
-    self.links = set()
 
     # always link with lib/_pkg.rn
     builtin = get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
