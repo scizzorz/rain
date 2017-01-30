@@ -2,9 +2,9 @@ import core
 import iter
 
 let length = core.length
-let to_str = extern "rain_to_string"(val)
-let to_int = extern "rain_string_to_int"(val)
-let fmt = extern "rain_fmt"(val, fmt)
+import foreign "rain_to_string"(val) as to_str
+import foreign "rain_string_to_int"(val) as to_int
+import foreign "rain_fmt"(val, fmt) as fmt
 
 let substring = func(s, start, end)
   let length = length(s)

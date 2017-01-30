@@ -1,1 +1,1 @@
-let run = extern "rain_process_output"(cmd)
+import foreign "rain_process_output"(cmd) as run

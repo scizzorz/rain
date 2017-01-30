@@ -1,16 +1,16 @@
-let add = extern "rain_add"(lhs, rhs)
-let sub = extern "rain_sub"(lhs, rhs)
-let mul = extern "rain_mul"(lhs, rhs)
-let div = extern "rain_div"(lhs, rhs)
-let neg = extern "rain_neg"(val)
-let not = extern "rain_not"(val)
-let and = extern "rain_and"(lhs, rhs)
-let or  = extern "rain_or"(lhs, rhs)
-let eq  = extern "rain_eq"(lhs, rhs)
-let ne  = extern "rain_ne"(lhs, rhs)
-let gt  = extern "rain_gt"(lhs, rhs)
-let ge  = extern "rain_ge"(lhs, rhs)
-let lt  = extern "rain_lt"(lhs, rhs)
-let le  = extern "rain_le"(lhs, rhs)
-let concat = extern "rain_string_concat"(lhs, rhs)
-let length = extern "rain_length"(val)
+import foreign "rain_add"(lhs, rhs) as add
+import foreign "rain_sub"(lhs, rhs) as sub
+import foreign "rain_mul"(lhs, rhs) as mul
+import foreign "rain_div"(lhs, rhs) as div
+import foreign "rain_neg"(val) as neg
+import foreign "rain_not"(val) as not
+import foreign "rain_and"(lhs, rhs) as and
+import foreign "rain_or"(lhs, rhs) as or
+import foreign "rain_eq"(lhs, rhs) as eq
+import foreign "rain_ne"(lhs, rhs) as ne
+import foreign "rain_gt"(lhs, rhs) as gt
+import foreign "rain_ge"(lhs, rhs) as ge
+import foreign "rain_lt"(lhs, rhs) as lt
+import foreign "rain_le"(lhs, rhs) as le
+import foreign "rain_string_concat"(lhs, rhs) as concat
+import foreign "rain_length"(val) as length
