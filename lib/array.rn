@@ -1,14 +1,14 @@
 import core
 
-let length = core.length
+export length = core.length
 
-let values = func(self)
+export values = func(self)
   let i = 0
   return func()
     save self[i]
     i = i + 1
 
-let keys = func(self)
+export keys = func(self)
   let i = 0
   return func()
     if self[i] == null
@@ -17,19 +17,19 @@ let keys = func(self)
     save i
     i = i + 1
 
-let map = func(self, fn)
+export map = func(self, fn)
   let ret = table from self.metatable
   save ret
   for i in keys(self)
     ret[i] = fn(self[i])
 
-let foldl = func(self, fn, z)
+export foldl = func(self, fn, z)
   let a = z
   for v in values(self)
     a = fn(a, v)
   return a
 
-let from_iter = func(iter)
+export from_iter = func(iter)
   let ret = table
   save ret
   let idx = 0
@@ -37,7 +37,7 @@ let from_iter = func(iter)
     ret[idx] = i
     idx = idx + 1
 
-let slice = func(self, start, end)
+export slice = func(self, start, end)
   let ret = table
   save ret
   let length = length(self)
@@ -47,11 +47,3 @@ let slice = func(self, start, end)
     ret[to_idx] = self[from_idx]
     from_idx = from_idx + 1
     to_idx = to_idx + 1
-
-export length
-export values
-export keys
-export map
-export foldl
-export from_iter
-export slice

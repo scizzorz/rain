@@ -69,13 +69,14 @@ class block_node(node):
 
 class assn_node(node):
   __tag__ = 'assn'
-  __version__ = 1
-  __slots__ = ['lhs', 'rhs', 'let']
+  __version__ = 2
+  __slots__ = ['lhs', 'rhs', 'let', 'export']
 
-  def __init__(self, lhs, rhs, let=False):
+  def __init__(self, lhs, rhs, let=False, export=False):
     self.lhs = lhs
     self.rhs = rhs
     self.let = let
+    self.export = export
 
 class break_node(node):
   __tag__ = 'break'

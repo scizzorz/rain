@@ -1,21 +1,17 @@
-let range = func(end)
+export range = func(end)
   let i = 0
   return func()
     if i < end
       save i
     i = i + 1
 
-let map = func(iter, fn) -> func()
+export map = func(iter, fn) -> func()
   let val = iter()
   if val != null
     return fn(val)
 
-let foldl = func(iter, fn, z)
+export foldl = func(iter, fn, z)
   let a = z
   for v in iter
     a = fn(a, v)
   return a
-
-export range
-export map
-export foldl

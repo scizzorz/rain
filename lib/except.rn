@@ -1,22 +1,22 @@
-let error = table
+export error = table
 error.msg = "error"
 
-let arg_mismatch = table from error
+export arg_mismatch = table from error
 arg_mismatch.msg = "argument mismatch"
 
-let uncallable = table from error
+export uncallable = table from error
 uncallable.msg = "uncallable value"
 
-let interrupt = table from error
+export interrupt = table from error
 interrupt.msg = "received interrupt signal"
 
-let fpe = table from error
+export fpe = table from error
 fpe.msg = "floating point error"
 
-let segfault = table from error
+export segfault = table from error
 segfault.msg = "segmentation fault"
 
-let safe = func(val)
+export safe = func(val)
   while val is table
     break if !(val.metatable)
     val = val.metatable
@@ -29,11 +29,3 @@ export fpe          as foreign "rain_exc_fpe"
 export interrupt    as foreign "rain_exc_interrupt"
 export segfault     as foreign "rain_exc_segfault"
 export uncallable   as foreign "rain_exc_uncallable"
-
-export arg_mismatch
-export error
-export fpe
-export interrupt
-export segfault
-export uncallable
-export safe

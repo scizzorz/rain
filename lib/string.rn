@@ -1,23 +1,23 @@
 import core
 import iter
 
-let length = core.length
+export length = core.length
 import foreign "rain_to_string"(val) as to_str
 import foreign "rain_string_to_int"(val) as to_int
 import foreign "rain_fmt"(val, fmt) as fmt
 
-let substring = func(s, start, end)
+export substring = func(s, start, end)
   let length = length(s)
   if start >= end | end >= length
     return ""
   return s[start] $ substring(s, start+1, end)
 
-let index_of = func(s, of)
+export index_of = func(s, of)
   for i in iter.range(length(s))
     if s[i] == of
       return i
 
-let split = func(s, at)
+export split = func(s, at)
   let arr = table
   let arr_idx = 0
   let recurse = func(s)
@@ -35,10 +35,6 @@ let split = func(s, at)
   recurse(s)
   return arr
 
-export length
 export to_str
 export to_int
 export fmt
-export substring
-export index_of
-export split

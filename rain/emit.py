@@ -150,9 +150,20 @@ def export_global(module, name:str, value:"LLVM value"):
 
   column_ptr = module.add_global(T.column, name=module.mangle(name + '.export'))
   static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, value)
+  return column_ptr.gep([T.i32(0), T.i32(1)])
 
 def store_global(module, name:str, value:"LLVM value"):
-  pass
+  if isinstance(module[name], ir.GlobalVariable):
+    module[name].initializer = value
+  else:
+    module[name] = export_global(module, name, value)
+    module[name].col = value
+
+def load_global(module, name:str):
+  if isinstance(module[name], ir.GlobalVariable):
+    return module[name].initializer
+  else:
+    return module[name].col
 
 # simple statements
 
@@ -162,14 +173,19 @@ def emit(self, module):
 
   if isinstance(self.lhs, name_node):
     if module.is_global: # global scope
+      if self.export:
+        val = module.emit(self.rhs)
+        module[self.lhs.value] = None # cheesy
+        store_global(module, self.lhs.value, val)
+        return
+
       if self.let:
         module[self.lhs] = module.add_global(T.box, name=module.mangle(self.lhs.value))
 
       if self.lhs not in module:
-        module.panic("Undeclared {!r}", self.lhs.value)
+        module.panic("Undeclared global {!r}", self.lhs.value)
 
-      module[self.lhs].initializer = module.emit(self.rhs)
-
+      store_global(module, self.lhs.value, module.emit(self.rhs))
       return
 
     # emit this so a function can't close over its undefined binding
@@ -188,7 +204,7 @@ def emit(self, module):
 
   elif isinstance(self.lhs, idx_node):
     if module.is_global: # global scope
-      table_ptr = module[self.lhs.lhs].initializer.source
+      table_ptr = load_global(module, self.lhs.lhs).source
       key_node = self.lhs.rhs
       key = module.emit(key_node)
       val = module.emit(self.rhs)
@@ -251,7 +267,7 @@ def emit(self, module):
     module.panic("Can't export unknown value {!r}", self.name)
 
   glob = module.add_global(T.box, name=self.rename)
-  glob.initializer = module[self.name].initializer
+  glob.initializer = load_global(module, self.name)
 
 @export_node.method
 def emit(self, module):
@@ -413,7 +429,7 @@ def emit(self, module):
     module.panic("Unknown name {!r}", self.value)
 
   if module.is_global: # global scope
-    return module[self.value].initializer
+    return load_global(module, self.value)
 
   return module.builder.load(module[self.value])
 

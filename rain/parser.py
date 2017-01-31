@@ -150,6 +150,10 @@ def stmt(ctx):
   if ctx.consume(K.keyword_token('export')):
     name = ctx.require(K.name_token).value
     rename = None
+    if ctx.consume(K.symbol_token('=')):
+      rhs = expr(ctx)
+      return A.assn_node(A.name_node(name), rhs, export=True)
+
     if ctx.consume(K.keyword_token('as')):
       if ctx.consume(K.keyword_token('foreign')):
         rename = ctx.require(K.string_token, K.name_token).value
