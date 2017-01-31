@@ -245,6 +245,15 @@ def emit(self, module):
 
 @export_node.method
 def emit(self, module):
+  if module.builder:
+    module.panic("Can't export value {!r} at a non-global scope", self.name)
+
+  if self.name not in module:
+    module.panic("Can't export unknown value {!r}", self.name)
+
+  if getattr(module[self.name], 'exported', None):
+    module.panic("Value {!r} is already exported", self.name)
+
   rename = self.rename or self.name
 
   key_node = str_node(rename)
@@ -253,7 +262,8 @@ def emit(self, module):
 
   column_ptr = module.add_global(T.column, name=module.mangle(rename + '.export'))
   static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, val)
-  ptr = column_ptr.gep([T.i32(0), T.i32(1)])
+
+  module[self.name] = column_ptr.gep([T.i32(0), T.i32(1)])
 
 @import_node.method
 def emit(self, module):
