@@ -144,6 +144,16 @@ def static_table_from_ptr(module, ptr, metatable=None):
 
   return box
 
+def export_global(module, name:str, value:"LLVM value"):
+  key_node = str_node(name)
+  key = key_node.emit(module)
+
+  column_ptr = module.add_global(T.column, name=module.mangle(name + '.export'))
+  static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, value)
+
+def store_global(module, name:str, value:"LLVM value"):
+  pass
+
 # simple statements
 
 @assn_node.method
@@ -256,13 +266,7 @@ def emit(self, module):
 
   rename = self.rename or self.name
 
-  key_node = str_node(rename)
-  key = key_node.emit(module)
-  val = module[self.name].initializer
-
-  column_ptr = module.add_global(T.column, name=module.mangle(rename + '.export'))
-  static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, val)
-
+  export_global(module, rename, module[self.name].initializer)
   #module[self.name] = column_ptr.gep([T.i32(0), T.i32(1)])
 
 @import_node.method
