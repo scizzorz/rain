@@ -148,7 +148,7 @@ def export_global(module, name:str, value:"LLVM value"):
   key_node = str_node(name)
   key = key_node.emit(module)
 
-  column_ptr = module.add_global(T.column, name=module.mangle(name + '.export'))
+  column_ptr = module.find_global(T.column, name=module.mangle(name + '.export'))
   static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, value)
   return column_ptr.gep([T.i32(0), T.i32(1)])
 
@@ -174,8 +174,10 @@ def emit(self, module):
   if isinstance(self.lhs, name_node):
     if module.is_global: # global scope
       if self.export:
+        column_ptr = module.find_global(T.column, name=module.mangle(self.lhs.value + '.export'))
+        module[self.lhs.value] = column_ptr.gep([T.i32(0), T.i32(1)])
+
         val = module.emit(self.rhs)
-        module[self.lhs.value] = None # cheesy
         store_global(module, self.lhs.value, val)
         return
 
