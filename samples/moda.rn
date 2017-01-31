@@ -1,0 +1,16 @@
+import modb
+export name = "module a"
+
+export test = func()
+  print("moda.name = " $ name)
+
+let main = func()
+  print("moda.main()")
+  test()
+  modb.test()
+
+  name = "new a module"
+  modb.name = "new b module"
+
+  test()
+  modb.test()

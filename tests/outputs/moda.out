@@ -1,0 +1,5 @@
+moda.main()
+moda.name = module a
+modb.name = module b
+moda.name = new a module
+modb.name = new b module

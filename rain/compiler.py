@@ -29,6 +29,9 @@ def get_compiler(src, target=None, main=False):
 
   return compilers[abspath]
 
+def reset_compilers():
+  global compilers
+  compilers = {}
 
 class phases(Enum):
   lexing = 0

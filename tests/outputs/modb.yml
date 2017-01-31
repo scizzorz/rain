@@ -1,0 +1,98 @@
+!program;1
+stmts:
+- !import;1
+  name: moda
+  rename: null
+- !assn;2
+  export: true
+  let: false
+  lhs: !name;1
+    value: name
+  rhs: !str;1
+    value: my bad
+- !assn;2
+  export: false
+  let: false
+  lhs: !name;1
+    value: name
+  rhs: !str;1
+    value: module b
+- !assn;2
+  export: true
+  let: false
+  lhs: !name;1
+    value: test
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !str;1
+            value: 'modb.name = '
+          op: $
+          rhs: !name;1
+            value: name
+        catch: false
+        func: !name;1
+          value: print
+    params: []
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !str;1
+          value: modb.main()
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args: []
+        catch: false
+        func: !index;1
+          lhs: !name;1
+            value: moda
+          rhs: !str;1
+            value: test
+      - !call;1
+        args: []
+        catch: false
+        func: !name;1
+          value: test
+      - !assn;2
+        export: false
+        let: false
+        lhs: !index;1
+          lhs: !name;1
+            value: moda
+          rhs: !str;1
+            value: name
+        rhs: !str;1
+          value: new a module
+      - !assn;2
+        export: false
+        let: false
+        lhs: !name;1
+          value: name
+        rhs: !str;1
+          value: new b module
+      - !call;1
+        args: []
+        catch: false
+        func: !index;1
+          lhs: !name;1
+            value: moda
+          rhs: !str;1
+            value: test
+      - !call;1
+        args: []
+        catch: false
+        func: !name;1
+          value: test
+    params: []
