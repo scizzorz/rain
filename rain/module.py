@@ -67,7 +67,7 @@ class Module(S.Scope):
     self.llvm.triple = binding.get_default_triple()
 
     typ = T.arr(T.i8, len(self.qname) + 1)
-    ptr = self.add_global(typ, name=self.mangle('name'))
+    ptr = self.add_global(typ, name=self.mangle('_name'))
     ptr.initializer = typ(bytearray(self.qname + '\0', 'utf-8'))
     self.name_ptr = ptr.gep([T.i32(0), T.i32(0)])
 

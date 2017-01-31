@@ -161,25 +161,6 @@ def emit(self, module):
       module[self.lhs].initializer = module.emit(self.rhs)
 
       return
-      '''
-      if self.let:
-        column_ptr = module.add_global(T.column, name=module.mangle(self.lhs.value))
-        module[self.lhs] = column_ptr.gep([T.i32(0), T.i32(1)])
-
-      if self.lhs not in module:
-        module.panic("Undeclared name {!r}", self.lhs.value)
-
-      column_ptr = module.get_global(name=module.mangle(self.lhs.value))
-      key_node = str_node(self.lhs.value)
-      key = module.emit(key_node)
-      val = module.emit(self.rhs)
-
-      static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, val)
-
-      module[self.lhs].col = val
-
-      return
-      '''
 
     # emit this so a function can't close over its undefined binding
     if self.let:
@@ -283,18 +264,9 @@ def emit(self, module):
 
   rename = self.rename or comp.mod.mname
 
-  key_node = str_node(rename)
-  key = key_node.emit(module)
-  val = static_table_from_ptr(module, glob)
-
-  column_ptr = module.add_global(T.column, name=module.uniq('column'))
-  static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, val)
-  ptr = column_ptr.gep([T.i32(0), T.i32(1)])
-
-  module[rename] = ptr
-  module[rename].col = val
+  module[rename] = module.add_global(T.box, module.mangle(rename))
+  module[rename].initializer = static_table_from_ptr(module, glob)
   module[rename].mod = comp.mod
-
   return file
 
 @pass_node.method
