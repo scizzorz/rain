@@ -263,7 +263,7 @@ def emit(self, module):
   column_ptr = module.add_global(T.column, name=module.mangle(rename + '.export'))
   static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, val)
 
-  module[self.name] = column_ptr.gep([T.i32(0), T.i32(1)])
+  #module[self.name] = column_ptr.gep([T.i32(0), T.i32(1)])
 
 @import_node.method
 def emit(self, module):
