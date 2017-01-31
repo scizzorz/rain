@@ -225,14 +225,12 @@ def emit(self, module):
   if self.params is not None:
     typ = T.vfunc()
     func = module.find_func(typ, name=self.name)
-    val = T._func(func, len(self.params))
+    module[self.rename] = module.add_global(T.box, module.mangle(self.rename))
+    module[self.rename].initializer = T._func(func, len(self.params))
 
   # foreign box
   else:
-    module.panic("Can't import foreign values yet.")
-
-  module[self.rename] = module.add_global(T.box, module.mangle(self.rename))
-  module[self.rename].initializer = val
+    module[self.rename] = module.add_global(T.box, self.name)
 
 @export_foreign_node.method
 def emit(self, module):
