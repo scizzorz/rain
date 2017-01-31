@@ -153,6 +153,16 @@ def emit(self, module):
   if isinstance(self.lhs, name_node):
     if module.is_global: # global scope
       if self.let:
+        module[self.lhs] = module.add_global(T.box, name=module.mangle(self.lhs.value))
+
+      if self.lhs not in module:
+        module.panic("Undeclared {!r}", self.lhs.value)
+
+      module[self.lhs].initializer = module.emit(self.rhs)
+
+      return
+      '''
+      if self.let:
         column_ptr = module.add_global(T.column, name=module.mangle(self.lhs.value))
         module[self.lhs] = column_ptr.gep([T.i32(0), T.i32(1)])
 
@@ -167,10 +177,9 @@ def emit(self, module):
       static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, val)
 
       module[self.lhs].col = val
-      if getattr(module[self.lhs], 'foreign', None):
-        module[self.lhs].foreign.initializer = val
 
       return
+      '''
 
     # emit this so a function can't close over its undefined binding
     if self.let:
@@ -185,12 +194,10 @@ def emit(self, module):
 
     module[self.lhs].bound = True
     module.builder.store(rhs, module[self.lhs])
-    if getattr(module[self.lhs], 'foreign', None):
-      module.builder.store(rhs, module[self.lhs].foreign)
 
   elif isinstance(self.lhs, idx_node):
     if module.is_global: # global scope
-      table_ptr = module[self.lhs.lhs].col.source
+      table_ptr = module[self.lhs.lhs].initializer.source
       key_node = self.lhs.rhs
       key = module.emit(key_node)
       val = module.emit(self.rhs)
@@ -233,12 +240,6 @@ def emit(self, module):
   if self.rename in module:
     module.panic("Can't import foreign value {!r} as {!r} - {!r} exists", self.name, self.rename)
 
-  key_node = str_node(self.rename)
-  key = key_node.emit(module)
-  val = T.null
-  column_ptr = module.add_global(T.column, name=module.mangle(self.rename))
-  module[self.rename] = column_ptr.gep([T.i32(0), T.i32(1)])
-
   # foreign function
   if self.params is not None:
     typ = T.vfunc()
@@ -249,8 +250,8 @@ def emit(self, module):
   else:
     module.panic("Can't import foreign values yet.")
 
-  static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, val)
-  module[self.rename].col = val
+  module[self.rename] = module.add_global(T.box, module.mangle(self.rename))
+  module[self.rename].initializer = val
 
 @export_foreign_node.method
 def emit(self, module):
@@ -261,7 +262,7 @@ def emit(self, module):
     module.panic("Can't export unknown value {!r}", self.name)
 
   glob = module.add_global(T.box, name=self.rename)
-  glob.initializer = module[self.name].col
+  glob.initializer = module[self.name].initializer
 
 @import_node.method
 def emit(self, module):
@@ -416,7 +417,7 @@ def emit(self, module):
     module.panic("Unknown name {!r}", self.value)
 
   if module.is_global: # global scope
-    return module[self.value].col
+    return module[self.value].initializer
 
   return module.builder.load(module[self.value])
 
