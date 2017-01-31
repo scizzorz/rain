@@ -1,27 +1,27 @@
-import foreign "rain_exc_error" as error
-import foreign "rain_exc_arg_mismatch" as arg_mismatch
-import foreign "rain_exc_fpe" as fpe
-import foreign "rain_exc_interrupt" as interrupt
-import foreign "rain_exc_segfault" as segfault
-import foreign "rain_exc_uncallable" as uncallable
-
-error = table
+let error = table
 error.msg = "error"
 
-arg_mismatch = table from error
+let arg_mismatch = table from error
 arg_mismatch.msg = "argument mismatch"
 
-uncallable = table from error
+let uncallable = table from error
 uncallable.msg = "uncallable value"
 
-interrupt = table from error
+let interrupt = table from error
 interrupt.msg = "received interrupt signal"
 
-fpe = table from error
+let fpe = table from error
 fpe.msg = "floating point error"
 
-segfault = table from error
+let segfault = table from error
 segfault.msg = "segmentation fault"
+
+export error as foreign "rain_exc_error"
+export arg_mismatch as foreign "rain_exc_arg_mismatch"
+export fpe as foreign "rain_exc_fpe"
+export interrupt as foreign "rain_exc_interrupt"
+export segfault as foreign "rain_exc_segfault"
+export uncallable as foreign "rain_exc_uncallable"
 
 let safe = func(val)
   while val is table

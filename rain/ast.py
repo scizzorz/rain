@@ -102,6 +102,24 @@ class cont_node(node):
   def __init__(self, cond=None):
     self.cond = cond
 
+class export_node(node):
+  __tag__ = 'export'
+  __version__ = 1
+  __slots__ = ['name', 'rename']
+
+  def __init__(self, name, rename=None):
+    self.name = name
+    self.rename = rename
+
+class export_foreign_node(node):
+  __tag__ = 'export_foreign'
+  __version__ = 1
+  __slots__ = ['name', 'rename']
+
+  def __init__(self, name, rename):
+    self.name = name
+    self.rename = rename
+
 class if_node(node):
   __tag__ = 'if'
   __version__ = 1
@@ -111,6 +129,25 @@ class if_node(node):
     self.pred = pred
     self.body = body
     self.els = els
+
+class import_node(node):
+  __tag__ = 'import'
+  __version__ = 1
+  __slots__ = ['name', 'rename']
+
+  def __init__(self, name, rename=None):
+    self.name = name
+    self.rename = rename
+
+class import_foreign_node(node):
+  __tag__ = 'import_foreign'
+  __version__ = 1
+  __slots__ = ['name', 'params', 'rename']
+
+  def __init__(self, name, params, rename):
+    self.name = name
+    self.params = params
+    self.rename = rename
 
 class loop_node(node):
   __tag__ = 'loop'
@@ -225,25 +262,6 @@ class table_node(node):
 
   def __init__(self, metatable=None):
     self.metatable = metatable
-
-class foreign_node(node):
-  __tag__ = 'foreign'
-  __version__ = 1
-  __slots__ = ['name', 'params', 'val']
-
-  def __init__(self, name, params, val):
-    self.name = name
-    self.params = params
-    self.val = val
-
-class import_node(node):
-  __tag__ = 'import'
-  __version__ = 1
-  __slots__ = ['name', 'rename']
-
-  def __init__(self, name, rename=None):
-    self.name = name
-    self.rename = rename
 
 class func_node(node):
   __tag__ = 'func'

@@ -225,19 +225,19 @@ def emit(self, module):
   module.builder.cbranch(cond, module.before, nocont)
   module.builder.position_at_end(nocont)
 
-@foreign_node.method
+@import_foreign_node.method
 def emit(self, module):
   if module.builder:
     module.panic("Can't foreign value {!r} at non-global scope", self.name)
 
-  if self.val in module:
-    module.panic("Can't import foreign value {!r} as {!r} - {!r} exists", self.name, self.val)
+  if self.rename in module:
+    module.panic("Can't import foreign value {!r} as {!r} - {!r} exists", self.name, self.rename)
 
-  key_node = str_node(self.val)
+  key_node = str_node(self.rename)
   key = key_node.emit(module)
   val = T.null
-  column_ptr = module.add_global(T.column, name=module.mangle(self.val))
-  module[self.val] = column_ptr.gep([T.i32(0), T.i32(1)])
+  column_ptr = module.add_global(T.column, name=module.mangle(self.rename))
+  module[self.rename] = column_ptr.gep([T.i32(0), T.i32(1)])
 
   # foreign function
   if self.params is not None:
@@ -247,12 +247,21 @@ def emit(self, module):
 
   # foreign box
   else:
-    glob = module.add_global(T.box, name=self.name)
-    glob.initializer = val
-    module[self.val].foreign = glob # cheesy hack
+    module.panic("Can't import foreign values yet.")
 
   static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, val)
-  module[self.val].col = val
+  module[self.rename].col = val
+
+@export_foreign_node.method
+def emit(self, module):
+  if module.builder:
+    module.panic("Can't export value {!r} as foreign at non-global scope", self.name)
+
+  if self.name not in module:
+    module.panic("Can't export unknown value {!r}", self.name)
+
+  glob = module.add_global(T.box, name=self.rename)
+  glob.initializer = module[self.name].col
 
 @import_node.method
 def emit(self, module):

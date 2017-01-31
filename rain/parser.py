@@ -138,7 +138,7 @@ def stmt(ctx):
       ctx.require(K.keyword_token('as'))
       val = ctx.require(K.name_token).value
 
-      return A.foreign_node(name, params, val)
+      return A.import_foreign_node(name, params, val)
 
     name = ctx.require(K.name_token, K.string_token).value
     rename = None
@@ -146,6 +146,18 @@ def stmt(ctx):
       rename = ctx.require(K.name_token).value
 
     return A.import_node(name, rename)
+
+  if ctx.consume(K.keyword_token('export')):
+    name = ctx.require(K.name_token).value
+    rename = None
+    if ctx.consume(K.keyword_token('as')):
+      if ctx.consume(K.keyword_token('foreign')):
+        rename = ctx.require(K.string_token, K.name_token).value
+        return A.export_foreign_node(name, rename)
+
+      rename = ctx.require(K.name_token).value
+
+    return A.export_node(name, rename)
 
   if ctx.consume(K.keyword_token('catch')):
     name = ctx.require(K.name_token).value
