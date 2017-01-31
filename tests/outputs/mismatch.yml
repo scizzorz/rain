@@ -3,7 +3,8 @@ stmts:
 - !import;1
   name: except
   rename: null
-- !assn;1
+- !assn;2
+  export: false
   let: true
   lhs: !name;1
     value: none
@@ -18,7 +19,8 @@ stmts:
         func: !name;1
           value: print
     params: []
-- !assn;1
+- !assn;2
+  export: false
   let: true
   lhs: !name;1
     value: one
@@ -34,7 +36,8 @@ stmts:
           value: print
     params:
     - a
-- !assn;1
+- !assn;2
+  export: false
   let: true
   lhs: !name;1
     value: two
@@ -51,20 +54,23 @@ stmts:
     params:
     - a
     - b
-- !assn;1
+- !assn;2
+  export: false
   let: true
   lhs: !name;1
     value: main
   rhs: !func;1
     body: !block;1
       stmts:
-      - !assn;1
+      - !assn;2
+        export: false
         let: true
         lhs: !name;1
           value: a
         rhs: !int;1
           value: 1
-      - !assn;1
+      - !assn;2
+        export: false
         let: true
         lhs: !name;1
           value: b

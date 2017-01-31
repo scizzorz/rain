@@ -3,7 +3,8 @@ stmts:
 - !import;1
   name: array
   rename: null
-- !assn;1
+- !assn;2
+  export: false
   let: true
   lhs: !name;1
     value: gadd
@@ -18,14 +19,16 @@ stmts:
     params:
     - a
     - b
-- !assn;1
+- !assn;2
+  export: false
   let: true
   lhs: !name;1
     value: main
   rhs: !func;1
     body: !block;1
       stmts:
-      - !assn;1
+      - !assn;2
+        export: false
         let: true
         lhs: !name;1
           value: ladd
@@ -40,13 +43,15 @@ stmts:
           params:
           - a
           - b
-      - !assn;1
+      - !assn;2
+        export: false
         let: true
         lhs: !name;1
           value: a
         rhs: !table;1
           metatable: null
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1
@@ -55,7 +60,8 @@ stmts:
             value: 0
         rhs: !int;1
           value: 1
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1
@@ -64,7 +70,8 @@ stmts:
             value: 1
         rhs: !int;1
           value: 2
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1

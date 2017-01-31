@@ -6,7 +6,8 @@ stmts:
 - !import;1
   name: array
   rename: null
-- !assn;1
+- !assn;2
+  export: false
   let: true
   lhs: !name;1
     value: main

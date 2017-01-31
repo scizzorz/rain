@@ -1,6 +1,7 @@
 !program;1
 stmts:
-- !assn;1
+- !assn;2
+  export: false
   let: true
   lhs: !name;1
     value: fib
@@ -47,7 +48,8 @@ stmts:
               value: fib
     params:
     - n
-- !assn;1
+- !assn;2
+  export: false
   let: true
   lhs: !name;1
     value: main

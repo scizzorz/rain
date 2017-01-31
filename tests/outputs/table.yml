@@ -1,19 +1,22 @@
 !program;1
 stmts:
-- !assn;1
+- !assn;2
+  export: false
   let: true
   lhs: !name;1
     value: main
   rhs: !func;1
     body: !block;1
       stmts:
-      - !assn;1
+      - !assn;2
+        export: false
         let: true
         lhs: !name;1
           value: f
         rhs: !table;1
           metatable: null
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1
@@ -22,7 +25,8 @@ stmts:
             value: nottrue
         rhs: !bool;1
           value: false
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1
@@ -31,7 +35,8 @@ stmts:
             value: one
         rhs: !int;1
           value: 1
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1
@@ -40,7 +45,8 @@ stmts:
             value: ten
         rhs: !float;1
           value: 10.0
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1
