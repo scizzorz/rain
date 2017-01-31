@@ -15,3 +15,7 @@ let foldl = func(iter, fn, z)
   for v in iter
     a = fn(a, v)
   return a
+
+export range
+export map
+export foldl

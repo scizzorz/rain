@@ -34,3 +34,11 @@ let split = func(s, at)
       arr[arr_idx] = s
   recurse(s)
   return arr
+
+export length
+export to_str
+export to_int
+export fmt
+export substring
+export index_of
+export split

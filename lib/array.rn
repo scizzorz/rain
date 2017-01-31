@@ -47,3 +47,11 @@ let slice = func(self, start, end)
     ret[to_idx] = self[from_idx]
     from_idx = from_idx + 1
     to_idx = to_idx + 1
+
+export length
+export values
+export keys
+export map
+export foldl
+export from_iter
+export slice

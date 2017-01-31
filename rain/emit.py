@@ -245,6 +245,18 @@ def emit(self, module):
   glob = module.add_global(T.box, name=self.rename)
   glob.initializer = module[self.name].initializer
 
+@export_node.method
+def emit(self, module):
+  rename = self.rename or self.name
+
+  key_node = str_node(rename)
+  key = key_node.emit(module)
+  val = module[self.name].initializer
+
+  column_ptr = module.add_global(T.column, name=module.mangle(rename + '.export'))
+  static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, val)
+  ptr = column_ptr.gep([T.i32(0), T.i32(1)])
+
 @import_node.method
 def emit(self, module):
   if module.builder: # non-global scope
@@ -546,7 +558,7 @@ def emit(self, module):
 
     # check if LHS is a module
     if getattr(module[self.lhs], 'mod', None):
-      return module[self.lhs].mod[self.rhs].col
+      return module[self.lhs].mod[self.rhs].initializer
 
     # otherwise, do normal lookups
     table_ptr = module[self.lhs].col.source

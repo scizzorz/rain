@@ -1,1 +1,3 @@
 import foreign "rain_fopen"(name, mode) as open
+
+export open

@@ -29,3 +29,11 @@ export fpe          as foreign "rain_exc_fpe"
 export interrupt    as foreign "rain_exc_interrupt"
 export segfault     as foreign "rain_exc_segfault"
 export uncallable   as foreign "rain_exc_uncallable"
+
+export arg_mismatch
+export error
+export fpe
+export interrupt
+export segfault
+export uncallable
+export safe
