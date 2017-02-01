@@ -369,6 +369,11 @@ def simple(ctx):
     body = block(ctx)
     return A.func_node(params, body)
 
+  if ctx.consume(K.keyword_token('foreign')):
+    name = ctx.require(K.name_token, K.string_token).value
+    params = fnparams(ctx)
+    return A.foreign_node(name, params)
+
   if ctx.expect(K.int_token):
     return A.int_node(ctx.require(K.int_token).value)
 

@@ -1,4 +1,4 @@
-import foreign "rain_add"(lhs, rhs) as add
+export add = foreign "rain_add"(lhs, rhs)
 import foreign "rain_sub"(lhs, rhs) as sub
 import foreign "rain_mul"(lhs, rhs) as mul
 import foreign "rain_div"(lhs, rhs) as div
@@ -14,5 +14,4 @@ import foreign "rain_lt"(lhs, rhs) as lt
 import foreign "rain_le"(lhs, rhs) as le
 import foreign "rain_string_concat"(lhs, rhs) as concat
 import foreign "rain_length"(val) as length
-
-export length
+export length = foreign "rain_length"(val)

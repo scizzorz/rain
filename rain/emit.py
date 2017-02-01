@@ -258,6 +258,7 @@ def emit(self, module):
 
   # foreign box
   else:
+    module.panic("Deprecation: Don't import foreign boxes.")
     module[self.rename] = module.add_global(T.box, self.name)
 
 @export_foreign_node.method
@@ -547,6 +548,12 @@ def emit(self, module):
 
   return T._func(func, len(self.params))
 
+@foreign_node.method
+def emit(self, module):
+  typ = T.vfunc([T.arg for param in self.params])
+  func = module.find_func(typ, name=self.name)
+  return T._func(func, len(self.params))
+
 # complex expressions
 
 def get_exception(module, name):
@@ -593,7 +600,7 @@ def emit(self, module):
 
     # check if LHS is a module
     if getattr(module[self.lhs], 'mod', None):
-      return module[self.lhs].mod[self.rhs].initializer
+      return load_global(module[self.lhs].mod, self.rhs)
 
     # otherwise, do normal lookups
     table_ptr = module[self.lhs].col.source

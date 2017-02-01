@@ -150,6 +150,15 @@ class import_foreign_node(node):
     self.params = params
     self.rename = rename
 
+class foreign_node(node):
+  __tag__ = 'foreign'
+  __version__ = 1
+  __slots__ = ['name', 'params']
+
+  def __init__(self, name, params):
+    self.name = name
+    self.params = params
+
 class loop_node(node):
   __tag__ = 'loop'
   __version__ = 1
