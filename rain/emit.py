@@ -268,8 +268,9 @@ def emit(self, module):
   if self.name not in module:
     module.panic("Can't export unknown value {!r}", self.name)
 
-  glob = module.add_global(T.box, name=self.rename)
-  glob.initializer = load_global(module, self.name)
+  glob = module.add_global(T.ptr(T.box), name=self.rename)
+  glob.initializer = module[self.name]
+  #glob.initializer = load_global(module, self.name)
 
 @export_node.method
 def emit(self, module):
@@ -548,16 +549,20 @@ def emit(self, module):
 
 # complex expressions
 
+def get_exception(module, name):
+  glob = module.find_global(T.ptr(T.box), name)
+  return module.builder.load(glob)
+
 def check_callable(module, box, args):
   func_typ = module.get_type(box)
   is_func = module.builder.icmp_unsigned('!=', T.ityp.func, func_typ)
   with module.builder.if_then(is_func):
-    module.call(module.extern('rain_throw'), module.find_global(T.box, 'rain_exc_uncallable'))
+    module.call(module.extern('rain_throw'), get_exception(module, 'rain_exc_uncallable'))
 
   exp_args = module.get_size(box)
   arg_match = module.builder.icmp_unsigned('!=', exp_args, T.i32(args))
   with module.builder.if_then(arg_match):
-    module.call(module.extern('rain_throw'), module.find_global(T.box, 'rain_exc_arg_mismatch'))
+    module.call(module.extern('rain_throw'), get_exception(module, 'rain_exc_arg_mismatch'))
 
 @call_node.method
 def emit(self, module):

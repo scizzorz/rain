@@ -95,7 +95,7 @@ void rain_neg(box *ret, box *val) {
     rain_set_float(ret, -(val->data.f));
   }
   else {
-    rain_throw(&rain_exc_arg_mismatch);
+    rain_throw(rain_exc_arg_mismatch);
   }
 }
 
@@ -132,7 +132,7 @@ void rain_add(box *ret, box *lhs, box *rhs) {
     ret->data.f = ret_f;
   }
   else {
-    rain_throw(&rain_exc_arg_mismatch);
+    rain_throw(rain_exc_arg_mismatch);
   }
 }
 
@@ -163,7 +163,7 @@ void rain_sub(box *ret, box *lhs, box *rhs) {
     ret->data.f = ret_f;
   }
   else {
-    rain_throw(&rain_exc_arg_mismatch);
+    rain_throw(rain_exc_arg_mismatch);
   }
 }
 
@@ -194,7 +194,7 @@ void rain_mul(box *ret, box *lhs, box *rhs) {
     ret->data.f = ret_f;
   }
   else {
-    rain_throw(&rain_exc_arg_mismatch);
+    rain_throw(rain_exc_arg_mismatch);
   }
 }
 
@@ -226,7 +226,7 @@ void rain_div(box *ret, box *lhs, box *rhs) {
     ret->data.f = ret_f;
   }
   else {
-    rain_throw(&rain_exc_arg_mismatch);
+    rain_throw(rain_exc_arg_mismatch);
   }
 }
 
@@ -352,7 +352,7 @@ void rain_le(box *ret, box *lhs, box *rhs) {
 
 void rain_string_concat(box *ret, box *lhs, box *rhs) {
   if(BOX_ISNT(lhs, STR) && BOX_ISNT(rhs, STR)) {
-    rain_throw(&rain_exc_arg_mismatch);
+    rain_throw(rain_exc_arg_mismatch);
   }
   else if(BOX_ISNT(rhs, STR)) {
     rain_set_box(ret, lhs);
