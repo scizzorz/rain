@@ -7,7 +7,7 @@ Please see the PONY-LICENSE in the repository root, or view it at
 https://github.com/ponylang/ponyc
 */
 
-#include "rain.h"
+#include "../rain.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <unwind.h>

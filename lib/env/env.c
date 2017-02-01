@@ -1,6 +1,4 @@
 #include <stdio.h>
-
-#include "rain.h"
 #include "env.h"
 
 void rain_init_args(int argc, char **argv) {

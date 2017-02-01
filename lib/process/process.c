@@ -1,5 +1,5 @@
-#include "rain.h"
-#include "util.h"
+#include "../rain.h"
+#include "../util.h"
 
 #include <sys/wait.h>
 #include <stdlib.h>
