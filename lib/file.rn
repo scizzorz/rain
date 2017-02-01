@@ -1,3 +1,1 @@
-import foreign "rain_fopen"(name, mode) as open
-
-export open
+export open = foreign "rain_fopen"(name, mode)

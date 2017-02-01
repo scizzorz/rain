@@ -1,3 +1,3 @@
-import foreign "rain_ext_print"(val) as print
-import foreign "rain_exit"(val) as exit
-import foreign "rain_ext_throw"(val) as panic
+let print = foreign "rain_ext_print"(val)
+let exit = foreign "rain_exit"(val)
+let panic = foreign "rain_ext_throw"(val)

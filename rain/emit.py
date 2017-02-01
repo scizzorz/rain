@@ -550,7 +550,7 @@ def emit(self, module):
 
 @foreign_node.method
 def emit(self, module):
-  typ = T.vfunc([T.arg for param in self.params])
+  typ = T.vfunc(*[T.arg for param in self.params])
   func = module.find_func(typ, name=self.name)
   return T._func(func, len(self.params))
 
