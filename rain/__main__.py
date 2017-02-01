@@ -30,7 +30,7 @@ args = parser.parse_args()
 
 os.environ['RAINHOME'] = os.path.normpath(os.path.join(sys.argv[0], '../../'))
 os.environ['RAINLIB'] = os.path.join(os.environ['RAINHOME'], 'lib')
-src = M.Module.find_file(args.file)
+src = M.Module.find_rain(args.file)
 if not src:
   raise Exception('Unable to find module {!r}'.format(args.file))
 

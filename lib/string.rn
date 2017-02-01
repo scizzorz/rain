@@ -1,3 +1,5 @@
+link "string.c"
+
 import core
 import iter
 

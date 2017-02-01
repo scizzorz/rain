@@ -18,12 +18,15 @@ def emit(self, module):
   module.exports.initializer = static_table_alloc(module, name=module.mangle('exports.table'))
 
   imports = []
+  links = []
   for stmt in self.stmts:
     ret = module.emit(stmt)
     if isinstance(stmt, import_node):
       imports.append(ret)
+    elif isinstance(stmt, link_node):
+      links.append(ret)
 
-  return imports
+  return imports, links
 
 @program_node.method
 def emit_main(self, module):
@@ -260,7 +263,7 @@ def emit(self, module):
 
   # add the module's directory to the lookup path
   base, name = os.path.split(module.file)
-  file = M.Module.find_file(self.name, paths=[base])
+  file = M.Module.find_rain(self.name, paths=[base])
   if not file:
     module.panic("Can't find module {!r}", self.name)
 
@@ -275,6 +278,15 @@ def emit(self, module):
   module[rename] = module.add_global(T.box, module.mangle(rename))
   module[rename].initializer = static_table_from_ptr(module, glob)
   module[rename].mod = comp.mod
+  return file
+
+@link_node.method
+def emit(self, module):
+  if module.builder: # non-global scope
+    module.panic("Can't link file {!r} at non-global scope", self.name)
+
+  base, name = os.path.split(module.file)
+  file = M.Module.find_file(self.name, paths=[base])
   return file
 
 @pass_node.method

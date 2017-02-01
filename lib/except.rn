@@ -1,3 +1,5 @@
+link "except.c"
+
 export error = table
 error.msg = "error"
 

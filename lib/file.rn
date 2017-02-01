@@ -1,1 +1,3 @@
+link "file.c"
+
 export open = foreign "rain_fopen"(name, mode)

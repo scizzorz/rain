@@ -321,9 +321,9 @@ class Module(S.Scope):
   def normalize_name(name):
     return name_chars.sub('', name.lower())
 
-  # find a source file from a module identifier
+  # find a rain file from a module identifier
   @staticmethod
-  def find_file(src, paths=[]):
+  def find_rain(src, paths=[]):
     paths = ['.'] + paths + os.getenv('RAINPATH', '').split(':') + [os.environ['RAINLIB']]
 
     for path in paths:
@@ -333,6 +333,15 @@ class Module(S.Scope):
         return join(path, src)
       elif os.path.isdir(join(path, src)) and os.path.isfile(join(path, src, '_pkg.rn')):
         return join(path, src, '_pkg.rn')
+
+  # find any file from a string
+  @staticmethod
+  def find_file(src, paths=[]):
+    paths = ['.'] + paths + os.getenv('RAINPATH', '').split(':') + [os.environ['RAINLIB']]
+
+    for path in paths:
+      if os.path.isfile(join(path, src)):
+        return join(path, src)
 
   # find a module name
   @staticmethod
