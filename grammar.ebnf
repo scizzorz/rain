@@ -3,9 +3,10 @@ program :: (stmt NEWLINE)+ EOF
 block :: INDENT (stmt NEWLINE)+ DEDENT
 
 stmt :: 'let' NAME '=' expr
-      | if_stmt
+      | 'export' NAME '=' expr
+      | 'export' NAME 'as' 'foreign' (NAME | STRING)
       | 'import' (NAME | STRING) ('as' NAME)?
-      | 'import' 'foreign' (NAME | STRING) fnparams? 'as' NAME
+      | if_stmt
       | 'catch' NAME block
       | 'for' NAME 'in' expr block
       | 'with' expr ('as' NAME (',' NAME)*)
@@ -35,6 +36,7 @@ unexpr :: ('-' | '!') simple
         | simple
 
 simple :: 'func' fnparams ('->' expr | block)
+        | 'foreign' (NAME | STRING) fnparams
         | INT | FLOAT | BOOL | STRING | NULL | TABLE ('from' expr)?
         | primary
 
