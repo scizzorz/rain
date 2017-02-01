@@ -241,26 +241,6 @@ def emit(self, module):
   module.builder.cbranch(cond, module.before, nocont)
   module.builder.position_at_end(nocont)
 
-@import_foreign_node.method
-def emit(self, module):
-  if module.builder:
-    module.panic("Can't foreign value {!r} at non-global scope", self.name)
-
-  if self.rename in module:
-    module.panic("Can't import foreign value {!r} as {!r} - {!r} exists", self.name, self.rename)
-
-  # foreign function
-  if self.params is not None:
-    typ = T.vfunc()
-    func = module.find_func(typ, name=self.name)
-    module[self.rename] = module.add_global(T.box, module.mangle(self.rename))
-    module[self.rename].initializer = T._func(func, len(self.params))
-
-  # foreign box
-  else:
-    module.panic("Deprecation: Don't import foreign boxes.")
-    module[self.rename] = module.add_global(T.box, self.name)
-
 @export_foreign_node.method
 def emit(self, module):
   if module.builder:
@@ -272,22 +252,6 @@ def emit(self, module):
   glob = module.add_global(T.ptr(T.box), name=self.rename)
   glob.initializer = module[self.name]
   #glob.initializer = load_global(module, self.name)
-
-@export_node.method
-def emit(self, module):
-  if module.builder:
-    module.panic("Can't export value {!r} at a non-global scope", self.name)
-
-  if self.name not in module:
-    module.panic("Can't export unknown value {!r}", self.name)
-
-  if getattr(module[self.name], 'exported', None):
-    module.panic("Value {!r} is already exported", self.name)
-
-  rename = self.rename or self.name
-
-  export_global(module, rename, module[self.name].initializer)
-  #module[self.name] = column_ptr.gep([T.i32(0), T.i32(1)])
 
 @import_node.method
 def emit(self, module):

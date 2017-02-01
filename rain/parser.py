@@ -104,7 +104,6 @@ def block(ctx):
 # stmt :: 'let' NAME '=' expr
 #       | if_stmt
 #       | 'import' (NAME | STRING) ('as' NAME)?
-#       | 'import' 'foreign' (NAME | STRING) fnparams? 'as' NAME
 #       | 'catch' NAME block
 #       | 'for' NAME 'in' expr block
 #       | 'with' expr ('as' NAME (',' NAME)*)
@@ -128,18 +127,6 @@ def stmt(ctx):
     return if_stmt(ctx)
 
   if ctx.consume(K.keyword_token('import')):
-    if ctx.consume(K.keyword_token('foreign')):
-      name = ctx.require(K.name_token, K.string_token).value
-      params = None
-
-      if ctx.expect(K.symbol_token('(')):
-        params = fnparams(ctx)
-
-      ctx.require(K.keyword_token('as'))
-      val = ctx.require(K.name_token).value
-
-      return A.import_foreign_node(name, params, val)
-
     name = ctx.require(K.name_token, K.string_token).value
     rename = None
     if ctx.consume(K.keyword_token('as')):
@@ -149,19 +136,15 @@ def stmt(ctx):
 
   if ctx.consume(K.keyword_token('export')):
     name = ctx.require(K.name_token).value
-    rename = None
+
     if ctx.consume(K.symbol_token('=')):
       rhs = expr(ctx)
       return A.assn_node(A.name_node(name), rhs, export=True)
 
     if ctx.consume(K.keyword_token('as')):
-      if ctx.consume(K.keyword_token('foreign')):
-        rename = ctx.require(K.string_token, K.name_token).value
-        return A.export_foreign_node(name, rename)
-
-      rename = ctx.require(K.name_token).value
-
-    return A.export_node(name, rename)
+      ctx.require(K.keyword_token('foreign'))
+      rename = ctx.require(K.string_token, K.name_token).value
+      return A.export_foreign_node(name, rename)
 
   if ctx.consume(K.keyword_token('catch')):
     name = ctx.require(K.name_token).value

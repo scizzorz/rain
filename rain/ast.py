@@ -103,15 +103,6 @@ class cont_node(node):
   def __init__(self, cond=None):
     self.cond = cond
 
-class export_node(node):
-  __tag__ = 'export'
-  __version__ = 1
-  __slots__ = ['name', 'rename']
-
-  def __init__(self, name, rename=None):
-    self.name = name
-    self.rename = rename
-
 class export_foreign_node(node):
   __tag__ = 'export_foreign'
   __version__ = 1
@@ -138,16 +129,6 @@ class import_node(node):
 
   def __init__(self, name, rename=None):
     self.name = name
-    self.rename = rename
-
-class import_foreign_node(node):
-  __tag__ = 'import_foreign'
-  __version__ = 1
-  __slots__ = ['name', 'params', 'rename']
-
-  def __init__(self, name, params, rename):
-    self.name = name
-    self.params = params
     self.rename = rename
 
 class foreign_node(node):
