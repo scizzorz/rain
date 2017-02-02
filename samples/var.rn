@@ -1,9 +1,9 @@
-x = 0 # dynamic typing - assign away!
-x = true
+let x = 0 # introduce new variables using 'let'
+x = true # dynamic typing - assign away!
 x = null
 x = "now I'm a string"
 
-main = func()
+let main = func()
   let x = 10 # use `let` to introduce a new variable in non-global scopes
   x = true   # this x binding will shadow the global x - changing it does
   x = null   # NOT change the global variable

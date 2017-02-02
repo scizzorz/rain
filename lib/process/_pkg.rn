@@ -1,0 +1,2 @@
+link "process.c"
+export run = foreign "rain_process_output"(cmd)

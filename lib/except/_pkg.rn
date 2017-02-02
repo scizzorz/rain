@@ -1,0 +1,33 @@
+link "except.c"
+
+export error = table
+error.msg = "error"
+
+export arg_mismatch = table from error
+arg_mismatch.msg = "argument mismatch"
+
+export uncallable = table from error
+uncallable.msg = "uncallable value"
+
+export interrupt = table from error
+interrupt.msg = "received interrupt signal"
+
+export fpe = table from error
+fpe.msg = "floating point error"
+
+export segfault = table from error
+segfault.msg = "segmentation fault"
+
+export safe = func(val)
+  while val is table
+    break if !(val.metatable)
+    val = val.metatable
+
+  return val != error
+
+export arg_mismatch as foreign "rain_exc_arg_mismatch"
+export error        as foreign "rain_exc_error"
+export fpe          as foreign "rain_exc_fpe"
+export interrupt    as foreign "rain_exc_interrupt"
+export segfault     as foreign "rain_exc_segfault"
+export uncallable   as foreign "rain_exc_uncallable"

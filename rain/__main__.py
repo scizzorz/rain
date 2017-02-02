@@ -11,8 +11,8 @@ parser.add_argument('-r', '--run', action='store_true',
                     help='Execute the compiled code.')
 parser.add_argument('-o', '--output', metavar='FILE', default=None,
                     help='Executable file to produce.')
-parser.add_argument('-l', '--lib', metavar='FILE', action='append',
-                    help='Extra libraries to compile with.')
+parser.add_argument('-l', '--link', metavar='FILE', action='append',
+                    help='Extra files to link with.')
 parser.add_argument('-q', '--quiet', action='store_true',
                     help='Quiet the compiler.')
 
@@ -30,12 +30,16 @@ args = parser.parse_args()
 
 os.environ['RAINHOME'] = os.path.normpath(os.path.join(sys.argv[0], '../../'))
 os.environ['RAINLIB'] = os.path.join(os.environ['RAINHOME'], 'lib')
-src = M.Module.find_file(args.file)
+src = M.Module.find_rain(args.file)
 if not src:
   raise Exception('Unable to find module {!r}'.format(args.file))
 
 C.Compiler.quiet = args.quiet
 comp = C.get_compiler(src, target=args.output, main=True)
+
+if args.link:
+  for tmp in args.link:
+    comp.links.add(tmp)
 
 phase = C.phases.building
 

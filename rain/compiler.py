@@ -29,6 +29,9 @@ def get_compiler(src, target=None, main=False):
 
   return compilers[abspath]
 
+def reset_compilers():
+  global compilers
+  compilers = {}
 
 class phases(Enum):
   lexing = 0
@@ -45,10 +48,10 @@ class Compiler:
     self.target = target
     self.main = main
     self.lib = ENV['RAINLIB']
+    self.links = set()
     self.stream = None # set after lexing
     self.ast = None    # set after parsing
     self.mod = None    # set before emitting
-    self.links = None  # set before emitting
     self.ll = None     # set after writing
 
   @classmethod
@@ -68,7 +71,7 @@ class Compiler:
 
   def goodies(self, phase=phases.building):
     # don't do this twice
-    if self.links is not None:
+    if self.mod is not None:
       return
 
     # do everything but compile
@@ -96,13 +99,16 @@ class Compiler:
 
   def emit(self):
     self.mod = M.Module(self.file)
-    self.links = set()
 
     # always link with lib/_pkg.rn
     builtin = get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
     if self is not builtin: # unless we ARE lib/_pkg.rn
       builtin.goodies()
+
       self.links.add(builtin.ll)
+      for link in builtin.links:
+        if not link: continue
+        self.links.add(link)
 
       # copy builtins into scope
       for name, val in builtin.mod.globals.items():
@@ -111,29 +117,22 @@ class Compiler:
       # import LLVM globals
       self.mod.import_from(builtin.mod)
 
-    # always link with lib/except.rn
-    exc = get_compiler(join(ENV['RAINLIB'], 'except.rn'))
-    if self is not exc:
-      exc.goodies()
-      self.links.add(exc.ll)
-
-    # always link with lib/env.rn
-    env = get_compiler(join(ENV['RAINLIB'], 'env.rn'))
-    if self is not env:
-      env.goodies()
-      self.links.add(env.ll)
-
     # compile the imports
-    imports = self.ast.emit(self.mod)
+    imports, links = self.ast.emit(self.mod)
     for mod in imports:
       comp = get_compiler(mod)
       comp.goodies() # should be done during import but might as well be safe
 
       # add the module's IR as well as all of its imports' IR
       self.links.add(comp.ll)
-      for ll in comp.links:
-        if not ll: continue
-        self.links.add(ll)
+      for link in comp.links:
+        if not link: continue
+        self.links.add(link)
+
+    # add the links
+    for link in links:
+      if not link: continue
+      self.links.add(link)
 
     # only spit out the main if this is the main file
     if self.main:
@@ -164,9 +163,9 @@ class Compiler:
   def compile(self):
     with self.okay('compiling'):
       target = self.target or self.mname
-      core = [join(self.lib, x) for x in ls(self.lib) if x.endswith('.c')]
       clang = os.getenv('CLANG', 'clang')
-      cmd = [clang, '-O2', '-o', target, '-lgc', '-lm', self.ll] + core + list(self.links)
+      cmd = [clang, '-O2', '-o', target, '-lgc', '-lm', self.ll] + list(self.links)
+      print('$', ' '.join(cmd))
       subprocess.check_call(cmd)
 
   def run(self):

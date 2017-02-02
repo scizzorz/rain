@@ -1,6 +1,6 @@
 import file
 
-main = func()
+let main = func()
   let f = file.open("rainc", "r")
   for line in f:readline
     print(line)

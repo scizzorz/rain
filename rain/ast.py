@@ -69,13 +69,14 @@ class block_node(node):
 
 class assn_node(node):
   __tag__ = 'assn'
-  __version__ = 1
-  __slots__ = ['lhs', 'rhs', 'let']
+  __version__ = 2
+  __slots__ = ['lhs', 'rhs', 'let', 'export']
 
-  def __init__(self, lhs, rhs, let=False):
+  def __init__(self, lhs, rhs, let=False, export=False):
     self.lhs = lhs
     self.rhs = rhs
     self.let = let
+    self.export = export
 
 class break_node(node):
   __tag__ = 'break'
@@ -102,14 +103,14 @@ class cont_node(node):
   def __init__(self, cond=None):
     self.cond = cond
 
-class export_node(node):
-  __tag__ = 'export'
+class export_foreign_node(node):
+  __tag__ = 'export_foreign'
   __version__ = 1
-  __slots__ = ['val', 'name']
+  __slots__ = ['name', 'rename']
 
-  def __init__(self, val, name):
-    self.val = val
+  def __init__(self, name, rename):
     self.name = name
+    self.rename = rename
 
 class if_node(node):
   __tag__ = 'if'
@@ -120,6 +121,32 @@ class if_node(node):
     self.pred = pred
     self.body = body
     self.els = els
+
+class import_node(node):
+  __tag__ = 'import'
+  __version__ = 1
+  __slots__ = ['name', 'rename']
+
+  def __init__(self, name, rename=None):
+    self.name = name
+    self.rename = rename
+
+class link_node(node):
+  __tag__ = 'link'
+  __version__ = 1
+  __slots__ = ['name']
+
+  def __init__(self, name):
+    self.name = name
+
+class foreign_node(node):
+  __tag__ = 'foreign'
+  __version__ = 1
+  __slots__ = ['name', 'params']
+
+  def __init__(self, name, params):
+    self.name = name
+    self.params = params
 
 class loop_node(node):
   __tag__ = 'loop'
@@ -234,24 +261,6 @@ class table_node(node):
 
   def __init__(self, metatable=None):
     self.metatable = metatable
-
-class extern_node(node):
-  __tag__ = 'extern'
-  __version__ = 2
-  __slots__ = ['name', 'params']
-
-  def __init__(self, name, params):
-    self.name = name
-    self.params = params
-
-class import_node(node):
-  __tag__ = 'import'
-  __version__ = 1
-  __slots__ = ['name', 'rename']
-
-  def __init__(self, name, rename=None):
-    self.name = name
-    self.rename = rename
 
 class func_node(node):
   __tag__ = 'func'

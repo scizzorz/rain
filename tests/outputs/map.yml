@@ -12,8 +12,9 @@ stmts:
 - !import;1
   name: string
   rename: null
-- !assn;1
-  let: false
+- !assn;2
+  export: false
+  let: true
   lhs: !name;1
     value: double
   rhs: !func;1
@@ -26,21 +27,24 @@ stmts:
           value: 2
     params:
     - n
-- !assn;1
-  let: false
+- !assn;2
+  export: false
+  let: true
   lhs: !name;1
     value: main
   rhs: !func;1
     body: !block;1
       stmts:
-      - !assn;1
+      - !assn;2
+        export: false
         let: true
         lhs: !name;1
           value: a
         rhs: !table;1
           metatable: !name;1
             value: array
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1
@@ -49,7 +53,8 @@ stmts:
             value: 0
         rhs: !int;1
           value: 10
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1
@@ -58,7 +63,8 @@ stmts:
             value: 1
         rhs: !int;1
           value: 11
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1
@@ -67,7 +73,8 @@ stmts:
             value: 2
         rhs: !int;1
           value: 12
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1
@@ -100,7 +107,8 @@ stmts:
         func: !name;1
           value: print
       - !for;1 {}
-      - !assn;1
+      - !assn;2
+        export: false
         let: true
         lhs: !name;1
           value: b

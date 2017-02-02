@@ -7,7 +7,7 @@ Please see the PONY-LICENSE in the repository root, or view it at
 https://github.com/ponylang/ponyc
 */
 
-#include "rain.h"
+#include "../rain.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <unwind.h>
@@ -61,11 +61,11 @@ _Unwind_Reason_Code rain_personality_v0(int, _Unwind_Action, uint64_t, unwind_ex
 
 // from the standard lib
 
-box rain_exc_error;
-box rain_exc_arg_mismatch;
-box rain_exc_uncallable;
-box rain_exc_interrupt;
-box rain_exc_fpe;
-box rain_exc_segfault;
+box *rain_exc_error;
+box *rain_exc_arg_mismatch;
+box *rain_exc_uncallable;
+box *rain_exc_interrupt;
+box *rain_exc_fpe;
+box *rain_exc_segfault;
 
 #endif

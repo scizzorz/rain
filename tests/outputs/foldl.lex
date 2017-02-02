@@ -1,6 +1,7 @@
 keyword 'import'
 name 'array'
 newline
+keyword 'let'
 name 'gadd'
 symbol '='
 keyword 'func'
@@ -14,6 +15,7 @@ name 'a'
 operator '+'
 name 'b'
 newline
+keyword 'let'
 name 'main'
 symbol '='
 keyword 'func'

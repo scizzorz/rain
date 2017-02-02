@@ -1,18 +1,18 @@
 import string
 
-three = func()
+let three = func()
   panic("three!")
 
-two = func()
+let two = func()
   let x = three?()
   print("two caught " $ string.tostr(x))
 
-one = func()
+let one = func()
   catch x
     two()
   print("one caught " $ string.tostr(x))
 
-main = func()
+let main = func()
   print("----")
   catch x
     print("before")

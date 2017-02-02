@@ -18,12 +18,15 @@ def emit(self, module):
   module.exports.initializer = static_table_alloc(module, name=module.mangle('exports.table'))
 
   imports = []
+  links = []
   for stmt in self.stmts:
     ret = module.emit(stmt)
     if isinstance(stmt, import_node):
       imports.append(ret)
+    elif isinstance(stmt, link_node):
+      links.append(ret)
 
-  return imports
+  return imports, links
 
 @program_node.method
 def emit_main(self, module):
@@ -115,7 +118,6 @@ def static_table_get(module, table_ptr, key_node, key):
 
   return T.null
 
-
 def static_table_alloc(module, name, metatable=None):
   # make an empty array of column*
   typ = T.arr(T.ptr(T.column), T.HASH_SIZE)
@@ -145,6 +147,27 @@ def static_table_from_ptr(module, ptr, metatable=None):
 
   return box
 
+def export_global(module, name:str, value:"LLVM value"):
+  key_node = str_node(name)
+  key = key_node.emit(module)
+
+  column_ptr = module.find_global(T.column, name=module.mangle(name + '.export'))
+  static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, value)
+  return column_ptr.gep([T.i32(0), T.i32(1)])
+
+def store_global(module, name:str, value:"LLVM value"):
+  if isinstance(module[name], ir.GlobalVariable):
+    module[name].initializer = value
+  else:
+    module[name] = export_global(module, name, value)
+    module[name].col = value
+
+def load_global(module, name:str):
+  if isinstance(module[name], ir.GlobalVariable):
+    return module[name].initializer
+  else:
+    return module[name].col
+
 # simple statements
 
 @assn_node.method
@@ -153,17 +176,21 @@ def emit(self, module):
 
   if isinstance(self.lhs, name_node):
     if module.is_global: # global scope
-      column_ptr = module.add_global(T.column, name=module.uniq('column'))
-      ptr = column_ptr.gep([T.i32(0), T.i32(1)])
-      module[self.lhs] = ptr
+      if self.export:
+        column_ptr = module.find_global(T.column, name=module.mangle(self.lhs.value + '.export'))
+        module[self.lhs.value] = column_ptr.gep([T.i32(0), T.i32(1)])
 
-      key_node = str_node(self.lhs.value)
-      key = module.emit(key_node)
-      val = module.emit(self.rhs)
+        val = module.emit(self.rhs)
+        store_global(module, self.lhs.value, val)
+        return
 
-      static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, val)
+      if self.let:
+        module[self.lhs] = module.add_global(T.box, name=module.mangle(self.lhs.value))
 
-      module[self.lhs].col = val
+      if self.lhs not in module:
+        module.panic("Undeclared global {!r}", self.lhs.value)
+
+      store_global(module, self.lhs.value, module.emit(self.rhs))
       return
 
     # emit this so a function can't close over its undefined binding
@@ -175,14 +202,14 @@ def emit(self, module):
     rhs = module.emit(self.rhs)
 
     if self.lhs not in module:
-      module.panic("Undeclared name {!r}", self.lhs)
+      module.panic("Undeclared name {!r}", self.lhs.value)
 
-    module.builder.store(rhs, module[self.lhs])
     module[self.lhs].bound = True
+    module.builder.store(rhs, module[self.lhs])
 
   elif isinstance(self.lhs, idx_node):
     if module.is_global: # global scope
-      table_ptr = module[self.lhs.lhs].col.source
+      table_ptr = load_global(module, self.lhs.lhs).source
       key_node = self.lhs.rhs
       key = module.emit(key_node)
       val = module.emit(self.rhs)
@@ -217,16 +244,17 @@ def emit(self, module):
   module.builder.cbranch(cond, module.before, nocont)
   module.builder.position_at_end(nocont)
 
-@export_node.method
+@export_foreign_node.method
 def emit(self, module):
-  if module.builder: # non-global scope
-    module.panic("Can't export value {!r} at non-global scope", self.val)
+  if module.builder:
+    module.panic("Can't export value {!r} as foreign at non-global scope", self.name)
 
-  if self.val not in module:
-    module.panic("Can't export unknown value {!r}", self.val)
+  if self.name not in module:
+    module.panic("Can't export unknown value {!r}", self.name)
 
-  glob = module.add_global(T.box, name=self.name)
-  glob.initializer = module[self.val].col
+  glob = module.add_global(T.ptr(T.box), name=self.rename)
+  glob.initializer = module[self.name]
+  #glob.initializer = load_global(module, self.name)
 
 @import_node.method
 def emit(self, module):
@@ -235,7 +263,7 @@ def emit(self, module):
 
   # add the module's directory to the lookup path
   base, name = os.path.split(module.file)
-  file = M.Module.find_file(self.name, paths=[base])
+  file = M.Module.find_rain(self.name, paths=[base])
   if not file:
     module.panic("Can't find module {!r}", self.name)
 
@@ -247,18 +275,18 @@ def emit(self, module):
 
   rename = self.rename or comp.mod.mname
 
-  key_node = str_node(rename)
-  key = module.emit(key_node)
-  val = static_table_from_ptr(module, glob)
-
-  column_ptr = module.add_global(T.column, name=module.uniq('column'))
-  static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, val)
-  ptr = column_ptr.gep([T.i32(0), T.i32(1)])
-
-  module[rename] = ptr
-  module[rename].col = val
+  module[rename] = module.add_global(T.box, module.mangle(rename))
+  module[rename].initializer = static_table_from_ptr(module, glob)
   module[rename].mod = comp.mod
+  return file
 
+@link_node.method
+def emit(self, module):
+  if module.builder: # non-global scope
+    module.panic("Can't link file {!r} at non-global scope", self.name)
+
+  base, name = os.path.split(module.file)
+  file = M.Module.find_file(self.name, paths=[base])
   return file
 
 @pass_node.method
@@ -381,7 +409,7 @@ def emit(self, module):
     module.panic("Unknown name {!r}", self.value)
 
   if module.is_global: # global scope
-    return module[self.value].col
+    return load_global(module, self.value)
 
   return module.builder.load(module[self.value])
 
@@ -409,12 +437,6 @@ def emit(self, module):
   gep = ptr.gep([T.i32(0), T.i32(0)])
 
   return T._str(gep, len(self.value))
-
-@extern_node.method
-def emit(self, module):
-  typ = T.vfunc()
-  func = module.find_func(typ, name=self.name)
-  return T._func(func, len(self.params))
 
 @table_node.method
 def emit(self, module):
@@ -502,18 +524,28 @@ def emit(self, module):
 
   return T._func(func, len(self.params))
 
+@foreign_node.method
+def emit(self, module):
+  typ = T.vfunc(*[T.arg for param in self.params])
+  func = module.find_func(typ, name=self.name)
+  return T._func(func, len(self.params))
+
 # complex expressions
+
+def get_exception(module, name):
+  glob = module.find_global(T.ptr(T.box), name)
+  return module.builder.load(glob)
 
 def check_callable(module, box, args):
   func_typ = module.get_type(box)
   is_func = module.builder.icmp_unsigned('!=', T.ityp.func, func_typ)
   with module.builder.if_then(is_func):
-    module.call(module.extern('rain_throw'), module.find_global(T.box, 'rain_exc_uncallable'))
+    module.call(module.extern('rain_throw'), get_exception(module, 'rain_exc_uncallable'))
 
   exp_args = module.get_size(box)
   arg_match = module.builder.icmp_unsigned('!=', exp_args, T.i32(args))
   with module.builder.if_then(arg_match):
-    module.call(module.extern('rain_throw'), module.find_global(T.box, 'rain_exc_arg_mismatch'))
+    module.call(module.extern('rain_throw'), get_exception(module, 'rain_exc_arg_mismatch'))
 
 @call_node.method
 def emit(self, module):
@@ -544,7 +576,7 @@ def emit(self, module):
 
     # check if LHS is a module
     if getattr(module[self.lhs], 'mod', None):
-      return module[self.lhs].mod[self.rhs].col
+      return load_global(module[self.lhs].mod, self.rhs)
 
     # otherwise, do normal lookups
     table_ptr = module[self.lhs].col.source

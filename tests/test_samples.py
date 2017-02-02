@@ -58,6 +58,7 @@ def test_parse(src):
 def test_compile(src):
   '''Test the compilation phase.'''
 
+  C.reset_compilers()
   comp = C.get_compiler(src, main=True)
   comp.target = comp.mname
   comp.goodies(C.phases.building)
@@ -68,6 +69,7 @@ def test_compile(src):
 def test_run(src):
   '''Test program execution and results.'''
 
+  C.reset_compilers()
   comp = C.get_compiler(src, main=True)
   comp.target = comp.mname
   comp.goodies(C.phases.building)

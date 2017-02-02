@@ -3,20 +3,23 @@ stmts:
 - !import;1
   name: process
   rename: null
-- !assn;1
-  let: false
+- !assn;2
+  export: false
+  let: true
   lhs: !name;1
     value: main
   rhs: !func;1
     body: !block;1
       stmts:
-      - !assn;1
+      - !assn;2
+        export: false
         let: true
         lhs: !name;1
           value: args
         rhs: !table;1
           metatable: null
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1
@@ -25,7 +28,8 @@ stmts:
             value: 0
         rhs: !str;1
           value: echo
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1
@@ -34,7 +38,8 @@ stmts:
             value: 1
         rhs: !str;1
           value: hi
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1
@@ -43,7 +48,8 @@ stmts:
             value: 2
         rhs: !str;1
           value: there
-      - !assn;1
+      - !assn;2
+        export: false
         let: true
         lhs: !name;1
           value: out

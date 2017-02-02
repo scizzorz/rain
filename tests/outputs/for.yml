@@ -1,13 +1,15 @@
 !program;1
 stmts:
-- !assn;1
-  let: false
+- !assn;2
+  export: false
+  let: true
   lhs: !name;1
     value: range
   rhs: !func;1
     body: !block;1
       stmts:
-      - !assn;1
+      - !assn;2
+        export: false
         let: true
         lhs: !name;1
           value: i
@@ -32,7 +34,8 @@ stmts:
             - !save;1
               value: !name;1
                 value: i
-            - !assn;1
+            - !assn;2
+              export: false
               let: false
               lhs: !name;1
                 value: i
@@ -45,8 +48,9 @@ stmts:
           params: []
     params:
     - n
-- !assn;1
-  let: false
+- !assn;2
+  export: false
+  let: true
   lhs: !name;1
     value: main
   rhs: !func;1

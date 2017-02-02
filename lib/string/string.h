@@ -1,6 +1,8 @@
 #ifndef STRING_H
 #define STRING_H
 
+#include "../rain.h"
+
 #define FMT_SIZE 1024
 char fmt_buf[FMT_SIZE];
 

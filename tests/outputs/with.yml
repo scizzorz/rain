@@ -1,7 +1,8 @@
 !program;1
 stmts:
-- !assn;1
-  let: false
+- !assn;2
+  export: false
+  let: true
   lhs: !name;1
     value: ctx0
   rhs: !func;1
@@ -28,8 +29,9 @@ stmts:
           value: print
     params:
     - block
-- !assn;1
-  let: false
+- !assn;2
+  export: false
+  let: true
   lhs: !name;1
     value: ctx1
   rhs: !func;1
@@ -65,8 +67,9 @@ stmts:
           value: print
     params:
     - block
-- !assn;1
-  let: false
+- !assn;2
+  export: false
+  let: true
   lhs: !name;1
     value: ctx2
   rhs: !func;1
@@ -106,8 +109,9 @@ stmts:
           value: print
     params:
     - block
-- !assn;1
-  let: false
+- !assn;2
+  export: false
+  let: true
   lhs: !name;1
     value: main
   rhs: !func;1

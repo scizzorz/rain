@@ -1,6 +1,4 @@
 #include <stdlib.h>
-
-#include "rain.h"
 #include "string.h"
 
 

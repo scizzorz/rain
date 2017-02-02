@@ -1,5 +1,5 @@
 # comparison operators / binary precedence
-main = func()
+let main = func()
   print(3 + 4 * 5)
   print(3 * 4 + 5)
 

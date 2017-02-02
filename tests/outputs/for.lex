@@ -1,3 +1,4 @@
+keyword 'let'
 name 'range'
 symbol '='
 keyword 'func'
@@ -37,6 +38,7 @@ dedent
 newline
 dedent
 newline
+keyword 'let'
 name 'main'
 symbol '='
 keyword 'func'

@@ -3,8 +3,9 @@ stmts:
 - !import;1
   name: string
   rename: null
-- !assn;1
-  let: false
+- !assn;2
+  export: false
+  let: true
   lhs: !name;1
     value: three
   rhs: !func;1
@@ -18,14 +19,16 @@ stmts:
         func: !name;1
           value: panic
     params: []
-- !assn;1
-  let: false
+- !assn;2
+  export: false
+  let: true
   lhs: !name;1
     value: two
   rhs: !func;1
     body: !block;1
       stmts:
-      - !assn;1
+      - !assn;2
+        export: false
         let: true
         lhs: !name;1
           value: x
@@ -54,8 +57,9 @@ stmts:
         func: !name;1
           value: print
     params: []
-- !assn;1
-  let: false
+- !assn;2
+  export: false
+  let: true
   lhs: !name;1
     value: one
   rhs: !func;1
@@ -90,8 +94,9 @@ stmts:
         func: !name;1
           value: print
     params: []
-- !assn;1
-  let: false
+- !assn;2
+  export: false
+  let: true
   lhs: !name;1
     value: main
   rhs: !func;1
@@ -160,7 +165,8 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !name;1
           value: x
@@ -260,7 +266,8 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !name;1
           value: x

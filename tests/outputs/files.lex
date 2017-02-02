@@ -1,6 +1,7 @@
 keyword 'import'
 name 'file'
 newline
+keyword 'let'
 name 'main'
 symbol '='
 keyword 'func'

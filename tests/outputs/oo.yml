@@ -1,12 +1,14 @@
 !program;1
 stmts:
-- !assn;1
-  let: false
+- !assn;2
+  export: false
+  let: true
   lhs: !name;1
     value: rect
   rhs: !table;1
     metatable: null
-- !assn;1
+- !assn;2
+  export: false
   let: false
   lhs: !index;1
     lhs: !name;1
@@ -22,7 +24,8 @@ stmts:
             value: self
     params:
     - self
-- !assn;1
+- !assn;2
+  export: false
   let: false
   lhs: !index;1
     lhs: !name;1
@@ -32,7 +35,8 @@ stmts:
   rhs: !func;1
     body: !block;1
       stmts:
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1
@@ -41,7 +45,8 @@ stmts:
             value: w
         rhs: !name;1
           value: w
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1
@@ -54,7 +59,8 @@ stmts:
     - self
     - w
     - h
-- !assn;1
+- !assn;2
+  export: false
   let: false
   lhs: !index;1
     lhs: !name;1
@@ -79,14 +85,16 @@ stmts:
               value: h
     params:
     - self
-- !assn;1
-  let: false
+- !assn;2
+  export: false
+  let: true
   lhs: !name;1
     value: square
   rhs: !table;1
     metatable: !name;1
       value: rect
-- !assn;1
+- !assn;2
+  export: false
   let: false
   lhs: !index;1
     lhs: !name;1
@@ -96,7 +104,8 @@ stmts:
   rhs: !func;1
     body: !block;1
       stmts:
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1
@@ -105,7 +114,8 @@ stmts:
             value: w
         rhs: !name;1
           value: s
-      - !assn;1
+      - !assn;2
+        export: false
         let: false
         lhs: !index;1
           lhs: !name;1
@@ -117,14 +127,16 @@ stmts:
     params:
     - self
     - s
-- !assn;1
-  let: false
+- !assn;2
+  export: false
+  let: true
   lhs: !name;1
     value: main
   rhs: !func;1
     body: !block;1
       stmts:
-      - !assn;1
+      - !assn;2
+        export: false
         let: true
         lhs: !name;1
           value: a
@@ -158,7 +170,8 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !assn;1
+      - !assn;2
+        export: false
         let: true
         lhs: !name;1
           value: b

@@ -1,3 +1,4 @@
+keyword 'let'
 name 'rect'
 symbol '='
 'table'
@@ -65,6 +66,7 @@ name 'h'
 newline
 dedent
 newline
+keyword 'let'
 name 'square'
 symbol '='
 'table'
@@ -96,6 +98,7 @@ name 's'
 newline
 dedent
 newline
+keyword 'let'
 name 'main'
 symbol '='
 keyword 'func'

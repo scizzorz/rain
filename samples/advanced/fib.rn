@@ -1,10 +1,10 @@
 # recursion sample
 
-fib = func(n)
+let fib = func(n)
   if n <= 1
     return 1
 
   return fib(n-1) + fib(n-2)
 
-main = func()
+let main = func()
   print(fib(10))

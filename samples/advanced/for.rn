@@ -1,6 +1,6 @@
 # a strange iterator + for example
 
-range = func(n)
+let range = func(n)
   let i = 0
   return func()
     if i == n
@@ -9,7 +9,7 @@ range = func(n)
     save i
     i = i + 1
 
-main = func()
+let main = func()
   for i in range(20)
     continue if i == 4
     break if i == 8

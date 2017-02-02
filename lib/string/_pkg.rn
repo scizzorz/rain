@@ -1,23 +1,25 @@
+link "string.c"
+
 import core
 import iter
 
-length = core.length
-to_str = extern "rain_to_string"(val)
-to_int = extern "rain_string_to_int"(val)
-fmt = extern "rain_fmt"(val, fmt)
+export length = core.length
+export to_str = foreign "rain_to_string"(val)
+export to_int = foreign "rain_string_to_int"(val)
+export fmt    = foreign "rain_fmt"(val, fmt)
 
-substring = func(s, start, end)
+export substring = func(s, start, end)
   let length = length(s)
   if start >= end | end >= length
     return ""
   return s[start] $ substring(s, start+1, end)
 
-index_of = func(s, of)
+export index_of = func(s, of)
   for i in iter.range(length(s))
     if s[i] == of
       return i
 
-split = func(s, at)
+export split = func(s, at)
   let arr = table
   let arr_idx = 0
   let recurse = func(s)
