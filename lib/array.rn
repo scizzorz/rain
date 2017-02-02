@@ -29,6 +29,25 @@ export foldl = func(self, fn, z)
     a = fn(a, v)
   return a
 
+export concat = func(self, other)
+  let ret = table from self.metatable
+  save ret
+  for i in keys(self)
+    ret[i] = self[i]
+  let len = length(self)
+  for i in keys(other)
+    ret[i+len] = other[i]
+
+export flatmap = func(self, fn)
+  let mapped = map(self, fn)
+  return foldl(mapped, concat, table from self.metatable)
+
+export contains = func(self, value)
+  save false
+  for v in values(self)
+    if v == value
+      return true
+
 export from_iter = func(iter)
   let ret = table
   save ret
