@@ -470,7 +470,7 @@ void rain_get(box *ret, box *table, box *key) {
       return;
     }
 
-    if(BOX_IS(&metatable->val, TABLE)) {
+    if(BOX_IS(&metatable->val, TABLE) && (&metatable->val) != table) {
       rain_get(ret, &metatable->val, key);
     }
     return;
