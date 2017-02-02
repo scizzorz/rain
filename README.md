@@ -20,7 +20,7 @@ Definitely Python 3, LLVM-3.8, and clang-3.8. Check out [requirements.txt](https
 Make a fun Rain file:
 
     main = func()
-      print "Wow, I'm having so much fun right now!"
+      print("Wow, I'm having so much fun right now!")
 
 Use `rainc` on your fun Rain file:
 
