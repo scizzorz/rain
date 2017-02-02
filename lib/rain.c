@@ -455,6 +455,9 @@ void rain_get(box *ret, box *table, box *key) {
     }
     return;
   }
+  if(BOX_ISNT(table, TABLE)) {
+    rain_throw(rain_exc_arg_mismatch);
+  }
 
   column *row = rain_has(table, key);
 
@@ -467,7 +470,9 @@ void rain_get(box *ret, box *table, box *key) {
       return;
     }
 
-    rain_get(ret, &metatable->val, key);
+    if(BOX_IS(&metatable->val, TABLE)) {
+      rain_get(ret, &metatable->val, key);
+    }
     return;
   }
 
