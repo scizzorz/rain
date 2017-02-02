@@ -51,11 +51,15 @@ def emit(self, module):
 
 def truthy(module, node):
   box = module.emit(node)
-  typ = module.get_type(box)
-  val = module.get_value(box)
+  return truthy_val(module, box)
+
+def truthy_val(module, val):
+  typ = module.get_type(val)
+  val = module.get_value(val)
   not_null = module.builder.icmp_unsigned('!=', typ, T.ityp.null)
   not_zero = module.builder.icmp_unsigned('!=', val, T.i64(0))
   return module.builder.and_(not_null, not_zero)
+
 
 def static_table_put(module, table_ptr, column_ptr, key_node, key, val):
   table = table_ptr.initializer
@@ -684,13 +688,28 @@ def emit(self, module):
   if module.is_global: # global scope
     module.panic("Can't use binary operators at global scope")
 
+  if self.op in ('|', '&'):
+    with module.goto_entry():
+      res = module.builder.alloca(T.box)
+
+    lhs = module.emit(self.lhs)
+    module.builder.store(lhs, res)
+
+    t = truthy_val(module, lhs)
+    if self.op == '|':
+      t = module.builder.not_(t)
+
+    with module.builder.if_then(t):
+      rhs = module.emit(self.rhs)
+      module.builder.store(rhs, res)
+
+    return module.builder.load(res)
+
   arith = {
     '+': 'rain_add',
     '-': 'rain_sub',
     '*': 'rain_mul',
     '/': 'rain_div',
-    '&': 'rain_and',
-    '|': 'rain_or',
     '==': 'rain_eq',
     '!=': 'rain_ne',
     '>': 'rain_gt',
@@ -699,6 +718,9 @@ def emit(self, module):
     '<=': 'rain_le',
     '$': 'rain_string_concat',
   }
+
+  if self.op not in arith:
+    module.panic("Invalid binary operator {!r}".format(self.op))
 
   lhs = module.emit(self.lhs)
   rhs = module.emit(self.rhs)
