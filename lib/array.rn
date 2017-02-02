@@ -43,6 +43,12 @@ export flatmap = func(self, fn)
   let mapped = map(self, fn)
   return foldl(mapped, concat, table from self.metatable)
 
+export contains = func(self, value)
+  save false
+  for v in values(self)
+    if v == value
+      return true
+
 export from_iter = func(iter)
   let ret = table
   save ret
