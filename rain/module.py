@@ -329,17 +329,17 @@ class Module(S.Scope):
   ### Box helpers ##############################################################
 
   def get_type(self, box):
-    return self.builder.extract_value(box, T.TYPE)
+    return self.extract(box, T.TYPE)
 
   def get_value(self, box, typ=None):
-    val = self.builder.extract_value(box, T.DATA)
+    val = self.extract(box, T.DATA)
     if isinstance(typ, T.func):
       return self.builder.inttoptr(val, T.ptr(typ))
 
     return val
 
   def get_size(self, box):
-    return self.builder.extract_value(box, T.SIZE)
+    return self.extract(box, T.SIZE)
 
   ### Function helpers #########################################################
 
@@ -403,3 +403,9 @@ class Module(S.Scope):
 
   def load(self, ptr):
     return self.builder.load(ptr)
+
+  def insert(self, container, value, idx):
+    return self.builder.insert_value(container, value, idx)
+
+  def extract(self, container, idx):
+    return self.builder.extract_value(container, idx)

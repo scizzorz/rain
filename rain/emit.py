@@ -506,7 +506,7 @@ def emit(self, module):
 
     func = module.add_tramp(func, env_ptr)
     func_i64 = module.builder.ptrtoint(func, T.i64)
-    func_box = module.builder.insert_value(T._func(args=len(self.params)), func_i64, 1)
+    func_box = module.insert(T._func(args=len(self.params)), func_i64, 1)
 
     env_val = env_typ(None)
 
@@ -515,9 +515,9 @@ def emit(self, module):
       # have a bound value of False will be when it's the item
       # currently being bound, ie, it's this function
       if getattr(ptr, 'bound', None) == False:
-        env_val = module.builder.insert_value(env_val, func_box, i)
+        env_val = module.insert(env_val, func_box, i)
       else:
-        env_val = module.builder.insert_value(env_val, module.load(ptr), i)
+        env_val = module.insert(env_val, module.load(ptr), i)
 
     module.store(env_val, env_ptr)
 
@@ -689,4 +689,4 @@ def emit(self, module):
   lhs_typ = module.get_type(lhs)
   res = module.builder.icmp_unsigned('==', getattr(T.ityp, self.typ), lhs_typ)
   res = module.builder.zext(res, T.i64)
-  return module.builder.insert_value(T._bool(False), res, 1)
+  return module.insert(T._bool(False), res, 1)
