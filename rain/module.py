@@ -354,10 +354,6 @@ class Module(S.Scope):
     val = self.call(fn, *ptrs, unwind=unwind)
     return val, ptrs
 
-  # call an extern function
-  def excall(self, fn, *args, unwind=None):
-    return self.call(self.extern(fn), *args, unwind=unwind)
-
   # call a function based on unwind
   def call(self, fn, *args, unwind=None):
     if self.catchall:
@@ -371,6 +367,14 @@ class Module(S.Scope):
       val = self.builder.call(fn, args)
 
     return val
+
+  # call an extern function
+  def excall(self, fn, *args, unwind=None):
+    return self.call(self.extern(fn), *args, unwind=unwind)
+
+  # allocate stack space and call an extern function
+  def exfncall(self, fn, *args, unwind=None):
+    return self.fncall(self.extern(fn), *args, unwind=unwind)
 
   # add a trampoline
   def add_tramp(self, func_ptr, env_ptr):

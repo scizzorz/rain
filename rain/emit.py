@@ -225,7 +225,7 @@ def emit(self, module):
     key = module.emit(self.lhs.rhs)
     val = module.emit(self.rhs)
 
-    module.fncall(module.extern('rain_put'), table, key, val)
+    module.exfncall('rain_put', table, key, val)
 
 @break_node.method
 def emit(self, module):
@@ -589,7 +589,7 @@ def emit(self, module):
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
 
-  _, ptrs = module.fncall(module.extern('rain_get'), T.null, table, key)
+  _, ptrs = module.exfncall('rain_get', T.null, table, key)
 
   return module.load(ptrs[0])
 
@@ -601,7 +601,7 @@ def emit(self, module):
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
 
-  _, ptrs = module.fncall(module.extern('rain_get'), T.null, table, key)
+  _, ptrs = module.exfncall('rain_get', T.null, table, key)
 
   func_box = module.load(ptrs[0])
   arg_boxes = [table] + [module.emit(arg) for arg in self.args]
@@ -634,7 +634,7 @@ def emit(self, module):
 
   val = module.emit(self.val)
 
-  _, ptrs = module.fncall(module.extern(arith[self.op]), T.null, val)
+  _, ptrs = module.exfncall(arith[self.op], T.null, val)
 
   return module.load(ptrs[0])
 
@@ -680,7 +680,7 @@ def emit(self, module):
   lhs = module.emit(self.lhs)
   rhs = module.emit(self.rhs)
 
-  _, ptrs = module.fncall(module.extern(arith[self.op]), T.null, lhs, rhs)
+  _, ptrs = module.exfncall(arith[self.op], T.null, lhs, rhs)
 
   return module.load(ptrs[0])
 
