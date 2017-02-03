@@ -1,0 +1,15 @@
+import re
+import array
+
+export main = func()
+  let match = re.match("ab*ab*", "abbbab")
+  print(match.count)
+  for m in array.values(match)
+    print(m)
+  let my_compiled_regex = re.compile("a(a*)")
+  let match = my_compiled_regex:match("aaaa")
+  print(match.count)
+  for m in array.values(match)
+    print(m)
+  let match = re.match?("[", "")
+  print(match.msg)

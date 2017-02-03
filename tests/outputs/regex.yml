@@ -1,0 +1,112 @@
+!program;1
+stmts:
+- !import;1
+  name: re
+  rename: null
+- !import;1
+  name: array
+  rename: null
+- !assn;2
+  export: true
+  let: false
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: match
+        rhs: !call;1
+          args:
+          - !str;1
+            value: ab*ab*
+          - !str;1
+            value: abbbab
+          catch: false
+          func: !index;1
+            lhs: !name;1
+              value: re
+            rhs: !str;1
+              value: match
+      - !call;1
+        args:
+        - !index;1
+          lhs: !name;1
+            value: match
+          rhs: !str;1
+            value: count
+        catch: false
+        func: !name;1
+          value: print
+      - !for;1 {}
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: mycompiledregex
+        rhs: !call;1
+          args:
+          - !str;1
+            value: a(a*)
+          catch: false
+          func: !index;1
+            lhs: !name;1
+              value: re
+            rhs: !str;1
+              value: compile
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: match
+        rhs: !method;1
+          args:
+          - !str;1
+            value: aaaa
+          catch: false
+          lhs: !name;1
+            value: mycompiledregex
+          rhs: !str;1
+            value: match
+      - !call;1
+        args:
+        - !index;1
+          lhs: !name;1
+            value: match
+          rhs: !str;1
+            value: count
+        catch: false
+        func: !name;1
+          value: print
+      - !for;1 {}
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: match
+        rhs: !call;1
+          args:
+          - !str;1
+            value: '['
+          - !str;1
+            value: ''
+          catch: true
+          func: !index;1
+            lhs: !name;1
+              value: re
+            rhs: !str;1
+              value: match
+      - !call;1
+        args:
+        - !index;1
+          lhs: !name;1
+            value: match
+          rhs: !str;1
+            value: msg
+        catch: false
+        func: !name;1
+          value: print
+    params: []
