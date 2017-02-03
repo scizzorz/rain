@@ -562,19 +562,18 @@ def emit(self, module):
 
   if self.catch:
     with module.add_catch() as catch:
-      ptrs = module.fncall(func_ptr, T.null, *arg_boxes, unwind=module.catch)
+      ret_ptr = module.fncall(func_ptr, T.null, *arg_boxes, unwind=module.catch)
 
-      catch(ptrs[0], module.builder.block)
+      catch(ret_ptr, module.builder.block)
 
-      return module.load(ptrs[0])
+      return module.load(ret_ptr)
 
-  ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
-  return module.load(ptrs[0])
+  ret_ptr = module.fncall(func_ptr, T.null, *arg_boxes)
+  return module.load(ret_ptr)
 
 @idx_node.method
 def emit(self, module):
   if module.is_global:
-
     # check if LHS is a module
     if getattr(module[self.lhs], 'mod', None):
       return load_global(module[self.lhs].mod, self.rhs)
@@ -589,8 +588,8 @@ def emit(self, module):
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
 
-  ptrs = module.exfncall('rain_get', T.null, table, key)
-  return module.load(ptrs[0])
+  ret_ptr = module.exfncall('rain_get', T.null, table, key)
+  return module.load(ret_ptr)
 
 @meth_node.method
 def emit(self, module):
@@ -600,9 +599,9 @@ def emit(self, module):
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
 
-  ptrs = module.exfncall('rain_get', T.null, table, key)
+  ret_ptr = module.exfncall('rain_get', T.null, table, key)
 
-  func_box = module.load(ptrs[0])
+  func_box = module.load(ret_ptr)
   arg_boxes = [table] + [module.emit(arg) for arg in self.args]
   func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
 
@@ -610,14 +609,14 @@ def emit(self, module):
 
   if self.catch:
     with module.add_catch() as catch:
-      ptrs = module.fncall(func_ptr, T.null, *arg_boxes, unwind=module.catch)
+      ret_ptr = module.fncall(func_ptr, T.null, *arg_boxes, unwind=module.catch)
 
-      catch(ptrs[0], module.builder.block)
+      catch(ret_ptr, module.builder.block)
 
-      return module.load(ptrs[0])
+      return module.load(ret_ptr)
 
-  ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
-  return module.load(ptrs[0])
+  ret_ptr = module.fncall(func_ptr, T.null, *arg_boxes)
+  return module.load(ret_ptr)
 
 # operator expressions
 
@@ -633,8 +632,8 @@ def emit(self, module):
 
   val = module.emit(self.val)
 
-  ptrs = module.exfncall(arith[self.op], T.null, val)
-  return module.load(ptrs[0])
+  ret_ptr = module.exfncall(arith[self.op], T.null, val)
+  return module.load(ret_ptr)
 
 @binary_node.method
 def emit(self, module):
@@ -678,8 +677,8 @@ def emit(self, module):
   lhs = module.emit(self.lhs)
   rhs = module.emit(self.rhs)
 
-  ptrs = module.exfncall(arith[self.op], T.null, lhs, rhs)
-  return module.load(ptrs[0])
+  ret_ptr = module.exfncall(arith[self.op], T.null, lhs, rhs)
+  return module.load(ret_ptr)
 
 @is_node.method
 def emit(self, module):

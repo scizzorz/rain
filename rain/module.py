@@ -353,7 +353,7 @@ class Module(S.Scope):
       self.store(arg, ptr)
 
     self.call(fn, *ptrs, unwind=unwind)
-    return ptrs
+    return ptrs[0]
 
   # call a function based on unwind
   def call(self, fn, *args, unwind=None):
