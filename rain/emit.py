@@ -35,11 +35,11 @@ def emit_main(self, module):
     module.builder.store(T.null, ret_ptr)
 
     with module.add_abort() as abort:
-      module.call(module.extern('rain_main'), ret_ptr, module['main'], *module.main.args, unwind=module.catch)
+      module.excall('rain_main', ret_ptr, module['main'], *module.main.args, unwind=module.catch)
 
       abort(module.builder.block)
 
-      ret_code = module.call(module.extern('rain_box_to_exit'), ret_ptr)
+      ret_code = module.excall('rain_box_to_exit', ret_ptr)
       module.builder.ret(ret_code);
 
 @block_node.method
@@ -446,7 +446,7 @@ def emit(self, module):
   if module.is_global:
     return static_table_alloc(module, module.uniq('table'), metatable=self.metatable)
 
-  ptr = module.call(module.extern('rain_new_table'))
+  ptr = module.excall('rain_new_table')
 
   if self.metatable:
     val = module.emit(self.metatable)
@@ -455,7 +455,7 @@ def emit(self, module):
       val_ptr = module.builder.alloca(T.box, name='key_ptr')
 
     module.builder.store(val, val_ptr)
-    module.call(module.extern('rain_put'), ptr, module.metatable_key, val_ptr)
+    module.excall('rain_put', ptr, module.metatable_key, val_ptr)
 
   return module.builder.load(ptr)
 
@@ -503,7 +503,7 @@ def emit(self, module):
         module.builder.ret_void()
 
   if env:
-    env_raw_ptr = module.call(module.extern('GC_malloc'), T.i32(T.BOX_SIZE * len(env)))
+    env_raw_ptr = module.excall('GC_malloc', T.i32(T.BOX_SIZE * len(env)))
     env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
 
     func = module.add_tramp(func, env_ptr)
@@ -543,12 +543,12 @@ def check_callable(module, box, args):
   func_typ = module.get_type(box)
   is_func = module.builder.icmp_unsigned('!=', T.ityp.func, func_typ)
   with module.builder.if_then(is_func):
-    module.call(module.extern('rain_throw'), get_exception(module, 'rain_exc_uncallable'))
+    module.excall('rain_throw', get_exception(module, 'rain_exc_uncallable'))
 
   exp_args = module.get_size(box)
   arg_match = module.builder.icmp_unsigned('!=', exp_args, T.i32(args))
   with module.builder.if_then(arg_match):
-    module.call(module.extern('rain_throw'), get_exception(module, 'rain_exc_arg_mismatch'))
+    module.excall('rain_throw', get_exception(module, 'rain_exc_arg_mismatch'))
 
 @call_node.method
 def emit(self, module):
@@ -652,7 +652,7 @@ def emit(self, module):
     module.call(real_func_ptr, func.args[1], self_ptr)
     module.builder.ret_void()
 
-  env_raw_ptr = module.call(module.extern('GC_malloc'), T.i32(T.BOX_SIZE * 2))
+  env_raw_ptr = module.excall('GC_malloc', T.i32(T.BOX_SIZE * 2))
   env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
   env_val = env_typ(None)
   env_val = module.builder.insert_value(env_val, bind_func_box, 0)

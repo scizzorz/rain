@@ -58,6 +58,12 @@ def find_name(src):
 
   return (qname, mname)
 
+# partially apply a context manager
+@contextmanager
+def ctx_partial(func, *args, **kwargs):
+  with func(*args, **kwargs) as val:
+    yield val
+
 externs = {
   'GC_malloc': T.func(T.ptr(T.i8), [T.i32]),
   'llvm.init.trampoline': T.func(T.void, [T.ptr(T.i8), T.ptr(T.i8), T.ptr(T.i8)]),
@@ -96,12 +102,6 @@ externs = {
   'rain_put': T.bin,
   'rain_get': T.bin,
 }
-
-# partially apply a context manager
-@contextmanager
-def ctx_partial(func, *args, **kwargs):
-  with func(*args, **kwargs) as val:
-    yield val
 
 class Module(S.Scope):
   def __init__(self, file):
@@ -277,7 +277,7 @@ class Module(S.Scope):
         with self.goto(catch):
           lp = self.builder.landingpad(T.lp)
           lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-          self.call(self.extern('rain_catch'), ptr)
+          self.excall('rain_catch', ptr)
           self.builder.branch(branch)
 
       yield catcher
@@ -291,7 +291,7 @@ class Module(S.Scope):
         with self.goto(catch):
           lp = self.builder.landingpad(T.lp)
           lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-          self.call(self.extern('rain_abort'))
+          self.excall('rain_abort')
           self.builder.branch(branch)
 
       yield aborter
@@ -337,6 +337,10 @@ class Module(S.Scope):
     val = self.call(fn, *ptrs, unwind=unwind)
     return val, ptrs
 
+  # call/invoke an extern function
+  def excall(self, fn, *args, unwind=None):
+    return self.call(self.extern(fn), *args, unwind=unwind)
+
   # call/invoke a function based on unwind
   def call(self, fn, *args, unwind=None):
     if self.catchall:
@@ -352,12 +356,12 @@ class Module(S.Scope):
     return val
 
   def add_tramp(self, func_ptr, env_ptr):
-    tramp_buf = self.builder.call(self.extern('GC_malloc'), [T.i32(T.TRAMP_SIZE)])
+    tramp_buf = self.excall('GC_malloc', T.i32(T.TRAMP_SIZE))
     raw_func_ptr = self.builder.bitcast(func_ptr, T.ptr(T.i8))
     raw_env_ptr = self.builder.bitcast(env_ptr, T.ptr(T.i8))
 
-    self.builder.call(self.extern('llvm.init.trampoline'), [tramp_buf, raw_func_ptr, raw_env_ptr])
-    tramp_ptr = self.builder.call(self.extern('llvm.adjust.trampoline'), [tramp_buf])
+    self.excall('llvm.init.trampoline', tramp_buf, raw_func_ptr, raw_env_ptr)
+    tramp_ptr = self.excall('llvm.adjust.trampoline', tramp_buf)
     new_func_ptr = self.builder.bitcast(tramp_ptr, T.ptr(T.i8))
 
     return new_func_ptr
