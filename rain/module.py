@@ -1,8 +1,8 @@
 from contextlib import contextmanager
 from llvmlite import binding
 from llvmlite import ir
-from os.path import abspath
 from os.path import join
+from os.path import isdir, isfile
 import os.path
 import re
 
@@ -11,29 +11,38 @@ from . import scope as S
 
 name_chars = re.compile('[^a-z0-9]')
 
+
+# get default paths
+def get_paths():
+  return ['.'] + os.getenv('RAINPATH', '').split(':') + [os.environ['RAINLIB']]
+
+
 # normalize a name - remove all special characters and cases
 def normalize_name(name):
   return name_chars.sub('', name.lower())
 
+
 # find a rain file from a module identifier
 def find_rain(src, paths=[]):
-  paths = ['.'] + paths + os.getenv('RAINPATH', '').split(':') + [os.environ['RAINLIB']]
+  paths = paths + get_paths()
 
   for path in paths:
-    if os.path.isfile(join(path, src) + '.rn'):
+    if isfile(join(path, src) + '.rn'):
       return join(path, src) + '.rn'
-    elif os.path.isfile(join(path, src)) and src.endswith('.rn'):
+    elif isfile(join(path, src)) and src.endswith('.rn'):
       return join(path, src)
-    elif os.path.isdir(join(path, src)) and os.path.isfile(join(path, src, '_pkg.rn')):
+    elif isdir(join(path, src)) and isfile(join(path, src, '_pkg.rn')):
       return join(path, src, '_pkg.rn')
+
 
 # find any file from a string
 def find_file(src, paths=[]):
-  paths = ['.'] + paths + os.getenv('RAINPATH', '').split(':') + [os.environ['RAINLIB']]
+  paths = paths + get_paths()
 
   for path in paths:
     if os.path.isfile(join(path, src)):
       return join(path, src)
+
 
 # find a module name
 def find_name(src):
@@ -58,15 +67,17 @@ def find_name(src):
 
   return (qname, mname)
 
+
 # partially apply a context manager
 @contextmanager
 def ctx_partial(func, *args, **kwargs):
   with func(*args, **kwargs) as val:
     yield val
 
+
 externs = {
   'GC_malloc': T.func(T.ptr(T.i8), [T.i32]),
-  'llvm.init.trampoline': T.func(T.void, [T.ptr(T.i8), T.ptr(T.i8), T.ptr(T.i8)]),
+  'llvm.init.trampoline': T.func(T.void, [T.ptr(T.i8)] * 3),
   'llvm.adjust.trampoline': T.func(T.ptr(T.i8), [T.ptr(T.i8)]),
 
   'rain_main': T.vfunc(T.arg, T.arg, T.i32, T.ptr(T.ptr(T.i8))),
@@ -102,6 +113,7 @@ externs = {
   'rain_put': T.bin,
   'rain_get': T.bin,
 }
+
 
 class Module(S.Scope):
   def __init__(self, file):
@@ -190,7 +202,7 @@ class Module(S.Scope):
     self.name_counter += 1
     return ret
 
-  ### Global helpers ###########################################################
+  # Global helpers ############################################################
 
   # main function
   @property
@@ -246,7 +258,7 @@ class Module(S.Scope):
         g.linkage = 'available_externally'
         g.initializer = val.initializer
 
-  ### Block helpers ############################################################
+  # Block helpers #############################################################
 
   @contextmanager
   def add_builder(self, block):
@@ -326,7 +338,7 @@ class Module(S.Scope):
     with self.builder.goto_entry_block():
       yield
 
-  ### Box helpers ##############################################################
+  # Box helpers ###############################################################
 
   def get_type(self, box):
     return self.extract(box, T.TYPE)
@@ -352,7 +364,7 @@ class Module(S.Scope):
     not_zero = self.builder.icmp_unsigned('!=', val, T.i64(0))
     return self.builder.and_(not_null, not_zero)
 
-  ### Function helpers #########################################################
+  # Function helpers ##########################################################
 
   # allocate stack space for a function arguments, then call it
   # only used for Rain functions! (eg they only take box *)
@@ -400,7 +412,7 @@ class Module(S.Scope):
 
     return new_func_ptr
 
-  ### llvmlite shortcuts #######################################################
+  # llvmlite shortcuts ########################################################
 
   def alloc(self, typ, init=None, name=''):
     ptr = self.builder.alloca(typ, name=name)

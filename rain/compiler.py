@@ -3,24 +3,20 @@ from . import emit
 from . import lexer as L
 from . import module as M
 from . import parser as P
-from . import types as T
 from contextlib import contextmanager
 from enum import Enum
-from llvmlite import ir
 from os import environ as ENV
-from os import listdir as ls
 from os.path import join
 from termcolor import colored as C
 import os.path
 import subprocess
-import sys
 import tempfile
-import traceback
 
 compilers = {}
 
-# USE THIS to get a new compiler. it fuzzy searches for the source file and also prevents
-# multiple compilers from being made for the same file
+
+# USE THIS to get a new compiler. it fuzzy searches for the source file and
+# also prevents multiple compilers from being made for the same file
 def get_compiler(src, target=None, main=False):
   abspath = os.path.abspath(src)
 
@@ -29,15 +25,18 @@ def get_compiler(src, target=None, main=False):
 
   return compilers[abspath]
 
+
 def reset_compilers():
   global compilers
   compilers = {}
+
 
 class phases(Enum):
   lexing = 0
   parsing = 1
   emitting = 2
   building = 3
+
 
 class Compiler:
   quiet = False
@@ -49,10 +48,10 @@ class Compiler:
     self.main = main
     self.lib = ENV['RAINLIB']
     self.links = set()
-    self.stream = None # set after lexing
-    self.ast = None    # set after parsing
-    self.mod = None    # set before emitting
-    self.ll = None     # set after writing
+    self.stream = None  # set after lexing
+    self.ast = None     # set after parsing
+    self.mod = None     # set before emitting
+    self.ll = None      # set after writing
 
   @classmethod
   def print(cls, msg, end='\n'):
@@ -102,12 +101,13 @@ class Compiler:
 
     # always link with lib/_pkg.rn
     builtin = get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
-    if self is not builtin: # unless we ARE lib/_pkg.rn
+    if self is not builtin:  # unless we ARE lib/_pkg.rn
       builtin.goodies()
 
       self.links.add(builtin.ll)
       for link in builtin.links:
-        if not link: continue
+        if not link:
+          continue
         self.links.add(link)
 
       # copy builtins into scope
@@ -121,17 +121,19 @@ class Compiler:
     imports, links = self.ast.emit(self.mod)
     for mod in imports:
       comp = get_compiler(mod)
-      comp.goodies() # should be done during import but might as well be safe
+      comp.goodies()  # should be done during import but might as well be safe
 
       # add the module's IR as well as all of its imports' IR
       self.links.add(comp.ll)
       for link in comp.links:
-        if not link: continue
+        if not link:
+          continue
         self.links.add(link)
 
     # add the links
     for link in links:
-      if not link: continue
+      if not link:
+        continue
       self.links.add(link)
 
     # only spit out the main if this is the main file
@@ -154,17 +156,18 @@ class Compiler:
         tmp.write(self.mod.ir)
 
     elif phase == phases.building:
-      handle, tmp_name = tempfile.mkstemp(prefix=self.qname+'.', suffix='.ll')
+      handle, name = tempfile.mkstemp(prefix=self.qname + '.', suffix='.ll')
       with os.fdopen(handle, 'w') as tmp:
         tmp.write(self.mod.ir)
 
-      self.ll = tmp_name
+      self.ll = name
 
   def compile(self):
     with self.okay('compiling'):
       target = self.target or self.mname
       clang = os.getenv('CLANG', 'clang')
-      cmd = [clang, '-O2', '-o', target, '-lgc', '-lm', '-lpcre', self.ll] + list(self.links)
+      flags = ['-O2', '-lgc', '-lm', '-lpcre']
+      cmd = [clang, '-o', target, self.ll] + flags + list(self.links)
       subprocess.check_call(cmd)
 
   def run(self):
