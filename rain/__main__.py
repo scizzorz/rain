@@ -1,7 +1,6 @@
 import argparse
 import os.path
 import sys
-import traceback
 
 from . import compiler as C
 from . import module as M

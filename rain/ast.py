@@ -1,8 +1,10 @@
 import camel
 import fixedint
+import ctypes
 
 registry = camel.CamelRegistry()
 machine = camel.Camel([registry])
+
 
 # Base classes
 
@@ -28,10 +30,12 @@ class metanode(type):
   def __repr__(self):
     return '<{}>'.format(self.__name__)
 
+
 class node(metaclass=metanode):
   __tag__ = 'node'
   __version__ = 1
   __slots__ = []
+
 
 class value_node(node):
   __tag__ = 'value'
@@ -47,6 +51,7 @@ class value_node(node):
 
     return self.value == other.value
 
+
 # structure
 
 class program_node(node):
@@ -57,6 +62,7 @@ class program_node(node):
   def __init__(self, stmts=[]):
     self.stmts = stmts
 
+
 class block_node(node):
   __tag__ = 'block'
   __version__ = 1
@@ -64,6 +70,7 @@ class block_node(node):
 
   def __init__(self, stmts=[]):
     self.stmts = stmts
+
 
 # statements
 
@@ -78,6 +85,7 @@ class assn_node(node):
     self.let = let
     self.export = export
 
+
 class break_node(node):
   __tag__ = 'break'
   __version__ = 1
@@ -85,6 +93,7 @@ class break_node(node):
 
   def __init__(self, cond=None):
     self.cond = cond
+
 
 class catch_node(node):
   __tag__ = 'catch'
@@ -95,6 +104,7 @@ class catch_node(node):
     self.name = name
     self.body = body
 
+
 class cont_node(node):
   __tag__ = 'continue'
   __version__ = 1
@@ -102,6 +112,7 @@ class cont_node(node):
 
   def __init__(self, cond=None):
     self.cond = cond
+
 
 class export_foreign_node(node):
   __tag__ = 'export_foreign'
@@ -111,6 +122,7 @@ class export_foreign_node(node):
   def __init__(self, name, rename):
     self.name = name
     self.rename = rename
+
 
 class if_node(node):
   __tag__ = 'if'
@@ -122,6 +134,7 @@ class if_node(node):
     self.body = body
     self.els = els
 
+
 class import_node(node):
   __tag__ = 'import'
   __version__ = 1
@@ -131,6 +144,7 @@ class import_node(node):
     self.name = name
     self.rename = rename
 
+
 class link_node(node):
   __tag__ = 'link'
   __version__ = 1
@@ -138,6 +152,7 @@ class link_node(node):
 
   def __init__(self, name):
     self.name = name
+
 
 class foreign_node(node):
   __tag__ = 'foreign'
@@ -148,6 +163,7 @@ class foreign_node(node):
     self.name = name
     self.params = params
 
+
 class loop_node(node):
   __tag__ = 'loop'
   __version__ = 1
@@ -156,14 +172,18 @@ class loop_node(node):
   def __init__(self, body):
     self.body = body
 
+
 class pass_node(node):
   __tag__ = 'pass'
+
 
 class return_node(value_node):
   __tag__ = 'return'
 
+
 class save_node(value_node):
   __tag__ = 'save'
+
 
 class until_node(node):
   __tag__ = 'until'
@@ -174,6 +194,7 @@ class until_node(node):
     self.pred = pred
     self.body = body
 
+
 class while_node(node):
   __tag__ = 'while'
   __version__ = 1
@@ -182,6 +203,7 @@ class while_node(node):
   def __init__(self, pred, body):
     self.pred = pred
     self.body = body
+
 
 class for_node(node):
   __tag__ = 'for'
@@ -193,6 +215,7 @@ class for_node(node):
     self.func = func
     self.body = body
 
+
 class with_node(node):
   __tag__ = 'with'
   __version__ = 1
@@ -202,6 +225,7 @@ class with_node(node):
     self.expr = expr
     self.params = params
     self.body = body
+
 
 # expressions
 
@@ -214,12 +238,15 @@ class idx_node(node):
     self.lhs = lhs
     self.rhs = rhs
 
+
 class name_node(value_node):
   __tag__ = 'name'
+
 
 class literal_node:
   def hash(self):
     raise Exception("Can't hash {!s}".format(self))
+
 
 class null_node(node, literal_node):
   __tag__ = 'null'
@@ -227,11 +254,13 @@ class null_node(node, literal_node):
   def hash(self):
     return 0
 
+
 class int_node(value_node, literal_node):
   __tag__ = 'int'
 
   def hash(self):
     return int(fixedint.UInt64(self.value))
+
 
 class float_node(value_node, literal_node):
   __tag__ = 'float'
@@ -239,11 +268,13 @@ class float_node(value_node, literal_node):
   def hash(self):
     return int(ctypes.c_int.from_buffer(ctypes.c_float(1.0)).value)
 
+
 class bool_node(value_node, literal_node):
   __tag__ = 'bool'
 
   def hash(self):
     return int(self.value)
+
 
 class str_node(value_node, literal_node):
   __tag__ = 'str'
@@ -254,6 +285,7 @@ class str_node(value_node, literal_node):
       val += ord(char)
     return int(val)
 
+
 class table_node(node):
   __tag__ = 'table'
   __version__ = 1
@@ -261,6 +293,7 @@ class table_node(node):
 
   def __init__(self, metatable=None):
     self.metatable = metatable
+
 
 class func_node(node):
   __tag__ = 'func'
@@ -271,6 +304,7 @@ class func_node(node):
     self.params = params
     self.body = body
 
+
 class call_node(node):
   __tag__ = 'call'
   __version__ = 1
@@ -280,6 +314,7 @@ class call_node(node):
     self.func = func
     self.args = args
     self.catch = catch
+
 
 class meth_node(node):
   __tag__ = 'method'
@@ -292,6 +327,7 @@ class meth_node(node):
     self.args = args
     self.catch = catch
 
+
 class is_node(node):
   __tag__ = 'is'
   __version__ = 1
@@ -300,6 +336,7 @@ class is_node(node):
   def __init__(self, lhs, typ):
     self.lhs = lhs
     self.typ = typ
+
 
 class binary_node(node):
   __tag__ = 'binary'
@@ -310,6 +347,7 @@ class binary_node(node):
     self.lhs = lhs
     self.rhs = rhs
     self.op = op
+
 
 class unary_node(node):
   __tag__ = 'unary'

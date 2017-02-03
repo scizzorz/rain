@@ -2,6 +2,7 @@ from . import token as K
 from . import ast as A
 from collections import OrderedDict
 
+
 class Namespace(OrderedDict):
   @staticmethod
   def dekey(key):

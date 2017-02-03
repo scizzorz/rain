@@ -37,6 +37,7 @@ TYPES = (
   'bool', 'cdata', 'float', 'int', 'str',
 )
 
+
 def factory(data, *, line=None, col=None):
   if data.lower() in KEYWORDS:
     return keyword_token(data.lower(), line=line, col=col)
@@ -46,6 +47,7 @@ def factory(data, *, line=None, col=None):
     return type_token(data.lower(), line=line, col=col)
   else:
     return name_token(M.normalize_name(data), line=line, col=col)
+
 
 raw = OrderedDict()
 raw[r'#.*'] = None
@@ -64,6 +66,7 @@ for k, v in raw.items():
   rules[re.compile(k)] = v
 
 indent = re.compile('^[ ]*')
+
 
 def stream(source):
   indents = [0]

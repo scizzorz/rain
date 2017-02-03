@@ -1,4 +1,3 @@
-from . import lexer as L
 from . import token as K
 from . import ast as A
 
@@ -25,6 +24,7 @@ binary_ops = {
   '&': 30,
   '|': 30,
 }
+
 
 class context:
   def __init__(self, stream, *, file=None):
@@ -77,6 +77,7 @@ class context:
 
     raise SyntaxError(msg)
 
+
 # program :: (stmt NEWLINE)+ EOF
 def program(ctx):
   stmts = []
@@ -87,6 +88,7 @@ def program(ctx):
   ctx.require(end)
 
   return A.program_node(stmts)
+
 
 # block :: INDENT (stmt NEWLINE)+ DEDENT
 def block(ctx):
@@ -100,6 +102,7 @@ def block(ctx):
   ctx.require(dedent)
 
   return A.block_node(stmts)
+
 
 # stmt :: 'let' NAME '=' expr
 #       | 'export' NAME '=' expr
@@ -230,6 +233,7 @@ def stmt(ctx):
     args = fnargs(ctx)
     return A.meth_node(lhs, rhs, args)
 
+
 # if_stmt :: 'if' expr block (NEWLINE 'else' (if_stmt | block))?
 def if_stmt(ctx):
   ctx.require(K.keyword_token('if'))
@@ -246,6 +250,7 @@ def if_stmt(ctx):
       els = block(ctx)
 
   return A.if_node(pred, body, els)
+
 
 # assn_prefix :: prefix ('.' NAME | '[' expr ']')*
 def assn_prefix(ctx):
@@ -270,6 +275,7 @@ def assn_prefix(ctx):
 
   return lhs
 
+
 # fnargs :: '(' (expr (',' expr)*)? ')'
 def fnargs(ctx):
   ctx.require(K.symbol_token('('))
@@ -282,6 +288,7 @@ def fnargs(ctx):
 
   ctx.require(K.symbol_token(')'))
   return args
+
 
 # fnparams :: '(' (NAME (',' NAME)*)? ')'
 def fnparams(ctx, parens=True):
@@ -299,6 +306,7 @@ def fnparams(ctx, parens=True):
 
   return params
 
+
 # expr :: binexpr ('is' (TYPE | NULL | TABLE | 'func'))?
 def expr(ctx):
   node = binexpr(ctx)
@@ -307,6 +315,7 @@ def expr(ctx):
     return A.is_node(node, typ)
 
   return node
+
 
 # binexpr :: unexpr (OPERATOR unexpr)*
 def binexpr(ctx):
@@ -321,6 +330,7 @@ def binexpr(ctx):
     lhs = bin_merge(lhs, pairs)
 
   return lhs
+
 
 def bin_merge(lhs, pairs):
   op, rhs = pairs[0]
@@ -337,6 +347,7 @@ def bin_merge(lhs, pairs):
 
   return A.binary_node(lhs, rhs, op)
 
+
 # unexpr :: ('-' | '!') simple
 #         | simple
 def unexpr(ctx):
@@ -344,6 +355,7 @@ def unexpr(ctx):
     return A.unary_node(ctx.require(K.operator_token).value, simple(ctx))
 
   return simple(ctx)
+
 
 # simple :: 'func' fnparams ('->' expr | block)
 #         | 'foreign' (NAME | STRING) fnparams
@@ -389,6 +401,7 @@ def simple(ctx):
 
   return primary(ctx)
 
+
 # primary :: prefix ('?'? fnargs | ':' NAME '?'? fnargs | '.' NAME | '[' expr ']')*
 def primary(ctx):
   node = prefix(ctx)
@@ -430,6 +443,7 @@ def primary(ctx):
     break
 
   return node
+
 
 # prefix :: '(' expr ')'
 #         | NAME
