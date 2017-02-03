@@ -9,8 +9,60 @@ import re
 from . import types as T
 from . import scope as S
 
-
 name_chars = re.compile('[^a-z0-9]')
+
+# normalize a name - remove all special characters and cases
+def normalize_name(name):
+  return name_chars.sub('', name.lower())
+
+# find a rain file from a module identifier
+def find_rain(src, paths=[]):
+  paths = ['.'] + paths + os.getenv('RAINPATH', '').split(':') + [os.environ['RAINLIB']]
+
+  for path in paths:
+    if os.path.isfile(join(path, src) + '.rn'):
+      return join(path, src) + '.rn'
+    elif os.path.isfile(join(path, src)) and src.endswith('.rn'):
+      return join(path, src)
+    elif os.path.isdir(join(path, src)) and os.path.isfile(join(path, src, '_pkg.rn')):
+      return join(path, src, '_pkg.rn')
+
+# find any file from a string
+def find_file(src, paths=[]):
+  paths = ['.'] + paths + os.getenv('RAINPATH', '').split(':') + [os.environ['RAINLIB']]
+
+  for path in paths:
+    if os.path.isfile(join(path, src)):
+      return join(path, src)
+
+# find a module name
+def find_name(src):
+  path = os.path.abspath(src)
+  path, name = os.path.split(path)
+  fname, ext = os.path.splitext(name)
+
+  if fname == '_pkg':
+    _, fname = os.path.split(path)
+
+  mname = normalize_name(fname)
+
+  proot = []
+  while path and os.path.isfile(join(path, '_pkg.rn')):
+    path, name = os.path.split(path)
+    proot.insert(0, normalize_name(name))
+
+  if not src.endswith('_pkg.rn'):
+    proot.append(mname)
+
+  qname = '.'.join(proot)
+
+  return (qname, mname)
+
+# partially apply a context manager
+@contextmanager
+def ctx_partial(func, *args, **kwargs):
+  with func(*args, **kwargs) as val:
+    yield val
 
 externs = {
   'GC_malloc': T.func(T.ptr(T.i8), [T.i32]),
@@ -51,18 +103,12 @@ externs = {
   'rain_get': T.bin,
 }
 
-# partially apply a context manager
-@contextmanager
-def ctx_partial(func, *args, **kwargs):
-  with func(*args, **kwargs) as val:
-    yield val
-
 class Module(S.Scope):
   def __init__(self, file):
     S.Scope.__init__(self)
 
     self.file = file
-    self.qname, self.mname = Module.find_name(self.file)
+    self.qname, self.mname = find_name(self.file)
     self.llvm = ir.Module(name=self.qname)
     self.llvm.triple = binding.get_default_triple()
 
@@ -85,11 +131,19 @@ class Module(S.Scope):
 
     self.name_counter = 0
 
+  def __str__(self):
+    return 'Module {!r}'.format(self.qname)
+
+  def __repr__(self):
+    return '<{!s}>'.format(self)
+
+  # wrapper to emit IR for a node
   def emit(self, node):
     with self.stack('coord'):
       self.coord = getattr(node, 'origin', (0, 0))
       return node.emit(self)
 
+  # raise a formatted exception
   def panic(self, fmt, *args):
     prefix = ''
     if self.qname:
@@ -118,12 +172,6 @@ class Module(S.Scope):
   def is_local(self):
     return bool(self.builder)
 
-  def __str__(self):
-    return 'Module {!r}'.format(self.qname)
-
-  def __repr__(self):
-    return '<{!s}>'.format(self)
-
   # save and restore some module attributes around a code block
   @contextmanager
   def stack(self, *attrs):
@@ -132,12 +180,17 @@ class Module(S.Scope):
     for attr, val in zip(attrs, saved):
       setattr(self, attr, val)
 
-  # save and restore a new builder
-  @contextmanager
-  def add_builder(self, block):
-    with self.stack('builder'):
-      self.builder = ir.IRBuilder(block)
-      yield self.builder
+  # mangle a name
+  def mangle(self, name):
+    return self.qname + '.' + name
+
+  # generate a unique name
+  def uniq(self, name):
+    ret = self.mangle('{}.{}'.format(name, self.name_counter))
+    self.name_counter += 1
+    return ret
+
+  ### Global helpers ###########################################################
 
   # main function
   @property
@@ -193,7 +246,14 @@ class Module(S.Scope):
         g.linkage = 'available_externally'
         g.initializer = val.initializer
 
-  # add a function body block
+  ### Block helpers ############################################################
+
+  @contextmanager
+  def add_builder(self, block):
+    with self.stack('builder'):
+      self.builder = ir.IRBuilder(block)
+      yield self.builder
+
   @contextmanager
   def add_func_body(self, func):
     with self.stack('ret_ptr', 'catchall'):
@@ -206,6 +266,12 @@ class Module(S.Scope):
 
       with self.add_builder(body):
         yield
+
+  @contextmanager
+  def add_main(self):
+    block = self.main.append_basic_block(name='entry')
+    with self.add_builder(block):
+      yield self.main
 
   @contextmanager
   def add_loop(self):
@@ -231,7 +297,7 @@ class Module(S.Scope):
         with self.goto(catch):
           lp = self.builder.landingpad(T.lp)
           lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-          self.call(self.extern('rain_catch'), ptr)
+          self.excall('rain_catch', ptr)
           self.builder.branch(branch)
 
       yield catcher
@@ -245,7 +311,7 @@ class Module(S.Scope):
         with self.goto(catch):
           lp = self.builder.landingpad(T.lp)
           lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-          self.call(self.extern('rain_abort'))
+          self.excall('rain_abort')
           self.builder.branch(branch)
 
       yield aborter
@@ -260,38 +326,47 @@ class Module(S.Scope):
     with self.builder.goto_entry_block():
       yield
 
-  @contextmanager
-  def add_main(self):
-    block = self.main.append_basic_block(name='entry')
-    with self.add_builder(block):
-      yield self.main
+  ### Box helpers ##############################################################
 
-  # box extractions
   def get_type(self, box):
-    return self.builder.extract_value(box, T.TYPE)
+    return self.extract(box, T.TYPE)
 
   def get_value(self, box, typ=None):
-    val = self.builder.extract_value(box, T.DATA)
+    val = self.extract(box, T.DATA)
     if isinstance(typ, T.func):
       return self.builder.inttoptr(val, T.ptr(typ))
 
     return val
 
   def get_size(self, box):
-    return self.builder.extract_value(box, T.SIZE)
+    return self.extract(box, T.SIZE)
+
+  def truthy(self, node):
+    box = self.emit(node)
+    return self.truthy_val(box)
+
+  def truthy_val(self, val):
+    typ = self.get_type(val)
+    val = self.get_value(val)
+    not_null = self.builder.icmp_unsigned('!=', typ, T.ityp.null)
+    not_zero = self.builder.icmp_unsigned('!=', val, T.i64(0))
+    return self.builder.and_(not_null, not_zero)
+
+  ### Function helpers #########################################################
 
   # allocate stack space for a function arguments, then call it
+  # only used for Rain functions! (eg they only take box *)
   def fncall(self, fn, *args, unwind=None):
     with self.builder.goto_entry_block():
-      ptrs = [self.builder.alloca(T.box) for arg in args]
+      ptrs = [self.alloc(T.box) for arg in args]
 
     for arg, ptr in zip(args, ptrs):
-      self.builder.store(arg, ptr)
+      self.store(arg, ptr)
 
-    val = self.call(fn, *ptrs, unwind=unwind)
-    return val, ptrs
+    self.call(fn, *ptrs, unwind=unwind)
+    return ptrs[0]
 
-  # call/invoke a function based on unwind
+  # call a function based on unwind
   def call(self, fn, *args, unwind=None):
     if self.catchall:
       unwind = self.catch
@@ -305,74 +380,43 @@ class Module(S.Scope):
 
     return val
 
+  # call an extern function
+  def excall(self, fn, *args, unwind=None):
+    return self.call(self.extern(fn), *args, unwind=unwind)
+
+  # allocate stack space and call an extern function
+  def exfncall(self, fn, *args, unwind=None):
+    return self.fncall(self.extern(fn), *args, unwind=unwind)
+
+  # add a trampoline
   def add_tramp(self, func_ptr, env_ptr):
-    tramp_buf = self.builder.call(self.extern('GC_malloc'), [T.i32(T.TRAMP_SIZE)])
+    tramp_buf = self.excall('GC_malloc', T.i32(T.TRAMP_SIZE))
     raw_func_ptr = self.builder.bitcast(func_ptr, T.ptr(T.i8))
     raw_env_ptr = self.builder.bitcast(env_ptr, T.ptr(T.i8))
 
-    self.builder.call(self.extern('llvm.init.trampoline'), [tramp_buf, raw_func_ptr, raw_env_ptr])
-    tramp_ptr = self.builder.call(self.extern('llvm.adjust.trampoline'), [tramp_buf])
+    self.excall('llvm.init.trampoline', tramp_buf, raw_func_ptr, raw_env_ptr)
+    tramp_ptr = self.excall('llvm.adjust.trampoline', tramp_buf)
     new_func_ptr = self.builder.bitcast(tramp_ptr, T.ptr(T.i8))
 
     return new_func_ptr
 
-  # normalize a name - remove all special characters and cases
-  @staticmethod
-  def normalize_name(name):
-    return name_chars.sub('', name.lower())
+  ### llvmlite shortcuts #######################################################
 
-  # find a rain file from a module identifier
-  @staticmethod
-  def find_rain(src, paths=[]):
-    paths = ['.'] + paths + os.getenv('RAINPATH', '').split(':') + [os.environ['RAINLIB']]
+  def alloc(self, typ, init=None, name=''):
+    ptr = self.builder.alloca(typ, name=name)
+    if init:
+      self.store(init, ptr)
 
-    for path in paths:
-      if os.path.isfile(join(path, src) + '.rn'):
-        return join(path, src) + '.rn'
-      elif os.path.isfile(join(path, src)) and src.endswith('.rn'):
-        return join(path, src)
-      elif os.path.isdir(join(path, src)) and os.path.isfile(join(path, src, '_pkg.rn')):
-        return join(path, src, '_pkg.rn')
+    return ptr
 
-  # find any file from a string
-  @staticmethod
-  def find_file(src, paths=[]):
-    paths = ['.'] + paths + os.getenv('RAINPATH', '').split(':') + [os.environ['RAINLIB']]
+  def store(self, val, ptr):
+    self.builder.store(val, ptr)
 
-    for path in paths:
-      if os.path.isfile(join(path, src)):
-        return join(path, src)
+  def load(self, ptr):
+    return self.builder.load(ptr)
 
-  # find a module name
-  @staticmethod
-  def find_name(src):
-    path = os.path.abspath(src)
-    path, name = os.path.split(path)
-    fname, ext = os.path.splitext(name)
+  def insert(self, container, value, idx):
+    return self.builder.insert_value(container, value, idx)
 
-    if fname == '_pkg':
-      _, fname = os.path.split(path)
-
-    mname = Module.normalize_name(fname)
-
-    proot = []
-    while path and os.path.isfile(join(path, '_pkg.rn')):
-      path, name = os.path.split(path)
-      proot.insert(0, Module.normalize_name(name))
-
-    if not src.endswith('_pkg.rn'):
-      proot.append(mname)
-
-    qname = '.'.join(proot)
-
-    return (qname, mname)
-
-  # mangle a name
-  def mangle(self, name):
-    return self.qname + '.' + name
-
-  # generate a unique name
-  def uniq(self, name):
-    ret = self.mangle('{}.{}'.format(name, self.name_counter))
-    self.name_counter += 1
-    return ret
+  def extract(self, container, idx):
+    return self.builder.extract_value(container, idx)

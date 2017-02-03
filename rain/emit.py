@@ -31,15 +31,14 @@ def emit(self, module):
 @program_node.method
 def emit_main(self, module):
   with module.add_main():
-    ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
-    module.builder.store(T.null, ret_ptr)
+    ret_ptr = module.alloc(T.box, T.null, name='ret_ptr')
 
     with module.add_abort() as abort:
-      module.call(module.extern('rain_main'), ret_ptr, module['main'], *module.main.args, unwind=module.catch)
+      module.excall('rain_main', ret_ptr, module['main'], *module.main.args, unwind=module.catch)
 
       abort(module.builder.block)
 
-      ret_code = module.call(module.extern('rain_box_to_exit'), ret_ptr)
+      ret_code = module.excall('rain_box_to_exit', ret_ptr)
       module.builder.ret(ret_code);
 
 @block_node.method
@@ -48,18 +47,6 @@ def emit(self, module):
     module.emit(stmt)
 
 # helpers
-
-def truthy(module, node):
-  box = module.emit(node)
-  return truthy_val(module, box)
-
-def truthy_val(module, val):
-  typ = module.get_type(val)
-  val = module.get_value(val)
-  not_null = module.builder.icmp_unsigned('!=', typ, T.ityp.null)
-  not_zero = module.builder.icmp_unsigned('!=', val, T.i64(0))
-  return module.builder.and_(not_null, not_zero)
-
 
 def static_table_put(module, table_ptr, column_ptr, key_node, key, val):
   table = table_ptr.initializer
@@ -179,7 +166,7 @@ def emit(self, module):
   ptr = None
 
   if isinstance(self.lhs, name_node):
-    if module.is_global: # global scope
+    if module.is_global:
       if self.export:
         column_ptr = module.find_global(T.column, name=module.mangle(self.lhs.value + '.export'))
         module[self.lhs.value] = column_ptr.gep([T.i32(0), T.i32(1)])
@@ -200,7 +187,7 @@ def emit(self, module):
     # emit this so a function can't close over its undefined binding
     if self.let:
       with module.goto_entry():
-        module[self.lhs] = module.builder.alloca(T.box)
+        module[self.lhs] = module.alloc(T.box)
         module[self.lhs].bound = False # cheesy hack - see @func_node
 
     rhs = module.emit(self.rhs)
@@ -209,10 +196,10 @@ def emit(self, module):
       module.panic("Undeclared name {!r}", self.lhs.value)
 
     module[self.lhs].bound = True
-    module.builder.store(rhs, module[self.lhs])
+    module.store(rhs, module[self.lhs])
 
   elif isinstance(self.lhs, idx_node):
-    if module.is_global: # global scope
+    if module.is_global:
       table_ptr = load_global(module, self.lhs.lhs).source
       key_node = self.lhs.rhs
       key = module.emit(key_node)
@@ -226,14 +213,14 @@ def emit(self, module):
     key = module.emit(self.lhs.rhs)
     val = module.emit(self.rhs)
 
-    module.fncall(module.extern('rain_put'), table, key, val)
+    module.exfncall('rain_put', table, key, val)
 
 @break_node.method
 def emit(self, module):
   if not self.cond:
     return module.builder.branch(module.after)
 
-  cond = truthy(module, self.cond)
+  cond = module.truthy(self.cond)
   nobreak = module.builder.append_basic_block('nobreak')
   module.builder.cbranch(cond, module.after, nobreak)
   module.builder.position_at_end(nobreak)
@@ -243,14 +230,14 @@ def emit(self, module):
   if not self.cond:
     return module.builder.branch(module.before)
 
-  cond = truthy(module, self.cond)
+  cond = module.truthy(self.cond)
   nocont = module.builder.append_basic_block('nocont')
   module.builder.cbranch(cond, module.before, nocont)
   module.builder.position_at_end(nocont)
 
 @export_foreign_node.method
 def emit(self, module):
-  if module.builder:
+  if module.is_local:
     module.panic("Can't export value {!r} as foreign at non-global scope", self.name)
 
   if self.name not in module:
@@ -258,16 +245,15 @@ def emit(self, module):
 
   glob = module.add_global(T.ptr(T.box), name=self.rename)
   glob.initializer = module[self.name]
-  #glob.initializer = load_global(module, self.name)
 
 @import_node.method
 def emit(self, module):
-  if module.builder: # non-global scope
+  if module.is_local:
     module.panic("Can't import module {!r} at non-global scope", self.name)
 
   # add the module's directory to the lookup path
   base, name = os.path.split(module.file)
-  file = M.Module.find_rain(self.name, paths=[base])
+  file = M.find_rain(self.name, paths=[base])
   if not file:
     module.panic("Can't find module {!r}", self.name)
 
@@ -286,11 +272,11 @@ def emit(self, module):
 
 @link_node.method
 def emit(self, module):
-  if module.builder: # non-global scope
+  if module.is_local:
     module.panic("Can't link file {!r} at non-global scope", self.name)
 
   base, name = os.path.split(module.file)
-  file = M.Module.find_file(self.name, paths=[base])
+  file = M.find_file(self.name, paths=[base])
   return file
 
 @pass_node.method
@@ -300,19 +286,19 @@ def emit(self, module):
 @return_node.method
 def emit(self, module):
   if self.value:
-    module.builder.store(module.emit(self.value), module.ret_ptr)
+    module.store(module.emit(self.value), module.ret_ptr)
 
   module.builder.ret_void()
 
 @save_node.method
 def emit(self, module):
-  module.builder.store(module.emit(self.value), module.ret_ptr)
+  module.store(module.emit(self.value), module.ret_ptr)
 
 # block statements
 
 @if_node.method
 def emit(self, module):
-  pred = truthy(module, self.pred)
+  pred = module.truthy(self.pred)
 
   if self.els:
     with module.builder.if_else(pred) as (then, els):
@@ -349,7 +335,7 @@ def emit(self, module):
 def emit(self, module):
   with module.add_loop() as (before, loop):
     with before:
-      module.builder.cbranch(truthy(module, self.pred), module.after, module.loop)
+      module.builder.cbranch(module.truthy(self.pred), module.after, module.loop)
 
     with loop:
       module.emit(self.body)
@@ -359,7 +345,7 @@ def emit(self, module):
 def emit(self, module):
   with module.add_loop() as (before, loop):
     with before:
-      module.builder.cbranch(truthy(module, self.pred), module.loop, module.after)
+      module.builder.cbranch(module.truthy(self.pred), module.loop, module.after)
 
     with loop:
       module.emit(self.body)
@@ -374,14 +360,14 @@ def emit(self, module):
 
   # set up the return pointer
   with module.goto_entry():
-    ret_ptr = module[self.name] = module.builder.alloca(T.box, name='for_var')
+    ret_ptr = module[self.name] = module.alloc(T.box, name='for_var')
 
   with module.add_loop() as (before, loop):
     with before:
       # call our function and break if it returns null
-      module.builder.store(T.null, ret_ptr)
+      module.store(T.null, ret_ptr)
       module.call(func_ptr, ret_ptr)
-      box = module.builder.load(ret_ptr)
+      box = module.load(ret_ptr)
       typ = module.get_type(box)
       not_null = module.builder.icmp_unsigned('!=', typ, T.ityp.null)
       module.builder.cbranch(not_null, module.loop, module.after)
@@ -393,9 +379,8 @@ def emit(self, module):
 @catch_node.method
 def emit(self, module):
   with module.goto_entry():
-    ret_ptr = module[self.name] = module.builder.alloca(T.box, name='exc_var')
+    ret_ptr = module[self.name] = module.alloc(T.box, T.null, name='exc_var')
 
-  module.builder.store(T.null, ret_ptr)
   end = module.builder.append_basic_block('end_catch')
 
   with module.add_catch(True) as catch:
@@ -412,10 +397,10 @@ def emit(self, module):
   if self.value not in module:
     module.panic("Unknown name {!r}", self.value)
 
-  if module.is_global: # global scope
+  if module.is_global:
     return load_global(module, self.value)
 
-  return module.builder.load(module[self.value])
+  return module.load(module[self.value])
 
 @null_node.method
 def emit(self, module):
@@ -444,21 +429,21 @@ def emit(self, module):
 
 @table_node.method
 def emit(self, module):
-  if module.is_global: # global scope
+  if module.is_global:
     return static_table_alloc(module, module.uniq('table'), metatable=self.metatable)
 
-  ptr = module.call(module.extern('rain_new_table'))
+  ptr = module.excall('rain_new_table')
 
   if self.metatable:
     val = module.emit(self.metatable)
 
     with module.goto_entry():
-      val_ptr = module.builder.alloca(T.box, name='key_ptr')
+      val_ptr = module.alloc(T.box, name='key_ptr')
 
-    module.builder.store(val, val_ptr)
-    module.call(module.extern('rain_put'), ptr, module.metatable_key, val_ptr)
+    module.store(val, val_ptr)
+    module.excall('rain_put', ptr, module.metatable_key, val_ptr)
 
-  return module.builder.load(ptr)
+  return module.load(ptr)
 
 @func_node.method
 def emit(self, module):
@@ -504,12 +489,12 @@ def emit(self, module):
         module.builder.ret_void()
 
   if env:
-    env_raw_ptr = module.call(module.extern('GC_malloc'), T.i32(T.BOX_SIZE * len(env)))
+    env_raw_ptr = module.excall('GC_malloc', T.i32(T.BOX_SIZE * len(env)))
     env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
 
     func = module.add_tramp(func, env_ptr)
     func_i64 = module.builder.ptrtoint(func, T.i64)
-    func_box = module.builder.insert_value(T._func(args=len(self.params)), func_i64, 1)
+    func_box = module.insert(T._func(args=len(self.params)), func_i64, 1)
 
     env_val = env_typ(None)
 
@@ -518,11 +503,11 @@ def emit(self, module):
       # have a bound value of False will be when it's the item
       # currently being bound, ie, it's this function
       if getattr(ptr, 'bound', None) == False:
-        env_val = module.builder.insert_value(env_val, func_box, i)
+        env_val = module.insert(env_val, func_box, i)
       else:
-        env_val = module.builder.insert_value(env_val, module.builder.load(ptr), i)
+        env_val = module.insert(env_val, module.load(ptr), i)
 
-    module.builder.store(env_val, env_ptr)
+    module.store(env_val, env_ptr)
 
     return func_box
 
@@ -538,22 +523,22 @@ def emit(self, module):
 
 def get_exception(module, name):
   glob = module.find_global(T.ptr(T.box), name)
-  return module.builder.load(glob)
+  return module.load(glob)
 
 def check_callable(module, box, args):
   func_typ = module.get_type(box)
   is_func = module.builder.icmp_unsigned('!=', T.ityp.func, func_typ)
   with module.builder.if_then(is_func):
-    module.call(module.extern('rain_throw'), get_exception(module, 'rain_exc_uncallable'))
+    module.excall('rain_throw', get_exception(module, 'rain_exc_uncallable'))
 
   exp_args = module.get_size(box)
   arg_match = module.builder.icmp_unsigned('!=', exp_args, T.i32(args))
   with module.builder.if_then(arg_match):
-    module.call(module.extern('rain_throw'), get_exception(module, 'rain_exc_arg_mismatch'))
+    module.excall('rain_throw', get_exception(module, 'rain_exc_arg_mismatch'))
 
 @call_node.method
 def emit(self, module):
-  if module.is_global: # global scope
+  if module.is_global:
     module.panic("Can't call functions at global scope")
 
   func_box = module.emit(self.func)
@@ -565,19 +550,18 @@ def emit(self, module):
 
   if self.catch:
     with module.add_catch() as catch:
-      _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes, unwind=module.catch)
+      ret_ptr = module.fncall(func_ptr, T.null, *arg_boxes, unwind=module.catch)
 
-      catch(ptrs[0], module.builder.block)
+      catch(ret_ptr, module.builder.block)
 
-      return module.builder.load(ptrs[0])
+      return module.load(ret_ptr)
 
-  _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
-  return module.builder.load(ptrs[0])
+  ret_ptr = module.fncall(func_ptr, T.null, *arg_boxes)
+  return module.load(ret_ptr)
 
 @idx_node.method
 def emit(self, module):
-  if module.is_global: # global scope
-
+  if module.is_global:
     # check if LHS is a module
     if getattr(module[self.lhs], 'mod', None):
       return load_global(module[self.lhs].mod, self.rhs)
@@ -592,21 +576,20 @@ def emit(self, module):
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
 
-  _, ptrs = module.fncall(module.extern('rain_get'), T.null, table, key)
-
-  return module.builder.load(ptrs[0])
+  ret_ptr = module.exfncall('rain_get', T.null, table, key)
+  return module.load(ret_ptr)
 
 @meth_node.method
 def emit(self, module):
-  if module.is_global: # global scope
+  if module.is_global:
     module.panic("Can't call methods at global scope")
 
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
 
-  _, ptrs = module.fncall(module.extern('rain_get'), T.null, table, key)
+  ret_ptr = module.exfncall('rain_get', T.null, table, key)
 
-  func_box = module.builder.load(ptrs[0])
+  func_box = module.load(ret_ptr)
   arg_boxes = [table] + [module.emit(arg) for arg in self.args]
   func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
 
@@ -614,62 +597,20 @@ def emit(self, module):
 
   if self.catch:
     with module.add_catch() as catch:
-      _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes, unwind=module.catch)
+      ret_ptr = module.fncall(func_ptr, T.null, *arg_boxes, unwind=module.catch)
 
-      catch(ptrs[0], module.builder.block)
+      catch(ret_ptr, module.builder.block)
 
-      return module.builder.load(ptrs[0])
+      return module.load(ret_ptr)
 
-  _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
-  return module.builder.load(ptrs[0])
-
-@bind_node.method
-def emit(self, module):
-  if module.is_global: # global scope
-    module.panic("Can't bind methods at global scope")
-
-  table = module.emit(self.lhs)
-  key = module.emit(self.rhs)
-
-  _, ptrs = module.fncall(module.extern('rain_get'), T.null, table, key)
-
-  bind_func_box = module.builder.load(ptrs[0])
-  check_callable(module, bind_func_box, 1)
-
-  env_typ = T.arr(T.box, 2)
-  typ = T.vfunc(T.ptr(env_typ), T.arg)
-  func = module.add_func(typ)
-  func.args[0].add_attribute('nest')
-  func.args[1].add_attribute('sret')
-
-  with module.add_func_body(func):
-    func_ptr = module.builder.gep(func.args[0], [T.i32(0), T.i32(0)])
-    self_ptr = module.builder.gep(func.args[0], [T.i32(0), T.i32(1)])
-
-    func_typ = T.vfunc(T.arg, T.arg)
-    real_func_box = module.builder.load(func_ptr)
-    real_func_ptr = module.get_value(real_func_box, typ=func_typ)
-
-    module.call(real_func_ptr, func.args[1], self_ptr)
-    module.builder.ret_void()
-
-  env_raw_ptr = module.call(module.extern('GC_malloc'), T.i32(T.BOX_SIZE * 2))
-  env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
-  env_val = env_typ(None)
-  env_val = module.builder.insert_value(env_val, bind_func_box, 0)
-  env_val = module.builder.insert_value(env_val, table, 1)
-  module.builder.store(env_val, env_ptr)
-
-  func = module.add_tramp(func, env_ptr)
-  func_i64 = module.builder.ptrtoint(func, T.i64)
-
-  return module.builder.insert_value(T._func(), func_i64, 1)
+  ret_ptr = module.fncall(func_ptr, T.null, *arg_boxes)
+  return module.load(ret_ptr)
 
 # operator expressions
 
 @unary_node.method
 def emit(self, module):
-  if module.is_global: # global scope
+  if module.is_global:
     module.panic("Can't use unary operators at global scope")
 
   arith = {
@@ -679,31 +620,30 @@ def emit(self, module):
 
   val = module.emit(self.val)
 
-  _, ptrs = module.fncall(module.extern(arith[self.op]), T.null, val)
-
-  return module.builder.load(ptrs[0])
+  ret_ptr = module.exfncall(arith[self.op], T.null, val)
+  return module.load(ret_ptr)
 
 @binary_node.method
 def emit(self, module):
-  if module.is_global: # global scope
+  if module.is_global:
     module.panic("Can't use binary operators at global scope")
 
   if self.op in ('|', '&'):
     with module.goto_entry():
-      res = module.builder.alloca(T.box)
+      res = module.alloc(T.box)
 
     lhs = module.emit(self.lhs)
-    module.builder.store(lhs, res)
+    module.store(lhs, res)
 
-    t = truthy_val(module, lhs)
+    t = module.truthy_val(lhs)
     if self.op == '|':
       t = module.builder.not_(t)
 
     with module.builder.if_then(t):
       rhs = module.emit(self.rhs)
-      module.builder.store(rhs, res)
+      module.store(rhs, res)
 
-    return module.builder.load(res)
+    return module.load(res)
 
   arith = {
     '+': 'rain_add',
@@ -725,17 +665,16 @@ def emit(self, module):
   lhs = module.emit(self.lhs)
   rhs = module.emit(self.rhs)
 
-  _, ptrs = module.fncall(module.extern(arith[self.op]), T.null, lhs, rhs)
-
-  return module.builder.load(ptrs[0])
+  ret_ptr = module.exfncall(arith[self.op], T.null, lhs, rhs)
+  return module.load(ret_ptr)
 
 @is_node.method
 def emit(self, module):
-  if module.is_global: # global scope
+  if module.is_global:
     module.panic("Can't check types at global scope")
 
   lhs = module.emit(self.lhs)
   lhs_typ = module.get_type(lhs)
   res = module.builder.icmp_unsigned('==', getattr(T.ityp, self.typ), lhs_typ)
   res = module.builder.zext(res, T.i64)
-  return module.builder.insert_value(T._bool(False), res, 1)
+  return module.insert(T._bool(False), res, 1)

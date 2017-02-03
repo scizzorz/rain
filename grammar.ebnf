@@ -41,7 +41,7 @@ simple :: 'func' fnparams ('->' expr | block)
         | INT | FLOAT | BOOL | STRING | NULL | TABLE ('from' expr)?
         | primary
 
-primary :: prefix ('?'? fnargs | ':' NAME ('?'? fnargs)? | '.' NAME | '[' expr ']')*
+primary :: prefix ('?'? fnargs | ':' NAME '?'? fnargs | '.' NAME | '[' expr ']')*
 
 prefix :: '(' expr ')'
         | NAME

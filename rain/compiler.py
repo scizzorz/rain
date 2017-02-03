@@ -44,7 +44,7 @@ class Compiler:
 
   def __init__(self, file, target=None, main=False):
     self.file = file
-    self.qname, self.mname = M.Module.find_name(file)
+    self.qname, self.mname = M.find_name(file)
     self.target = target
     self.main = main
     self.lib = ENV['RAINLIB']
