@@ -48,18 +48,6 @@ def emit(self, module):
 
 # helpers
 
-def truthy(module, node):
-  box = module.emit(node)
-  return truthy_val(module, box)
-
-def truthy_val(module, val):
-  typ = module.get_type(val)
-  val = module.get_value(val)
-  not_null = module.builder.icmp_unsigned('!=', typ, T.ityp.null)
-  not_zero = module.builder.icmp_unsigned('!=', val, T.i64(0))
-  return module.builder.and_(not_null, not_zero)
-
-
 def static_table_put(module, table_ptr, column_ptr, key_node, key, val):
   table = table_ptr.initializer
 
@@ -232,7 +220,7 @@ def emit(self, module):
   if not self.cond:
     return module.builder.branch(module.after)
 
-  cond = truthy(module, self.cond)
+  cond = module.truthy(self.cond)
   nobreak = module.builder.append_basic_block('nobreak')
   module.builder.cbranch(cond, module.after, nobreak)
   module.builder.position_at_end(nobreak)
@@ -242,7 +230,7 @@ def emit(self, module):
   if not self.cond:
     return module.builder.branch(module.before)
 
-  cond = truthy(module, self.cond)
+  cond = module.truthy(self.cond)
   nocont = module.builder.append_basic_block('nocont')
   module.builder.cbranch(cond, module.before, nocont)
   module.builder.position_at_end(nocont)
@@ -310,7 +298,7 @@ def emit(self, module):
 
 @if_node.method
 def emit(self, module):
-  pred = truthy(module, self.pred)
+  pred = module.truthy(self.pred)
 
   if self.els:
     with module.builder.if_else(pred) as (then, els):
@@ -347,7 +335,7 @@ def emit(self, module):
 def emit(self, module):
   with module.add_loop() as (before, loop):
     with before:
-      module.builder.cbranch(truthy(module, self.pred), module.after, module.loop)
+      module.builder.cbranch(module.truthy(self.pred), module.after, module.loop)
 
     with loop:
       module.emit(self.body)
@@ -357,7 +345,7 @@ def emit(self, module):
 def emit(self, module):
   with module.add_loop() as (before, loop):
     with before:
-      module.builder.cbranch(truthy(module, self.pred), module.loop, module.after)
+      module.builder.cbranch(module.truthy(self.pred), module.loop, module.after)
 
     with loop:
       module.emit(self.body)
@@ -647,7 +635,7 @@ def emit(self, module):
     lhs = module.emit(self.lhs)
     module.store(lhs, res)
 
-    t = truthy_val(module, lhs)
+    t = module.truthy_val(lhs)
     if self.op == '|':
       t = module.builder.not_(t)
 

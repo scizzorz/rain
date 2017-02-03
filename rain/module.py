@@ -341,6 +341,17 @@ class Module(S.Scope):
   def get_size(self, box):
     return self.extract(box, T.SIZE)
 
+  def truthy(self, node):
+    box = self.emit(node)
+    return self.truthy_val(box)
+
+  def truthy_val(self, val):
+    typ = self.get_type(val)
+    val = self.get_value(val)
+    not_null = self.builder.icmp_unsigned('!=', typ, T.ityp.null)
+    not_zero = self.builder.icmp_unsigned('!=', val, T.i64(0))
+    return self.builder.and_(not_null, not_zero)
+
   ### Function helpers #########################################################
 
   # allocate stack space for a function arguments, then call it
