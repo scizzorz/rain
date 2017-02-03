@@ -179,7 +179,7 @@ def emit(self, module):
   ptr = None
 
   if isinstance(self.lhs, name_node):
-    if module.is_global: # global scope
+    if module.is_global:
       if self.export:
         column_ptr = module.find_global(T.column, name=module.mangle(self.lhs.value + '.export'))
         module[self.lhs.value] = column_ptr.gep([T.i32(0), T.i32(1)])
@@ -212,7 +212,7 @@ def emit(self, module):
     module.builder.store(rhs, module[self.lhs])
 
   elif isinstance(self.lhs, idx_node):
-    if module.is_global: # global scope
+    if module.is_global:
       table_ptr = load_global(module, self.lhs.lhs).source
       key_node = self.lhs.rhs
       key = module.emit(key_node)
@@ -250,7 +250,7 @@ def emit(self, module):
 
 @export_foreign_node.method
 def emit(self, module):
-  if module.builder:
+  if module.is_local:
     module.panic("Can't export value {!r} as foreign at non-global scope", self.name)
 
   if self.name not in module:
@@ -258,11 +258,10 @@ def emit(self, module):
 
   glob = module.add_global(T.ptr(T.box), name=self.rename)
   glob.initializer = module[self.name]
-  #glob.initializer = load_global(module, self.name)
 
 @import_node.method
 def emit(self, module):
-  if module.builder: # non-global scope
+  if module.is_local:
     module.panic("Can't import module {!r} at non-global scope", self.name)
 
   # add the module's directory to the lookup path
@@ -286,7 +285,7 @@ def emit(self, module):
 
 @link_node.method
 def emit(self, module):
-  if module.builder: # non-global scope
+  if module.is_local:
     module.panic("Can't link file {!r} at non-global scope", self.name)
 
   base, name = os.path.split(module.file)
@@ -412,7 +411,7 @@ def emit(self, module):
   if self.value not in module:
     module.panic("Unknown name {!r}", self.value)
 
-  if module.is_global: # global scope
+  if module.is_global:
     return load_global(module, self.value)
 
   return module.builder.load(module[self.value])
@@ -444,7 +443,7 @@ def emit(self, module):
 
 @table_node.method
 def emit(self, module):
-  if module.is_global: # global scope
+  if module.is_global:
     return static_table_alloc(module, module.uniq('table'), metatable=self.metatable)
 
   ptr = module.call(module.extern('rain_new_table'))
@@ -553,7 +552,7 @@ def check_callable(module, box, args):
 
 @call_node.method
 def emit(self, module):
-  if module.is_global: # global scope
+  if module.is_global:
     module.panic("Can't call functions at global scope")
 
   func_box = module.emit(self.func)
@@ -576,7 +575,7 @@ def emit(self, module):
 
 @idx_node.method
 def emit(self, module):
-  if module.is_global: # global scope
+  if module.is_global:
 
     # check if LHS is a module
     if getattr(module[self.lhs], 'mod', None):
@@ -598,7 +597,7 @@ def emit(self, module):
 
 @meth_node.method
 def emit(self, module):
-  if module.is_global: # global scope
+  if module.is_global:
     module.panic("Can't call methods at global scope")
 
   table = module.emit(self.lhs)
@@ -625,7 +624,7 @@ def emit(self, module):
 
 @bind_node.method
 def emit(self, module):
-  if module.is_global: # global scope
+  if module.is_global:
     module.panic("Can't bind methods at global scope")
 
   table = module.emit(self.lhs)
@@ -669,7 +668,7 @@ def emit(self, module):
 
 @unary_node.method
 def emit(self, module):
-  if module.is_global: # global scope
+  if module.is_global:
     module.panic("Can't use unary operators at global scope")
 
   arith = {
@@ -685,7 +684,7 @@ def emit(self, module):
 
 @binary_node.method
 def emit(self, module):
-  if module.is_global: # global scope
+  if module.is_global:
     module.panic("Can't use binary operators at global scope")
 
   if self.op in ('|', '&'):
@@ -731,7 +730,7 @@ def emit(self, module):
 
 @is_node.method
 def emit(self, module):
-  if module.is_global: # global scope
+  if module.is_global:
     module.panic("Can't check types at global scope")
 
   lhs = module.emit(self.lhs)
