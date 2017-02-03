@@ -131,11 +131,19 @@ class Module(S.Scope):
 
     self.name_counter = 0
 
+  def __str__(self):
+    return 'Module {!r}'.format(self.qname)
+
+  def __repr__(self):
+    return '<{!s}>'.format(self)
+
+  # wrapper to emit IR for a node
   def emit(self, node):
     with self.stack('coord'):
       self.coord = getattr(node, 'origin', (0, 0))
       return node.emit(self)
 
+  # raise a formatted exception
   def panic(self, fmt, *args):
     prefix = ''
     if self.qname:
@@ -164,12 +172,6 @@ class Module(S.Scope):
   def is_local(self):
     return bool(self.builder)
 
-  def __str__(self):
-    return 'Module {!r}'.format(self.qname)
-
-  def __repr__(self):
-    return '<{!s}>'.format(self)
-
   # save and restore some module attributes around a code block
   @contextmanager
   def stack(self, *attrs):
@@ -178,12 +180,17 @@ class Module(S.Scope):
     for attr, val in zip(attrs, saved):
       setattr(self, attr, val)
 
-  # save and restore a new builder
-  @contextmanager
-  def add_builder(self, block):
-    with self.stack('builder'):
-      self.builder = ir.IRBuilder(block)
-      yield self.builder
+  # mangle a name
+  def mangle(self, name):
+    return self.qname + '.' + name
+
+  # generate a unique name
+  def uniq(self, name):
+    ret = self.mangle('{}.{}'.format(name, self.name_counter))
+    self.name_counter += 1
+    return ret
+
+  ### Global helpers ###########################################################
 
   # main function
   @property
@@ -239,7 +246,14 @@ class Module(S.Scope):
         g.linkage = 'available_externally'
         g.initializer = val.initializer
 
-  # add a function body block
+  ### Block helpers ############################################################
+
+  @contextmanager
+  def add_builder(self, block):
+    with self.stack('builder'):
+      self.builder = ir.IRBuilder(block)
+      yield self.builder
+
   @contextmanager
   def add_func_body(self, func):
     with self.stack('ret_ptr', 'catchall'):
@@ -252,6 +266,12 @@ class Module(S.Scope):
 
       with self.add_builder(body):
         yield
+
+  @contextmanager
+  def add_main(self):
+    block = self.main.append_basic_block(name='entry')
+    with self.add_builder(block):
+      yield self.main
 
   @contextmanager
   def add_loop(self):
@@ -306,13 +326,8 @@ class Module(S.Scope):
     with self.builder.goto_entry_block():
       yield
 
-  @contextmanager
-  def add_main(self):
-    block = self.main.append_basic_block(name='entry')
-    with self.add_builder(block):
-      yield self.main
+  ### Box helpers ##############################################################
 
-  # box extractions
   def get_type(self, box):
     return self.builder.extract_value(box, T.TYPE)
 
@@ -326,6 +341,8 @@ class Module(S.Scope):
   def get_size(self, box):
     return self.builder.extract_value(box, T.SIZE)
 
+  ### Function helpers #########################################################
+
   # allocate stack space for a function arguments, then call it
   def fncall(self, fn, *args, unwind=None):
     with self.builder.goto_entry_block():
@@ -337,11 +354,11 @@ class Module(S.Scope):
     val = self.call(fn, *ptrs, unwind=unwind)
     return val, ptrs
 
-  # call/invoke an extern function
+  # call an extern function
   def excall(self, fn, *args, unwind=None):
     return self.call(self.extern(fn), *args, unwind=unwind)
 
-  # call/invoke a function based on unwind
+  # call a function based on unwind
   def call(self, fn, *args, unwind=None):
     if self.catchall:
       unwind = self.catch
@@ -355,6 +372,7 @@ class Module(S.Scope):
 
     return val
 
+  # add a trampoline
   def add_tramp(self, func_ptr, env_ptr):
     tramp_buf = self.excall('GC_malloc', T.i32(T.TRAMP_SIZE))
     raw_func_ptr = self.builder.bitcast(func_ptr, T.ptr(T.i8))
@@ -365,13 +383,3 @@ class Module(S.Scope):
     new_func_ptr = self.builder.bitcast(tramp_ptr, T.ptr(T.i8))
 
     return new_func_ptr
-
-  # mangle a name
-  def mangle(self, name):
-    return self.qname + '.' + name
-
-  # generate a unique name
-  def uniq(self, name):
-    ret = self.mangle('{}.{}'.format(name, self.name_counter))
-    self.name_counter += 1
-    return ret
