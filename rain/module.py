@@ -349,7 +349,7 @@ class Module(S.Scope):
       ptrs = [self.alloc(T.box) for arg in args]
 
     for arg, ptr in zip(args, ptrs):
-      self.builder.store(arg, ptr)
+      self.store(arg, ptr)
 
     val = self.call(fn, *ptrs, unwind=unwind)
     return val, ptrs
@@ -389,6 +389,12 @@ class Module(S.Scope):
   def alloc(self, typ, init=None, name=''):
     ptr = self.builder.alloca(typ, name=name)
     if init:
-      self.builder.store(init, ptr)
+      self.store(init, ptr)
 
     return ptr
+
+  def store(self, val, ptr):
+    self.builder.store(val, ptr)
+
+  def load(self, ptr):
+    return self.builder.load(ptr)

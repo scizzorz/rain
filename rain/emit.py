@@ -208,7 +208,7 @@ def emit(self, module):
       module.panic("Undeclared name {!r}", self.lhs.value)
 
     module[self.lhs].bound = True
-    module.builder.store(rhs, module[self.lhs])
+    module.store(rhs, module[self.lhs])
 
   elif isinstance(self.lhs, idx_node):
     if module.is_global:
@@ -298,13 +298,13 @@ def emit(self, module):
 @return_node.method
 def emit(self, module):
   if self.value:
-    module.builder.store(module.emit(self.value), module.ret_ptr)
+    module.store(module.emit(self.value), module.ret_ptr)
 
   module.builder.ret_void()
 
 @save_node.method
 def emit(self, module):
-  module.builder.store(module.emit(self.value), module.ret_ptr)
+  module.store(module.emit(self.value), module.ret_ptr)
 
 # block statements
 
@@ -377,9 +377,9 @@ def emit(self, module):
   with module.add_loop() as (before, loop):
     with before:
       # call our function and break if it returns null
-      module.builder.store(T.null, ret_ptr)
+      module.store(T.null, ret_ptr)
       module.call(func_ptr, ret_ptr)
-      box = module.builder.load(ret_ptr)
+      box = module.load(ret_ptr)
       typ = module.get_type(box)
       not_null = module.builder.icmp_unsigned('!=', typ, T.ityp.null)
       module.builder.cbranch(not_null, module.loop, module.after)
@@ -412,7 +412,7 @@ def emit(self, module):
   if module.is_global:
     return load_global(module, self.value)
 
-  return module.builder.load(module[self.value])
+  return module.load(module[self.value])
 
 @null_node.method
 def emit(self, module):
@@ -452,10 +452,10 @@ def emit(self, module):
     with module.goto_entry():
       val_ptr = module.alloc(T.box, name='key_ptr')
 
-    module.builder.store(val, val_ptr)
+    module.store(val, val_ptr)
     module.excall('rain_put', ptr, module.metatable_key, val_ptr)
 
-  return module.builder.load(ptr)
+  return module.load(ptr)
 
 @func_node.method
 def emit(self, module):
@@ -517,9 +517,9 @@ def emit(self, module):
       if getattr(ptr, 'bound', None) == False:
         env_val = module.builder.insert_value(env_val, func_box, i)
       else:
-        env_val = module.builder.insert_value(env_val, module.builder.load(ptr), i)
+        env_val = module.builder.insert_value(env_val, module.load(ptr), i)
 
-    module.builder.store(env_val, env_ptr)
+    module.store(env_val, env_ptr)
 
     return func_box
 
@@ -535,7 +535,7 @@ def emit(self, module):
 
 def get_exception(module, name):
   glob = module.find_global(T.ptr(T.box), name)
-  return module.builder.load(glob)
+  return module.load(glob)
 
 def check_callable(module, box, args):
   func_typ = module.get_type(box)
@@ -566,10 +566,10 @@ def emit(self, module):
 
       catch(ptrs[0], module.builder.block)
 
-      return module.builder.load(ptrs[0])
+      return module.load(ptrs[0])
 
   _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
-  return module.builder.load(ptrs[0])
+  return module.load(ptrs[0])
 
 @idx_node.method
 def emit(self, module):
@@ -591,7 +591,7 @@ def emit(self, module):
 
   _, ptrs = module.fncall(module.extern('rain_get'), T.null, table, key)
 
-  return module.builder.load(ptrs[0])
+  return module.load(ptrs[0])
 
 @meth_node.method
 def emit(self, module):
@@ -603,7 +603,7 @@ def emit(self, module):
 
   _, ptrs = module.fncall(module.extern('rain_get'), T.null, table, key)
 
-  func_box = module.builder.load(ptrs[0])
+  func_box = module.load(ptrs[0])
   arg_boxes = [table] + [module.emit(arg) for arg in self.args]
   func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
 
@@ -615,10 +615,10 @@ def emit(self, module):
 
       catch(ptrs[0], module.builder.block)
 
-      return module.builder.load(ptrs[0])
+      return module.load(ptrs[0])
 
   _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
-  return module.builder.load(ptrs[0])
+  return module.load(ptrs[0])
 
 # operator expressions
 
@@ -636,7 +636,7 @@ def emit(self, module):
 
   _, ptrs = module.fncall(module.extern(arith[self.op]), T.null, val)
 
-  return module.builder.load(ptrs[0])
+  return module.load(ptrs[0])
 
 @binary_node.method
 def emit(self, module):
@@ -648,7 +648,7 @@ def emit(self, module):
       res = module.alloc(T.box)
 
     lhs = module.emit(self.lhs)
-    module.builder.store(lhs, res)
+    module.store(lhs, res)
 
     t = truthy_val(module, lhs)
     if self.op == '|':
@@ -656,9 +656,9 @@ def emit(self, module):
 
     with module.builder.if_then(t):
       rhs = module.emit(self.rhs)
-      module.builder.store(rhs, res)
+      module.store(rhs, res)
 
-    return module.builder.load(res)
+    return module.load(res)
 
   arith = {
     '+': 'rain_add',
@@ -682,7 +682,7 @@ def emit(self, module):
 
   _, ptrs = module.fncall(module.extern(arith[self.op]), T.null, lhs, rhs)
 
-  return module.builder.load(ptrs[0])
+  return module.load(ptrs[0])
 
 @is_node.method
 def emit(self, module):
