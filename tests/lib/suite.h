@@ -6,3 +6,5 @@
    Here, we mock these variables
 */
 box rain_args;
+
+box rain_exc_pcre_cannot_compile;

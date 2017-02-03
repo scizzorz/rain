@@ -166,7 +166,7 @@ class Compiler:
     with self.okay('compiling'):
       target = self.target or self.mname
       clang = os.getenv('CLANG', 'clang')
-      flags = ['-O2', '-lgc', '-lm']
+      flags = ['-O2', '-lgc', '-lm', '-lpcre']
       cmd = [clang, '-o', target, self.ll] + flags + list(self.links)
       subprocess.check_call(cmd)
 
