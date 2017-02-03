@@ -622,48 +622,6 @@ def emit(self, module):
   _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
   return module.builder.load(ptrs[0])
 
-@bind_node.method
-def emit(self, module):
-  if module.is_global:
-    module.panic("Can't bind methods at global scope")
-
-  table = module.emit(self.lhs)
-  key = module.emit(self.rhs)
-
-  _, ptrs = module.fncall(module.extern('rain_get'), T.null, table, key)
-
-  bind_func_box = module.builder.load(ptrs[0])
-  check_callable(module, bind_func_box, 1)
-
-  env_typ = T.arr(T.box, 2)
-  typ = T.vfunc(T.ptr(env_typ), T.arg)
-  func = module.add_func(typ)
-  func.args[0].add_attribute('nest')
-  func.args[1].add_attribute('sret')
-
-  with module.add_func_body(func):
-    func_ptr = module.builder.gep(func.args[0], [T.i32(0), T.i32(0)])
-    self_ptr = module.builder.gep(func.args[0], [T.i32(0), T.i32(1)])
-
-    func_typ = T.vfunc(T.arg, T.arg)
-    real_func_box = module.builder.load(func_ptr)
-    real_func_ptr = module.get_value(real_func_box, typ=func_typ)
-
-    module.call(real_func_ptr, func.args[1], self_ptr)
-    module.builder.ret_void()
-
-  env_raw_ptr = module.excall('GC_malloc', T.i32(T.BOX_SIZE * 2))
-  env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
-  env_val = env_typ(None)
-  env_val = module.builder.insert_value(env_val, bind_func_box, 0)
-  env_val = module.builder.insert_value(env_val, table, 1)
-  module.builder.store(env_val, env_ptr)
-
-  func = module.add_tramp(func, env_ptr)
-  func_i64 = module.builder.ptrtoint(func, T.i64)
-
-  return module.builder.insert_value(T._func(), func_i64, 1)
-
 # operator expressions
 
 @unary_node.method

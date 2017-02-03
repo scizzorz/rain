@@ -389,7 +389,7 @@ def simple(ctx):
 
   return primary(ctx)
 
-# primary :: prefix ('?'? fnargs | ':' NAME ('?'? fnargs)? | '.' NAME | '[' expr ']')*
+# primary :: prefix ('?'? fnargs | ':' NAME '?'? fnargs | '.' NAME | '[' expr ']')*
 def primary(ctx):
   node = prefix(ctx)
 
@@ -408,14 +408,10 @@ def primary(ctx):
       name = ctx.require(K.name_token).value
       rhs = A.str_node(name)
 
-      if ctx.consume(K.symbol_token('?')):
-        args = fnargs(ctx)
-        node = A.meth_node(node, rhs, args, catch=True)
-      elif ctx.expect(K.symbol_token('(')):
-        args = fnargs(ctx)
-        node = A.meth_node(node, rhs, args)
-      else:
-        node = A.bind_node(node, rhs)
+      catch = bool(ctx.consume(K.symbol_token('?')))
+
+      args = fnargs(ctx)
+      node = A.meth_node(node, rhs, args, catch=catch)
 
       continue
 

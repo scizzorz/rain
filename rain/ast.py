@@ -292,15 +292,6 @@ class meth_node(node):
     self.args = args
     self.catch = catch
 
-class bind_node(node):
-  __tag__ = 'binding'
-  __version__ = 1
-  __slots__ = ['lhs', 'rhs']
-
-  def __init__(self, lhs, rhs):
-    self.lhs = lhs
-    self.rhs = rhs
-
 class is_node(node):
   __tag__ = 'is'
   __version__ = 1
