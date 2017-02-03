@@ -266,7 +266,7 @@ def emit(self, module):
 
   # add the module's directory to the lookup path
   base, name = os.path.split(module.file)
-  file = M.Module.find_rain(self.name, paths=[base])
+  file = M.find_rain(self.name, paths=[base])
   if not file:
     module.panic("Can't find module {!r}", self.name)
 
@@ -289,7 +289,7 @@ def emit(self, module):
     module.panic("Can't link file {!r} at non-global scope", self.name)
 
   base, name = os.path.split(module.file)
-  file = M.Module.find_file(self.name, paths=[base])
+  file = M.find_file(self.name, paths=[base])
   return file
 
 @pass_node.method

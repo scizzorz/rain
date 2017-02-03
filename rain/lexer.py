@@ -45,7 +45,7 @@ def factory(data, *, line=None, col=None):
   elif data.lower() in TYPES:
     return type_token(data.lower(), line=line, col=col)
   else:
-    return name_token(M.Module.normalize_name(data), line=line, col=col)
+    return name_token(M.normalize_name(data), line=line, col=col)
 
 raw = OrderedDict()
 raw[r'#.*'] = None

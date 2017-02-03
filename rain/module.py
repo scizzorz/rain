@@ -9,8 +9,54 @@ import re
 from . import types as T
 from . import scope as S
 
-
 name_chars = re.compile('[^a-z0-9]')
+
+# normalize a name - remove all special characters and cases
+def normalize_name(name):
+  return name_chars.sub('', name.lower())
+
+# find a rain file from a module identifier
+def find_rain(src, paths=[]):
+  paths = ['.'] + paths + os.getenv('RAINPATH', '').split(':') + [os.environ['RAINLIB']]
+
+  for path in paths:
+    if os.path.isfile(join(path, src) + '.rn'):
+      return join(path, src) + '.rn'
+    elif os.path.isfile(join(path, src)) and src.endswith('.rn'):
+      return join(path, src)
+    elif os.path.isdir(join(path, src)) and os.path.isfile(join(path, src, '_pkg.rn')):
+      return join(path, src, '_pkg.rn')
+
+# find any file from a string
+def find_file(src, paths=[]):
+  paths = ['.'] + paths + os.getenv('RAINPATH', '').split(':') + [os.environ['RAINLIB']]
+
+  for path in paths:
+    if os.path.isfile(join(path, src)):
+      return join(path, src)
+
+# find a module name
+def find_name(src):
+  path = os.path.abspath(src)
+  path, name = os.path.split(path)
+  fname, ext = os.path.splitext(name)
+
+  if fname == '_pkg':
+    _, fname = os.path.split(path)
+
+  mname = normalize_name(fname)
+
+  proot = []
+  while path and os.path.isfile(join(path, '_pkg.rn')):
+    path, name = os.path.split(path)
+    proot.insert(0, normalize_name(name))
+
+  if not src.endswith('_pkg.rn'):
+    proot.append(mname)
+
+  qname = '.'.join(proot)
+
+  return (qname, mname)
 
 externs = {
   'GC_malloc': T.func(T.ptr(T.i8), [T.i32]),
@@ -62,7 +108,7 @@ class Module(S.Scope):
     S.Scope.__init__(self)
 
     self.file = file
-    self.qname, self.mname = Module.find_name(self.file)
+    self.qname, self.mname = find_name(self.file)
     self.llvm = ir.Module(name=self.qname)
     self.llvm.triple = binding.get_default_triple()
 
@@ -315,57 +361,6 @@ class Module(S.Scope):
     new_func_ptr = self.builder.bitcast(tramp_ptr, T.ptr(T.i8))
 
     return new_func_ptr
-
-  # normalize a name - remove all special characters and cases
-  @staticmethod
-  def normalize_name(name):
-    return name_chars.sub('', name.lower())
-
-  # find a rain file from a module identifier
-  @staticmethod
-  def find_rain(src, paths=[]):
-    paths = ['.'] + paths + os.getenv('RAINPATH', '').split(':') + [os.environ['RAINLIB']]
-
-    for path in paths:
-      if os.path.isfile(join(path, src) + '.rn'):
-        return join(path, src) + '.rn'
-      elif os.path.isfile(join(path, src)) and src.endswith('.rn'):
-        return join(path, src)
-      elif os.path.isdir(join(path, src)) and os.path.isfile(join(path, src, '_pkg.rn')):
-        return join(path, src, '_pkg.rn')
-
-  # find any file from a string
-  @staticmethod
-  def find_file(src, paths=[]):
-    paths = ['.'] + paths + os.getenv('RAINPATH', '').split(':') + [os.environ['RAINLIB']]
-
-    for path in paths:
-      if os.path.isfile(join(path, src)):
-        return join(path, src)
-
-  # find a module name
-  @staticmethod
-  def find_name(src):
-    path = os.path.abspath(src)
-    path, name = os.path.split(path)
-    fname, ext = os.path.splitext(name)
-
-    if fname == '_pkg':
-      _, fname = os.path.split(path)
-
-    mname = Module.normalize_name(fname)
-
-    proot = []
-    while path and os.path.isfile(join(path, '_pkg.rn')):
-      path, name = os.path.split(path)
-      proot.insert(0, Module.normalize_name(name))
-
-    if not src.endswith('_pkg.rn'):
-      proot.append(mname)
-
-    qname = '.'.join(proot)
-
-    return (qname, mname)
 
   # mangle a name
   def mangle(self, name):
