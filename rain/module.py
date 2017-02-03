@@ -346,7 +346,7 @@ class Module(S.Scope):
   # allocate stack space for a function arguments, then call it
   def fncall(self, fn, *args, unwind=None):
     with self.builder.goto_entry_block():
-      ptrs = [self.builder.alloca(T.box) for arg in args]
+      ptrs = [self.alloc(T.box) for arg in args]
 
     for arg, ptr in zip(args, ptrs):
       self.builder.store(arg, ptr)
@@ -383,3 +383,12 @@ class Module(S.Scope):
     new_func_ptr = self.builder.bitcast(tramp_ptr, T.ptr(T.i8))
 
     return new_func_ptr
+
+  ### llvmlite shortcuts #######################################################
+
+  def alloc(self, typ, init=None, name=''):
+    ptr = self.builder.alloca(typ, name=name)
+    if init:
+      self.builder.store(init, ptr)
+
+    return ptr

@@ -31,8 +31,7 @@ def emit(self, module):
 @program_node.method
 def emit_main(self, module):
   with module.add_main():
-    ret_ptr = module.builder.alloca(T.box, name='ret_ptr')
-    module.builder.store(T.null, ret_ptr)
+    ret_ptr = module.alloc(T.box, T.null, name='ret_ptr')
 
     with module.add_abort() as abort:
       module.excall('rain_main', ret_ptr, module['main'], *module.main.args, unwind=module.catch)
@@ -200,7 +199,7 @@ def emit(self, module):
     # emit this so a function can't close over its undefined binding
     if self.let:
       with module.goto_entry():
-        module[self.lhs] = module.builder.alloca(T.box)
+        module[self.lhs] = module.alloc(T.box)
         module[self.lhs].bound = False # cheesy hack - see @func_node
 
     rhs = module.emit(self.rhs)
@@ -373,7 +372,7 @@ def emit(self, module):
 
   # set up the return pointer
   with module.goto_entry():
-    ret_ptr = module[self.name] = module.builder.alloca(T.box, name='for_var')
+    ret_ptr = module[self.name] = module.alloc(T.box, name='for_var')
 
   with module.add_loop() as (before, loop):
     with before:
@@ -392,9 +391,8 @@ def emit(self, module):
 @catch_node.method
 def emit(self, module):
   with module.goto_entry():
-    ret_ptr = module[self.name] = module.builder.alloca(T.box, name='exc_var')
+    ret_ptr = module[self.name] = module.alloc(T.box, T.null, name='exc_var')
 
-  module.builder.store(T.null, ret_ptr)
   end = module.builder.append_basic_block('end_catch')
 
   with module.add_catch(True) as catch:
@@ -452,7 +450,7 @@ def emit(self, module):
     val = module.emit(self.metatable)
 
     with module.goto_entry():
-      val_ptr = module.builder.alloca(T.box, name='key_ptr')
+      val_ptr = module.alloc(T.box, name='key_ptr')
 
     module.builder.store(val, val_ptr)
     module.excall('rain_put', ptr, module.metatable_key, val_ptr)
@@ -647,7 +645,7 @@ def emit(self, module):
 
   if self.op in ('|', '&'):
     with module.goto_entry():
-      res = module.builder.alloca(T.box)
+      res = module.alloc(T.box)
 
     lhs = module.emit(self.lhs)
     module.builder.store(lhs, res)
