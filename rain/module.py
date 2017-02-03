@@ -344,6 +344,7 @@ class Module(S.Scope):
   ### Function helpers #########################################################
 
   # allocate stack space for a function arguments, then call it
+  # only used for Rain functions! (eg they only take box *)
   def fncall(self, fn, *args, unwind=None):
     with self.builder.goto_entry_block():
       ptrs = [self.alloc(T.box) for arg in args]
@@ -351,8 +352,8 @@ class Module(S.Scope):
     for arg, ptr in zip(args, ptrs):
       self.store(arg, ptr)
 
-    val = self.call(fn, *ptrs, unwind=unwind)
-    return val, ptrs
+    self.call(fn, *ptrs, unwind=unwind)
+    return ptrs
 
   # call a function based on unwind
   def call(self, fn, *args, unwind=None):

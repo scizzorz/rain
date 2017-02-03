@@ -562,13 +562,13 @@ def emit(self, module):
 
   if self.catch:
     with module.add_catch() as catch:
-      _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes, unwind=module.catch)
+      ptrs = module.fncall(func_ptr, T.null, *arg_boxes, unwind=module.catch)
 
       catch(ptrs[0], module.builder.block)
 
       return module.load(ptrs[0])
 
-  _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
+  ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
   return module.load(ptrs[0])
 
 @idx_node.method
@@ -589,8 +589,7 @@ def emit(self, module):
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
 
-  _, ptrs = module.exfncall('rain_get', T.null, table, key)
-
+  ptrs = module.exfncall('rain_get', T.null, table, key)
   return module.load(ptrs[0])
 
 @meth_node.method
@@ -601,7 +600,7 @@ def emit(self, module):
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
 
-  _, ptrs = module.exfncall('rain_get', T.null, table, key)
+  ptrs = module.exfncall('rain_get', T.null, table, key)
 
   func_box = module.load(ptrs[0])
   arg_boxes = [table] + [module.emit(arg) for arg in self.args]
@@ -611,13 +610,13 @@ def emit(self, module):
 
   if self.catch:
     with module.add_catch() as catch:
-      _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes, unwind=module.catch)
+      ptrs = module.fncall(func_ptr, T.null, *arg_boxes, unwind=module.catch)
 
       catch(ptrs[0], module.builder.block)
 
       return module.load(ptrs[0])
 
-  _, ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
+  ptrs = module.fncall(func_ptr, T.null, *arg_boxes)
   return module.load(ptrs[0])
 
 # operator expressions
@@ -634,8 +633,7 @@ def emit(self, module):
 
   val = module.emit(self.val)
 
-  _, ptrs = module.exfncall(arith[self.op], T.null, val)
-
+  ptrs = module.exfncall(arith[self.op], T.null, val)
   return module.load(ptrs[0])
 
 @binary_node.method
@@ -680,8 +678,7 @@ def emit(self, module):
   lhs = module.emit(self.lhs)
   rhs = module.emit(self.rhs)
 
-  _, ptrs = module.exfncall(arith[self.op], T.null, lhs, rhs)
-
+  ptrs = module.exfncall(arith[self.op], T.null, lhs, rhs)
   return module.load(ptrs[0])
 
 @is_node.method
