@@ -246,9 +246,24 @@ void rain_catch(box *ret) {
   rain_set_box(ret, &exception.val);
 }
 
+void rain_print_exception(box *e) {
+  if(BOX_IS(e, TABLE)) {
+    box key;
+    rain_set_strcpy(&key, "msg", 3);
+    if(rain_has(e, &key)) {
+      box val;
+      rain_get(&val, e, &key);
+      printf("%s\n", val.data.s);
+      return;
+    }
+  }
+
+  rain_print(e);
+}
+
 void rain_abort() {
   printf("caught panic: ");
-  rain_print(&exception.val);
+  rain_print_exception(&exception.val);
   exit(1);
 }
 
