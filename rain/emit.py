@@ -51,6 +51,7 @@ def emit(self, module):
 
 # Helpers #####################################################################
 
+# Put a value into a static table
 def static_table_put(module, table_ptr, column_ptr, key_node, key, val):
   table = table_ptr.initializer
 
@@ -96,6 +97,7 @@ def static_table_put(module, table_ptr, column_ptr, key_node, key, val):
       chain.initializer.key = save
 
 
+# Get a value from a static table
 def static_table_get(module, table_ptr, key_node, key):
   table = table_ptr.initializer
 
@@ -114,6 +116,7 @@ def static_table_get(module, table_ptr, key_node, key):
   return T.null
 
 
+# Allocate a [column] array
 def static_table_alloc(module, name, metatable=None):
   # make an empty array of column*
   typ = T.arr(T.ptr(T.column), T.HASH_SIZE)
@@ -122,6 +125,8 @@ def static_table_alloc(module, name, metatable=None):
   return static_table_from_ptr(module, ptr, metatable)
 
 
+# Return a box from a [column] array
+# Inject the metatable if necessary
 def static_table_from_ptr(module, ptr, metatable=None):
   gep = ptr.gep([T.i32(0), T.i32(0)])
 
@@ -145,15 +150,16 @@ def static_table_from_ptr(module, ptr, metatable=None):
   return box
 
 
+# Put a value into the exports table
 def export_global(module, name: str, value: "LLVM value"):
   key_node = str_node(name)
   key = key_node.emit(module)
-
   column_ptr = module.find_global(T.column, name=module.mangle(name + '.export'))
   static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, value)
   return column_ptr.gep([T.i32(0), T.i32(1)])
 
 
+# Store a value into a global (respecting whether it's exported or not)
 def store_global(module, name: str, value: "LLVM value"):
   if isinstance(module[name], ir.GlobalVariable):
     module[name].initializer = value
@@ -162,6 +168,7 @@ def store_global(module, name: str, value: "LLVM value"):
     module[name].col = value
 
 
+# Load a value from a global (respecting whether it's exported or not)
 def load_global(module, name: str):
   if isinstance(module[name], ir.GlobalVariable):
     return module[name].initializer
@@ -192,7 +199,6 @@ def emit(self, module):
       store_global(module, self.lhs.value, module.emit(self.rhs))
       return
 
-    # emit this so a function can't close over its undefined binding
     if self.let:
       with module.goto_entry():
         module[self.lhs] = module.alloc(T.box)
@@ -571,18 +577,12 @@ def check_callable(module, box, args):
     module.excall('rain_throw', get_exception(module, 'rain_exc_arg_mismatch'))
 
 
-@call_node.method
-def emit(self, module):
-  if module.is_global:
-    module.panic("Can't call functions at global scope")
-
-  func_box = module.emit(self.func)
-  arg_boxes = [module.emit(arg) for arg in self.args]
+def do_call(module, func_box, arg_boxes, catch=False):
   func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
 
   check_callable(module, func_box, len(arg_boxes))
 
-  if self.catch:
+  if catch:
     with module.add_catch() as catch:
       ret_ptr = module.fncall(func_ptr, T.null, *arg_boxes, unwind=module.catch)
 
@@ -592,6 +592,33 @@ def emit(self, module):
 
   ret_ptr = module.fncall(func_ptr, T.null, *arg_boxes)
   return module.load(ret_ptr)
+
+
+@call_node.method
+def emit(self, module):
+  if module.is_global:
+    module.panic("Can't call functions at global scope")
+
+  func_box = module.emit(self.func)
+  arg_boxes = [module.emit(arg) for arg in self.args]
+
+  return do_call(module, func_box, arg_boxes, catch=self.catch)
+
+
+@meth_node.method
+def emit(self, module):
+  if module.is_global:
+    module.panic("Can't call methods at global scope")
+
+  table = module.emit(self.lhs)
+  key = module.emit(self.rhs)
+
+  ret_ptr = module.exfncall('rain_get', T.null, table, key)
+
+  func_box = module.load(ret_ptr)
+  arg_boxes = [table] + [module.emit(arg) for arg in self.args]
+
+  return do_call(module, func_box, arg_boxes, catch=self.catch)
 
 
 @idx_node.method
@@ -612,34 +639,6 @@ def emit(self, module):
   key = module.emit(self.rhs)
 
   ret_ptr = module.exfncall('rain_get', T.null, table, key)
-  return module.load(ret_ptr)
-
-
-@meth_node.method
-def emit(self, module):
-  if module.is_global:
-    module.panic("Can't call methods at global scope")
-
-  table = module.emit(self.lhs)
-  key = module.emit(self.rhs)
-
-  ret_ptr = module.exfncall('rain_get', T.null, table, key)
-
-  func_box = module.load(ret_ptr)
-  arg_boxes = [table] + [module.emit(arg) for arg in self.args]
-  func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
-
-  check_callable(module, func_box, len(arg_boxes))
-
-  if self.catch:
-    with module.add_catch() as catch:
-      ret_ptr = module.fncall(func_ptr, T.null, *arg_boxes, unwind=module.catch)
-
-      catch(ret_ptr, module.builder.block)
-
-      return module.load(ret_ptr)
-
-  ret_ptr = module.fncall(func_ptr, T.null, *arg_boxes)
   return module.load(ret_ptr)
 
 
