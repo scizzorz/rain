@@ -9,9 +9,6 @@ stmts:
 - !import;1
   name: iter
   rename: null
-- !import;1
-  name: string
-  rename: null
 - !assn;2
   export: false
   let: true
