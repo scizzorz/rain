@@ -1,7 +1,9 @@
 link "rain.c"
 link "util.c"
+
 import env
 import except
+import string
 
 let print = foreign "rain_ext_print"(val)
 let exit = foreign "rain_exit"(val)

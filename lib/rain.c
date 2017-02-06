@@ -231,6 +231,7 @@ void rain_div(box *ret, box *lhs, box *rhs) {
 }
 
 // boolean binary operators
+// NOTE: these aren't actually used by the | and & operators
 
 unsigned char rain_truthy(box *val) {
   return (val->type != ITYP_NULL) && (val->data.ui != 0);

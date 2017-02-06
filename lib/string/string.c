@@ -3,6 +3,9 @@
 
 
 void rain_to_string(box *ret, box *val) {
+  box key;
+  box to_str;
+
   switch(val->type) {
     case ITYP_NULL:
       rain_set_str(ret, "null");
@@ -28,6 +31,14 @@ void rain_to_string(box *ret, box *val) {
       break;
 
     case ITYP_TABLE:
+      rain_set_str(&key, "_str");
+      rain_get(&to_str, val, &key);
+      if(BOX_IS(&to_str, FUNC) && to_str.size == 1) {
+        void (*func_ptr)(box *, box *) = (void (*)(box *, box *))(to_str.data.vp);
+        func_ptr(ret, val);
+        break;
+      }
+
       sprintf(fmt_buf, "table 0x%08lx", val->data.ui);
       rain_set_strcpy(ret, fmt_buf, strlen(fmt_buf));
       break;

@@ -1,7 +1,8 @@
+#include "../string/string.h"
 #include "except.h"
-#include <unwind.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unwind.h>
 
 /*
 DISCLAIMER: Much of this code was borrowed and modified from the Pony language.
@@ -247,8 +248,10 @@ void rain_catch(box *ret) {
 }
 
 void rain_abort() {
+  box ret;
   printf("caught panic: ");
-  rain_print(&exception.val);
+  rain_to_string(&ret, &exception.val);
+  rain_print(&ret);
   exit(1);
 }
 
