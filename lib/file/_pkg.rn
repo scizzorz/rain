@@ -1,3 +1,29 @@
 link "file.c"
 
-export open = foreign "rain_fopen"(name, mode)
+let fopen = foreign "rain_fopen"(name, mode)
+let freadline = foreign "rain_freadline"(handle)
+let fwriteline = foreign "rain_fwriteline"(handle, line)
+let fclose = foreign "rain_fclose"(handle)
+
+let base = table
+base.new = func(self, handle)
+  let ret = table from self
+  save ret
+
+  ret["_file"] = handle
+
+base.readline = func(self)
+  return freadline(self["_file"])
+
+base.writeline = func(self, line)
+  fwriteline(self["_file"], line)
+
+base.close = func(self)
+  fclose(self["_file"])
+
+base.lines = func(self)
+  return func()
+    return self:readline()
+
+export open = func(name, mode)
+  return base:new(fopen(name, mode))
