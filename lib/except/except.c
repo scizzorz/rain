@@ -247,10 +247,8 @@ void rain_catch(box *ret) {
 }
 
 void rain_abort() {
-  box ret;
   printf("caught panic: ");
-  rain_to_string(&ret, &exception.val);
-  rain_print(&ret);
+  rain_print(&exception.val);
   exit(1);
 }
 

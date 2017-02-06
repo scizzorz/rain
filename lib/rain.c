@@ -29,52 +29,9 @@ int rain_box_to_exit(box* val) {
 }
 
 void rain_print(box *val) {
-  switch(val->type) {
-    case ITYP_NULL:
-      if(val->data.ui > 0) {
-        printf("null(%lu)\n", val->data.ui);
-        break;
-      }
-
-      printf("null\n");
-      break;
-
-    case ITYP_INT:
-      printf("%ld\n", val->data.si);
-      break;
-
-    case ITYP_FLOAT:
-      printf("%f\n", val->data.f);
-      break;
-
-    case ITYP_BOOL:
-      if(val->data.ui) {
-        printf("true\n");
-      }
-      else {
-        printf("false\n");
-      }
-      break;
-
-    case ITYP_STR:
-      printf("%.*s\n", val->size, val->data.s);
-      break;
-
-    case ITYP_TABLE:
-      printf("table 0x%08lx\n", val->data.ui);
-      break;
-
-    case ITYP_FUNC:
-      printf("func 0x%08lx\n", val->data.ui);
-      break;
-
-    case ITYP_CDATA:
-      printf("cdata 0x%08lx\n", val->data.ui);
-      break;
-
-    default:
-      printf("???\n");
-  }
+  box ret;
+  rain_to_string(&ret, val);
+  printf("%.*s\n", ret.size, ret.data.s);
 }
 
 void rain_ext_print(box *ret, box *val) {
@@ -390,7 +347,6 @@ void rain_to_string(box *ret, box *val) {
       sprintf(rain_to_str_buf, "%f", val->data.f);
       rain_set_strcpy(ret, rain_to_str_buf, strlen(rain_to_str_buf));
       break;
-
 
     case ITYP_BOOL:
       rain_set_str(ret, val->data.ui ? "true" : "false");
