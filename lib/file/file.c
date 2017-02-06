@@ -19,48 +19,24 @@ void rain_fopen(box *ret, box *fname, box *mode) {
   FILE *fp = fopen(fname->data.s, mode->data.s);
   box key, val;
 
-  rain_set_table(ret);
-
-  rain_set_str(&key, "_file");
-  rain_set_cdata(&val, (void*)fp);
-  rain_put(ret, &key, &val);
-
-  rain_set_str(&key, "readline");
-  rain_set_func(&val, (void*)rain_freadline, 1);
-  rain_put(ret, &key, &val);
-
-  rain_set_str(&key, "writeline");
-  rain_set_func(&val, (void*)rain_fwriteline, 1);
-  rain_put(ret, &key, &val);
-
-  rain_set_str(&key, "close");
-  rain_set_func(&val, (void*)rain_fclose, 1);
-  rain_put(ret, &key, &val);
+  rain_set_cdata(ret, (void*)fp);
 }
 
 void rain_fwriteline(box *ret, box *this, box *str) {
-  if(BOX_ISNT(this, TABLE) || BOX_ISNT(str, STR))
+  if(BOX_ISNT(this, CDATA) || BOX_ISNT(str, STR))
     return;
 
-  box key, file;
-  rain_set_str(&key, "_file");
-  rain_get(&file, this, &key);
-
-  FILE *fp = (FILE *)file.data.vp;
+  FILE *fp = (FILE *)this->data.vp;
 
   fwrite(str->data.vp, 1, str->size, fp);
   fputc('\n', fp);
 }
 
 void rain_freadline(box *ret, box *this) {
-  if(BOX_ISNT(this, TABLE))
+  if(BOX_ISNT(this, CDATA))
     return;
 
-  box key, file;
-  rain_set_str(&key, "_file");
-  rain_get(&file, this, &key);
-
-  FILE *fp = (FILE *)file.data.vp;
+  FILE *fp = (FILE *)this->data.vp;
 
   int i = 0;
   char cur;
@@ -86,12 +62,8 @@ void rain_freadline(box *ret, box *this) {
 }
 
 void rain_fclose(box *ret, box *this) {
-  if(BOX_ISNT(this, TABLE))
+  if(BOX_ISNT(this, CDATA))
     return;
 
-  box key, file;
-  rain_set_str(&key, "_file");
-  rain_get(&file, this, &key);
-
-  fclose((FILE *)file.data.vp);
+  fclose((FILE *)this->data.vp);
 }
