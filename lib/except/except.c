@@ -1,4 +1,3 @@
-#include "../string/string.h"
 #include "except.h"
 #include <stdio.h>
 #include <stdlib.h>

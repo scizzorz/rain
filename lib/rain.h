@@ -70,7 +70,8 @@ void rain_lt(box *, box *, box *);
 void rain_le(box *, box *, box *);
 
 void rain_string_concat(box *, box *, box*);
-void rain_string_length(box *, box *);
+void rain_to_string(box *, box *);
+char rain_to_str_buf[1024];
 
 box* rain_new_table();
 column *rain_new_pair(box *, box *);
@@ -80,6 +81,8 @@ int rain_array_length(box *);
 column *rain_has(box *, box *);
 void rain_get(box *, box *, box *);
 void rain_put(box *, box *, box *);
+
+void rain_length(box *, box *);
 
 void rain_set_box(box *, box *);
 void rain_set_null(box *);

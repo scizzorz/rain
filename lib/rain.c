@@ -372,6 +372,59 @@ void rain_string_concat(box *ret, box *lhs, box *rhs) {
   }
 }
 
+void rain_to_string(box *ret, box *val) {
+  box key;
+  box to_str;
+
+  switch(val->type) {
+    case ITYP_NULL:
+      rain_set_str(ret, "null");
+      break;
+
+    case ITYP_INT:
+      sprintf(rain_to_str_buf, "%ld", val->data.si);
+      rain_set_strcpy(ret, rain_to_str_buf, strlen(rain_to_str_buf));
+      break;
+
+    case ITYP_FLOAT:
+      sprintf(rain_to_str_buf, "%f", val->data.f);
+      rain_set_strcpy(ret, rain_to_str_buf, strlen(rain_to_str_buf));
+      break;
+
+
+    case ITYP_BOOL:
+      rain_set_str(ret, val->data.ui ? "true" : "false");
+      break;
+
+    case ITYP_STR:
+      rain_set_strcpy(ret, val->data.s, val->size);
+      break;
+
+    case ITYP_TABLE:
+      rain_set_str(&key, "_str");
+      rain_get(&to_str, val, &key);
+      if(BOX_IS(&to_str, FUNC) && to_str.size == 1) {
+        void (*func_ptr)(box *, box *) = (void (*)(box *, box *))(to_str.data.vp);
+        func_ptr(ret, val);
+        break;
+      }
+
+      sprintf(rain_to_str_buf, "table 0x%08lx", val->data.ui);
+      rain_set_strcpy(ret, rain_to_str_buf, strlen(rain_to_str_buf));
+      break;
+
+    case ITYP_FUNC:
+      sprintf(rain_to_str_buf, "func 0x%08lx", val->data.ui);
+      rain_set_strcpy(ret, rain_to_str_buf, strlen(rain_to_str_buf));
+      break;
+
+    case ITYP_CDATA:
+      sprintf(rain_to_str_buf, "cdata 0x%08lx", val->data.ui);
+      rain_set_strcpy(ret, rain_to_str_buf, strlen(rain_to_str_buf));
+      break;
+  }
+}
+
 // table helpers
 
 box* rain_new_table() {

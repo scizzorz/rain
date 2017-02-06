@@ -4,7 +4,7 @@ import core
 import iter
 
 export length = core.length
-export to_str = foreign "rain_to_string"(val)
+export to_str = to_str
 export to_int = foreign "rain_string_to_int"(val)
 export fmt    = foreign "rain_fmt"(val, fmt)
 
