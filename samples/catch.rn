@@ -1,16 +1,14 @@
-import string
-
 let three = func()
   panic("three!")
 
 let two = func()
   let x = three?()
-  print("two caught " $ string.tostr(x))
+  print("two caught " $ tostr(x))
 
 let one = func()
   catch x
     two()
-  print("one caught " $ string.tostr(x))
+  print("one caught " $ tostr(x))
 
 let main = func()
   print("----")
@@ -18,23 +16,23 @@ let main = func()
     print("before")
     one()
     print("after")
-  print("main caught " $ string.tostr(x))
+  print("main caught " $ tostr(x))
 
   print("----")
   print("before")
   x = one?()
   print("after")
-  print("main caught " $ string.tostr(x))
+  print("main caught " $ tostr(x))
 
   print("----")
   catch x
     print("before")
     panic("obvious")
     print("after")
-  print("main caught " $ string.tostr(x))
+  print("main caught " $ tostr(x))
 
   print("----")
   print("before")
   x = panic?("obvious")
   print("after")
-  print("main caught " $ string.tostr(x))
+  print("main caught " $ tostr(x))

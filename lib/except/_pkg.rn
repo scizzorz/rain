@@ -2,6 +2,8 @@ link "except.c"
 
 export error = table
 error.msg = "error"
+error["_str"] = func(self)
+  return self.msg
 
 export arg_mismatch = table from error
 arg_mismatch.msg = "argument mismatch"

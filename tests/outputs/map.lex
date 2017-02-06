@@ -7,9 +7,6 @@ newline
 keyword 'import'
 name 'iter'
 newline
-keyword 'import'
-name 'string'
-newline
 keyword 'let'
 name 'double'
 symbol '='

@@ -1,7 +1,6 @@
 import array
 import core
 import iter
-import string
 
 let double = func(n) -> n * 2
 
