@@ -1,3 +1,8 @@
+---
+layout: default
+title: Rain - a programming language
+---
+
 # Rain
 
 A dynamically-typed, whitespace-delimited, garbage-collected language focused
@@ -64,13 +69,13 @@ calculations that fit in one expression:
 
     let add = func(x, y) -> x + y
 
-#### `save`
+#### `save` statement
 
 #### Calling
 
 #### Closures
 
-#### `main`
+#### `main` function
 
 Every Rain program must define a no-argument `main` function at the top level:
 
@@ -89,7 +94,7 @@ Rain supports line comments with the `#` symbol.
     # This is a comment.
     let x = 5 # This value is used later.
 
-### `pass`
+### `pass` statement
 
 `pass` is simply a no-op instruction:
 
@@ -185,9 +190,9 @@ value in a sequence.
 
 ### Modules
 
-#### `import`
+#### `import` statement
 
-#### `export`
+#### `export` statement
 
 #### Packages
 
@@ -197,8 +202,8 @@ value in a sequence.
 
 #### C API
 
-#### `link`
+#### `link` statement
 
 #### `foreign` functions
 
-#### `export..as foreign`
+#### `export..as foreign` statement

@@ -1,0 +1,21 @@
+.container {
+  margin-top: 2em;
+  max-width: 720px;
+  font-family: Roboto;
+}
+
+code,
+kbd,
+pre {
+  font-family: "Roboto Mono";
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: bold;
+  letter-spacing: 0;
+}
+
+h1 { font-size: 2.0em; }
+h2 { font-size: 1.5em; }
+h3 { font-size: 1.25em; }
+h4, h5, h6 { font-size: 1.0em; }
