@@ -38,7 +38,7 @@ stmts:
         lhs: !name;1
           value: a
         rhs: !table;1
-          metatable: !name;1
+          parent: !name;1
             value: array
       - !assn;2
         export: false

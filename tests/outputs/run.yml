@@ -17,7 +17,7 @@ stmts:
         lhs: !name;1
           value: args
         rhs: !table;1
-          metatable: null
+          parent: null
       - !assn;2
         export: false
         let: false

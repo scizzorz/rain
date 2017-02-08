@@ -6,7 +6,7 @@ stmts:
   lhs: !name;1
     value: rect
   rhs: !table;1
-    metatable: null
+    parent: null
 - !assn;2
   export: false
   let: false
@@ -20,7 +20,7 @@ stmts:
       stmts:
       - !return;1
         value: !table;1
-          metatable: !name;1
+          parent: !name;1
             value: self
     params:
     - self
@@ -91,7 +91,7 @@ stmts:
   lhs: !name;1
     value: square
   rhs: !table;1
-    metatable: !name;1
+    parent: !name;1
       value: rect
 - !assn;2
   export: false
