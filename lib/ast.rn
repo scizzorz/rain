@@ -25,7 +25,7 @@ pred_block.init = func(self, pred, body)
 
 export _block = table from node
 
-_block.name = "block"
+_block.tag = "block"
 _block.init = func(self, stmts)
   self.stmts = stmts
   return self
@@ -35,7 +35,7 @@ _block.init = func(self, stmts)
 
 export _assn = table from node
 
-_assn.name = "assn"
+_assn.tag = "assn"
 _assn.init = func(self, lhs, rhs, _let, _export)
   self.lhs = lhs
   self.rhs = rhs
@@ -45,14 +45,14 @@ _assn.init = func(self, lhs, rhs, _let, _export)
 
 export _break = table from node
 
-_break.name = "break"
+_break.tag = "break"
 _break.init = func(self, cond)
   self.cond = cond
 
 
 export _catch = table from node
 
-_catch.name = "catch"
+_catch.tag = "catch"
 _catch.init = func(self, name, body)
   self.name = name
   self.body = body
@@ -60,14 +60,14 @@ _catch.init = func(self, name, body)
 
 export _cont = table from node
 
-_cont.name = "cont"
+_cont.tag = "continue"
 _cont.init = func(self, cond)
   self.cond = cond
 
 
 export _export_foreign = table from node
 
-_export_foreign.name = "export foreign"
+_export_foreign.tag = "export_foreign"
 _export_foreign.init = func(self, name, rename)
   self.name = name
   self.rename = rename
@@ -75,8 +75,8 @@ _export_foreign.init = func(self, name, rename)
 
 export _if = table from node
 
-_if.name = "if"
-_if.init = func(self, pred, body, _else)
+_if.tag = "if"
+_if.init = func(self, pred, body, els)
   self.pred = pred
   self.body = body
   self._else = _else
@@ -84,7 +84,7 @@ _if.init = func(self, pred, body, _else)
 
 export _import = table from node
 
-_import.name = "import"
+_import.tag = "import"
 _import.init = func(self, name, rename)
   self.name = name
   self.rename = rename
@@ -92,21 +92,21 @@ _import.init = func(self, name, rename)
 
 export _link = table from node
 
-_link.name = "link"
+_link.tag = "link"
 _link.init = func(self, name)
   self.name = name
 
 
 export _loop = table from node
 
-_loop.name = "loop"
+_loop.tag = "loop"
 _loop.init = func(self, body)
   self.body = body
 
 
 export _for = table from node
 
-_for.name = "for"
+_for.tag = "for"
 _for.init = func(self, name, _func, body)
   self.name = name
   self._func = _func
@@ -115,7 +115,7 @@ _for.init = func(self, name, _func, body)
 
 export _with = table from node
 
-_with.name = "with"
+_with.tag = "with"
 _with.init = func(self, expr, params, body)
   self.expr = expr
   self.params = params
@@ -124,34 +124,34 @@ _with.init = func(self, expr, params, body)
 
 export _pass = table from node
 
-_pass.name = "pass"
+_pass.tag = "pass"
 
 
 export _return = table from value_node
 
-_return.name = "return"
+_return.tag = "return"
 
 
 export _save = table from value_node
 
-_save.name = "save"
+_save.tag = "save"
 
 
 export _until = table from pred_block
 
-_until.name = "until"
+_until.tag = "until"
 
 
 export _while = table from pred_block
 
-_while.name = "while"
+_while.tag = "while"
 
 
 # expressions
 
 export _idx = table from node
 
-_idx.name = "idx"
+_idx.tag = "index"
 _idx.init = func(self, lhs, rhs)
   self.lhs = lhs
   self.rhs = rhs
@@ -159,44 +159,44 @@ _idx.init = func(self, lhs, rhs)
 
 export _name = table from value_node
 
-_name.name = "name"
+_name.tag = "name"
 
 
 export _null = table from node
 
-_null.name = "null"
+_null.tag = "null"
 
 
 export _int = table from value_node
 
-_int.name = "int"
+_int.tag = "int"
 
 
 export _float = table from value_node
 
-_float.name = "float"
+_float.tag = "float"
 
 
 export _bool = table from value_node
 
-_bool.name = "bool"
+_bool.tag = "bool"
 
 
 export _str = table from value_node
 
-_str.name = "str"
+_str.tag = "str"
 
 
 export _table = table from node
 
-_table.name = "table"
+_table.tag = "table"
 _table.init = func(self, parent) # self._metatable == self.metatable!
   self.parent = parent
 
 
 export _func = table from node
 
-_func.name = "func"
+_func.tag = "func"
 _func.init = func(self, params, body)
   self.params = params
   self.body = body
@@ -204,7 +204,7 @@ _func.init = func(self, params, body)
 
 export _foreign = table from node
 
-_foreign.name = "foreign"
+_foreign.tag = "foreign"
 _foreign.init = func(self, name, params)
   self.name = name
   self.params = params
@@ -212,7 +212,7 @@ _foreign.init = func(self, name, params)
 
 export _call = table from node
 
-_call.name = "call"
+_call.tag = "call"
 _call.init = func(self, _func, args, _catch)
   self._func = _func
   self.args = args
@@ -221,7 +221,7 @@ _call.init = func(self, _func, args, _catch)
 
 export _meth = table from node
 
-_meth.name = "meth"
+_meth.tag = "method"
 _meth.init = func(self, lhs, rhs, args, _catch)
   self.lhs = lhs
   self.rhs = rhs
@@ -231,7 +231,7 @@ _meth.init = func(self, lhs, rhs, args, _catch)
 
 export _binary = table from node
 
-_binary.name = "binary"
+_binary.tag = "binary"
 _binary.init = func(self, lhs, rhs, op)
   self.lhs = lhs
   self.rhs = rhs
@@ -240,7 +240,7 @@ _binary.init = func(self, lhs, rhs, op)
 
 export _unary = table from node
 
-_unary.name = "unary"
+_unary.tag = "unary"
 _unary.init = func(self, op, val)
   self.op = op
   self.val = val
