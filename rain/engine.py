@@ -17,6 +17,14 @@ class Box(Structure):
               ("data", c_uint64),
               ("size", c_uint32)]
 
+  @classmethod
+  def from_str(cls, string):
+    str_p = c_char_p(string.encode("utf-8"))
+    return cls(4, cast(str_p, c_void_p).value, len(string))
+
+  def as_str(self):
+    return cast(self.data, c_char_p).value.decode("utf-8")
+
 Arg = POINTER(Box)
 
 class Engine:
