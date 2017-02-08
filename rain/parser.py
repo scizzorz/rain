@@ -1,6 +1,10 @@
 from . import token as K
 from . import ast as A
 from . import module as M
+from . import engine as E
+
+from ctypes import byref
+from ctypes import c_uint8, c_uint32, c_uint64
 
 end = K.end_token()
 indent = K.indent_token()
@@ -51,10 +55,25 @@ class context:
 
   def expand_macro(self, name):
     mod = M.Module(name='macro')
-    self.macros[name][0].expand(mod)
-    print(mod.ir)
+    node = self.macros[name][0]
+    parses = self.macros[name][1]
+    args = [fn(self) for fn in self.macros[name][1]]
+
+    node.expand(mod)
+
+    eng = E.Engine(llvm_ir=mod.ir)
+    eng.link_file('tmp/rain.ll', 'tmp/util.ll', 'tmp/lib.ll', 'tmp/lib.env.ll', 'tmp/lib.except.ll', 'tmp/except.ll', 'tmp/env.ll')
+    eng.add_lib('/usr/lib/x86_64-linux-gnu/libgc.so.1', '/usr/lib/x86_64-linux-gnu/libunwind.so.8')
+    eng.finalize()
+
+    func = eng.get_func('macro.func.0', E.Arg, *[E.Arg] * len(parses))
+    ret = E.Box(0, 0, 0)
+    func(byref(ret), byref(E.Box(1, 3, 0)), byref(E.Box(1, 6, 0)))
+    print(ret.type)
+    print(ret.data)
+
     # TODO: import builtins?
-    return [fn(self) for fn in self.macros[name][1]]
+    return args
 
   def expect(self, *tokens):
     return self.token in tokens
