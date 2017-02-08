@@ -290,10 +290,10 @@ class str_node(value_node, literal_node):
 class table_node(node):
   __tag__ = 'table'
   __version__ = 1
-  __slots__ = ['metatable']
+  __slots__ = ['parent']
 
-  def __init__(self, metatable=None):
-    self.metatable = metatable
+  def __init__(self, parent=None):
+    self.parent = parent
 
 
 class func_node(node):

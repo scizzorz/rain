@@ -476,12 +476,12 @@ def emit(self, module):
 @table_node.method
 def emit(self, module):
   if module.is_global:
-    return static_table_alloc(module, module.uniq('table'), metatable=self.metatable)
+    return static_table_alloc(module, module.uniq('table'), metatable=self.parent)
 
   ptr = module.excall('rain_new_table')
 
-  if self.metatable:
-    val = module.emit(self.metatable)
+  if self.parent:
+    val = module.emit(self.parent)
 
     with module.goto_entry():
       val_ptr = module.alloc(T.box, name='key_ptr')
