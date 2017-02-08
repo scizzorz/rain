@@ -160,18 +160,21 @@ def stmt(ctx):
     return A.import_node(name, rename)
 
   if ctx.consume(K.keyword_token('macro')):
-    pieces = {
+    type_options = {
       'expr': expr,
       'block': block,
-      'string': lambda x: x.require(K.string_token),
+      'string': lambda x: x.require(K.string_token).value,
     }
 
     name = ctx.require(K.name_token).value
+    types = fnparams(ctx, tokens=[K.name_token(n) for n in type_options])
+    ctx.require(K.keyword_token('as'))
     params = fnparams(ctx)
     body = block(ctx)
+
     print('macro def:', name, params)
-    ctx.register_macro(name, [pieces[x] for x in params])
-    return A.macro_node(name, params, body)
+    ctx.register_macro(name, [type_options[x] for x in types])
+    return A.macro_node(name, types, params, body)
 
   if ctx.consume(K.symbol_token('@')):
     name = ctx.require(K.name_token).value
@@ -322,15 +325,15 @@ def fnargs(ctx):
 
 
 # fnparams :: '(' (NAME (',' NAME)*)? ')'
-def fnparams(ctx, parens=True):
+def fnparams(ctx, parens=True, tokens=[K.name_token]):
   if parens:
     ctx.require(K.symbol_token('('))
 
   params = []
-  if ctx.expect(K.name_token):
-    params.append(ctx.require(K.name_token).value)
+  if ctx.expect(*tokens):
+    params.append(ctx.require(*tokens).value)
     while ctx.consume(K.symbol_token(',')):
-      params.append(ctx.require(K.name_token).value)
+      params.append(ctx.require(*tokens).value)
 
   if parens:
     ctx.require(K.symbol_token(')'))

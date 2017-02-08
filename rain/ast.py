@@ -166,10 +166,11 @@ class loop_node(node):
 class macro_node(node):
   __tag__ = 'macro'
   __version__ = 1
-  __slots__ = ['name', 'params', 'body']
+  __slots__ = ['name', 'types', 'params', 'body']
 
-  def __init__(self, name, params, body):
+  def __init__(self, name, types, params, body):
     self.name = name
+    self.types = types
     self.params = params
     self.body = body
 
