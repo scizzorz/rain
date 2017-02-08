@@ -1,3 +1,5 @@
+from . import ast as A
+
 from ctypes import CFUNCTYPE, POINTER
 from ctypes import Structure
 from ctypes import byref
@@ -80,19 +82,74 @@ class Engine:
     func_ptr = self.engine.get_function_address(name)
     return func_typ(func_ptr)
 
-  def rain_get_str(self, table_box, key):
+
+  # rain_get
+
+  def rain_get(self, table_box, key_box):
     get = self.get_func('rain_get', Arg, Arg, Arg)  # ret, table, key
     ret_box = Box(0, 0, 0)
-    key_box = Box.from_str(key)
-
     get(byref(ret_box), byref(table_box), byref(key_box))
     return ret_box
 
-  def rain_put_str(self, table_box, key, value_box):
-    put = self.get_func('rain_put', Arg, Arg, Arg)  # table, key, val
-    key_box = Box.from_str(key)
+  def rain_get_str(self, table_box, key):
+    return self.rain_get(table_box, Box.from_str(key))
 
-    get(byref(table_box), byref(key_box), byref(value_box))
+  def rain_get_int(self, table_box, key):
+    return self.rain_get(table_box, Box(1, key, 0))
+
+  # rain_put
+
+  def rain_put(self, table_box, key_box, value_box):
+    put = self.get_func('rain_put', Arg, Arg, Arg)  # table, key, val
+    put(byref(table_box), byref(key_box), byref(value_box))
+
+  def rain_put_str(self, table_box, key, value_box):
+    self.rain_put(table_box, Box.from_str(key), value_box)
+
+  def rain_put_int(self, table_box, key, value_box):
+    self.rain_put(table_box, Box(1, key, 0), value_box)
+
+  def rain_set_table(self, table_box):
+    set_table = self.get_func('rain_set_table', Arg)
+    set_table(byref(table_box))
+
+  def coerce(self, val):
+    if val is None:
+      return Box(0, 0, 0)
+
+    elif val is True:
+      return Box(3, 1, 0)
+
+    elif val is False:
+      return Box(3, 0, 0)
+
+    elif isinstance(val, int):
+      return Box(1, val, 0)
+
+    elif isinstance(val, str):
+      return Box.from_str(val)
+
+    elif isinstance(val, list):
+      table_box = Box(0, 0, 0)
+      self.rain_set_table(table_box)
+
+      for i, n in enumerate(val):
+        self.rain_put_int(table_box, i, self.coerce(n))
+
+      return table_box
+
+    elif isinstance(val, A.node):
+      table_box = Box(0, 0, 0)
+      self.rain_set_table(table_box)
+
+      self.rain_put_str(table_box, 'tag', Box.from_str(val.__tag__))
+      for key in val.__slots__:
+        self.rain_put_str(table_box, key, self.coerce(getattr(val, key, None)))
+
+      return table_box
+
+    return "Can't coerce value: {!r}".format(val)
+
 
   def main(self):
     main = self.get_func('main', c_int, c_int, POINTER(c_char_p))
