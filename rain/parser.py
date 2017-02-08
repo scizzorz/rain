@@ -4,7 +4,7 @@ from . import module as M
 from . import engine as E
 
 from ctypes import byref
-from ctypes import c_uint8, c_uint32, c_uint64
+import ctypes
 
 end = K.end_token()
 indent = K.indent_token()
@@ -61,19 +61,27 @@ class context:
 
     node.expand(mod)
 
+    # TODO: figure
+    # TODO: import builtins?
+    # TODO: import ast?
     eng = E.Engine(llvm_ir=mod.ir)
     eng.link_file('tmp/rain.ll', 'tmp/util.ll', 'tmp/lib.ll', 'tmp/lib.env.ll', 'tmp/lib.except.ll', 'tmp/except.ll', 'tmp/env.ll')
     eng.add_lib('/usr/lib/x86_64-linux-gnu/libgc.so.1', '/usr/lib/x86_64-linux-gnu/libunwind.so.8')
     eng.finalize()
 
+    new_node_box = E.Box(0, 0, 0)
     func = eng.get_func('macro.func.0', E.Arg, *[E.Arg] * len(parses))
-    ret = E.Box(0, 0, 0)
-    func(byref(ret), byref(E.Box(1, 3, 0)), byref(E.Box(1, 6, 0)))
-    print(ret.type)
-    print(ret.data)
+    func(byref(new_node_box), byref(E.Box(1, 3, 0)), byref(E.Box(1, 6, 0)))
 
-    # TODO: import builtins?
-    return args
+    new_node_name_box = eng.rain_get_str(new_node_box, "name")
+
+    print("The macro returned a:", new_node_name_box.as_str())
+
+    print("node")
+    print(new_node_box.type)
+    print(new_node_box.data)
+
+    return new_node_box
 
   def expect(self, *tokens):
     return self.token in tokens

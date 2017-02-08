@@ -81,13 +81,18 @@ class Engine:
     return func_typ(func_ptr)
 
   def rain_get_str(self, table_box, key):
-    get = self.get_func('rain_get', Arg, Arg, Arg)
+    get = self.get_func('rain_get', Arg, Arg, Arg)  # ret, table, key
     ret_box = Box(0, 0, 0)
-    key_str = c_char_p(key.encode("utf-8"))
-    key_box = Box(4, cast(key_str, c_void_p).value, len(key))
+    key_box = Box.from_str(key)
 
     get(byref(ret_box), byref(table_box), byref(key_box))
     return ret_box
+
+  def rain_put_str(self, table_box, key, value_box):
+    put = self.get_func('rain_put', Arg, Arg, Arg)  # table, key, val
+    key_box = Box.from_str(key)
+
+    get(byref(table_box), byref(key_box), byref(value_box))
 
   def main(self):
     main = self.get_func('main', c_int, c_int, POINTER(c_char_p))
