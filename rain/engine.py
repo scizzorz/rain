@@ -3,6 +3,7 @@ from . import ast as A
 from ctypes import CFUNCTYPE, POINTER
 from ctypes import Structure
 from ctypes import byref
+from ctypes import create_string_buffer
 from ctypes import c_char_p
 from ctypes import c_int
 from ctypes import c_uint16
@@ -19,9 +20,15 @@ class Box(Structure):
               ("data", c_uint64),
               ("size", c_uint32)]
 
+  def __str__(self):
+    return 'Box({}, {}, {})'.format(self.type, self.data, self.size)
+
+  def __repr__(self):
+    return '<{!s}>'.format(self)
+
   @classmethod
   def from_str(cls, string):
-    str_p = c_char_p(string.encode("utf-8"))
+    str_p = create_string_buffer(string.encode("utf-8"))
     return cls(4, cast(str_p, c_void_p).value, len(string))
 
   def as_str(self):
@@ -104,7 +111,8 @@ class Engine:
     put(byref(table_box), byref(key_box), byref(value_box))
 
   def rain_put_str(self, table_box, key, value_box):
-    self.rain_put(table_box, Box.from_str(key), value_box)
+    key_box = Box.from_str(key)
+    self.rain_put(table_box, key_box, value_box)
 
   def rain_put_int(self, table_box, key, value_box):
     self.rain_put(table_box, Box(1, key, 0), value_box)
@@ -146,6 +154,7 @@ class Engine:
       for key in val.__slots__:
         self.rain_put_str(table_box, key, self.coerce(getattr(val, key, None)))
 
+      tag_out = self.rain_get_str(table_box, 'tag')
       return table_box
 
     return "Can't coerce value: {!r}".format(val)

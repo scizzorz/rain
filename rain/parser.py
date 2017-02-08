@@ -57,29 +57,26 @@ class context:
     mod = M.Module(name='macro')
     node = self.macros[name][0]
     parses = self.macros[name][1]
-    args = [fn(self) for fn in self.macros[name][1]]
 
     node.expand(mod)
 
-    # TODO: figure
+    # TODO: figure out how to automatically find all of this crap
     # TODO: import builtins?
     # TODO: import ast?
     eng = E.Engine(llvm_ir=mod.ir)
     eng.link_file('tmp/rain.ll', 'tmp/util.ll', 'tmp/lib.ll', 'tmp/lib.env.ll', 'tmp/lib.except.ll', 'tmp/except.ll', 'tmp/env.ll')
-    eng.add_lib('/usr/lib/x86_64-linux-gnu/libgc.so.1', '/usr/lib/x86_64-linux-gnu/libunwind.so.8')
+    eng.add_lib('/usr/lib/libgc.so', '/usr/lib/libgcc_s.so.1')
     eng.finalize()
+
+    args = [fn(self) for fn in parses]
+    arg_boxes = [eng.coerce(arg) for arg in args]
 
     new_node_box = E.Box(0, 0, 0)
     func = eng.get_func('macro.func.0', E.Arg, *[E.Arg] * len(parses))
-    func(byref(new_node_box), byref(E.Box(1, 3, 0)), byref(E.Box(1, 6, 0)))
+    func(byref(new_node_box), *[byref(arg) for arg in arg_boxes])
 
-    new_node_name_box = eng.rain_get_str(new_node_box, "name")
-
-    print("The macro returned a:", new_node_name_box.as_str())
-
-    print("node")
-    print(new_node_box.type)
-    print(new_node_box.data)
+    new_node_name_box = eng.rain_get_str(new_node_box, "tag")
+    print("The macro returned:", new_node_name_box.as_str())
 
     return new_node_box
 
@@ -214,7 +211,6 @@ def stmt(ctx):
     name = ctx.require(K.name_token).value
     print('macro exp:', name)
     res = ctx.expand_macro(name)
-    print('  ', res)
     return A.pass_node()
 
   if ctx.consume(K.keyword_token('link')):
