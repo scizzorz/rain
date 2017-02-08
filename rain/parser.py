@@ -1,5 +1,6 @@
 from . import token as K
 from . import ast as A
+from . import module as M
 
 end = K.end_token()
 indent = K.indent_token()
@@ -43,12 +44,17 @@ class context:
     except StopIteration:
       self.peek = K.end_token()
 
-  def register_macro(self, name, parses):
+  def register_macro(self, name, node, parses):
     # TODO: panic on redef
-    self.macros[name] = parses
+    # TODO: better data structure?
+    self.macros[name] = (node, parses)
 
   def expand_macro(self, name):
-    return [fn(self) for fn in self.macros[name]]
+    mod = M.Module(name='macro')
+    self.macros[name][0].expand(mod)
+    print(mod.ir)
+    # TODO: import builtins?
+    return [fn(self) for fn in self.macros[name][1]]
 
   def expect(self, *tokens):
     return self.token in tokens
@@ -173,8 +179,9 @@ def stmt(ctx):
     body = block(ctx)
 
     print('macro def:', name, params)
-    ctx.register_macro(name, [type_options[x] for x in types])
-    return A.macro_node(name, types, params, body)
+    node = A.macro_node(name, types, params, body)
+    ctx.register_macro(name, node, [type_options[x] for x in types])
+    return node
 
   if ctx.consume(K.symbol_token('@')):
     name = ctx.require(K.name_token).value

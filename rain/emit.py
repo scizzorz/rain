@@ -304,6 +304,11 @@ def emit(self, module):
   pass
 
 
+@macro_node.method
+def expand(self, module):
+  func_node(self.params, self.body).emit(module)
+
+
 @pass_node.method
 def emit(self, module):
   pass
