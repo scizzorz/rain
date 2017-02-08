@@ -1,0 +1,194 @@
+# base
+
+let node = table
+
+node.new = func(self)
+  return table from self
+
+node.init = func(self)
+  pass
+
+
+let value_node = table from node
+
+value_node.init = func(self, value)
+  self.value = value
+
+
+let pred_block = table from node
+
+pred_block.init = func(self, pred, body)
+  self.pred = pred
+  self.body = body
+
+# structure
+
+export _block = table from node
+
+_block.init = func(self, stmts)
+  self.stmts = stmts
+  return self
+
+
+# statements
+
+export _assn = table from node
+
+_assn.init = func(self, lhs, rhs, _let, _export)
+  self.lhs = lhs
+  self.rhs = rhs
+  self._let = _let
+  self._export = _export
+
+
+export _break = table from node
+
+_break.init = func(self, cond)
+  self.cond = cond
+
+
+export _catch = table from node
+
+_catch.init = func(self, name, body)
+  self.name = name
+  self.body = body
+
+
+export _cont = table from node
+
+_cont.init = func(self, cond)
+  self.cond = cond
+
+
+export _export_foreign = table from node
+
+_export_foreign.init = func(self, name, rename)
+  self.name = name
+  self.rename = rename
+
+
+export _if = table from node
+
+_if.init = func(self, pred, body, _else)
+  self.pred = pred
+  self.body = body
+  self._else = _else
+
+
+export _import = table from node
+
+_import.init = func(self, name, rename)
+  self.name = name
+  self.rename = rename
+
+
+export _link = table from node
+
+_link.init = func(self, name)
+  self.name = name
+
+
+export _loop = table from node
+
+_loop.init = func(self, body)
+  self.body = body
+
+
+export _for = table from node
+
+_for.init = func(self, name, _func, body)
+  self.name = name
+  self._func = _func
+  self.body = body
+
+
+export _with = table from node
+
+_with.init = func(self, expr, params, body)
+  self.expr = expr
+  self.params = params
+  self.body = body
+
+
+export _pass = table from node
+
+export _return = table from value_node
+
+export _save = table from value_node
+
+export _until = table from pred_block
+
+export _while = table from pred_block
+
+
+# expressions
+
+export _idx = table from node
+
+_idx.init = func(self, lhs, rhs)
+  self.lhs = lhs
+  self.rhs = rhs
+
+
+export _name = table from value_node
+
+export _null = table from node
+
+export _int = table from value_node
+
+export _float = table from value_node
+
+export _bool = table from value_node
+
+export _str = table from value_node
+
+export _table = table from node
+
+_table.init = func(self, parent) # self._metatable == self.metatable!
+  self.parent = parent
+
+
+export _func = table from node
+
+_func.init = func(self, params, body)
+  self.params = params
+  self.body = body
+
+
+export _foreign = table from node
+
+_foreign.init = func(self, name, params)
+  self.name = name
+  self.params = params
+
+
+export _call = table from node
+
+_call.init = func(self, _func, args, _catch)
+  self._func = _func
+  self.args = args
+  self._catch = _catch
+
+
+export _meth = table from node
+
+_meth.init = func(self, lhs, rhs, args, _catch)
+  self.lhs = lhs
+  self.rhs = rhs
+  self.args = args
+  self._catch = _catch
+
+
+export _binary = table from node
+
+_binary.init = func(self, lhs, rhs, op)
+  self.lhs = lhs
+  self.rhs = rhs
+  self.op = op
+
+
+export _unary = table from node
+
+_unary.init = func(self, op, val)
+  self.op = op
+  self.val = val
