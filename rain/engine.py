@@ -1,9 +1,14 @@
-from ctypes import CFUNCTYPE, POINTER, c_char_p, c_int, byref
-from ctypes import c_uint8
+from ctypes import CFUNCTYPE, POINTER
+from ctypes import Structure
+from ctypes import byref
+from ctypes import c_char_p
+from ctypes import c_int
 from ctypes import c_uint16
 from ctypes import c_uint32
 from ctypes import c_uint64
-from ctypes import Structure
+from ctypes import c_uint8
+from ctypes import c_void_p
+from ctypes import cast
 
 import llvmlite.binding as llvm
 
@@ -66,6 +71,15 @@ class Engine:
     func_typ = CFUNCTYPE(*types)
     func_ptr = self.engine.get_function_address(name)
     return func_typ(func_ptr)
+
+  def rain_get_str(self, table_box, key):
+    get = self.get_func('rain_get', Arg, Arg, Arg)
+    ret_box = Box(0, 0, 0)
+    key_str = c_char_p(key.encode("utf-8"))
+    key_box = Box(4, cast(key_str, c_void_p).value, len(key))
+
+    get(byref(ret_box), byref(table_box), byref(key_box))
+    return ret_box
 
   def main(self):
     main = self.get_func('main', c_int, c_int, POINTER(c_char_p))
