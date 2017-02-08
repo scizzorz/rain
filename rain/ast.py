@@ -189,7 +189,7 @@ class save_node(value_node):
 class until_node(node):
   __tag__ = 'until'
   __version__ = 1
-  __slots = ['pred', 'body']
+  __slots__ = ['pred', 'body']
 
   def __init__(self, pred, body):
     self.pred = pred
@@ -199,7 +199,7 @@ class until_node(node):
 class while_node(node):
   __tag__ = 'while'
   __version__ = 1
-  __slots = ['pred', 'body']
+  __slots__ = ['pred', 'body']
 
   def __init__(self, pred, body):
     self.pred = pred
@@ -209,7 +209,7 @@ class while_node(node):
 class for_node(node):
   __tag__ = 'for'
   __version__ = 1
-  __slots = ['name', 'func', 'body']
+  __slots__ = ['name', 'func', 'body']
 
   def __init__(self, name, func, body):
     self.name = name
@@ -220,7 +220,7 @@ class for_node(node):
 class with_node(node):
   __tag__ = 'with'
   __version__ = 1
-  __slots = ['expr', 'params', 'body']
+  __slots__ = ['expr', 'params', 'body']
 
   def __init__(self, expr, params, body):
     self.expr = expr
