@@ -154,16 +154,6 @@ class link_node(node):
     self.name = name
 
 
-class foreign_node(node):
-  __tag__ = 'foreign'
-  __version__ = 1
-  __slots__ = ['name', 'params']
-
-  def __init__(self, name, params):
-    self.name = name
-    self.params = params
-
-
 class loop_node(node):
   __tag__ = 'loop'
   __version__ = 1
@@ -172,6 +162,16 @@ class loop_node(node):
   def __init__(self, body):
     self.body = body
 
+
+class macro_node(node):
+  __tag__ = 'macro'
+  __version__ = 1
+  __slots__ = ['name', 'params', 'body']
+
+  def __init__(self, name, params, body):
+    self.name = name
+    self.params = params
+    self.body = body
 
 class pass_node(node):
   __tag__ = 'pass'
@@ -303,6 +303,16 @@ class func_node(node):
   def __init__(self, params, body):
     self.params = params
     self.body = body
+
+
+class foreign_node(node):
+  __tag__ = 'foreign'
+  __version__ = 1
+  __slots__ = ['name', 'params']
+
+  def __init__(self, name, params):
+    self.name = name
+    self.params = params
 
 
 class call_node(node):

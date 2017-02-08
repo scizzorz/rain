@@ -34,12 +34,21 @@ class context:
     self.coord = (0, 0)
     self.next()
 
+    self.macros = {}
+
   def next(self):
     self.token = self.peek
     try:
       self.peek = next(self.stream)
     except StopIteration:
       self.peek = K.end_token()
+
+  def register_macro(self, name, parses):
+    # TODO: panic on redef
+    self.macros[name] = parses
+
+  def expand_macro(self, name):
+    return [fn(self) for fn in self.macros[name]]
 
   def expect(self, *tokens):
     return self.token in tokens
@@ -147,7 +156,29 @@ def stmt(ctx):
     if ctx.consume(K.keyword_token('as')):
       rename = ctx.require(K.name_token).value
 
+    print('macro import:', name)
     return A.import_node(name, rename)
+
+  if ctx.consume(K.keyword_token('macro')):
+    pieces = {
+      'expr': expr,
+      'block': block,
+      'string': lambda x: x.require(K.string_token),
+    }
+
+    name = ctx.require(K.name_token).value
+    params = fnparams(ctx)
+    body = block(ctx)
+    print('macro def:', name, params)
+    ctx.register_macro(name, [pieces[x] for x in params])
+    return A.macro_node(name, params, body)
+
+  if ctx.consume(K.symbol_token('@')):
+    name = ctx.require(K.name_token).value
+    print('macro exp:', name)
+    res = ctx.expand_macro(name)
+    print('  ', res)
+    return A.pass_node()
 
   if ctx.consume(K.keyword_token('link')):
     name = ctx.require(K.string_token).value

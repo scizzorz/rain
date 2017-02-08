@@ -299,6 +299,11 @@ def emit(self, module):
   return file
 
 
+@macro_node.method
+def emit(self, module):
+  pass
+
+
 @pass_node.method
 def emit(self, module):
   pass
