@@ -154,6 +154,8 @@ def block(ctx):
 #       | 'export' NAME '=' expr
 #       | 'export' NAME 'as' 'foreign' (NAME | STRING)
 #       | 'import' (NAME | STRING) ('as' NAME)?
+#       | 'macro' NAME fnparams 'as' fnparams block
+#       | '@' NAME ***
 #       | 'link' STRING
 #       | if_stmt
 #       | 'catch' NAME block
@@ -198,6 +200,8 @@ def stmt(ctx):
   if ctx.consume(K.keyword_token('macro')):
     type_options = {
       'expr': expr,
+      'args': fnargs,
+      'params': fnparams,
       'block': block,
       'string': lambda x: x.require(K.string_token).value,
     }

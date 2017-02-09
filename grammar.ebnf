@@ -6,6 +6,8 @@ stmt :: 'let' NAME '=' expr
       | 'export' NAME '=' expr
       | 'export' NAME 'as' 'foreign' (NAME | STRING)
       | 'import' (NAME | STRING) ('as' NAME)?
+      | 'macro' NAME fnparams 'as' fnparams block
+      | '@' NAME ***
       | 'link' STRING
       | if_stmt
       | 'catch' NAME block

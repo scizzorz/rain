@@ -1,0 +1,128 @@
+!program;1
+stmts:
+- !macro;1
+  body: !block;1
+    stmts:
+    - !assn;2
+      export: false
+      let: true
+      lhs: !name;1
+        value: node
+      rhs: !table;1
+        parent: null
+    - !assn;2
+      export: false
+      let: false
+      lhs: !index;1
+        lhs: !name;1
+          value: node
+        rhs: !str;1
+          value: tag
+      rhs: !str;1
+        value: if
+    - !assn;2
+      export: false
+      let: false
+      lhs: !index;1
+        lhs: !name;1
+          value: node
+        rhs: !str;1
+          value: pred
+      rhs: !name;1
+        value: pred
+    - !assn;2
+      export: false
+      let: false
+      lhs: !index;1
+        lhs: !name;1
+          value: node
+        rhs: !str;1
+          value: body
+      rhs: !name;1
+        value: body
+    - !return;1
+      value: !name;1
+        value: node
+  name: test
+  params:
+  - pred
+  - body
+  types:
+  - expr
+  - block
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: test
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !if;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !str;1
+              value: n > 0
+            catch: false
+            func: !name;1
+              value: print
+        els: null
+        pred: !binary;1
+          lhs: !name;1
+            value: n
+          op: '>'
+          rhs: !int;1
+            value: 0
+      - !if;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !str;1
+              value: n < 0
+            catch: false
+            func: !name;1
+              value: print
+        els: null
+        pred: !binary;1
+          lhs: !name;1
+            value: n
+          op: <
+          rhs: !int;1
+            value: 0
+    params:
+    - n
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !int;1
+          value: 10
+        catch: false
+        func: !name;1
+          value: test
+      - !call;1
+        args:
+        - !unary;1
+          op: '-'
+          val: !int;1
+            value: 10
+        catch: false
+        func: !name;1
+          value: test
+      - !call;1
+        args:
+        - !str;1
+          value: Done
+        catch: false
+        func: !name;1
+          value: print
+    params: []

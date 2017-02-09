@@ -1,0 +1,22 @@
+macro print_all(args) as (args)
+  let node = table
+  node.tag = "block"
+  node.stmts = table
+  save node
+
+  let i = 0
+  let call = null
+
+  while args[i] != null
+    call = table
+    call.tag = "call"
+    call._func = table
+    call._func.tag = "name"
+    call._func.value = "print"
+    call.args = table
+    call.args[0] = args[i]
+    node.stmts[i] = call
+    i = i + 1
+
+let main = func()
+  @print_all("one", "two", "THREE", "four")

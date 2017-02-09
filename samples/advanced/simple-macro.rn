@@ -1,0 +1,18 @@
+macro test(expr, block) as (pred, body)
+  let node = table
+  node.tag = "if"
+  node.pred = pred
+  node.body = body
+  return node
+
+let test = func(n)
+  @test n > 0
+    print("n > 0")
+
+  @test n < 0
+    print("n < 0")
+
+let main = func()
+  test(10)
+  test(-10)
+  print("Done")
