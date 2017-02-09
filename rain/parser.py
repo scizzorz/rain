@@ -36,17 +36,18 @@ class macro:
     self.parses = parses
 
     mod = M.Module(name='macro')
+    A.import_node('ast').emit(mod)  # auto-import lib/ast.rn
     node.expand(mod)
 
-    builtin = C.get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
-    builtin.goodies()
-    so = builtin.compile_links()
+    # stil need to do some voodoo to get the AST working
+    ast = C.get_compiler(join(ENV['RAINLIB'], 'ast.rn'))
+    ast.goodies()
+    so = ast.compile_links()
 
     # TODO: import builtins?
-    # TODO: import ast?
+    # create the execution engine and link everthing
     self.eng = E.Engine(llvm_ir=mod.ir)
-    self.eng.link_file(builtin.ll)
-    self.eng.link_file(*builtin.links)
+    self.eng.link_file(ast.ll, *ast.links)
     self.eng.add_lib(so)
     self.eng.finalize()
 

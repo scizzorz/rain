@@ -273,8 +273,12 @@ def emit(self, module):
     module.panic("Can't import module {!r} at non-global scope", self.name)
 
   # add the module's directory to the lookup path
-  base, name = os.path.split(module.file)
-  file = M.find_rain(self.name, paths=[base])
+  if getattr(module, 'file', None):
+    base, name = os.path.split(module.file)
+    file = M.find_rain(self.name, paths=[base])
+  else:
+    file = M.find_rain(self.name)
+
   if not file:
     module.panic("Can't find module {!r}", self.name)
 
