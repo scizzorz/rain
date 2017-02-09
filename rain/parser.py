@@ -46,7 +46,7 @@ class macro:
     # TODO: import ast?
     self.eng = E.Engine(llvm_ir=mod.ir)
     self.eng.link_file(builtin.ll)
-    self.eng.link_file(*builtin.compiled_lls)
+    self.eng.link_file(*builtin.links)
     self.eng.add_lib('/usr/lib/libgc.so', '/usr/lib/libgcc_s.so.1')
     self.eng.finalize()
 

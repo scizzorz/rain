@@ -51,7 +51,6 @@ class Compiler:
     self.ast = None     # set after parsing
     self.mod = None     # set before emitting
     self.ll = None      # set after writing
-    self.compiled_lls = []  # used by macro parsing
 
   @classmethod
   def print(cls, msg, end='\n'):
@@ -163,20 +162,23 @@ class Compiler:
       self.ll = name
 
   def compile_links(self):
-    if not self.compiled_lls:
-      for link in self.links:
-        if link.endswith('.ll'):
-          self.compiled_lls.append(link)
-          continue
+    drop = set()
+    add = set()
 
-        handle, target = tempfile.mkstemp(prefix=os.path.basename(link), suffix='.ll')
-        clang = os.getenv('CLANG', 'clang')
-        flags = ['-O2', '-S', '-emit-llvm']
-        cmd = [clang, '-o', target, link] + flags
-        subprocess.check_call(cmd)
-        self.compiled_lls.append(target)
+    for link in self.links:
+      if link.endswith('.ll'):
+        continue
 
-    return self.compiled_lls
+      handle, target = tempfile.mkstemp(prefix=os.path.basename(link), suffix='.ll')
+      clang = os.getenv('CLANG', 'clang')
+      flags = ['-O2', '-S', '-emit-llvm']
+      cmd = [clang, '-o', target, link] + flags
+      subprocess.check_call(cmd)
+
+      drop.add(link)
+      add.add(target)
+
+    self.links = (self.links | add) - drop
 
   def compile(self):
     with self.okay('compiling'):
