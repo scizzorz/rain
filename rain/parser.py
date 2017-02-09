@@ -209,7 +209,13 @@ def stmt(ctx):
       'args': fnargs,
       'params': fnparams,
       'block': block,
+      'stmt': stmt,
+      'name': lambda x: x.require(K.name_token).value,
+      'namestr': lambda x: x.require(K.name_token, K.string_token).value,
       'string': lambda x: x.require(K.string_token).value,
+      'int': lambda x: x.require(K.int_token).value,
+      'float': lambda x: x.require(K.float_token).value,
+      'bool': lambda x: x.require(K.bool_token).value,
     }
 
     name = ctx.require(K.name_token).value
