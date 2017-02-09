@@ -1,10 +1,11 @@
-from . import token as K
 from . import ast as A
-from . import module as M
+from . import compiler as C
 from . import engine as E
-
+from . import module as M
+from . import token as K
 from ctypes import byref
-import ctypes
+from os import environ as ENV
+from os.path import join
 
 end = K.end_token()
 indent = K.indent_token()
@@ -37,12 +38,15 @@ class macro:
     mod = M.Module(name='macro')
     node.expand(mod)
 
-    # TODO: figure out how to automatically find all of this crap
+    builtin = C.get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
+    builtin.goodies()
+    builtin.compile_links()
+
     # TODO: import builtins?
     # TODO: import ast?
     self.eng = E.Engine(llvm_ir=mod.ir)
-    self.eng.link_file('tmp/rain.ll', 'tmp/util.ll',  'tmp/except.ll', 'tmp/env.ll')
-    self.eng.link_file('tmp/lib.ll', 'tmp/lib.env.ll', 'tmp/lib.except.ll')
+    self.eng.link_file(builtin.ll)
+    self.eng.link_file(*builtin.compiled_lls)
     self.eng.add_lib('/usr/lib/libgc.so', '/usr/lib/libgcc_s.so.1')
     self.eng.finalize()
 
