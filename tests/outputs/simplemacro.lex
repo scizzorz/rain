@@ -12,31 +12,19 @@ symbol ','
 name 'body'
 symbol ')'
 indent
-keyword 'let'
-name 'node'
-symbol '='
-'table'
-newline
-name 'node'
-symbol '.'
-name 'tag'
-symbol '='
-string 'if'
-newline
-name 'node'
-symbol '.'
-name 'pred'
-symbol '='
-name 'pred'
-newline
-name 'node'
-symbol '.'
-name 'body'
-symbol '='
-name 'body'
-newline
 keyword 'return'
-name 'node'
+name 'ast'
+symbol '.'
+name 'if'
+symbol ':'
+name 'init'
+symbol '('
+name 'pred'
+symbol ','
+name 'body'
+symbol ','
+'null'
+symbol ')'
 newline
 dedent
 newline

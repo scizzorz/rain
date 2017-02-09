@@ -1,9 +1,5 @@
 macro test(expr, block) as (pred, body)
-  let node = table
-  node.tag = "if"
-  node.pred = pred
-  node.body = body
-  return node
+  return ast._if:init(pred, body, null)
 
 let test = func(n)
   @test n > 0

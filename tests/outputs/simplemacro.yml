@@ -3,46 +3,22 @@ stmts:
 - !macro;1
   body: !block;1
     stmts:
-    - !assn;2
-      export: false
-      let: true
-      lhs: !name;1
-        value: node
-      rhs: !table;1
-        parent: null
-    - !assn;2
-      export: false
-      let: false
-      lhs: !index;1
-        lhs: !name;1
-          value: node
-        rhs: !str;1
-          value: tag
-      rhs: !str;1
-        value: if
-    - !assn;2
-      export: false
-      let: false
-      lhs: !index;1
-        lhs: !name;1
-          value: node
-        rhs: !str;1
-          value: pred
-      rhs: !name;1
-        value: pred
-    - !assn;2
-      export: false
-      let: false
-      lhs: !index;1
-        lhs: !name;1
-          value: node
-        rhs: !str;1
-          value: body
-      rhs: !name;1
-        value: body
     - !return;1
-      value: !name;1
-        value: node
+      value: !method;1
+        args:
+        - !name;1
+          value: pred
+        - !name;1
+          value: body
+        - !null;1 {}
+        catch: false
+        lhs: !index;1
+          lhs: !name;1
+            value: ast
+          rhs: !str;1
+            value: if
+        rhs: !str;1
+          value: init
   name: test
   params:
   - pred
