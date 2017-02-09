@@ -48,6 +48,7 @@ class Compiler:
     self.main = main
     self.lib = ENV['RAINLIB']
     self.links = set()
+    self.libs = set()
     self.stream = None  # set after lexing
     self.ast = None     # set after parsing
     self.mod = None     # set before emitting
@@ -110,6 +111,12 @@ class Compiler:
           continue
         self.links.add(link)
 
+      # add the libraries
+      for lib in builtin.libs:
+        if not lib:
+          continue
+        self.libs.add(lib)
+
       # copy builtins into scope
       for name, val in builtin.mod.globals.items():
         self.mod[name] = val
@@ -118,7 +125,7 @@ class Compiler:
       self.mod.import_from(builtin.mod)
 
     # compile the imports
-    imports, links = self.ast.emit(self.mod)
+    imports, links, libs = self.ast.emit(self.mod)
     for mod in imports:
       comp = get_compiler(mod)
       comp.goodies()  # should be done during import but might as well be safe
@@ -130,11 +137,22 @@ class Compiler:
           continue
         self.links.add(link)
 
+      for lib in comp.libs:
+        if not lib:
+          continue
+        self.libs.add(lib)
+
     # add the links
     for link in links:
       if not link:
         continue
       self.links.add(link)
+
+    # add the libraries
+    for lib in libs:
+      if not lib:
+        continue
+      self.libs.add(lib)
 
     # only spit out the main if this is the main file
     if self.main:
@@ -166,8 +184,9 @@ class Compiler:
     with self.okay('compiling'):
       target = self.target or self.mname
       clang = os.getenv('CLANG', 'clang')
-      flags = ['-O2', '-lgc', '-lm', '-lpcre']
-      cmd = [clang, '-o', target, self.ll] + flags + list(self.links)
+      flags = ['-O2']
+      libs = ['-l' + lib for lib in self.libs]
+      cmd = [clang, '-o', target, self.ll] + flags + libs + list(self.links)
       subprocess.check_call(cmd)
 
   def run(self):

@@ -1,5 +1,6 @@
 link "rain.c"
 link "util.c"
+library "gc"
 
 import env
 import except

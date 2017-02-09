@@ -19,14 +19,17 @@ def emit(self, module):
 
   imports = []
   links = []
+  libs = []
   for stmt in self.stmts:
     ret = module.emit(stmt)
     if isinstance(stmt, import_node):
       imports.append(ret)
     elif isinstance(stmt, link_node):
       links.append(ret)
+    elif isinstance(stmt, lib_node):
+      libs.append(ret)
 
-  return imports, links
+  return imports, links, libs
 
 
 @program_node.method
@@ -297,6 +300,14 @@ def emit(self, module):
   base, name = os.path.split(module.file)
   file = M.find_file(self.name, paths=[base])
   return file
+
+
+@lib_node.method
+def emit(self, module):
+  if module.is_local:
+    module.panic("Can't link library {!r} at non-global scope", self.name)
+
+  return self.name
 
 
 @pass_node.method
