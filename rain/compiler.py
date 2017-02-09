@@ -46,12 +46,12 @@ class Compiler:
     self.qname, self.mname = M.find_name(file)
     self.target = target
     self.main = main
-    self.lib = ENV['RAINLIB']
     self.links = set()
     self.stream = None  # set after lexing
     self.ast = None     # set after parsing
     self.mod = None     # set before emitting
     self.ll = None      # set after writing
+    self.compiled_lls = []  # used by macro parsing
 
   @classmethod
   def print(cls, msg, end='\n'):
@@ -161,6 +161,22 @@ class Compiler:
         tmp.write(self.mod.ir)
 
       self.ll = name
+
+  def compile_links(self):
+    if not self.compiled_lls:
+      for link in self.links:
+        if link.endswith('.ll'):
+          self.compiled_lls.append(link)
+          continue
+
+        handle, target = tempfile.mkstemp(prefix=os.path.basename(link), suffix='.ll')
+        clang = os.getenv('CLANG', 'clang')
+        flags = ['-O2', '-S', '-emit-llvm']
+        cmd = [clang, '-o', target, link] + flags
+        subprocess.check_call(cmd)
+        self.compiled_lls.append(target)
+
+    return self.compiled_lls
 
   def compile(self):
     with self.okay('compiling'):
