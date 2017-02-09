@@ -154,6 +154,15 @@ class link_node(node):
     self.name = name
 
 
+class lib_node(node):
+  __tag__ = 'library'
+  __version__ = 1
+  __slots__ = ['name']
+
+  def __init__(self, name):
+    self.name = name
+
+
 class foreign_node(node):
   __tag__ = 'foreign'
   __version__ = 1

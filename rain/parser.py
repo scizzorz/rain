@@ -109,6 +109,7 @@ def block(ctx):
 #       | 'export' NAME 'as' 'foreign' (NAME | STRING)
 #       | 'import' (NAME | STRING) ('as' NAME)?
 #       | 'link' STRING
+#       | 'library' STRING
 #       | if_stmt
 #       | 'catch' NAME block
 #       | 'for' NAME 'in' expr block
@@ -152,6 +153,10 @@ def stmt(ctx):
   if ctx.consume(K.keyword_token('link')):
     name = ctx.require(K.string_token).value
     return A.link_node(name)
+
+  if ctx.consume(K.keyword_token('library')):
+    name = ctx.require(K.string_token).value
+    return A.lib_node(name)
 
   if ctx.expect(K.keyword_token('if')):
     return if_stmt(ctx)
