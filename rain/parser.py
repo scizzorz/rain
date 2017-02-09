@@ -69,16 +69,15 @@ class context:
     eng.finalize()
 
     args = [fn(self) for fn in parses]
-    arg_boxes = [eng.coerce(arg) for arg in args]
+    arg_boxes = [eng.to_rain(arg) for arg in args]
 
     new_node_box = E.Box(0, 0, 0)
     func = eng.get_func('macro.func.0', E.Arg, *[E.Arg] * len(parses))
     func(byref(new_node_box), *[byref(arg) for arg in arg_boxes])
 
-    new_node_name_box = eng.rain_get_str(new_node_box, "tag")
-    print("The macro returned:", new_node_name_box.as_str())
+    new_node = eng.to_py(new_node_box)
 
-    return new_node_box
+    return new_node
 
   def expect(self, *tokens):
     return self.token in tokens
@@ -186,7 +185,6 @@ def stmt(ctx):
     if ctx.consume(K.keyword_token('as')):
       rename = ctx.require(K.name_token).value
 
-    print('macro import:', name)
     return A.import_node(name, rename)
 
   if ctx.consume(K.keyword_token('macro')):
@@ -202,16 +200,14 @@ def stmt(ctx):
     params = fnparams(ctx)
     body = block(ctx)
 
-    print('macro def:', name, params)
     node = A.macro_node(name, types, params, body)
     ctx.register_macro(name, node, [type_options[x] for x in types])
     return node
 
   if ctx.consume(K.symbol_token('@')):
     name = ctx.require(K.name_token).value
-    print('macro exp:', name)
     res = ctx.expand_macro(name)
-    return A.pass_node()
+    return res
 
   if ctx.consume(K.keyword_token('link')):
     name = ctx.require(K.string_token).value

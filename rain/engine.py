@@ -89,6 +89,14 @@ class Engine:
     func_ptr = self.engine.get_function_address(name)
     return func_typ(func_ptr)
 
+  def main(self):
+    main = self.get_func('main', c_int, c_int, POINTER(c_char_p))
+
+    argc = c_int(1)
+    argv_0 = c_char_p("test".encode("utf-8"))
+
+    main(argc, byref(argv_0))
+
 
   # rain_get
 
@@ -103,6 +111,7 @@ class Engine:
 
   def rain_get_int(self, table_box, key):
     return self.rain_get(table_box, Box(1, key, 0))
+
 
   # rain_put
 
@@ -121,7 +130,9 @@ class Engine:
     set_table = self.get_func('rain_set_table', Arg)
     set_table(byref(table_box))
 
-  def coerce(self, val):
+  # converting between Rain and Python AST
+
+  def to_rain(self, val):
     if val is None:
       return Box(0, 0, 0)
 
@@ -142,7 +153,7 @@ class Engine:
       self.rain_set_table(table_box)
 
       for i, n in enumerate(val):
-        self.rain_put_int(table_box, i, self.coerce(n))
+        self.rain_put_int(table_box, i, self.to_rain(n))
 
       return table_box
 
@@ -152,18 +163,43 @@ class Engine:
 
       self.rain_put_str(table_box, 'tag', Box.from_str(val.__tag__))
       for key in val.__slots__:
-        self.rain_put_str(table_box, key, self.coerce(getattr(val, key, None)))
+        self.rain_put_str(table_box, key, self.to_rain(getattr(val, key, None)))
 
       tag_out = self.rain_get_str(table_box, 'tag')
       return table_box
 
-    return "Can't coerce value: {!r}".format(val)
+    return "Can't convert value to Rain: {!r}".format(val)
 
+  def to_py(self, box):
+    if box.type == 0:
+      return None
 
-  def main(self):
-    main = self.get_func('main', c_int, c_int, POINTER(c_char_p))
+    elif box.type == 1:
+      return box.data
 
-    argc = c_int(1)
-    argv_0 = c_char_p("test".encode("utf-8"))
+    elif box.type == 3:
+      return bool(box.data)
 
-    main(argc, byref(argv_0))
+    elif box.type == 4:
+      return box.as_str()
+
+    elif box.type == 5:
+      tag = self.to_py(self.rain_get_str(box, "tag"))
+      if tag:
+        node_type = A.tag_registry[tag]
+        slots = [self.to_py(self.rain_get_str(box, slot)) for slot in node_type.__slots__]
+
+        return node_type(*slots)
+
+      else:
+        res = []
+        i = 0
+        while True:
+          next = self.to_py(self.rain_get_int(box, i))
+          if next is None:
+            break
+
+          res.append(next)
+          i += 1
+
+        return res

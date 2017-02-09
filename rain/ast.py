@@ -4,6 +4,7 @@ import ctypes
 
 registry = camel.CamelRegistry()
 machine = camel.Camel([registry])
+tag_registry = {}
 
 
 # Base classes
@@ -17,6 +18,7 @@ class metanode(type):
     super().__init__(name, bases, attrs)
     registry.dumper(cls, cls.__tag__, version=cls.__version__)(cls.dump)
     registry.loader(cls.__tag__, version=cls.__version__)(cls.load)
+    tag_registry[cls.__tag__] = cls
 
   def dump(cls, self):
     return {slot: getattr(self, slot) for slot in cls.__slots__}
