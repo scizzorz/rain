@@ -30,6 +30,37 @@ binary_ops = {
   '|': 30,
 }
 
+class macro:
+  def __init__(self, node, parses):
+    self.parses = parses
+
+    mod = M.Module(name='macro')
+    node.expand(mod)
+
+    # TODO: figure out how to automatically find all of this crap
+    # TODO: import builtins?
+    # TODO: import ast?
+    self.eng = E.Engine(llvm_ir=mod.ir)
+    self.eng.link_file('tmp/rain.ll', 'tmp/util.ll',  'tmp/except.ll', 'tmp/env.ll')
+    self.eng.link_file('tmp/lib.ll', 'tmp/lib.env.ll', 'tmp/lib.except.ll')
+    self.eng.add_lib('/usr/lib/libgc.so', '/usr/lib/libgcc_s.so.1')
+    self.eng.finalize()
+
+  def parse(self, ctx):
+    return [fn(ctx) for fn in self.parses]
+
+  def expand(self, ctx):
+    args = self.parse(ctx)
+
+    arg_boxes = [self.eng.to_rain(arg) for arg in args]
+
+    ret_box = E.Box(0, 0, 0)
+    func = self.eng.get_func('macro.func.0', E.Arg, *[E.Arg] * len(self.parses))
+    func(byref(ret_box), *[byref(arg) for arg in arg_boxes])
+    new_node = self.eng.to_py(ret_box)
+
+    return new_node
+
 
 class context:
   def __init__(self, stream, *, file=None):
@@ -50,34 +81,11 @@ class context:
 
   def register_macro(self, name, node, parses):
     # TODO: panic on redef
-    # TODO: better data structure?
-    self.macros[name] = (node, parses)
+    self.macros[name] = macro(node, parses)
 
   def expand_macro(self, name):
-    mod = M.Module(name='macro')
-    node = self.macros[name][0]
-    parses = self.macros[name][1]
-
-    node.expand(mod)
-
-    # TODO: figure out how to automatically find all of this crap
-    # TODO: import builtins?
-    # TODO: import ast?
-    eng = E.Engine(llvm_ir=mod.ir)
-    eng.link_file('tmp/rain.ll', 'tmp/util.ll', 'tmp/lib.ll', 'tmp/lib.env.ll', 'tmp/lib.except.ll', 'tmp/except.ll', 'tmp/env.ll')
-    eng.add_lib('/usr/lib/libgc.so', '/usr/lib/libgcc_s.so.1')
-    eng.finalize()
-
-    args = [fn(self) for fn in parses]
-    arg_boxes = [eng.to_rain(arg) for arg in args]
-
-    new_node_box = E.Box(0, 0, 0)
-    func = eng.get_func('macro.func.0', E.Arg, *[E.Arg] * len(parses))
-    func(byref(new_node_box), *[byref(arg) for arg in arg_boxes])
-
-    new_node = eng.to_py(new_node_box)
-
-    return new_node
+    # TODO: panic on unknown
+    return self.macros[name].expand(self)
 
   def expect(self, *tokens):
     return self.token in tokens
