@@ -1,4 +1,6 @@
+library "pcre"
 link "re.c"
+
 export match = foreign "rain_pcre_match"(re, to_match)
 export compile = foreign "rain_pcre_compile"(re)
 
