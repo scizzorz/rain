@@ -40,14 +40,14 @@ class macro:
 
     builtin = C.get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
     builtin.goodies()
-    builtin.compile_links()
+    so = builtin.compile_links()
 
     # TODO: import builtins?
     # TODO: import ast?
     self.eng = E.Engine(llvm_ir=mod.ir)
     self.eng.link_file(builtin.ll)
     self.eng.link_file(*builtin.links)
-    self.eng.add_lib('/usr/lib/libgc.so', '/usr/lib/libgcc_s.so.1')
+    self.eng.add_lib(so)
     self.eng.finalize()
 
   def parse(self, ctx):

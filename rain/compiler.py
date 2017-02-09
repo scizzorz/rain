@@ -180,6 +180,7 @@ class Compiler:
       self.ll = name
 
   def compile_links(self):
+    clang = os.getenv('CLANG', 'clang')
     drop = set()
     add = set()
 
@@ -188,7 +189,6 @@ class Compiler:
         continue
 
       handle, target = tempfile.mkstemp(prefix=os.path.basename(link), suffix='.ll')
-      clang = os.getenv('CLANG', 'clang')
       flags = ['-O2', '-S', '-emit-llvm']
       cmd = [clang, '-o', target, link] + flags
       subprocess.check_call(cmd)
@@ -197,6 +197,13 @@ class Compiler:
       add.add(target)
 
     self.links = (self.links | add) - drop
+
+    # compile shared libraries too!
+    handle, target = tempfile.mkstemp(prefix='slibs', suffix='.so')
+    libs = ['-l' + lib for lib in self.libs]
+    cmd = [clang, '-shared', '-o', target] + libs
+    subprocess.check_call(cmd)
+    return target
 
   def compile(self):
     with self.okay('compiling'):
