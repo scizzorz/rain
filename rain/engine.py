@@ -1,5 +1,6 @@
 from . import ast as A
 
+import ctypes
 from ctypes import CFUNCTYPE, POINTER
 from ctypes import Structure
 from ctypes import byref
@@ -15,7 +16,10 @@ from ctypes import cast
 
 import llvmlite.binding as llvm
 
+
+
 class Box(Structure):
+  _saves_ = []
   _fields_ = [("type", c_uint8),
               ("data", c_uint64),
               ("size", c_uint32)]
@@ -27,9 +31,16 @@ class Box(Structure):
     return '<{!s}>'.format(self)
 
   @classmethod
+  def new(cls, *args, **kwargs):
+    obj = cls(*args, **kwargs)
+    cls._saves_.append(obj)
+    return obj
+
+  @classmethod
   def from_str(cls, string):
     str_p = create_string_buffer(string.encode("utf-8"))
-    return cls(4, cast(str_p, c_void_p).value, len(string))
+    cls._saves_.append(str_p)
+    return cls.new(4, cast(str_p, c_void_p).value, len(string))
 
   def as_str(self):
     return cast(self.data, c_char_p).value.decode("utf-8")
@@ -102,7 +113,7 @@ class Engine:
 
   def rain_get(self, table_box, key_box):
     get = self.get_func('rain_get', Arg, Arg, Arg)  # ret, table, key
-    ret_box = Box(0, 0, 0)
+    ret_box = Box.new(0, 0, 0)
     get(byref(ret_box), byref(table_box), byref(key_box))
     return ret_box
 
@@ -110,7 +121,7 @@ class Engine:
     return self.rain_get(table_box, Box.from_str(key))
 
   def rain_get_int(self, table_box, key):
-    return self.rain_get(table_box, Box(1, key, 0))
+    return self.rain_get(table_box, Box.new(1, key, 0))
 
 
   # rain_put
@@ -124,7 +135,7 @@ class Engine:
     self.rain_put(table_box, key_box, value_box)
 
   def rain_put_int(self, table_box, key, value_box):
-    self.rain_put(table_box, Box(1, key, 0), value_box)
+    self.rain_put(table_box, Box.new(1, key, 0), value_box)
 
   def rain_set_table(self, table_box):
     set_table = self.get_func('rain_set_table', Arg)
@@ -134,22 +145,22 @@ class Engine:
 
   def to_rain(self, val):
     if val is None:
-      return Box(0, 0, 0)
+      return Box.new(0, 0, 0)
 
     elif val is True:
-      return Box(3, 1, 0)
+      return Box.new(3, 1, 0)
 
     elif val is False:
-      return Box(3, 0, 0)
+      return Box.new(3, 0, 0)
 
     elif isinstance(val, int):
-      return Box(1, val, 0)
+      return Box.new(1, val, 0)
 
     elif isinstance(val, str):
       return Box.from_str(val)
 
     elif isinstance(val, list):
-      table_box = Box(0, 0, 0)
+      table_box = Box.new(0, 0, 0)
       self.rain_set_table(table_box)
 
       for i, n in enumerate(val):
@@ -158,14 +169,18 @@ class Engine:
       return table_box
 
     elif isinstance(val, A.node):
-      table_box = Box(0, 0, 0)
+      table_box = Box.new(0, 0, 0)
       self.rain_set_table(table_box)
 
-      self.rain_put_str(table_box, 'tag', Box.from_str(val.__tag__))
-      for key in val.__slots__:
-        self.rain_put_str(table_box, key, self.to_rain(getattr(val, key, None)))
+      slots = [self.to_rain(getattr(val, key, None)) for key in val.__slots__]
 
-      tag_out = self.rain_get_str(table_box, 'tag')
+
+      tag_in = Box.from_str(val.__tag__)
+      self.rain_put_str(table_box, 'tag', tag_in)
+
+      for key, box in zip(val.__slots__, slots):
+        self.rain_put_str(table_box, key, box)
+
       return table_box
 
     return "Can't convert value to Rain: {!r}".format(val)
@@ -184,7 +199,9 @@ class Engine:
       return box.as_str()
 
     elif box.type == 5:
-      tag = self.to_py(self.rain_get_str(box, "tag"))
+      tag_box = self.rain_get_str(box, 'tag')
+      tag = self.to_py(tag_box)
+
       if tag:
         node_type = A.tag_registry[tag]
         slots = [self.to_py(self.rain_get_str(box, slot)) for slot in node_type.__slots__]
