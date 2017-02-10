@@ -20,13 +20,6 @@ fpe.msg = "floating point error"
 export segfault = table from error
 segfault.msg = "segmentation fault"
 
-export safe = func(val)
-  while val is table
-    break if !(val.metatable)
-    val = val.metatable
-
-  return val != error
-
 export arg_mismatch as foreign "rain_exc_arg_mismatch"
 export error        as foreign "rain_exc_error"
 export fpe          as foreign "rain_exc_fpe"
