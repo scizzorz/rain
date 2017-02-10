@@ -39,15 +39,27 @@ class phases(Enum):
 
 
 class Compiler:
+  NONE  = 0
+  READ  = 1
+  LEX   = 2
+  PARSE = 3
+  EMIT  = 4
+  WRITE = 5
+  COMP  = 6
+
   quiet = False
 
   def __init__(self, file, target=None, main=False):
     self.file = file
     self.qname, self.mname = M.find_name(file)
+
     self.target = target
     self.main = main
+
     self.links = set()
     self.libs = set()
+
+    self.phase = Compiler.NONE
     self.stream = None  # set after lexing
     self.ast = None     # set after parsing
     self.mod = None     # set before emitting
@@ -86,17 +98,33 @@ class Compiler:
       self.write(phase)
 
   def read(self):
+    if self.phase >= Compiler.READ:
+      return
+    self.phase = Compiler.READ
+
     with open(self.file) as tmp:
       self.src = tmp.read()
 
   def lex(self):
+    if self.phase >= Compiler.LEX:
+      return
+    self.phase = Compiler.LEX
+
     self.stream = L.stream(self.src)
 
   def parse(self):
-    context = P.context(self.stream, file=self.file)
-    self.ast = P.program(context)
+    if self.phase >= Compiler.PARSE:
+      return
+    self.phase = Compiler.PARSE
+
+    self.parser = P.context(self.stream, file=self.file)
+    self.ast = P.program(self.parser)
 
   def emit(self):
+    if self.phase >= Compiler.EMIT:
+      return
+    self.phase = Compiler.EMIT
+
     self.mod = M.Module(self.file)
 
     # always link with lib/_pkg.rn
@@ -158,6 +186,10 @@ class Compiler:
       self.ast.emit_main(self.mod)
 
   def write(self, phase=phases.building):
+    if self.phase >= Compiler.WRITE:
+      return
+    self.phase = Compiler.WRITE
+
     if phase == phases.lexing:
       with open(self.target or self.mname + '.lex', 'w') as tmp:
         for token in self.stream:
@@ -206,6 +238,10 @@ class Compiler:
     return target
 
   def compile(self):
+    if self.phase >= Compiler.COMP:
+      return
+    self.phase = Compiler.COMP
+
     with self.okay('compiling'):
       target = self.target or self.mname
       clang = os.getenv('CLANG', 'clang')

@@ -288,7 +288,7 @@ def emit(self, module):
   module.import_from(comp.mod)
   glob = module.get_global(comp.mod.mangle('exports.table'))
 
-  rename = self.rename or comp.mod.mname
+  rename = self.rename or comp.mname
 
   module[rename] = module.add_global(T.box, module.mangle(rename))
   module[rename].initializer = static_table_from_ptr(module, glob)
