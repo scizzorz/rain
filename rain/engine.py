@@ -106,7 +106,7 @@ class Engine:
     argc = c_int(1)
     argv_0 = c_char_p("test".encode("utf-8"))
 
-    main(argc, byref(argv_0))
+    return main(argc, byref(argv_0))
 
 
   # rain_get
