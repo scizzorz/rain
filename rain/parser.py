@@ -174,7 +174,7 @@ def block(ctx):
 #       | 'export' NAME 'as' 'foreign' (NAME | STRING)
 #       | 'import' (NAME | STRING) ('as' NAME)?
 #       | 'macro' NAME fnparams 'as' fnparams block
-#       | '@' NAME ***
+#       | '@' NAME ('.' NAME)* ***
 #       | 'link' STRING
 #       | 'library' STRING
 #       | if_stmt
@@ -255,6 +255,9 @@ def stmt(ctx):
 
   if ctx.consume(K.symbol_token('@')):
     name = ctx.require(K.name_token).value
+    while ctx.consume(K.symbol_token('.')):
+      name += '.' + ctx.require(K.name_token).value
+
     res = ctx.expand_macro(name)
     return res
 
