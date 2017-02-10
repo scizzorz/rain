@@ -41,7 +41,27 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !for;1 {}
+      - !for;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !name;1
+              value: m
+            catch: false
+            func: !name;1
+              value: print
+        func: !call;1
+          args:
+          - !name;1
+            value: match
+          catch: false
+          func: !index;1
+            lhs: !name;1
+              value: array
+            rhs: !str;1
+              value: values
+        name: m
       - !assn;2
         export: false
         let: true
@@ -81,7 +101,27 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !for;1 {}
+      - !for;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !name;1
+              value: m
+            catch: false
+            func: !name;1
+              value: print
+        func: !call;1
+          args:
+          - !name;1
+            value: match
+          catch: false
+          func: !index;1
+            lhs: !name;1
+              value: array
+            rhs: !str;1
+              value: values
+        name: m
       - !assn;2
         export: false
         let: true

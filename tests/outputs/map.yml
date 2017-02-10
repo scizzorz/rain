@@ -38,7 +38,7 @@ stmts:
         lhs: !name;1
           value: a
         rhs: !table;1
-          metatable: !name;1
+          parent: !name;1
             value: array
       - !assn;2
         export: false
@@ -87,7 +87,24 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !for;1 {}
+      - !for;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !name;1
+              value: x
+            catch: false
+            func: !name;1
+              value: print
+        func: !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: a
+          rhs: !str;1
+            value: keys
+        name: x
       - !call;1
         args:
         - !str;1
@@ -95,7 +112,24 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !for;1 {}
+      - !for;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !name;1
+              value: x
+            catch: false
+            func: !name;1
+              value: print
+        func: !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: a
+          rhs: !str;1
+            value: values
+        name: x
       - !call;1
         args:
         - !str;1
@@ -103,7 +137,34 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !for;1 {}
+      - !for;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !name;1
+              value: x
+            catch: false
+            func: !name;1
+              value: print
+        func: !call;1
+          args:
+          - !method;1
+            args: []
+            catch: false
+            lhs: !name;1
+              value: a
+            rhs: !str;1
+              value: values
+          - !name;1
+            value: double
+          catch: false
+          func: !index;1
+            lhs: !name;1
+              value: iter
+            rhs: !str;1
+              value: map
+        name: x
       - !assn;2
         export: false
         let: true
@@ -125,7 +186,24 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !for;1 {}
+      - !for;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !name;1
+              value: x
+            catch: false
+            func: !name;1
+              value: print
+        func: !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: b
+          rhs: !str;1
+            value: keys
+        name: x
       - !call;1
         args:
         - !str;1
@@ -133,5 +211,22 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !for;1 {}
+      - !for;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !name;1
+              value: x
+            catch: false
+            func: !name;1
+              value: print
+        func: !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: b
+          rhs: !str;1
+            value: values
+        name: x
     params: []

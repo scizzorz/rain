@@ -126,11 +126,15 @@ class Module(S.Scope):
       key = key.value
     return normalize_name(key)
 
-  def __init__(self, file):
+  def __init__(self, file=None, name=None):
     S.Scope.__init__(self)
 
-    self.file = file
-    self.qname, self.mname = find_name(self.file)
+    if name:
+      self.qname = self.mname = name
+    else:
+      self.file = file
+      self.qname, self.mname = find_name(self.file)
+
     self.llvm = ir.Module(name=self.qname)
     self.llvm.triple = binding.get_default_triple()
 

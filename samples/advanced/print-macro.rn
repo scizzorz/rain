@@ -1,0 +1,16 @@
+macro print_all(args) as (args)
+  # we're returning a series of statements
+  let node = ast.block:init(table)
+  save node
+
+  let i = 0
+  let call = null
+
+  while args[i] != null
+    # each statement is a non-catching call to print
+    node.stmts[i] = ast.call:init(ast.name:init("print"), table, null)
+    node.stmts[i].args[0] = args[i]
+    i = i + 1
+
+let main = func()
+  @print_all("one", "two", "THREE", "four")

@@ -273,8 +273,12 @@ def emit(self, module):
     module.panic("Can't import module {!r} at non-global scope", self.name)
 
   # add the module's directory to the lookup path
-  base, name = os.path.split(module.file)
-  file = M.find_rain(self.name, paths=[base])
+  if getattr(module, 'file', None):
+    base, name = os.path.split(module.file)
+    file = M.find_rain(self.name, paths=[base])
+  else:
+    file = M.find_rain(self.name)
+
   if not file:
     module.panic("Can't find module {!r}", self.name)
 
@@ -284,7 +288,7 @@ def emit(self, module):
   module.import_from(comp.mod)
   glob = module.get_global(comp.mod.mangle('exports.table'))
 
-  rename = self.rename or comp.mod.mname
+  rename = self.rename or comp.mname
 
   module[rename] = module.add_global(T.box, module.mangle(rename))
   module[rename].initializer = static_table_from_ptr(module, glob)
@@ -300,6 +304,16 @@ def emit(self, module):
   base, name = os.path.split(module.file)
   file = M.find_file(self.name, paths=[base])
   return file
+
+
+@macro_node.method
+def emit(self, module):
+  pass
+
+
+@macro_node.method
+def expand(self, module):
+  func_node(self.params, self.body).emit(module)
 
 
 @lib_node.method
@@ -477,12 +491,12 @@ def emit(self, module):
 @table_node.method
 def emit(self, module):
   if module.is_global:
-    return static_table_alloc(module, module.uniq('table'), metatable=self.metatable)
+    return static_table_alloc(module, module.uniq('table'), metatable=self.parent)
 
   ptr = module.excall('rain_new_table')
 
-  if self.metatable:
-    val = module.emit(self.metatable)
+  if self.parent:
+    val = module.emit(self.parent)
 
     with module.goto_entry():
       val_ptr = module.alloc(T.box, name='key_ptr')

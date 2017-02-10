@@ -4,6 +4,7 @@ import ctypes
 
 registry = camel.CamelRegistry()
 machine = camel.Camel([registry])
+tag_registry = {}
 
 
 # Base classes
@@ -17,6 +18,7 @@ class metanode(type):
     super().__init__(name, bases, attrs)
     registry.dumper(cls, cls.__tag__, version=cls.__version__)(cls.dump)
     registry.loader(cls.__tag__, version=cls.__version__)(cls.load)
+    tag_registry[cls.__tag__] = cls
 
   def dump(cls, self):
     return {slot: getattr(self, slot) for slot in cls.__slots__}
@@ -163,16 +165,6 @@ class lib_node(node):
     self.name = name
 
 
-class foreign_node(node):
-  __tag__ = 'foreign'
-  __version__ = 1
-  __slots__ = ['name', 'params']
-
-  def __init__(self, name, params):
-    self.name = name
-    self.params = params
-
-
 class loop_node(node):
   __tag__ = 'loop'
   __version__ = 1
@@ -181,6 +173,17 @@ class loop_node(node):
   def __init__(self, body):
     self.body = body
 
+
+class macro_node(node):
+  __tag__ = 'macro'
+  __version__ = 1
+  __slots__ = ['name', 'types', 'params', 'body']
+
+  def __init__(self, name, types, params, body):
+    self.name = name
+    self.types = types
+    self.params = params
+    self.body = body
 
 class pass_node(node):
   __tag__ = 'pass'
@@ -197,7 +200,7 @@ class save_node(value_node):
 class until_node(node):
   __tag__ = 'until'
   __version__ = 1
-  __slots = ['pred', 'body']
+  __slots__ = ['pred', 'body']
 
   def __init__(self, pred, body):
     self.pred = pred
@@ -207,7 +210,7 @@ class until_node(node):
 class while_node(node):
   __tag__ = 'while'
   __version__ = 1
-  __slots = ['pred', 'body']
+  __slots__ = ['pred', 'body']
 
   def __init__(self, pred, body):
     self.pred = pred
@@ -217,7 +220,7 @@ class while_node(node):
 class for_node(node):
   __tag__ = 'for'
   __version__ = 1
-  __slots = ['name', 'func', 'body']
+  __slots__ = ['name', 'func', 'body']
 
   def __init__(self, name, func, body):
     self.name = name
@@ -228,7 +231,7 @@ class for_node(node):
 class with_node(node):
   __tag__ = 'with'
   __version__ = 1
-  __slots = ['expr', 'params', 'body']
+  __slots__ = ['expr', 'params', 'body']
 
   def __init__(self, expr, params, body):
     self.expr = expr
@@ -298,10 +301,10 @@ class str_node(value_node, literal_node):
 class table_node(node):
   __tag__ = 'table'
   __version__ = 1
-  __slots__ = ['metatable']
+  __slots__ = ['parent']
 
-  def __init__(self, metatable=None):
-    self.metatable = metatable
+  def __init__(self, parent=None):
+    self.parent = parent
 
 
 class func_node(node):
@@ -312,6 +315,16 @@ class func_node(node):
   def __init__(self, params, body):
     self.params = params
     self.body = body
+
+
+class foreign_node(node):
+  __tag__ = 'foreign'
+  __version__ = 1
+  __slots__ = ['name', 'params']
+
+  def __init__(self, name, params):
+    self.name = name
+    self.params = params
 
 
 class call_node(node):

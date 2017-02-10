@@ -116,7 +116,18 @@ stmts:
       - !catch;1
         body: !block;1
           stmts:
-          - !for;1 {}
+          - !for;1
+            body: !block;1
+              stmts:
+              - !call;1
+                args:
+                - !name;1
+                  value: x
+                catch: false
+                func: !name;1
+                  value: print
+            func: !null;1 {}
+            name: x
         name: r
       - !if;1
         body: !block;1

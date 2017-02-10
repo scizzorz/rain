@@ -15,6 +15,8 @@ A programming language.
 
 Definitely Python 3, LLVM-3.8, and clang-3.8. Check out [requirements.txt](https://github.com/scizzorz/rain/blob/master/requirements.txt) for the Python packages.
 
+Also requires `libgc` and `libunwind`. The `re` module requires `libpcre`.
+
 ## Having fun
 
 Make a fun Rain file:

@@ -1,0 +1,14 @@
+macro test(expr, block) as (pred, body)
+  return ast._if:init(pred, body, null)
+
+let test = func(n)
+  @test n > 0
+    print("n > 0")
+
+  @test n < 0
+    print("n < 0")
+
+let main = func()
+  test(10)
+  test(-10)
+  print("Done")

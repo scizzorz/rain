@@ -15,7 +15,33 @@ stmts:
           value: n
         rhs: !int;1
           value: 0
-      - !while;1 {}
+      - !while;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !name;1
+              value: n
+            catch: false
+            func: !name;1
+              value: print
+          - !assn;2
+            export: false
+            let: false
+            lhs: !name;1
+              value: n
+            rhs: !binary;1
+              lhs: !name;1
+                value: n
+              op: +
+              rhs: !int;1
+                value: 1
+        pred: !binary;1
+          lhs: !name;1
+            value: n
+          op: <
+          rhs: !int;1
+            value: 10
       - !call;1
         args:
         - !str;1
@@ -23,7 +49,33 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !until;1 {}
+      - !until;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !name;1
+              value: n
+            catch: false
+            func: !name;1
+              value: print
+          - !assn;2
+            export: false
+            let: false
+            lhs: !name;1
+              value: n
+            rhs: !binary;1
+              lhs: !name;1
+                value: n
+              op: '-'
+              rhs: !int;1
+                value: 1
+        pred: !binary;1
+          lhs: !name;1
+            value: n
+          op: <
+          rhs: !int;1
+            value: 1
       - !call;1
         args:
         - !str;1

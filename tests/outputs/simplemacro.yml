@@ -1,0 +1,104 @@
+!program;1
+stmts:
+- !macro;1
+  body: !block;1
+    stmts:
+    - !return;1
+      value: !method;1
+        args:
+        - !name;1
+          value: pred
+        - !name;1
+          value: body
+        - !null;1 {}
+        catch: false
+        lhs: !index;1
+          lhs: !name;1
+            value: ast
+          rhs: !str;1
+            value: if
+        rhs: !str;1
+          value: init
+  name: test
+  params:
+  - pred
+  - body
+  types:
+  - expr
+  - block
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: test
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !if;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !str;1
+              value: n > 0
+            catch: false
+            func: !name;1
+              value: print
+        els: null
+        pred: !binary;1
+          lhs: !name;1
+            value: n
+          op: '>'
+          rhs: !int;1
+            value: 0
+      - !if;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !str;1
+              value: n < 0
+            catch: false
+            func: !name;1
+              value: print
+        els: null
+        pred: !binary;1
+          lhs: !name;1
+            value: n
+          op: <
+          rhs: !int;1
+            value: 0
+    params:
+    - n
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !int;1
+          value: 10
+        catch: false
+        func: !name;1
+          value: test
+      - !call;1
+        args:
+        - !unary;1
+          op: '-'
+          val: !int;1
+            value: 10
+        catch: false
+        func: !name;1
+          value: test
+      - !call;1
+        args:
+        - !str;1
+          value: Done
+        catch: false
+        func: !name;1
+          value: print
+    params: []

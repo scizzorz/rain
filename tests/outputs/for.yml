@@ -56,5 +56,36 @@ stmts:
   rhs: !func;1
     body: !block;1
       stmts:
-      - !for;1 {}
+      - !for;1
+        body: !block;1
+          stmts:
+          - !continue;1
+            cond: !binary;1
+              lhs: !name;1
+                value: i
+              op: ==
+              rhs: !int;1
+                value: 4
+          - !break;1
+            cond: !binary;1
+              lhs: !name;1
+                value: i
+              op: ==
+              rhs: !int;1
+                value: 8
+          - !call;1
+            args:
+            - !name;1
+              value: i
+            catch: false
+            func: !name;1
+              value: print
+        func: !call;1
+          args:
+          - !int;1
+            value: 20
+          catch: false
+          func: !name;1
+            value: range
+        name: i
     params: []

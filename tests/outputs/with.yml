@@ -117,7 +117,62 @@ stmts:
   rhs: !func;1
     body: !block;1
       stmts:
-      - !with;1 {}
-      - !with;1 {}
-      - !with;1 {}
+      - !with;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !str;1
+              value: Anonymous block
+            catch: false
+            func: !name;1
+              value: print
+        expr: !name;1
+          value: ctx0
+        params: []
+      - !with;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !binary;1
+              lhs: !str;1
+                value: 'Anonymous block: '
+              op: $
+              rhs: !name;1
+                value: a
+            catch: false
+            func: !name;1
+              value: print
+        expr: !name;1
+          value: ctx1
+        params:
+        - a
+      - !with;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !binary;1
+              lhs: !binary;1
+                lhs: !binary;1
+                  lhs: !str;1
+                    value: 'Anonymous block: '
+                  op: $
+                  rhs: !name;1
+                    value: a
+                op: $
+                rhs: !str;1
+                  value: ' + '
+              op: $
+              rhs: !name;1
+                value: b
+            catch: false
+            func: !name;1
+              value: print
+        expr: !name;1
+          value: ctx2
+        params:
+        - a
+        - b
     params: []

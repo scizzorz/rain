@@ -28,7 +28,24 @@ stmts:
               value: file
             rhs: !str;1
               value: open
-      - !for;1 {}
+      - !for;1
+        body: !block;1
+          stmts:
+          - !call;1
+            args:
+            - !name;1
+              value: x
+            catch: false
+            func: !name;1
+              value: print
+        func: !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: f
+          rhs: !str;1
+            value: lines
+        name: x
       - !method;1
         args: []
         catch: false

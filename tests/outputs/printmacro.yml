@@ -1,0 +1,162 @@
+!program;1
+stmts:
+- !macro;1
+  body: !block;1
+    stmts:
+    - !assn;2
+      export: false
+      let: true
+      lhs: !name;1
+        value: node
+      rhs: !method;1
+        args:
+        - !table;1
+          parent: null
+        catch: false
+        lhs: !index;1
+          lhs: !name;1
+            value: ast
+          rhs: !str;1
+            value: block
+        rhs: !str;1
+          value: init
+    - !save;1
+      value: !name;1
+        value: node
+    - !assn;2
+      export: false
+      let: true
+      lhs: !name;1
+        value: i
+      rhs: !int;1
+        value: 0
+    - !assn;2
+      export: false
+      let: true
+      lhs: !name;1
+        value: call
+      rhs: !null;1 {}
+    - !while;1
+      body: !block;1
+        stmts:
+        - !assn;2
+          export: false
+          let: false
+          lhs: !index;1
+            lhs: !index;1
+              lhs: !name;1
+                value: node
+              rhs: !str;1
+                value: stmts
+            rhs: !name;1
+              value: i
+          rhs: !method;1
+            args:
+            - !method;1
+              args:
+              - !str;1
+                value: print
+              catch: false
+              lhs: !index;1
+                lhs: !name;1
+                  value: ast
+                rhs: !str;1
+                  value: name
+              rhs: !str;1
+                value: init
+            - !table;1
+              parent: null
+            - !null;1 {}
+            catch: false
+            lhs: !index;1
+              lhs: !name;1
+                value: ast
+              rhs: !str;1
+                value: call
+            rhs: !str;1
+              value: init
+        - !assn;2
+          export: false
+          let: false
+          lhs: !index;1
+            lhs: !index;1
+              lhs: !index;1
+                lhs: !index;1
+                  lhs: !name;1
+                    value: node
+                  rhs: !str;1
+                    value: stmts
+                rhs: !name;1
+                  value: i
+              rhs: !str;1
+                value: args
+            rhs: !int;1
+              value: 0
+          rhs: !index;1
+            lhs: !name;1
+              value: args
+            rhs: !name;1
+              value: i
+        - !assn;2
+          export: false
+          let: false
+          lhs: !name;1
+            value: i
+          rhs: !binary;1
+            lhs: !name;1
+              value: i
+            op: +
+            rhs: !int;1
+              value: 1
+      pred: !binary;1
+        lhs: !index;1
+          lhs: !name;1
+            value: args
+          rhs: !name;1
+            value: i
+        op: '!='
+        rhs: !null;1 {}
+  name: printall
+  params:
+  - args
+  types:
+  - args
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !block;1
+        stmts:
+        - !call;1
+          args:
+          - !str;1
+            value: one
+          catch: null
+          func: !name;1
+            value: print
+        - !call;1
+          args:
+          - !str;1
+            value: two
+          catch: null
+          func: !name;1
+            value: print
+        - !call;1
+          args:
+          - !str;1
+            value: THREE
+          catch: null
+          func: !name;1
+            value: print
+        - !call;1
+          args:
+          - !str;1
+            value: four
+          catch: null
+          func: !name;1
+            value: print
+    params: []

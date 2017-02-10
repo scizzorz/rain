@@ -1,6 +1,8 @@
 link "rain.c"
 link "util.c"
 library "gc"
+library "unwind"
+library ":libgcc_s.so.1"
 
 import env
 import except

@@ -1,5 +1,12 @@
-from . import token as K
 from . import ast as A
+from . import compiler as C
+from . import engine as E
+from . import module as M
+from . import token as K
+from ctypes import byref
+from os import environ as ENV
+from os.path import join
+import os.path
 
 end = K.end_token()
 indent = K.indent_token()
@@ -25,6 +32,50 @@ binary_ops = {
   '|': 30,
 }
 
+class macro:
+  def __init__(self, node, parses):
+    self.parses = parses
+    mod = M.Module(name='macro')
+
+    # compile builtins
+    builtin = C.get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
+    builtin.goodies()
+
+    # compile lib.ast and use its links/libs
+    ast = C.get_compiler(join(ENV['RAINLIB'], 'ast.rn'))
+    ast.goodies()
+    so = ast.compile_links()
+
+    # import builtins
+    for name, val in builtin.mod.globals.items():
+      mod[name] = val
+    mod.import_from(builtin.mod)
+
+    # emit the macro code
+    A.import_node('ast').emit(mod)  # auto-import lib/ast.rn
+    node.expand(mod)
+
+    # create the execution engine and link everthing
+    self.eng = E.Engine(llvm_ir=mod.ir)
+    self.eng.link_file(ast.ll, *ast.links)
+    self.eng.add_lib(so)
+    self.eng.finalize()
+
+  def parse(self, ctx):
+    return [fn(ctx) for fn in self.parses]
+
+  def expand(self, ctx):
+    args = self.parse(ctx)
+
+    arg_boxes = [self.eng.to_rain(arg) for arg in args]
+
+    ret_box = E.Box(0, 0, 0)
+    func = self.eng.get_func('macro.func.0', E.Arg, *[E.Arg] * len(self.parses))
+    func(byref(ret_box), *[byref(arg) for arg in arg_boxes])
+    new_node = self.eng.to_py(ret_box)
+
+    return new_node
+
 
 class context:
   def __init__(self, stream, *, file=None):
@@ -34,12 +85,26 @@ class context:
     self.coord = (0, 0)
     self.next()
 
+    self.macros = {}
+
   def next(self):
     self.token = self.peek
     try:
       self.peek = next(self.stream)
     except StopIteration:
       self.peek = K.end_token()
+
+  def register_macro(self, name, node, parses):
+    if name in self.macros:
+      self.panic('Redefinition of macro {!r}', name)
+
+    self.macros[name] = macro(node, parses)
+
+  def expand_macro(self, name):
+    if name not in self.macros:
+      self.panic('Unknown macro {!r}', name)
+
+    return self.macros[name].expand(self)
 
   def expect(self, *tokens):
     return self.token in tokens
@@ -108,6 +173,8 @@ def block(ctx):
 #       | 'export' NAME '=' expr
 #       | 'export' NAME 'as' 'foreign' (NAME | STRING)
 #       | 'import' (NAME | STRING) ('as' NAME)?
+#       | 'macro' NAME fnparams 'as' fnparams block
+#       | '@' NAME ('.' NAME)* ***
 #       | 'link' STRING
 #       | 'library' STRING
 #       | if_stmt
@@ -148,7 +215,51 @@ def stmt(ctx):
     if ctx.consume(K.keyword_token('as')):
       rename = ctx.require(K.name_token).value
 
+    base, fname = os.path.split(ctx.file)
+    file = M.find_rain(name, paths=[base])
+    comp = C.get_compiler(file)
+    comp.read()
+    comp.lex()
+    comp.parse()
+
+    prefix = rename or comp.mname
+    for key, val in comp.parser.macros.items():
+      ctx.macros[prefix + '.' + key] = val
+
     return A.import_node(name, rename)
+
+  if ctx.consume(K.keyword_token('macro')):
+    type_options = {
+      'expr': expr,
+      'args': fnargs,
+      'params': fnparams,
+      'block': block,
+      'stmt': stmt,
+      'name': lambda x: x.require(K.name_token).value,
+      'namestr': lambda x: x.require(K.name_token, K.string_token).value,
+      'string': lambda x: x.require(K.string_token).value,
+      'int': lambda x: x.require(K.int_token).value,
+      'float': lambda x: x.require(K.float_token).value,
+      'bool': lambda x: x.require(K.bool_token).value,
+    }
+
+    name = ctx.require(K.name_token).value
+    types = fnparams(ctx, tokens=[K.name_token(n) for n in type_options])
+    ctx.require(K.keyword_token('as'))
+    params = fnparams(ctx)
+    body = block(ctx)
+
+    node = A.macro_node(name, types, params, body)
+    ctx.register_macro(name, node, [type_options[x] for x in types])
+    return node
+
+  if ctx.consume(K.symbol_token('@')):
+    name = ctx.require(K.name_token).value
+    while ctx.consume(K.symbol_token('.')):
+      name += '.' + ctx.require(K.name_token).value
+
+    res = ctx.expand_macro(name)
+    return res
 
   if ctx.consume(K.keyword_token('link')):
     name = ctx.require(K.string_token).value
@@ -296,15 +407,15 @@ def fnargs(ctx):
 
 
 # fnparams :: '(' (NAME (',' NAME)*)? ')'
-def fnparams(ctx, parens=True):
+def fnparams(ctx, parens=True, tokens=[K.name_token]):
   if parens:
     ctx.require(K.symbol_token('('))
 
   params = []
-  if ctx.expect(K.name_token):
-    params.append(ctx.require(K.name_token).value)
+  if ctx.expect(*tokens):
+    params.append(ctx.require(*tokens).value)
     while ctx.consume(K.symbol_token(',')):
-      params.append(ctx.require(K.name_token).value)
+      params.append(ctx.require(*tokens).value)
 
   if parens:
     ctx.require(K.symbol_token(')'))
