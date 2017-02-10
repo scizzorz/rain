@@ -47,6 +47,7 @@ def test_lex(src):
 def test_parse(src):
   '''Test the parsing phase.'''
 
+  C.reset_compilers()
   comp = C.get_compiler(src, main=True)
   comp.target = comp.mname + '.yml'
   comp.goodies(C.phases.parsing)

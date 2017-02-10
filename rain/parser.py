@@ -6,6 +6,7 @@ from . import token as K
 from ctypes import byref
 from os import environ as ENV
 from os.path import join
+import os.path
 
 end = K.end_token()
 indent = K.indent_token()
@@ -213,6 +214,17 @@ def stmt(ctx):
     rename = None
     if ctx.consume(K.keyword_token('as')):
       rename = ctx.require(K.name_token).value
+
+    base, fname = os.path.split(ctx.file)
+    file = M.find_rain(name, paths=[base])
+    comp = C.get_compiler(file)
+    comp.read()
+    comp.lex()
+    comp.parse()
+
+    prefix = rename or comp.mname
+    for key, val in comp.parser.macros.items():
+      ctx.macros[prefix + '.' + key] = val
 
     return A.import_node(name, rename)
 
