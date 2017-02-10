@@ -83,6 +83,7 @@ void rain_get(box *, box *, box *);
 void rain_put(box *, box *, box *);
 
 void rain_length(box *, box *);
+void rain_type(box *, box *);
 
 void rain_set_box(box *, box *);
 void rain_set_null(box *);

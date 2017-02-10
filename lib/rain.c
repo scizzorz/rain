@@ -519,6 +519,10 @@ void rain_length(box *ret, box *val) {
   }
 }
 
+void rain_type(box *ret, box *val) {
+  rain_set_int(ret, val->type);
+}
+
 // box helpers
 
 void rain_set_box(box *ret, box *from) {

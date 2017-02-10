@@ -1,4 +1,7 @@
 keyword 'import'
+name 'types'
+newline
+keyword 'import'
 name 'except'
 newline
 keyword 'let'
@@ -75,12 +78,15 @@ newline
 dedent
 newline
 keyword 'if'
-operator '!'
-name 'except'
+name 'types'
 symbol '.'
-name 'safe'
+name 'is'
 symbol '('
 name 'r'
+symbol ','
+name 'except'
+symbol '.'
+name 'error'
 symbol ')'
 indent
 name 'print'
@@ -110,12 +116,15 @@ newline
 dedent
 newline
 keyword 'if'
-operator '!'
-name 'except'
+name 'types'
 symbol '.'
-name 'safe'
+name 'is'
 symbol '('
 name 'r'
+symbol ','
+name 'except'
+symbol '.'
+name 'error'
 symbol ')'
 indent
 name 'print'
@@ -142,12 +151,15 @@ newline
 dedent
 newline
 keyword 'if'
-operator '!'
-name 'except'
+name 'types'
 symbol '.'
-name 'safe'
+name 'is'
 symbol '('
 name 'r'
+symbol ','
+name 'except'
+symbol '.'
+name 'error'
 symbol ')'
 indent
 name 'print'
@@ -174,12 +186,15 @@ newline
 dedent
 newline
 keyword 'if'
-operator '!'
-name 'except'
+name 'types'
 symbol '.'
-name 'safe'
+name 'is'
 symbol '('
 name 'r'
+symbol ','
+name 'except'
+symbol '.'
+name 'error'
 symbol ')'
 indent
 name 'print'
@@ -213,12 +228,15 @@ newline
 dedent
 newline
 keyword 'if'
-operator '!'
-name 'except'
+name 'types'
 symbol '.'
-name 'safe'
+name 'is'
 symbol '('
 name 'r'
+symbol ','
+name 'except'
+symbol '.'
+name 'error'
 symbol ')'
 indent
 name 'print'

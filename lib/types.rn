@@ -1,0 +1,20 @@
+export _null = 0
+export _int = 1
+export _float = 2
+export _bool = 3
+export _str = 4
+export _table = 5
+export _func = 6
+export _cdata = 7
+
+export is = func(child, parent)
+  if type(parent) != _table
+    panic(except.arg_mismatch)
+
+  if type(child) != _table
+    return false
+
+  while child.metatable != null
+    if child.metatable == parent
+      return true
+  return false

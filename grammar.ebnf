@@ -32,7 +32,7 @@ fnargs :: '(' (expr (',' expr)*)? ')'
 
 fnparams :: '(' (NAME (',' NAME)*)? ')'
 
-expr :: binexpr ('is' (TYPE | NULL | TABLE | 'func'))?
+expr :: binexpr
 
 binexpr :: unexpr (OPERATOR unexpr)*
 

@@ -729,15 +729,3 @@ def emit(self, module):
 
   ret_ptr = module.exfncall(arith[self.op], T.null, lhs, rhs)
   return module.load(ret_ptr)
-
-
-@is_node.method
-def emit(self, module):
-  if module.is_global:
-    module.panic("Can't check types at global scope")
-
-  lhs = module.emit(self.lhs)
-  lhs_typ = module.get_type(lhs)
-  res = module.builder.icmp_unsigned('==', getattr(T.ityp, self.typ), lhs_typ)
-  res = module.builder.zext(res, T.i64)
-  return module.insert(T._bool(False), res, 1)

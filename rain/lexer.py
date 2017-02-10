@@ -14,7 +14,6 @@ from .token import operator_token
 from .token import string_token
 from .token import symbol_token
 from .token import table_token
-from .token import type_token
 from collections import OrderedDict
 
 OPERATORS = (
@@ -29,12 +28,8 @@ KW_OPERATORS = (
 
 KEYWORDS = (
   'as', 'break', 'catch', 'continue', 'else', 'export', 'for', 'foreign',
-  'from', 'func', 'if', 'import', 'in', 'is', 'let', 'library', 'link', 'loop',
+  'from', 'func', 'if', 'import', 'in', 'let', 'library', 'link', 'loop',
   'macro', 'pass', 'return', 'save', 'until', 'while', 'with',
-)
-
-TYPES = (
-  'bool', 'cdata', 'float', 'int', 'str',
 )
 
 
@@ -43,8 +38,6 @@ def factory(data, *, line=None, col=None):
     return keyword_token(data.lower(), line=line, col=col)
   elif data.lower() in KW_OPERATORS:
     return operator_token(data.lower(), line=line, col=col)
-  elif data.lower() in TYPES:
-    return type_token(data.lower(), line=line, col=col)
   else:
     return name_token(M.normalize_name(data), line=line, col=col)
 

@@ -350,16 +350,6 @@ class meth_node(node):
     self.catch = catch
 
 
-class is_node(node):
-  __tag__ = 'is'
-  __version__ = 1
-  __slots__ = ['lhs', 'typ']
-
-  def __init__(self, lhs, typ):
-    self.lhs = lhs
-    self.typ = typ
-
-
 class binary_node(node):
   __tag__ = 'binary'
   __version__ = 1

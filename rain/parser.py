@@ -423,14 +423,9 @@ def fnparams(ctx, parens=True, tokens=[K.name_token]):
   return params
 
 
-# expr :: binexpr ('is' (TYPE | NULL | TABLE | 'func'))?
+# expr :: binexpr
 def expr(ctx):
-  node = binexpr(ctx)
-  if ctx.consume(K.keyword_token('is')):
-    typ = ctx.require(K.type_token, K.null_token, K.table_token, K.keyword_token('func')).value
-    return A.is_node(node, typ)
-
-  return node
+  return binexpr(ctx)
 
 
 # binexpr :: unexpr (OPERATOR unexpr)*

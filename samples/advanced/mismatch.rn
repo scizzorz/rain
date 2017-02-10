@@ -1,3 +1,4 @@
+import types
 import except
 
 let none = func()
@@ -15,29 +16,29 @@ let main = func()
 
   catch r
     a(b)
-  if !except.safe(r)
+  if types.is(r, except.error)
     print(r.msg)
 
   catch r
     for x in null
       print(x)
-  if !except.safe(r)
+  if types.is(r, except.error)
     print(r.msg)
 
   catch r
     none()
     none(1)
-  if !except.safe(r)
+  if types.is(r, except.error)
     print(r.msg)
 
   catch r
     one(1)
     one()
-  if !except.safe(r)
+  if types.is(r, except.error)
     print(r.msg)
 
   catch r
     two(1, 2)
     two(1, 2, 3)
-  if !except.safe(r)
+  if types.is(r, except.error)
     print(r.msg)
