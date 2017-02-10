@@ -34,17 +34,26 @@ binary_ops = {
 class macro:
   def __init__(self, node, parses):
     self.parses = parses
-
     mod = M.Module(name='macro')
-    A.import_node('ast').emit(mod)  # auto-import lib/ast.rn
-    node.expand(mod)
 
-    # stil need to do some voodoo to get the AST working
+    # compile builtins
+    builtin = C.get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
+    builtin.goodies()
+
+    # compile lib.ast and use its links/libs
     ast = C.get_compiler(join(ENV['RAINLIB'], 'ast.rn'))
     ast.goodies()
     so = ast.compile_links()
 
-    # TODO: import builtins?
+    # import builtins
+    for name, val in builtin.mod.globals.items():
+      mod[name] = val
+    mod.import_from(builtin.mod)
+
+    # emit the macro code
+    A.import_node('ast').emit(mod)  # auto-import lib/ast.rn
+    node.expand(mod)
+
     # create the execution engine and link everthing
     self.eng = E.Engine(llvm_ir=mod.ir)
     self.eng.link_file(ast.ll, *ast.links)
