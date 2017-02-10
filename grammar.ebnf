@@ -9,6 +9,7 @@ stmt :: 'let' NAME '=' expr
       | 'macro' NAME fnparams 'as' fnparams block
       | '@' NAME ***
       | 'link' STRING
+      | 'library' STRING
       | if_stmt
       | 'catch' NAME block
       | 'for' NAME 'in' expr block
