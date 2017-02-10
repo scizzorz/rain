@@ -1,5 +1,6 @@
 from llvmlite import ir
 import ctypes as ct
+import struct
 
 # indices into a box
 TYPE = 0
@@ -144,7 +145,9 @@ class cbox(ct.Structure):
     elif isinstance(val, int):
       return cls.new(typi.int, val, 0)
     elif isinstance(val, float):
-      raise Exception('Floats are broken, dawg.')
+      raw = struct.pack('d', val)
+      intrep = struct.unpack('Q', raw)[0]
+      return cls.new(typi.float, intrep, 0)
     elif isinstance(val, str):
       str_p = ct.create_string_buffer(val.encode('utf-8'))
       cls._saves_.append(str_p)
@@ -160,7 +163,9 @@ class cbox(ct.Structure):
     elif self.type == typi.int:
       return self.data
     elif self.type == typi.float:
-      raise Exception('Floats are broken, dawg.')
+      raw = struct.pack('Q', self.data)
+      floatrep = struct.unpack('d', raw)[0]
+      return floatrep
     elif self.type == typi.str:
       return ct.cast(self.data, ct.c_char_p).value.decode('utf-8')
 

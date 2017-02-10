@@ -1,6 +1,6 @@
 import camel
 import fixedint
-import ctypes
+import struct
 
 registry = camel.CamelRegistry()
 machine = camel.Camel([registry])
@@ -278,7 +278,8 @@ class float_node(value_node, literal_node):
   __tag__ = 'float'
 
   def hash(self):
-    return int(ctypes.c_int.from_buffer(ctypes.c_float(1.0)).value)
+    raw = struct.pack('d', self.value)
+    return struct.unpack('Q', raw)[0]
 
 
 class bool_node(value_node, literal_node):
