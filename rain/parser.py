@@ -3,6 +3,7 @@ from . import compiler as C
 from . import engine as E
 from . import module as M
 from . import token as K
+from . import types as T
 from ctypes import byref
 from os import environ as ENV
 from os.path import join
@@ -69,8 +70,8 @@ class macro:
 
     arg_boxes = [self.eng.to_rain(arg) for arg in args]
 
-    ret_box = E.Box(0, 0, 0)
-    func = self.eng.get_func('macro.func.0', E.Arg, *[E.Arg] * len(self.parses))
+    ret_box = T.cbox(0, 0, 0)
+    func = self.eng.get_func('macro.func.0', T.carg, *[T.carg] * len(self.parses))
     func(byref(ret_box), *[byref(arg) for arg in arg_boxes])
     new_node = self.eng.to_py(ret_box)
 
