@@ -1,5 +1,17 @@
 import core
 
+macro new(name, args) as (name, args)
+  let node = ast.block:init(table)
+  save node
+
+  let tab = ast.name:init(name)
+  node.stmts[0] = ast.assn:init(tab, ast._table, true, null)
+
+  let i = 0
+  while args[i] != null
+    node.stmts[i+1] = ast.assn:init(ast.idx:init(tab, ast._int:init(i)), args[i], false, false)
+    i = i + 1
+
 export length = core.length
 
 export values = func(self)
