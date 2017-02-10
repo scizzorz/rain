@@ -67,10 +67,6 @@ class keyword_token(value_token):
   name = 'keyword'
 
 
-class type_token(value_token):
-  name = 'type'
-
-
 class name_token(value_token):
   name = 'name'
 
