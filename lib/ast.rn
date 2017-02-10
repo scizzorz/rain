@@ -119,6 +119,15 @@ _link.init = func(self, name)
   ret.name = name
 
 
+export _lib = table from node
+
+_lib.tag = "library"
+_lib.init = func(self, name)
+  let ret = self:new()
+  save ret
+  ret.name = name
+
+
 export _loop = table from node
 
 _loop.tag = "loop"
