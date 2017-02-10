@@ -94,11 +94,15 @@ class context:
       self.peek = K.end_token()
 
   def register_macro(self, name, node, parses):
-    # TODO: panic on redef
+    if name in self.macros:
+      self.panic('Redefinition of macro {!r}', name)
+
     self.macros[name] = macro(node, parses)
 
   def expand_macro(self, name):
-    # TODO: panic on unknown
+    if name not in self.macros:
+      self.panic('Unknown macro {!r}', name)
+
     return self.macros[name].expand(self)
 
   def expect(self, *tokens):
