@@ -42,13 +42,23 @@ _block.init = func(self, stmts)
 export _assn = table from node
 
 _assn.tag = "assn"
-_assn.init = func(self, lhs, rhs, _let, _export)
+_assn._let = false
+_assn._export = false
+_assn.init = func(self, lhs, rhs)
   let ret = self:new()
   save ret
   ret.lhs = lhs
   ret.rhs = rhs
-  ret._let = _let
-  ret._export = _export
+
+
+export _let = table from _assn
+
+_let._let = true
+
+
+export _export = table from _assn
+
+_export._export = true
 
 
 export _break = table from node

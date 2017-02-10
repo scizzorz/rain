@@ -1,4 +1,6 @@
 from llvmlite import ir
+import ctypes as ct
+import struct
 
 # indices into a box
 TYPE = 0
@@ -83,12 +85,91 @@ class cast:
   func = ptr(i8)
 
 
+class typi:
+  null = 0
+  int = 1
+  float = 2
+  bool = 3
+  str = 4
+  table = 5
+  func = 6
+  cdata = 7
+
+
 class ityp:
-  null = i8(0)
-  int = i8(1)
-  float = i8(2)
-  bool = i8(3)
-  str = i8(4)
-  table = i8(5)
-  func = i8(6)
-  cdata = i8(7)
+  null = i8(typi.null)
+  int = i8(typi.int)
+  float = i8(typi.float)
+  bool = i8(typi.bool)
+  str = i8(typi.str)
+  table = i8(typi.table)
+  func = i8(typi.func)
+  cdata = i8(typi.cdata)
+
+
+class cbox(ct.Structure):
+  _saves_ = []
+  _fields_ = [('type', ct.c_uint8),
+              ('data', ct.c_uint64),
+              ('size', ct.c_uint32)]
+
+  def __str__(self):
+    return 'cbox({}, {}, {})'.format(self.type, self.data, self.size)
+
+  def __repr__(self):
+    return '<{!s}>'.format(self)
+
+  @classmethod
+  def new(cls, *args, **kwargs):
+    obj = cls(*args, **kwargs)
+    cls._saves_.append(obj)
+    return obj
+
+  @classmethod
+  def from_str(cls, string):
+    str_p = ct.create_string_buffer(string.encode('utf-8'))
+    cls._saves_.append(str_p)
+    return cls.new(typi.str, ct.cast(str_p, ct.c_void_p).value, len(string))
+
+  def as_str(self):
+    return ct.cast(self.data, ct.c_char_p).value.decode('utf-8')
+
+  @classmethod
+  def to_rain(cls, val):
+    if val is None:
+      return cls.new(typi.null, 0, 0)
+    elif val is False:
+      return cls.new(typi.bool, 0, 0)
+    elif val is True:
+      return cls.new(typi.bool, 1, 0)
+    elif isinstance(val, int):
+      return cls.new(typi.int, val, 0)
+    elif isinstance(val, float):
+      raw = struct.pack('d', val)
+      intrep = struct.unpack('Q', raw)[0]
+      return cls.new(typi.float, intrep, 0)
+    elif isinstance(val, str):
+      str_p = ct.create_string_buffer(val.encode('utf-8'))
+      cls._saves_.append(str_p)
+      return cls.new(typi.str, ct.cast(str_p, ct.c_void_p).value, len(val))
+
+    raise Exception("Can't convert value {!r} to Rain".format(val))
+
+  def to_py(self):
+    if self.type == typi.null:
+      return None
+    elif self.type == typi.bool:
+      return bool(self.data)
+    elif self.type == typi.int:
+      return self.data
+    elif self.type == typi.float:
+      raw = struct.pack('Q', self.data)
+      floatrep = struct.unpack('d', raw)[0]
+      return floatrep
+    elif self.type == typi.str:
+      return ct.cast(self.data, ct.c_char_p).value.decode('utf-8')
+
+    raise Exception("Can't convert value {!r} to Python".format(self))
+
+
+carg = ct.POINTER(cbox)

@@ -5,11 +5,11 @@ macro new(name, args) as (name, args)
   save node
 
   let tab = ast.name:init(name)
-  node.stmts[0] = ast.assn:init(tab, ast._table, true, null)
+  node.stmts[0] = ast._let:init(tab, ast._table)
 
   let i = 0
   while args[i] != null
-    node.stmts[i+1] = ast.assn:init(ast.idx:init(tab, ast._int:init(i)), args[i], false, false)
+    node.stmts[i+1] = ast.assn:init(ast.idx:init(tab, ast._int:init(i)), args[i])
     i = i + 1
 
 export length = core.length
