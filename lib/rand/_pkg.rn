@@ -1,0 +1,4 @@
+link "rand.c"
+
+export rand  = foreign "rain_rand"()
+export srand = foreign "rain_srand"(val)
