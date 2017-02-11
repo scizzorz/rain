@@ -1,7 +1,6 @@
-import re
 from . import module as M
-from .token import coord
 from .token import bool_token
+from .token import coord
 from .token import dedent_token
 from .token import end_token
 from .token import float_token
@@ -16,6 +15,8 @@ from .token import string_token
 from .token import symbol_token
 from .token import table_token
 from collections import OrderedDict
+from termcolor import colored as X
+import re
 
 OPERATORS = (
   '->',
@@ -64,12 +65,13 @@ indent = re.compile('^[ ]*')
 
 def stream(source):
   indents = [0]
-  pos = coord(1, 1)
+  line = 1
+  col = 1
 
   def skip(amt):
-    nonlocal source, pos
+    nonlocal source, col
     source = source[amt:]
-    pos.col += amt
+    col += amt
 
   last = None
   while source:
@@ -77,8 +79,8 @@ def stream(source):
       # skip repeated newlines
       while source and source[0] == '\n':
         skip(1)
-        pos.col = 1
-        pos.line += 1
+        col = 1
+        line += 1
 
       # get this line's indentation
       depth = indent.match(source)
@@ -87,26 +89,26 @@ def stream(source):
       # skip this line if it was just an indentation
       if source and source[depth_amt] == '\n':
         skip(1)
-        pos.col = 1
-        pos.line += 1
+        col = 1
+        line += 1
         continue
 
       # handle indents
       if depth_amt > indents[-1]:
-        last = indent_token(pos=pos)
+        last = indent_token(pos=coord(line, col))
         yield last
         indents.append(depth_amt)
 
       # handle newlines at the same indentation
       else:
         if not isinstance(last, (type(None), indent_token, newline_token)):
-          last = newline_token(pos=pos)
+          last = newline_token(pos=coord(line, col))
           yield last
 
       # handle dedents
       while depth_amt < indents[-1]:
-        last = newline_token(pos=pos)
-        yield dedent_token(pos=pos)
+        last = newline_token(pos=coord(line, col))
+        yield dedent_token(pos=coord(line, col))
         yield last
         del indents[-1]
 
@@ -125,9 +127,9 @@ def stream(source):
       if match:
         value = match.group(0)
         if kind:
-          last = kind(value, pos=pos)
+          last = kind(value, pos=coord(line, col, len=len(value)))
           yield last
         skip(len(value))
         break
 
-  yield end_token(pos=pos)
+  yield end_token(pos=coord(line, col))

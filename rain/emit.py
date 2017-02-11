@@ -1,6 +1,7 @@
 from . import compiler as C
 from . import module as M
 from . import types as T
+from . import error as Q
 from .ast import *
 from collections import OrderedDict
 from llvmlite import ir
@@ -60,7 +61,7 @@ def static_table_put(module, table_ptr, column_ptr, key_node, key, val):
 
   # we can only hash things that are known to this compiler (not addresses)
   if not isinstance(key_node, literal_node):
-    module.panic('Unable to hash {!s}', key_node)
+    Q.abort('Unable to hash {!s}', key_node)
 
   # get these for storing
   column = T.column([key, val, None])
@@ -197,7 +198,7 @@ def emit(self, module):
         module[self.lhs] = module.add_global(T.box, name=module.mangle(self.lhs.value))
 
       if self.lhs not in module:
-        module.panic("Undeclared global {!r}", self.lhs.value)
+        Q.abort("Undeclared global {!r}", self.lhs.value)
 
       store_global(module, self.lhs.value, module.emit(self.rhs))
       return
@@ -210,7 +211,7 @@ def emit(self, module):
     rhs = module.emit(self.rhs)
 
     if self.lhs not in module:
-      module.panic("Undeclared name {!r}", self.lhs.value)
+      Q.abort("Undeclared name {!r}", self.lhs.value)
 
     module[self.lhs].bound = True
     module.store(rhs, module[self.lhs])
@@ -258,10 +259,10 @@ def emit(self, module):
 @export_foreign_node.method
 def emit(self, module):
   if module.is_local:
-    module.panic("Can't export value {!r} as foreign at non-global scope", self.name)
+    Q.abort("Can't export value {!r} as foreign at non-global scope", self.name)
 
   if self.name not in module:
-    module.panic("Can't export unknown value {!r}", self.name)
+    Q.abort("Can't export unknown value {!r}", self.name)
 
   glob = module.add_global(T.ptr(T.box), name=self.rename)
   glob.initializer = module[self.name]
@@ -270,7 +271,7 @@ def emit(self, module):
 @import_node.method
 def emit(self, module):
   if module.is_local:
-    module.panic("Can't import module {!r} at non-global scope", self.name)
+    Q.abort("Can't import module {!r} at non-global scope", self.name)
 
   # add the module's directory to the lookup path
   if getattr(module, 'file', None):
@@ -280,7 +281,7 @@ def emit(self, module):
     file = M.find_rain(self.name)
 
   if not file:
-    module.panic("Can't find module {!r}", self.name)
+    Q.abort("Can't find module {!r}", self.name)
 
   comp = C.get_compiler(file)
   comp.goodies()
@@ -299,7 +300,7 @@ def emit(self, module):
 @link_node.method
 def emit(self, module):
   if module.is_local:
-    module.panic("Can't link file {!r} at non-global scope", self.name)
+    Q.abort("Can't link file {!r} at non-global scope", self.name)
 
   base, name = os.path.split(module.file)
   file = M.find_file(self.name, paths=[base])
@@ -319,7 +320,7 @@ def expand(self, module):
 @lib_node.method
 def emit(self, module):
   if module.is_local:
-    module.panic("Can't link library {!r} at non-global scope", self.name)
+    Q.abort("Can't link library {!r} at non-global scope", self.name)
 
   return self.name
 
@@ -450,7 +451,7 @@ def emit(self, module):
 @name_node.method
 def emit(self, module):
   if self.value not in module:
-    module.panic("Unknown name {!r}", self.value)
+    Q.abort("Unknown name {!r}", self.value)
 
   if module.is_global:
     return load_global(module, self.value)
@@ -622,7 +623,7 @@ def do_call(module, func_box, arg_boxes, catch=False):
 @call_node.method
 def emit(self, module):
   if module.is_global:
-    module.panic("Can't call functions at global scope")
+    Q.abort("Can't call functions at global scope")
 
   func_box = module.emit(self.func)
   arg_boxes = [module.emit(arg) for arg in self.args]
@@ -633,7 +634,7 @@ def emit(self, module):
 @meth_node.method
 def emit(self, module):
   if module.is_global:
-    module.panic("Can't call methods at global scope")
+    Q.abort("Can't call methods at global scope")
 
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
@@ -672,7 +673,7 @@ def emit(self, module):
 @unary_node.method
 def emit(self, module):
   if module.is_global:
-    module.panic("Can't use unary operators at global scope")
+    Q.abort("Can't use unary operators at global scope")
 
   arith = {
     '-': 'rain_neg',
@@ -688,7 +689,7 @@ def emit(self, module):
 @binary_node.method
 def emit(self, module):
   if module.is_global:
-    module.panic("Can't use binary operators at global scope")
+    Q.abort("Can't use binary operators at global scope")
 
   if self.op in ('|', '&'):
     with module.goto_entry():
@@ -722,7 +723,7 @@ def emit(self, module):
   }
 
   if self.op not in arith:
-    module.panic("Invalid binary operator {!r}".format(self.op))
+    Q.abort("Invalid binary operator {!r}", self.op)
 
   lhs = module.emit(self.lhs)
   rhs = module.emit(self.rhs)

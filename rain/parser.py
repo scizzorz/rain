@@ -1,6 +1,7 @@
 from . import ast as A
 from . import compiler as C
 from . import engine as E
+from . import error as Q
 from . import module as M
 from . import token as K
 from . import types as T
@@ -83,7 +84,6 @@ class context:
     self.file = file
     self.stream = stream
     self.peek = next(stream)
-    self.coord = (0, 0)
     self.next()
 
     self.macros = {}
@@ -96,15 +96,9 @@ class context:
       self.peek = K.end_token()
 
   def register_macro(self, name, node, parses):
-    if name in self.macros:
-      self.panic('Redefinition of macro {!r}', name)
-
     self.macros[name] = macro(node, parses)
 
   def expand_macro(self, name):
-    if name not in self.macros:
-      self.panic('Unknown macro {!r}', name)
-
     return self.macros[name].expand(self)
 
   def expect(self, *tokens):
@@ -127,23 +121,11 @@ class context:
     else:
       msg = 'Unexpected {!s}; expected {!s}'.format(self.token, tokens[0])
 
-    self.panic(msg, pos=self.token.pos)
-
-  def panic(self, fmt, *args, pos=K.coord()):
-    prefix = ''
-    if self.file:
-      prefix += self.file + ':'
-    prefix += str(pos)
-
-    msg = fmt.format(*args)
-
-    if prefix:
-      raise SyntaxError('{} {}'.format(prefix, msg))
-
-    raise SyntaxError(msg)
+    Q.abort(msg, pos=self.token.pos(file=self.file))
 
 
 # program :: (stmt NEWLINE)+ EOF
+# this parser does panic for things that shouldn't be global
 def program(ctx):
   stmts = []
   while not ctx.expect(end):
@@ -156,6 +138,7 @@ def program(ctx):
 
 
 # block :: INDENT (stmt NEWLINE)+ DEDENT
+# this parser does panic for things that shouldn't be local
 def block(ctx):
   stmts = []
   ctx.require(indent)
@@ -210,16 +193,17 @@ def stmt(ctx):
       return A.export_foreign_node(name, rename)
 
   if ctx.consume(K.keyword_token('import')):
-    name = ctx.require(K.name_token, K.string_token).value
+    name = ctx.require(K.name_token, K.string_token)
+    base, fname = os.path.split(ctx.file)
+    file = M.find_rain(name.value, paths=[base])
+
+    if not file:
+      Q.abort("Can't find module {!r}", name.value, pos=name.pos(file=ctx.file))
+
+    name = name.value
     rename = None
     if ctx.consume(K.keyword_token('as')):
       rename = ctx.require(K.name_token).value
-
-    base, fname = os.path.split(ctx.file)
-    file = M.find_rain(name, paths=[base])
-
-    if not file:
-      ctx.panic("Can't find module {!r}", name)
 
     comp = C.get_compiler(file)
     comp.read()
@@ -247,7 +231,11 @@ def stmt(ctx):
       'bool': lambda x: x.require(K.bool_token).value,
     }
 
-    name = ctx.require(K.name_token).value
+    name = ctx.require(K.name_token)
+    if name.value in ctx.macros:
+      Q.abort('Redefinition of macro {!r}', name.value, pos=name.pos(file=ctx.file))
+
+    name = name.value
     types = fnparams(ctx, tokens=[K.name_token(n) for n in type_options])
     ctx.require(K.keyword_token('as'))
     params = fnparams(ctx)
@@ -258,11 +246,14 @@ def stmt(ctx):
     return node
 
   if ctx.consume(K.symbol_token('@')):
-    name = ctx.require(K.name_token).value
+    name = ctx.require(K.name_token)
+    if name.value not in ctx.macros:
+      Q.abort('Unknown macro {!r}', name.value, pos=name.pos(file=ctx.file))
+
     while ctx.consume(K.symbol_token('.')):
       name += '.' + ctx.require(K.name_token).value
 
-    res = ctx.expand_macro(name)
+    res = ctx.expand_macro(name.value)
     return res
 
   if ctx.consume(K.keyword_token('link')):

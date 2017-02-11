@@ -146,7 +146,6 @@ class Module(S.Scope):
     for name in externs:
       self.extern(name)
 
-    self.coord = (0, 0)
     self.builder = None
     self.catch = None
     self.catchall = None
@@ -174,26 +173,7 @@ class Module(S.Scope):
 
   # wrapper to emit IR for a node
   def emit(self, node):
-    with self.stack('coord'):
-      self.coord = getattr(node, 'origin', (0, 0))
-      return node.emit(self)
-
-  # raise a formatted exception
-  def panic(self, fmt, *args):
-    prefix = ''
-    if self.qname:
-      prefix += self.qname + ':'
-
-    line, col = self.coord
-    if line and col:
-      prefix += str(line) + ':' + str(col) + ':'
-
-    msg = fmt.format(*args)
-
-    if prefix:
-      raise Exception('{} {}'.format(prefix, msg))
-
-    raise Exception(msg)
+    return node.emit(self)
 
   @property
   def ir(self):

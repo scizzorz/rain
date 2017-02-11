@@ -1,8 +1,16 @@
 class coord:
-  def __init__(self, line=0, col=0, file=None):
+  def __init__(self, line=0, col=0, file=None, len=1):
     self.line = line
     self.col = col
     self.file = file
+    self.len = len
+
+  def __call__(self, **kwargs):
+    copy = coord(self.line, self.col, self.file, self.len)
+    for key, val in kwargs.items():
+      setattr(copy, key, val)
+
+    return copy
 
   def __str__(self):
     ret = ''
@@ -14,7 +22,7 @@ class coord:
     elif self.line:
       ret += str(self.line) + ':'
 
-    return ret
+    return ret + ' '
 
   def __repr__(self):
     return '<{!s}>'.format(self)
