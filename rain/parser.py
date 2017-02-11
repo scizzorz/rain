@@ -218,6 +218,10 @@ def stmt(ctx):
 
     base, fname = os.path.split(ctx.file)
     file = M.find_rain(name, paths=[base])
+
+    if not file:
+      ctx.panic("Can't find module {!r}", name)
+
     comp = C.get_compiler(file)
     comp.read()
     comp.lex()
