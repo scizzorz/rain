@@ -1,9 +1,9 @@
+from . import compiler as C
+from . import module as M
+from termcolor import colored as X
 import argparse
 import os.path
 import sys
-
-from . import compiler as C
-from . import module as M
 
 parser = argparse.ArgumentParser(description='Compile Rain code.')
 parser.add_argument('-r', '--run', action='store_true',
@@ -33,7 +33,8 @@ os.environ['RAINHOME'] = os.path.normpath(os.path.join(sys.argv[0], '../../'))
 os.environ['RAINLIB'] = os.path.join(os.environ['RAINHOME'], 'lib')
 src = M.find_rain(args.file)
 if not src:
-  raise Exception('Unable to find module {!r}'.format(args.file))
+  print(X('error', 'red') + ':', "Can't find module {!r}".format(args.file))
+  sys.exit(1)
 
 C.Compiler.quiet = args.quiet
 C.Compiler.verbose = args.verbose

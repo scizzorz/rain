@@ -1,5 +1,6 @@
 import re
 from . import module as M
+from .token import coord
 from .token import bool_token
 from .token import dedent_token
 from .token import end_token
@@ -33,13 +34,13 @@ KEYWORDS = (
 )
 
 
-def factory(data, *, line=None, col=None):
+def factory(data, *, pos=coord()):
   if data.lower() in KEYWORDS:
-    return keyword_token(data.lower(), line=line, col=col)
+    return keyword_token(data.lower(), pos=pos)
   elif data.lower() in KW_OPERATORS:
-    return operator_token(data.lower(), line=line, col=col)
+    return operator_token(data.lower(), pos=pos)
   else:
-    return name_token(M.normalize_name(data), line=line, col=col)
+    return name_token(M.normalize_name(data), pos=pos)
 
 
 raw = OrderedDict()
@@ -63,13 +64,12 @@ indent = re.compile('^[ ]*')
 
 def stream(source):
   indents = [0]
-  line = 1
-  col = 1
+  pos = coord(1, 1)
 
   def skip(amt):
-    nonlocal source, col
+    nonlocal source, pos
     source = source[amt:]
-    col += amt
+    pos.col += amt
 
   last = None
   while source:
@@ -77,8 +77,8 @@ def stream(source):
       # skip repeated newlines
       while source and source[0] == '\n':
         skip(1)
-        col = 1
-        line += 1
+        pos.col = 1
+        pos.line += 1
 
       # get this line's indentation
       depth = indent.match(source)
@@ -87,26 +87,26 @@ def stream(source):
       # skip this line if it was just an indentation
       if source and source[depth_amt] == '\n':
         skip(1)
-        col = 1
-        line += 1
+        pos.col = 1
+        pos.line += 1
         continue
 
       # handle indents
       if depth_amt > indents[-1]:
-        last = indent_token(line=line, col=col)
+        last = indent_token(pos=pos)
         yield last
         indents.append(depth_amt)
 
       # handle newlines at the same indentation
       else:
         if not isinstance(last, (type(None), indent_token, newline_token)):
-          last = newline_token(line=line, col=col)
+          last = newline_token(pos=pos)
           yield last
 
       # handle dedents
       while depth_amt < indents[-1]:
-        last = newline_token(line=line, col=col)
-        yield dedent_token(line=line, col=col)
+        last = newline_token(pos=pos)
+        yield dedent_token(pos=pos)
         yield last
         del indents[-1]
 
@@ -125,9 +125,9 @@ def stream(source):
       if match:
         value = match.group(0)
         if kind:
-          last = kind(value, line=line, col=col)
+          last = kind(value, pos=pos)
           yield last
         skip(len(value))
         break
 
-  yield end_token(line=line, col=col)
+  yield end_token(pos=pos)

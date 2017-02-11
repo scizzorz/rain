@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from enum import Enum
 from os import environ as ENV
 from os.path import join
-from termcolor import colored as C
+from termcolor import colored as X
 import os.path
 import subprocess
 import tempfile
@@ -57,7 +57,7 @@ class Compiler:
     self.qname, self.mname = M.find_name(file)
 
     if Compiler.verbose:
-      self.print('{:>10} {} from {}', 'using', C(self.qname, 'green'), C(self.file, 'blue'))
+      self.print('{:>10} {} from {}', 'using', X(self.qname, 'green'), X(self.file, 'blue'))
 
     self.target = target
     self.main = main
@@ -79,11 +79,11 @@ class Compiler:
   @contextmanager
   def okay(self, fmt, *args):
     msg = fmt.format(*args)
-    self.print('{:>10} {}', msg, C(self.qname, 'green'))
+    self.print('{:>10} {}', msg, X(self.qname, 'green'))
     try:
       yield
     except Exception as exc:
-      self.print('{}: {!s}', C('error', 'red'), exc)
+      self.print('{}: {!s}', X('error', 'red'), exc)
 
       if Compiler.verbose:
         traceback.print_exc()
@@ -187,7 +187,7 @@ class Compiler:
       self.links.add(link)
 
       if Compiler.verbose:
-        self.print('{:>10} {}', 'linking', C(link, 'blue'))
+        self.print('{:>10} {}', 'linking', X(link, 'blue'))
 
     # add the libraries
     for lib in libs:
@@ -196,7 +196,7 @@ class Compiler:
       self.libs.add(lib)
 
       if Compiler.verbose:
-        self.print('{:>10} {}', 'sharing', C(lib, 'blue'))
+        self.print('{:>10} {}', 'sharing', X(lib, 'blue'))
 
     # only spit out the main if this is the main file
     if self.main:

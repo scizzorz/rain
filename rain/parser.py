@@ -127,14 +127,13 @@ class context:
     else:
       msg = 'Unexpected {!s}; expected {!s}'.format(self.token, tokens[0])
 
-    self.panic(msg, line=self.token.line, col=self.token.col)
+    self.panic(msg, pos=self.token.pos)
 
-  def panic(self, fmt, *args, line=None, col=None):
+  def panic(self, fmt, *args, pos=K.coord()):
     prefix = ''
     if self.file:
       prefix += self.file + ':'
-    if line and col:
-      prefix += str(line) + ':' + str(col) + ':'
+    prefix += str(pos)
 
     msg = fmt.format(*args)
 
