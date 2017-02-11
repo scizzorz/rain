@@ -11,6 +11,7 @@ env
 *.o
 *.out
 !tests/**/*.out
+tests/outputs/commandlineargs.out
 
 # a mystery!
 .cache

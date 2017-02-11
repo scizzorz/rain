@@ -86,6 +86,7 @@ class context:
     self.peek = next(stream)
     self.next()
 
+    self.token = None
     self.macros = {}
 
   def next(self):
@@ -125,7 +126,6 @@ class context:
 
 
 # program :: (stmt NEWLINE)+ EOF
-# this parser does panic for things that shouldn't be global
 def program(ctx):
   stmts = []
   while not ctx.expect(end):
@@ -138,7 +138,6 @@ def program(ctx):
 
 
 # block :: INDENT (stmt NEWLINE)+ DEDENT
-# this parser does panic for things that shouldn't be local
 def block(ctx):
   stmts = []
   ctx.require(indent)
