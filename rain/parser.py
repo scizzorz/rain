@@ -86,7 +86,6 @@ class context:
     self.peek = next(stream)
     self.next()
 
-    self.token = None
     self.macros = {}
 
   def next(self):
@@ -417,8 +416,23 @@ def fnparams(ctx, parens=True, tokens=[K.name_token]):
   return params
 
 
-# expr :: binexpr
+# expr :: '@' NAME ('.' NAME)* ***
+#       | binexpr
 def expr(ctx):
+  if ctx.consume(K.symbol_token('@')):
+    name = ctx.require(K.name_token)
+    if name.value not in ctx.macros:
+      Q.abort('Unknown macro {!r}', name.value, pos=name.pos(file=ctx.file))
+
+    while ctx.consume(K.symbol_token('.')):
+      name += '.' + ctx.require(K.name_token).value
+
+    res = ctx.expand_macro(name.value)
+    if not isinstance(res, A.expr_node):
+      Q.abort('Expression macro {!r} returned statement', name.value, pos=name.pos(file=ctx.file))
+
+    return res
+
   return binexpr(ctx)
 
 

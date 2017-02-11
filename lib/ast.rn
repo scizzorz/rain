@@ -196,6 +196,16 @@ _while.tag = "while"
 
 # expressions
 
+export _expr_block = table from node
+
+_expr_block.tag = "expr_block"
+_expr_block.init = func(self, stmts, expr)
+  let ret = self:new()
+  save ret
+  ret.stmts = stmts
+  ret.expr = expr
+
+
 export _idx = table from node
 
 _idx.tag = "index"

@@ -32,7 +32,8 @@ fnargs :: '(' (expr (',' expr)*)? ')'
 
 fnparams :: '(' (NAME (',' NAME)*)? ')'
 
-expr :: binexpr
+expr :: '@' NAME ('.' NAME)* ***
+      | binexpr
 
 binexpr :: unexpr (OPERATOR unexpr)*
 

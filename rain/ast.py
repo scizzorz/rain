@@ -241,7 +241,21 @@ class with_node(node):
 
 # expressions
 
-class idx_node(node):
+class expr_node(node):
+  pass
+
+
+class expr_block_node(expr_node):
+  __tag__ = 'expr_block'
+  __version__ = 1
+  __slots__ = ['stmts', 'expr']
+
+  def __init__(self, stmts, expr):
+    self.stmts = stmts
+    self.expr = expr
+
+
+class idx_node(expr_node):
   __tag__ = 'index'
   __version__ = 1
   __slots__ = ['lhs', 'rhs']
@@ -251,16 +265,16 @@ class idx_node(node):
     self.rhs = rhs
 
 
-class name_node(value_node):
+class name_node(value_node, expr_node):
   __tag__ = 'name'
 
 
-class literal_node:
+class literal_node(expr_node):
   def hash(self):
     raise Exception("Can't hash {!s}".format(self))
 
 
-class null_node(node, literal_node):
+class null_node(literal_node):
   __tag__ = 'null'
 
   def hash(self):
@@ -299,7 +313,7 @@ class str_node(value_node, literal_node):
     return int(val)
 
 
-class table_node(node):
+class table_node(expr_node):
   __tag__ = 'table'
   __version__ = 1
   __slots__ = ['parent']
@@ -308,7 +322,7 @@ class table_node(node):
     self.parent = parent
 
 
-class func_node(node):
+class func_node(expr_node):
   __tag__ = 'func'
   __version__ = 1
   __slots__ = ['params', 'body']
@@ -318,7 +332,7 @@ class func_node(node):
     self.body = body
 
 
-class foreign_node(node):
+class foreign_node(expr_node):
   __tag__ = 'foreign'
   __version__ = 1
   __slots__ = ['name', 'params']
@@ -328,7 +342,7 @@ class foreign_node(node):
     self.params = params
 
 
-class call_node(node):
+class call_node(expr_node):
   __tag__ = 'call'
   __version__ = 1
   __slots__ = ['func', 'args', 'catch']
@@ -339,7 +353,7 @@ class call_node(node):
     self.catch = catch
 
 
-class meth_node(node):
+class meth_node(expr_node):
   __tag__ = 'method'
   __version__ = 1
   __slots__ = ['lhs', 'rhs', 'args', 'catch']
@@ -351,7 +365,7 @@ class meth_node(node):
     self.catch = catch
 
 
-class binary_node(node):
+class binary_node(expr_node):
   __tag__ = 'binary'
   __version__ = 1
   __slots__ = ['lhs', 'rhs', 'op']
@@ -362,7 +376,7 @@ class binary_node(node):
     self.op = op
 
 
-class unary_node(node):
+class unary_node(expr_node):
   __tag__ = 'unary'
   __version__ = 1
   __slots__ = ['op', 'val']

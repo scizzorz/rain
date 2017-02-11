@@ -53,6 +53,14 @@ def emit(self, module):
     module.emit(stmt)
 
 
+@expr_block_node.method
+def emit(self, module):
+  for stmt in self.stmts:
+    module.emit(stmt)
+
+  return module.emit(self.expr)
+
+
 # Helpers #####################################################################
 
 # Put a value into a static table
