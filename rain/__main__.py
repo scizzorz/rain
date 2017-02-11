@@ -14,6 +14,8 @@ parser.add_argument('-l', '--link', metavar='FILE', action='append',
                     help='Extra files to link with.')
 parser.add_argument('-q', '--quiet', action='store_true',
                     help='Quiet the compiler.')
+parser.add_argument('-v', '--verbose', action='store_true',
+                    help='Print extra output.')
 
 parser.add_argument('--lex', action='store_true',
                     help='Stop and output the results of lexing.')
@@ -34,6 +36,7 @@ if not src:
   raise Exception('Unable to find module {!r}'.format(args.file))
 
 C.Compiler.quiet = args.quiet
+C.Compiler.verbose = args.verbose
 comp = C.get_compiler(src, target=args.output, main=True)
 
 if args.link:

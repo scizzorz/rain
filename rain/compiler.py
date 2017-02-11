@@ -11,6 +11,8 @@ from termcolor import colored as C
 import os.path
 import subprocess
 import tempfile
+import traceback
+import sys
 
 compilers = {}
 
@@ -48,10 +50,14 @@ class Compiler:
   COMP  = 6
 
   quiet = False
+  verbose = False
 
   def __init__(self, file, target=None, main=False):
     self.file = file
     self.qname, self.mname = M.find_name(file)
+
+    if Compiler.verbose:
+      self.print('{:>10} {} from {}', 'using', C(self.qname, 'green'), C(self.file, 'blue'))
 
     self.target = target
     self.main = main
@@ -66,19 +72,23 @@ class Compiler:
     self.ll = None      # set after writing
 
   @classmethod
-  def print(cls, msg, end='\n'):
+  def print(cls, msg, *args, end='\n'):
     if not cls.quiet:
-      print(msg, end=end)
+      print(msg.format(*args), end=end)
 
   @contextmanager
   def okay(self, fmt, *args):
     msg = fmt.format(*args)
-    self.print('{:>10} {}...'.format(msg, C(self.qname, 'green')))
+    self.print('{:>10} {}', msg, C(self.qname, 'green'))
     try:
       yield
-    except Exception as e:
-      self.print(C('error!', 'red'))
-      raise
+    except Exception as exc:
+      self.print('{}: {!s}', C('error', 'red'), exc)
+
+      if Compiler.verbose:
+        traceback.print_exc()
+
+      sys.exit(1)
 
   def goodies(self, phase=phases.building):
     # don't do this twice
@@ -169,17 +179,24 @@ class Compiler:
           continue
         self.libs.add(lib)
 
+
     # add the links
     for link in links:
       if not link:
         continue
       self.links.add(link)
 
+      if Compiler.verbose:
+        self.print('{:>10} {}', 'linking', C(link, 'blue'))
+
     # add the libraries
     for lib in libs:
       if not lib:
         continue
       self.libs.add(lib)
+
+      if Compiler.verbose:
+        self.print('{:>10} {}', 'sharing', C(lib, 'blue'))
 
     # only spit out the main if this is the main file
     if self.main:
