@@ -196,13 +196,25 @@ value in a sequence.
 
 #### Packages
 
+#### `init` Function
+
+### Macros
+
 ### Standard library
+
+#### Built-ins
+
+#### `core` package
+
+#### `base` package
 
 ### C extensions
 
 #### C API
 
 #### `link` statement
+
+#### `library` statement
 
 #### `foreign` functions
 
