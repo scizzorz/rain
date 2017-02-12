@@ -2,9 +2,6 @@ keyword 'import'
 name 'array'
 newline
 keyword 'import'
-name 'core'
-newline
-keyword 'import'
 name 'iter'
 newline
 keyword 'let'

@@ -4,9 +4,6 @@ stmts:
   name: array
   rename: null
 - !import;1
-  name: core
-  rename: null
-- !import;1
   name: iter
   rename: null
 - !assn;2

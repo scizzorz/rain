@@ -1,6 +1,6 @@
 #include <criterion/criterion.h>
 
-#include "../../lib/rain.h"
+#include "../../core/rain.h"
 
 #include "suite.h"
 
