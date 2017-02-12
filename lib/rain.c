@@ -237,19 +237,16 @@ void rain_gt(box *ret, box *lhs, box *rhs) {
   else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
     double lhs_f = lhs->data.f;
     double rhs_f = (double)rhs->data.si;
-    double ret_f = lhs_f + rhs_f;
     rain_set_bool(ret, lhs_f > rhs_f);
   }
   else if(BOX_IS(lhs, INT) && BOX_IS(rhs, FLOAT)) {
     double lhs_f = (double)lhs->data.si;
-    double rhs_f = lhs->data.f;
-    double ret_f = lhs_f + rhs_f;
+    double rhs_f = rhs->data.f;
     rain_set_bool(ret, lhs_f > rhs_f);
   }
   else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, FLOAT)) {
     double lhs_f = lhs->data.f;
     double rhs_f = rhs->data.f;
-    double ret_f = lhs_f + rhs_f;
     rain_set_bool(ret, lhs_f > rhs_f);
   }
   else if(BOX_IS(lhs, STR) && BOX_IS(rhs, STR)) {
@@ -260,12 +257,29 @@ void rain_gt(box *ret, box *lhs, box *rhs) {
 }
 
 void rain_ge(box *ret, box *lhs, box *rhs) {
-  if(rain_hash_eq(lhs, rhs)) {
-    rain_set_bool(ret, 1);
-    return;
+  if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
+    rain_set_bool(ret, lhs->data.si >= rhs->data.si);
   }
-
-  rain_gt(ret, lhs, rhs);
+  else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
+    double lhs_f = lhs->data.f;
+    double rhs_f = (double)rhs->data.si;
+    rain_set_bool(ret, lhs_f >= rhs_f);
+  }
+  else if(BOX_IS(lhs, INT) && BOX_IS(rhs, FLOAT)) {
+    double lhs_f = (double)lhs->data.si;
+    double rhs_f = rhs->data.f;
+    rain_set_bool(ret, lhs_f >= rhs_f);
+  }
+  else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, FLOAT)) {
+    double lhs_f = lhs->data.f;
+    double rhs_f = rhs->data.f;
+    rain_set_bool(ret, lhs_f >= rhs_f);
+  }
+  else if(BOX_IS(lhs, STR) && BOX_IS(rhs, STR)) {
+    char *lhs_s = lhs->data.s;
+    char *rhs_s = rhs->data.s;
+    rain_set_bool(ret, strcmp(lhs_s, rhs_s) >= 0);
+  }
 }
 
 void rain_lt(box *ret, box *lhs, box *rhs) {
@@ -275,19 +289,16 @@ void rain_lt(box *ret, box *lhs, box *rhs) {
   else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
     double lhs_f = lhs->data.f;
     double rhs_f = (double)rhs->data.si;
-    double ret_f = lhs_f + rhs_f;
     rain_set_bool(ret, lhs_f < rhs_f);
   }
   else if(BOX_IS(lhs, INT) && BOX_IS(rhs, FLOAT)) {
     double lhs_f = (double)lhs->data.si;
-    double rhs_f = lhs->data.f;
-    double ret_f = lhs_f + rhs_f;
+    double rhs_f = rhs->data.f;
     rain_set_bool(ret, lhs_f < rhs_f);
   }
   else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, FLOAT)) {
     double lhs_f = lhs->data.f;
     double rhs_f = rhs->data.f;
-    double ret_f = lhs_f + rhs_f;
     rain_set_bool(ret, lhs_f < rhs_f);
   }
   else if(BOX_IS(lhs, STR) && BOX_IS(rhs, STR)) {
@@ -298,12 +309,29 @@ void rain_lt(box *ret, box *lhs, box *rhs) {
 }
 
 void rain_le(box *ret, box *lhs, box *rhs) {
-  if(rain_hash_eq(lhs, rhs)) {
-    rain_set_bool(ret, 1);
-    return;
+  if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
+    rain_set_bool(ret, lhs->data.si <= rhs->data.si);
   }
-
-  rain_lt(ret, lhs, rhs);
+  else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, INT)) {
+    double lhs_f = lhs->data.f;
+    double rhs_f = (double)rhs->data.si;
+    rain_set_bool(ret, lhs_f <= rhs_f);
+  }
+  else if(BOX_IS(lhs, INT) && BOX_IS(rhs, FLOAT)) {
+    double lhs_f = (double)lhs->data.si;
+    double rhs_f = rhs->data.f;
+    rain_set_bool(ret, lhs_f <= rhs_f);
+  }
+  else if(BOX_IS(lhs, FLOAT) && BOX_IS(rhs, FLOAT)) {
+    double lhs_f = lhs->data.f;
+    double rhs_f = rhs->data.f;
+    rain_set_bool(ret, lhs_f <= rhs_f);
+  }
+  else if(BOX_IS(lhs, STR) && BOX_IS(rhs, STR)) {
+    char *lhs_s = lhs->data.s;
+    char *rhs_s = rhs->data.s;
+    rain_set_bool(ret, strcmp(lhs_s, rhs_s) <= 0);
+  }
 }
 
 // string helpers

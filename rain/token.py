@@ -1,3 +1,32 @@
+class coord:
+  def __init__(self, line=0, col=0, file=None, len=1):
+    self.line = line
+    self.col = col
+    self.file = file
+    self.len = len
+
+  def __call__(self, **kwargs):
+    copy = coord(self.line, self.col, self.file, self.len)
+    for key, val in kwargs.items():
+      setattr(copy, key, val)
+
+    return copy
+
+  def __str__(self):
+    ret = ''
+    if self.file:
+      ret += self.file + ':'
+
+    if self.line and self.col:
+      ret += str(self.line) + ':' + str(self.col) + ':'
+    elif self.line:
+      ret += str(self.line) + ':'
+
+    return ret + ' '
+
+  def __repr__(self):
+    return '<{!s}>'.format(self)
+
 class metatoken(type):
   def __str__(self):
     if getattr(self, 'name', None):
@@ -10,9 +39,8 @@ class metatoken(type):
 
 
 class token(metaclass=metatoken):
-  def __init__(self, *, line=None, col=None):
-    self.line = line
-    self.col = col
+  def __init__(self, *, pos=coord()):
+    self.pos = pos
 
   def __eq__(self, other):
     return type(self) is type(other)
@@ -45,8 +73,8 @@ class newline_token(token):
 
 
 class value_token(token):
-  def __init__(self, value, *, line=None, col=None):
-    super().__init__(line=line, col=col)
+  def __init__(self, value, *, pos=coord()):
+    super().__init__(pos=pos)
     self.value = value
 
   def __eq__(self, other):
@@ -82,29 +110,29 @@ class operator_token(value_token):
 class int_token(value_token):
   name = 'int'
 
-  def __init__(self, value, *, line=None, col=None):
-    super().__init__(int(value), line=line, col=col)
+  def __init__(self, value, *, pos=coord()):
+    super().__init__(int(value), pos=pos)
 
 
 class float_token(value_token):
   name = 'float'
 
-  def __init__(self, value, *, line=None, col=None):
-    super().__init__(float(value), line=line, col=col)
+  def __init__(self, value, *, pos=coord()):
+    super().__init__(float(value), pos=pos)
 
 
 class bool_token(value_token):
   name = 'bool'
 
-  def __init__(self, value, *, line=None, col=None):
-    super().__init__(value.lower() == 'true', line=line, col=col)
+  def __init__(self, value, *, pos=coord()):
+    super().__init__(value.lower() == 'true', pos=pos)
 
 
 class string_token(value_token):
   name = 'string'
 
-  def __init__(self, value, *, line=None, col=None):
-    super().__init__(self.unescape(value), line=line, col=col)
+  def __init__(self, value, *, pos=coord()):
+    super().__init__(self.unescape(value), pos=pos)
 
   @staticmethod
   def unescape(data):

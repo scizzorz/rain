@@ -1,10 +1,11 @@
 import core
 
-macro new(name, args) as (name, args)
-  let node = ast.block:init(table)
+macro new(args) as (args)
+  let node = ast.expr_block:init(table, null)
   save node
 
-  let tab = ast.name:init(name)
+  let tab = ast.name:init(gensym())
+  node.expr = tab
   node.stmts[0] = ast._let:init(tab, ast._table)
 
   let i = 0
