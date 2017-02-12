@@ -7,7 +7,7 @@ stmt :: 'let' NAME '=' expr
       | 'export' NAME 'as' 'foreign' (NAME | STRING)
       | 'import' (NAME | STRING) ('as' NAME)?
       | 'macro' NAME fnparams 'as' fnparams block
-      | '@' NAME ***
+      | macro_exp
       | 'link' STRING
       | 'library' STRING
       | if_stmt
@@ -26,13 +26,15 @@ stmt :: 'let' NAME '=' expr
 
 if_stmt :: 'if' expr block (NEWLINE 'else' (if_stmt | block))?
 
+macro_exp :: '@' NAME ('.' NAME)* ***
+
 assn_prefix :: prefix ('.' NAME | '[' expr ']')*
 
 fnargs :: '(' (expr (',' expr)*)? ')'
 
 fnparams :: '(' (NAME (',' NAME)*)? ')'
 
-expr :: '@' NAME ('.' NAME)* ***
+expr :: macro_exp
       | binexpr
 
 binexpr :: unexpr (OPERATOR unexpr)*

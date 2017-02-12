@@ -322,7 +322,7 @@ def emit(self, module):
 
 @macro_node.method
 def expand(self, module):
-  func_node(self.params, self.body).emit(module)
+  return func_node(self.params, self.body).emit(module, name='macro.func.main')
 
 
 @lib_node.method
@@ -517,7 +517,7 @@ def emit(self, module):
 
 
 @func_node.method
-def emit(self, module):
+def emit(self, module, name=None):
   env = OrderedDict()
   for scope in module.scopes[1:]:
     for nm, ptr in scope.items():
@@ -535,7 +535,7 @@ def emit(self, module):
   else:
     typ = T.vfunc(T.arg, *[T.arg for x in self.params])
 
-    func = module.add_func(typ)
+    func = module.add_func(typ, name=name)
     func.attributes.personality = module.extern('rain_personality_v0')
     func.args[0].add_attribute('sret')
 

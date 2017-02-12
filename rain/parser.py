@@ -35,7 +35,8 @@ binary_ops = {
 }
 
 class macro:
-  def __init__(self, node, parses):
+  def __init__(self, name, node, parses):
+    self.name = name
     self.parses = parses
     mod = M.Module(name='macro')
 
@@ -55,6 +56,19 @@ class macro:
 
     # emit the macro code
     A.import_node('ast').emit(mod)  # auto-import lib/ast.rn
+
+    # define gensym
+    symcount = A.name_node(':symcount')
+    gensym = A.name_node('gensym')
+    tostr = A.name_node('tostr')
+
+    A.assn_node(symcount, A.int_node(0), let=True).emit(mod)
+    A.assn_node(gensym, A.func_node([], A.block_node([
+      A.save_node(A.binary_node(A.str_node(':{}:'.format(self.name)),
+                                A.call_node(tostr, [symcount]), '$')),
+      A.assn_node(symcount, A.binary_node(symcount, A.int_node(1), '+'))
+    ])), let=True).emit(mod)
+
     node.expand(mod)
 
     # create the execution engine and link everthing
@@ -72,7 +86,7 @@ class macro:
     arg_boxes = [self.eng.to_rain(arg) for arg in args]
 
     ret_box = T.cbox(0, 0, 0)
-    func = self.eng.get_func('macro.func.0', T.carg, *[T.carg] * len(self.parses))
+    func = self.eng.get_func('macro.func.main', T.carg, *[T.carg] * len(self.parses))
     func(byref(ret_box), *[byref(arg) for arg in arg_boxes])
     new_node = self.eng.to_py(ret_box)
 
@@ -96,7 +110,7 @@ class context:
       self.peek = K.end_token()
 
   def register_macro(self, name, node, parses):
-    self.macros[name] = macro(node, parses)
+    self.macros[name] = macro(name, node, parses)
 
   def expand_macro(self, name):
     return self.macros[name].expand(self)
@@ -155,7 +169,7 @@ def block(ctx):
 #       | 'export' NAME 'as' 'foreign' (NAME | STRING)
 #       | 'import' (NAME | STRING) ('as' NAME)?
 #       | 'macro' NAME fnparams 'as' fnparams block
-#       | '@' NAME ('.' NAME)* ***
+#       | macro_exp
 #       | 'link' STRING
 #       | 'library' STRING
 #       | if_stmt
@@ -243,16 +257,8 @@ def stmt(ctx):
     ctx.register_macro(name, node, [type_options[x] for x in types])
     return node
 
-  if ctx.consume(K.symbol_token('@')):
-    name = ctx.require(K.name_token)
-    if name.value not in ctx.macros:
-      Q.abort('Unknown macro {!r}', name.value, pos=name.pos(file=ctx.file))
-
-    while ctx.consume(K.symbol_token('.')):
-      name += '.' + ctx.require(K.name_token).value
-
-    res = ctx.expand_macro(name.value)
-    return res
+  if ctx.expect(K.symbol_token('@')):
+    return macro_exp(ctx)
 
   if ctx.consume(K.keyword_token('link')):
     name = ctx.require(K.string_token).value
@@ -361,6 +367,24 @@ def if_stmt(ctx):
   return A.if_node(pred, body, els)
 
 
+# macro_exp :: '@' NAME ('.' NAME)* ***
+def macro_exp(ctx):
+  ctx.require(K.symbol_token('@'))
+  name = ctx.require(K.name_token)
+  pos = name.pos(file=ctx.file)
+  name = name.value
+
+  while ctx.consume(K.symbol_token('.')):
+    name += '.' + ctx.require(K.name_token).value
+    pos.len = len(name)
+
+  if name not in ctx.macros:
+    Q.abort('Unknown macro {!r}', name, pos=pos)
+
+  res = ctx.expand_macro(name)
+  return res
+
+
 # assn_prefix :: prefix ('.' NAME | '[' expr ']')*
 def assn_prefix(ctx):
   lhs = prefix(ctx)
@@ -416,22 +440,12 @@ def fnparams(ctx, parens=True, tokens=[K.name_token]):
   return params
 
 
-# expr :: '@' NAME ('.' NAME)* ***
+
+# expr :: macro_exp
 #       | binexpr
 def expr(ctx):
-  if ctx.consume(K.symbol_token('@')):
-    name = ctx.require(K.name_token)
-    if name.value not in ctx.macros:
-      Q.abort('Unknown macro {!r}', name.value, pos=name.pos(file=ctx.file))
-
-    while ctx.consume(K.symbol_token('.')):
-      name += '.' + ctx.require(K.name_token).value
-
-    res = ctx.expand_macro(name.value)
-    if not isinstance(res, A.expr_node):
-      Q.abort('Expression macro {!r} returned statement', name.value, pos=name.pos(file=ctx.file))
-
-    return res
+  if ctx.expect(K.symbol_token('@')):
+    return macro_exp(ctx)
 
   return binexpr(ctx)
 
