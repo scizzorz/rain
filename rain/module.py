@@ -16,7 +16,7 @@ name_chars = re.compile('[^a-z0-9]')
 
 # get default paths
 def get_paths():
-  return ['.'] + os.getenv('RAINPATH', '').split(':') + [os.environ['RAINLIB']]
+  return ['.'] + os.getenv('RAINPATH', '').split(':') + [os.environ['RAINBASE'], os.environ['RAINLIB']]
 
 
 # normalize a name - remove all special characters and cases

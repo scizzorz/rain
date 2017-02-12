@@ -1,7 +1,7 @@
 #ifndef RAND_H_
 #define RAND_H_
 
-#include "../rain.h"
+#include "../../lib/rain.h"
 
 void rain_rand(box * );
 void rain_srand(box *, box *);

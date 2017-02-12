@@ -1,4 +1,4 @@
-#include "../rain.h"
+#include "../../lib/rain.h"
 
 #include <stdio.h>
 
