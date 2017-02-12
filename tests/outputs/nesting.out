@@ -1,0 +1,6 @@
+module local
+module export
+local
+local nest
+exported
+exported nest
