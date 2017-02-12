@@ -103,13 +103,6 @@ stmts:
         stmts:
         - !call;1
           args:
-          - !name;1
-            value: fudge
-          catch: false
-          func: !name;1
-            value: print
-        - !call;1
-          args:
           - !index;1
             lhs: !name;1
               value: fudge
@@ -144,13 +137,6 @@ stmts:
           args:
           - !str;1
             value: '----'
-          catch: false
-          func: !name;1
-            value: print
-        - !call;1
-          args:
-          - !name;1
-            value: node
           catch: false
           func: !name;1
             value: print

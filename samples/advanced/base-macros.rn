@@ -8,5 +8,5 @@ let node = @dict.new
   body = "body"
 
 let main = func()
-  @macros.print_all(fudge, fudge[0], fudge[1], fudge[2])
-  @macros.print_all("----", node, node.tag, node.body)
+  @macros.print_all(fudge[0], fudge[1], fudge[2])
+  @macros.print_all("----", node.tag, node.body)
