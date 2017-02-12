@@ -39,7 +39,8 @@ def emit_main(self, module):
     ret_ptr = module.alloc(T.box, T.null, name='ret_ptr')
 
     with module.add_abort() as abort:
-      module.excall('rain_main', ret_ptr, module['main'], *module.main.args, unwind=module.catch)
+      module.excall('rain_init_args', *module.main.args)
+      module.excall('rain_main', ret_ptr, module['main'], unwind=module.catch)
 
       abort(module.builder.block)
 

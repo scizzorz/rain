@@ -82,7 +82,8 @@ externs = {
   'llvm.init.trampoline': T.func(T.void, [T.ptr(T.i8)] * 3),
   'llvm.adjust.trampoline': T.func(T.ptr(T.i8), [T.ptr(T.i8)]),
 
-  'rain_main': T.vfunc(T.arg, T.arg, T.i32, T.ptr(T.ptr(T.i8))),
+  'rain_main': T.vfunc(T.arg, T.arg),
+  'rain_init_args': T.vfunc(T.i32, T.ptr(T.ptr(T.i8))),
   'rain_box_to_exit': T.func(T.i32, [T.arg]),
   'rain_print': T.vfunc(T.arg),
   'rain_throw': T.vfunc(T.arg),

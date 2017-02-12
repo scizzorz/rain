@@ -4,9 +4,7 @@
 
 // system helpers
 
-void rain_main(box *ret, box *func, int argc, char **argv) {
-  rain_init_args(argc, argv);
-
+void rain_main(box *ret, box *func) {
   void (*func_ptr)(box *) = (void (*)(box *))(func->data.vp);
   func_ptr(ret);
 }
