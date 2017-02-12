@@ -15,7 +15,7 @@ criterion/build/libcriterion.so:
 	cd criterion && mkdir build && cd build && cmake .. && cmake --build .
 
 suite: init
-	$(CLANG) -I criterion/include -Lcriterion/build -lcriterion -lgc -lpcre suite.c ../../lib/*.c ../../lib/*/*.c -o suite
+	$(CLANG) -I criterion/include -Lcriterion/build -lcriterion -lgc -lpcre suite.c ../../core/*.c ../../core/*/*.c ../../base/*.c ../../base/*/*.c -o suite
 
 .PHONY: test
 test: suite
