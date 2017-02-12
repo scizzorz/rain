@@ -226,7 +226,7 @@ def emit(self, module):
 
   elif isinstance(self.lhs, idx_node):
     if module.is_global:
-      table_ptr = load_global(module, self.lhs.lhs).source
+      table_ptr = module.emit(self.lhs.lhs).source
       key_node = self.lhs.rhs
       key = module.emit(key_node)
       val = module.emit(self.rhs)
@@ -663,7 +663,7 @@ def emit(self, module):
       return load_global(module[self.lhs].mod, self.rhs)
 
     # otherwise, do normal lookups
-    table_ptr = module[self.lhs].col.source
+    table_ptr = module.emit(self.lhs).source
     key_node = self.rhs
     key = module.emit(key_node)
 
