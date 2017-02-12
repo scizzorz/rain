@@ -1,0 +1,177 @@
+!program;1
+stmts:
+- !import;1
+  name: array
+  rename: null
+- !import;1
+  name: dict
+  rename: null
+- !import;1
+  name: macros
+  rename: null
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: fudge
+  rhs: !expr_block;1
+    expr: !name;1
+      value: :base.array:new:0
+    stmts:
+    - !assn;2
+      export: false
+      let: true
+      lhs: !name;1
+        value: :base.array:new:0
+      rhs: !table;1
+        parent: null
+    - !assn;2
+      export: false
+      let: false
+      lhs: !index;1
+        lhs: !name;1
+          value: :base.array:new:0
+        rhs: !int;1
+          value: 0
+      rhs: !str;1
+        value: one
+    - !assn;2
+      export: false
+      let: false
+      lhs: !index;1
+        lhs: !name;1
+          value: :base.array:new:0
+        rhs: !int;1
+          value: 1
+      rhs: !str;1
+        value: two
+    - !assn;2
+      export: false
+      let: false
+      lhs: !index;1
+        lhs: !name;1
+          value: :base.array:new:0
+        rhs: !int;1
+          value: 2
+      rhs: !str;1
+        value: three
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: node
+  rhs: !expr_block;1
+    expr: !name;1
+      value: :base.dict:new:0
+    stmts:
+    - !assn;2
+      export: false
+      let: true
+      lhs: !name;1
+        value: :base.dict:new:0
+      rhs: !table;1
+        parent: null
+    - !assn;2
+      export: false
+      let: false
+      lhs: !index;1
+        lhs: !name;1
+          value: :base.dict:new:0
+        rhs: !str;1
+          value: tag
+      rhs: !str;1
+        value: node
+    - !assn;2
+      export: false
+      let: false
+      lhs: !index;1
+        lhs: !name;1
+          value: :base.dict:new:0
+        rhs: !str;1
+          value: body
+      rhs: !str;1
+        value: body
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !block;1
+        stmts:
+        - !call;1
+          args:
+          - !name;1
+            value: fudge
+          catch: false
+          func: !name;1
+            value: print
+        - !call;1
+          args:
+          - !index;1
+            lhs: !name;1
+              value: fudge
+            rhs: !int;1
+              value: 0
+          catch: false
+          func: !name;1
+            value: print
+        - !call;1
+          args:
+          - !index;1
+            lhs: !name;1
+              value: fudge
+            rhs: !int;1
+              value: 1
+          catch: false
+          func: !name;1
+            value: print
+        - !call;1
+          args:
+          - !index;1
+            lhs: !name;1
+              value: fudge
+            rhs: !int;1
+              value: 2
+          catch: false
+          func: !name;1
+            value: print
+      - !block;1
+        stmts:
+        - !call;1
+          args:
+          - !str;1
+            value: '----'
+          catch: false
+          func: !name;1
+            value: print
+        - !call;1
+          args:
+          - !name;1
+            value: node
+          catch: false
+          func: !name;1
+            value: print
+        - !call;1
+          args:
+          - !index;1
+            lhs: !name;1
+              value: node
+            rhs: !str;1
+              value: tag
+          catch: false
+          func: !name;1
+            value: print
+        - !call;1
+          args:
+          - !index;1
+            lhs: !name;1
+              value: node
+            rhs: !str;1
+              value: body
+          catch: false
+          func: !name;1
+            value: print
+    params: []
