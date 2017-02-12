@@ -45,7 +45,9 @@ def emit_main(self, module, mods=[]):
         if 'init' in tmp:
           with tmp.borrow_builder(module):
             init_box = load_global(tmp, 'init')
-            do_call(tmp, init_box, [], catch=True)
+            init_ptr = module.get_value(init_box, typ=T.vfunc(T.arg))
+            check_callable(module, init_box, 0, unwind=module.catch)
+            module.fncall(init_ptr, T.null, unwind=module.catch)
 
       module.excall('rain_main', ret_ptr, module['main'], unwind=module.catch)
 
@@ -601,16 +603,16 @@ def get_exception(module, name):
   return module.load(glob)
 
 
-def check_callable(module, box, args):
+def check_callable(module, box, args, unwind=None):
   func_typ = module.get_type(box)
   is_func = module.builder.icmp_unsigned('!=', T.ityp.func, func_typ)
   with module.builder.if_then(is_func):
-    module.excall('rain_throw', get_exception(module, 'rain_exc_uncallable'))
+    module.excall('rain_throw', get_exception(module, 'rain_exc_uncallable'), unwind=unwind)
 
   exp_args = module.get_size(box)
   arg_match = module.builder.icmp_unsigned('!=', exp_args, T.i32(args))
   with module.builder.if_then(arg_match):
-    module.excall('rain_throw', get_exception(module, 'rain_exc_arg_mismatch'))
+    module.excall('rain_throw', get_exception(module, 'rain_exc_arg_mismatch'), unwind=unwind)
 
 
 def do_call(module, func_box, arg_boxes, catch=False):
