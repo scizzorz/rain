@@ -1,12 +1,12 @@
 macro print_all(args) as (args)
-  let node = ast.block:init(table)
+  let node = ast.block:empty()
   save node
 
   let i = 0
   let call = null
 
   while args[i] != null
-    call = ast.call:init(ast.name:init("print"), table, false)
+    call = ast.call:init(ast.name:init("print"), table)
     call.args[0] = args[i]
     node:add(call)
     i = i + 1
