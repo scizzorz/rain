@@ -14,6 +14,22 @@ stmts:
   export: true
   let: false
   lhs: !name;1
+    value: init
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !str;1
+          value: moda init()
+        catch: false
+        func: !name;1
+          value: print
+    params: []
+- !assn;2
+  export: true
+  let: false
+  lhs: !name;1
     value: test
   rhs: !func;1
     body: !block;1

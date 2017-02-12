@@ -18,6 +18,22 @@ stmts:
   rhs: !str;1
     value: module b
 - !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: init
+  rhs: !func;1
+    body: !block;1
+      stmts:
+      - !call;1
+        args:
+        - !str;1
+          value: modb init()
+        catch: false
+        func: !name;1
+          value: print
+    params: []
+- !assn;2
   export: true
   let: false
   lhs: !name;1

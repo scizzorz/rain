@@ -1,3 +1,5 @@
+moda init()
+modb init()
 moda.main()
 moda.name = module a
 modb.name = module b

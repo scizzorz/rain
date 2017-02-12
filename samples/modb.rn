@@ -2,6 +2,9 @@ import moda
 export name = "my bad"
 name = "module b"
 
+let init = func()
+  print("modb init()")
+
 export test = func()
   print("modb.name = " $ name)
 
