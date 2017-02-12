@@ -1,4 +1,4 @@
-import core
+import rain
 
 macro new(args) as (args)
   let node = ast.expr_block:init(table, null)
@@ -13,7 +13,7 @@ macro new(args) as (args)
     node.stmts[i+1] = ast.assn:init(ast.idx:init(tab, ast._int:init(i)), args[i])
     i = i + 1
 
-export length = core.length
+export length = rain.length
 
 export values = func(self)
   let i = 0

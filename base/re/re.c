@@ -1,5 +1,5 @@
-#include "../../lib/rain.h"
-#include "../../lib/except/except.h"
+#include "../../core/rain.h"
+#include "../../core/except/except.h"
 
 #include <stdio.h>
 #include <pcre.h>
