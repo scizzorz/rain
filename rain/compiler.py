@@ -184,7 +184,7 @@ class Compiler:
 
     # only spit out the main if this is the main file
     if self.main:
-      self.ast.emit_main(self.mod)
+      self.ast.emit_main(self.mod, mods=self.mods)
 
   def write(self, phase=phases.building):
     if self.phase >= Compiler.WRITE:

@@ -34,12 +34,19 @@ def emit(self, module):
 
 
 @program_node.method
-def emit_main(self, module):
+def emit_main(self, module, mods=[]):
   with module.add_main():
     ret_ptr = module.alloc(T.box, T.null, name='ret_ptr')
 
     with module.add_abort() as abort:
       module.excall('rain_init_args', *module.main.args)
+
+      for tmp in mods:
+        if 'init' in tmp:
+          with tmp.borrow_builder(module):
+            init_box = load_global(tmp, 'init')
+            do_call(tmp, init_box, [], catch=True)
+
       module.excall('rain_main', ret_ptr, module['main'], unwind=module.catch)
 
       abort(module.builder.block)
