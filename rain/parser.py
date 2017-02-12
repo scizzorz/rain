@@ -96,6 +96,8 @@ class macro:
 class context:
   def __init__(self, stream, *, file=None):
     self.file = file
+    self.qname, self.mname = M.find_name(file)
+
     self.stream = stream
     self.peek = next(stream)
     self.next()
@@ -110,7 +112,7 @@ class context:
       self.peek = K.end_token()
 
   def register_macro(self, name, node, parses):
-    self.macros[name] = macro(name, node, parses)
+    self.macros[name] = macro(self.qname + ':' + name, node, parses)
 
   def expand_macro(self, name):
     return self.macros[name].expand(self)

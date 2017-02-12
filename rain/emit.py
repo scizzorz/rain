@@ -146,18 +146,12 @@ def static_table_from_ptr(module, ptr, metatable=None):
   box.source = ptr  # save this for later!
 
   if metatable:
-    # get these for storing
-    mt_val = module.emit(metatable)
-    mt_key = module.metatable_key.initializer
-    mt_column = T.column([mt_key, mt_val, T.ptr(T.column)(None)])
+    key_node = str_node('metatable')
+    key = module.metatable_key.initializer
+    val = module.emit(metatable)
 
-    # compute hash and allocate a column for it
-    mt_idx = str_node('metatable').hash() % T.HASH_SIZE
     column_ptr = module.add_global(T.column, name=module.uniq('column'))
-    column_ptr.initializer = mt_column
-
-    ptr.initializer.constant[mt_idx] = column_ptr
-    ptr.initializer = ptr.initializer.type(ptr.initializer.constant)
+    static_table_put(module, ptr, column_ptr, key_node, key, val)
 
   return box
 
@@ -226,7 +220,7 @@ def emit(self, module):
 
   elif isinstance(self.lhs, idx_node):
     if module.is_global:
-      table_ptr = load_global(module, self.lhs.lhs).source
+      table_ptr = module.emit(self.lhs.lhs).source
       key_node = self.lhs.rhs
       key = module.emit(key_node)
       val = module.emit(self.rhs)
@@ -663,7 +657,7 @@ def emit(self, module):
       return load_global(module[self.lhs].mod, self.rhs)
 
     # otherwise, do normal lookups
-    table_ptr = module[self.lhs].col.source
+    table_ptr = module.emit(self.lhs).source
     key_node = self.rhs
     key = module.emit(key_node)
 

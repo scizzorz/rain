@@ -1,0 +1,12 @@
+import array
+import dict
+import macros
+
+let fudge = @array.new("one", "two", "three")
+let node = @dict.new
+  tag = "node"
+  body = "body"
+
+let main = func()
+  @macros.print_all(fudge[0], fudge[1], fudge[2])
+  @macros.print_all("----", node.tag, node.body)

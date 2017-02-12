@@ -1,5 +1,7 @@
 # base
 
+let length = foreign "rain_length"(val)
+
 let node = table
 
 node.new = func(self)
@@ -35,6 +37,13 @@ _block.init = func(self, stmts)
   let ret = self:new()
   save ret
   ret.stmts = stmts
+
+_block.empty = func(self)
+  return self:init(table)
+
+_block.add = func(self, stmt)
+  let idx = length(self.stmts)
+  self.stmts[idx] = stmt
 
 
 # statements
@@ -196,7 +205,7 @@ _while.tag = "while"
 
 # expressions
 
-export _expr_block = table from node
+export _expr_block = table from _block
 
 _expr_block.tag = "expr_block"
 _expr_block.init = func(self, stmts, expr)
@@ -204,6 +213,9 @@ _expr_block.init = func(self, stmts, expr)
   save ret
   ret.stmts = stmts
   ret.expr = expr
+
+_expr_block.empty = func(self)
+  return self:init(table, null)
 
 
 export _idx = table from node
@@ -278,12 +290,17 @@ _foreign.init = func(self, name, params)
 export _call = table from node
 
 _call.tag = "call"
-_call.init = func(self, _func, args, _catch)
+_call._catch = false
+_call.init = func(self, _func, args)
   let ret = self:new()
   save ret
   ret._func = _func
   ret.args = args
-  ret._catch = _catch
+
+
+export _catch_call = table from _call
+
+_catch_call._catch = true
 
 
 export _meth = table from node
