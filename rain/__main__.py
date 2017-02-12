@@ -1,4 +1,5 @@
 from . import compiler as C
+from . import error as Q
 from . import module as M
 from termcolor import colored as X
 import argparse
@@ -34,8 +35,7 @@ os.environ['RAINLIB'] = os.path.join(os.environ['RAINHOME'], 'core')
 os.environ['RAINBASE'] = os.path.join(os.environ['RAINHOME'], 'base')
 src = M.find_rain(args.file)
 if not src:
-  print(X('error', 'red') + ':', "Can't find module {!r}".format(args.file))
-  sys.exit(1)
+  Q.abort("Can't find module {!r}".format(args.file))
 
 C.Compiler.quiet = args.quiet
 C.Compiler.verbose = args.verbose
