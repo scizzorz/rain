@@ -1,5 +1,7 @@
 # base
 
+let length = foreign "rain_length"(val)
+
 let node = table
 
 node.new = func(self)
@@ -35,6 +37,10 @@ _block.init = func(self, stmts)
   let ret = self:new()
   save ret
   ret.stmts = stmts
+
+_block.add = func(self, stmt)
+  let idx = length(self.stmts)
+  self.stmts[idx] = stmt
 
 
 # statements
@@ -196,7 +202,7 @@ _while.tag = "while"
 
 # expressions
 
-export _expr_block = table from node
+export _expr_block = table from _block
 
 _expr_block.tag = "expr_block"
 _expr_block.init = func(self, stmts, expr)

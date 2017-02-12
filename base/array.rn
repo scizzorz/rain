@@ -6,11 +6,11 @@ macro new(args) as (args)
 
   let tab = ast.name:init(gensym())
   node.expr = tab
-  node.stmts[0] = ast._let:init(tab, ast._table)
+  node:add(ast._let:init(tab, ast._table))
 
   let i = 0
   while args[i] != null
-    node.stmts[i+1] = ast.assn:init(ast.idx:init(tab, ast._int:init(i)), args[i])
+    node:add(ast.assn:init(ast.idx:init(tab, ast._int:init(i)), args[i]))
     i = i + 1
 
 export length = rain.length
