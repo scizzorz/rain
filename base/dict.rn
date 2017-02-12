@@ -1,0 +1,17 @@
+macro new(block) as (body)
+  let node = ast.expr_block:init(table, null)
+  save node
+
+  let tab = ast.name:init(gensym())
+  node.expr = tab
+  node:add(ast._let:init(tab, ast._table))
+
+  let i = 0
+  while body.stmts[i] != null
+    if body.stmts[i].tag != "assn"
+      print("Ignoring invalid statement in dictionary expansion: " $ body.stmts[i].tag)
+      continue
+
+    let idx = ast.idx:init(tab, ast._str:init(body.stmts[i].lhs.value))
+    node:add(ast.assn:init(idx, body.stmts[i].rhs))
+    i = i + 1
