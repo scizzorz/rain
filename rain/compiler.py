@@ -5,14 +5,15 @@ from . import module as M
 from . import parser as P
 from contextlib import contextmanager
 from enum import Enum
+from orderedset import OrderedSet
 from os import environ as ENV
 from os.path import join
 from termcolor import colored as X
 import os.path
 import subprocess
+import sys
 import tempfile
 import traceback
-import sys
 
 compilers = {}
 
@@ -62,6 +63,7 @@ class Compiler:
     self.target = target
     self.main = main
 
+    self.mods = OrderedSet()
     self.links = set()
     self.libs = set()
 
@@ -130,29 +132,28 @@ class Compiler:
     self.parser = P.context(self.stream, file=self.file)
     self.ast = P.program(self.parser)
 
+  def link(self, other):
+    if other.ll:
+      self.links.add(other.ll)
+
+    self.links |= other.links
+    self.libs |= other.libs
+    self.mods |= other.mods
+
   def emit(self):
     if self.phase >= Compiler.EMIT:
       return
     self.phase = Compiler.EMIT
 
     self.mod = M.Module(self.file)
+    self.mods.add(self.mod)
 
     # always link with lib/_pkg.rn
     builtin = get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
     if self is not builtin:  # unless we ARE lib/_pkg.rn
       builtin.goodies()
 
-      self.links.add(builtin.ll)
-      for link in builtin.links:
-        if not link:
-          continue
-        self.links.add(link)
-
-      # add the libraries
-      for lib in builtin.libs:
-        if not lib:
-          continue
-        self.libs.add(lib)
+      self.link(builtin)
 
       # copy builtins into scope
       for name, val in builtin.mod.globals.items():
@@ -168,39 +169,22 @@ class Compiler:
       comp.goodies()  # should be done during import but might as well be safe
 
       # add the module's IR as well as all of its imports' IR
-      self.links.add(comp.ll)
-      for link in comp.links:
-        if not link:
-          continue
-        self.links.add(link)
+      self.link(comp)
 
-      for lib in comp.libs:
-        if not lib:
-          continue
-        self.libs.add(lib)
+    self.mods |= OrderedSet(get_compiler(mod).mod for mod in imports)
+    self.links |= set(links)
+    self.libs |= set(libs)
 
-
-    # add the links
-    for link in links:
-      if not link:
-        continue
-      self.links.add(link)
-
-      if Compiler.verbose:
+    if Compiler.verbose:
+      for link in links:
         self.print('{:>10} {}', 'linking', X(link, 'blue'))
 
-    # add the libraries
-    for lib in libs:
-      if not lib:
-        continue
-      self.libs.add(lib)
-
-      if Compiler.verbose:
+      for lib in libs:
         self.print('{:>10} {}', 'sharing', X(lib, 'blue'))
 
     # only spit out the main if this is the main file
     if self.main:
-      self.ast.emit_main(self.mod)
+      self.ast.emit_main(self.mod, mods=self.mods)
 
   def write(self, phase=phases.building):
     if self.phase >= Compiler.WRITE:

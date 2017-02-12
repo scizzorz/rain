@@ -10,6 +10,20 @@ name 'name'
 symbol '='
 string 'module b'
 newline
+keyword 'let'
+name 'init'
+symbol '='
+keyword 'func'
+symbol '('
+symbol ')'
+indent
+name 'print'
+symbol '('
+string 'modb init()'
+symbol ')'
+newline
+dedent
+newline
 keyword 'export'
 name 'test'
 symbol '='

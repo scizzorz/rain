@@ -82,7 +82,8 @@ externs = {
   'llvm.init.trampoline': T.func(T.void, [T.ptr(T.i8)] * 3),
   'llvm.adjust.trampoline': T.func(T.ptr(T.i8), [T.ptr(T.i8)]),
 
-  'rain_main': T.vfunc(T.arg, T.arg, T.i32, T.ptr(T.ptr(T.i8))),
+  'rain_main': T.vfunc(T.arg, T.arg),
+  'rain_init_args': T.vfunc(T.i32, T.ptr(T.ptr(T.i8))),
   'rain_box_to_exit': T.func(T.i32, [T.arg]),
   'rain_print': T.vfunc(T.arg),
   'rain_throw': T.vfunc(T.arg),
@@ -267,6 +268,12 @@ class Module(S.Scope):
   def add_builder(self, block):
     with self.stack('builder'):
       self.builder = ir.IRBuilder(block)
+      yield self.builder
+
+  @contextmanager
+  def borrow_builder(self, other):
+    with self.stack('builder'):
+      self.builder = other.builder
       yield self.builder
 
   @contextmanager

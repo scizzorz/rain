@@ -7,6 +7,20 @@ symbol '='
 string 'module a'
 newline
 keyword 'export'
+name 'init'
+symbol '='
+keyword 'func'
+symbol '('
+symbol ')'
+indent
+name 'print'
+symbol '('
+string 'moda init()'
+symbol ')'
+newline
+dedent
+newline
+keyword 'export'
 name 'test'
 symbol '='
 keyword 'func'

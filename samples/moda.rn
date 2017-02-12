@@ -1,6 +1,9 @@
 import modb
 export name = "module a"
 
+export init = func()
+  print("moda init()")
+
 export test = func()
   print("moda.name = " $ name)
 
