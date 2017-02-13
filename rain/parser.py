@@ -38,14 +38,14 @@ class macro:
   def __init__(self, name, node, parses):
     self.name = name
     self.parses = parses
-    mod = M.Module(name=name, mmap=True)
+    mod = M.Module(name=name)
 
     # compile builtins
     builtin = C.get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
     builtin.goodies()
 
     # compile lib.ast and use its links/libs
-    ast = C.get_compiler(join(ENV['RAINLIB'], 'ast.rn'), mmap=True)
+    ast = C.get_compiler(join(ENV['RAINLIB'], 'ast.rn'))
     ast.goodies()
     so = ast.compile_links()
 
