@@ -6,7 +6,8 @@ stmts:
   lhs: !name;1
     value: range
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !assn;2
         export: false
@@ -17,10 +18,12 @@ stmts:
           value: 0
       - !return;1
         value: !func;1
-          body: !block;1
+          body: !block;2
+            expr: null
             stmts:
             - !if;1
-              body: !block;1
+              body: !block;2
+                expr: null
                 stmts:
                 - !return;1
                   value: null
@@ -54,10 +57,12 @@ stmts:
   lhs: !name;1
     value: main
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !for;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !continue;1
             cond: !binary;1

@@ -27,7 +27,8 @@ stmts:
   lhs: !name;1
     value: main
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !assn;2
         export: false
@@ -85,7 +86,8 @@ stmts:
         func: !name;1
           value: print
       - !for;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:
@@ -110,7 +112,8 @@ stmts:
         func: !name;1
           value: print
       - !for;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:
@@ -135,7 +138,8 @@ stmts:
         func: !name;1
           value: print
       - !for;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:
@@ -184,7 +188,8 @@ stmts:
         func: !name;1
           value: print
       - !for;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:
@@ -209,7 +214,8 @@ stmts:
         func: !name;1
           value: print
       - !for;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:

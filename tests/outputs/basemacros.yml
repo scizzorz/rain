@@ -14,7 +14,7 @@ stmts:
   let: true
   lhs: !name;1
     value: fudge
-  rhs: !expr_block;1
+  rhs: !block;2
     expr: !name;1
       value: :base.array:new:0
     stmts:
@@ -60,7 +60,7 @@ stmts:
   let: true
   lhs: !name;1
     value: node
-  rhs: !expr_block;1
+  rhs: !block;2
     expr: !name;1
       value: :base.dict:new:0
     stmts:
@@ -97,9 +97,11 @@ stmts:
   lhs: !name;1
     value: main
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
-      - !block;1
+      - !block;2
+        expr: null
         stmts:
         - !call;1
           args:
@@ -131,7 +133,8 @@ stmts:
           catch: false
           func: !name;1
             value: print
-      - !block;1
+      - !block;2
+        expr: null
         stmts:
         - !call;1
           args:

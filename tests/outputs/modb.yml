@@ -23,7 +23,8 @@ stmts:
   lhs: !name;1
     value: init
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !call;1
         args:
@@ -39,7 +40,8 @@ stmts:
   lhs: !name;1
     value: test
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !call;1
         args:
@@ -59,7 +61,8 @@ stmts:
   lhs: !name;1
     value: main
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !call;1
         args:

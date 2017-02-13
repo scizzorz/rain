@@ -6,7 +6,8 @@ stmts:
   lhs: !name;1
     value: ctx0
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !call;1
         args:
@@ -35,7 +36,8 @@ stmts:
   lhs: !name;1
     value: ctx1
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !call;1
         args:
@@ -73,7 +75,8 @@ stmts:
   lhs: !name;1
     value: ctx2
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !call;1
         args:
@@ -115,10 +118,12 @@ stmts:
   lhs: !name;1
     value: main
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !with;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:
@@ -131,7 +136,8 @@ stmts:
           value: ctx0
         params: []
       - !with;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:
@@ -149,7 +155,8 @@ stmts:
         params:
         - a
       - !with;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:

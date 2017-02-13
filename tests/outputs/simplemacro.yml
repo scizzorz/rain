@@ -1,7 +1,8 @@
 !program;1
 stmts:
 - !macro;1
-  body: !block;1
+  body: !block;2
+    expr: null
     stmts:
     - !return;1
       value: !method;1
@@ -32,10 +33,12 @@ stmts:
   lhs: !name;1
     value: test
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !if;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:
@@ -52,7 +55,8 @@ stmts:
           rhs: !int;1
             value: 0
       - !if;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:
@@ -76,7 +80,8 @@ stmts:
   lhs: !name;1
     value: main
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !call;1
         args:
