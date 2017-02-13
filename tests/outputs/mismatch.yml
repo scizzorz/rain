@@ -12,7 +12,8 @@ stmts:
   lhs: !name;1
     value: none
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !call;1
         args:
@@ -28,7 +29,8 @@ stmts:
   lhs: !name;1
     value: one
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !call;1
         args:
@@ -45,7 +47,8 @@ stmts:
   lhs: !name;1
     value: two
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !call;1
         args:
@@ -63,7 +66,8 @@ stmts:
   lhs: !name;1
     value: main
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !assn;2
         export: false
@@ -80,7 +84,8 @@ stmts:
         rhs: !str;1
           value: str
       - !catch;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:
@@ -91,7 +96,8 @@ stmts:
               value: a
         name: r
       - !if;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:
@@ -120,10 +126,12 @@ stmts:
             rhs: !str;1
               value: is
       - !catch;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !for;1
-            body: !block;1
+            body: !block;2
+              expr: null
               stmts:
               - !call;1
                 args:
@@ -136,7 +144,8 @@ stmts:
             name: x
         name: r
       - !if;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:
@@ -165,7 +174,8 @@ stmts:
             rhs: !str;1
               value: is
       - !catch;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args: []
@@ -181,7 +191,8 @@ stmts:
               value: none
         name: r
       - !if;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:
@@ -210,7 +221,8 @@ stmts:
             rhs: !str;1
               value: is
       - !catch;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:
@@ -226,7 +238,8 @@ stmts:
               value: one
         name: r
       - !if;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:
@@ -255,7 +268,8 @@ stmts:
             rhs: !str;1
               value: is
       - !catch;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:
@@ -279,7 +293,8 @@ stmts:
               value: two
         name: r
       - !if;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !call;1
             args:

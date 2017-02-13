@@ -54,6 +54,10 @@ class value_node(node):
     return self.value == other.value
 
 
+class expr_node(node):
+  pass
+
+
 # structure
 
 class program_node(node):
@@ -65,13 +69,14 @@ class program_node(node):
     self.stmts = stmts
 
 
-class block_node(node):
+class block_node(expr_node):
   __tag__ = 'block'
-  __version__ = 1
-  __slots__ = ['stmts']
+  __version__ = 2
+  __slots__ = ['stmts', 'expr']
 
-  def __init__(self, stmts=[]):
+  def __init__(self, stmts=[], expr=None):
     self.stmts = stmts
+    self.expr = expr
 
 
 # statements
@@ -240,20 +245,6 @@ class with_node(node):
 
 
 # expressions
-
-class expr_node(node):
-  pass
-
-
-class expr_block_node(expr_node):
-  __tag__ = 'expr_block'
-  __version__ = 1
-  __slots__ = ['stmts', 'expr']
-
-  def __init__(self, stmts, expr):
-    self.stmts = stmts
-    self.expr = expr
-
 
 class idx_node(expr_node):
   __tag__ = 'index'

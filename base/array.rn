@@ -1,7 +1,7 @@
 import rain
 
 macro new(args) as (args)
-  let node = ast.expr_block:empty()
+  let node = ast.block:empty()
   save node
 
   let tab = ast.name:init(gensym())

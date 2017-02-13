@@ -6,10 +6,12 @@ stmts:
   lhs: !name;1
     value: fib
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !if;1
-        body: !block;1
+        body: !block;2
+          expr: null
           stmts:
           - !return;1
             value: !int;1
@@ -54,7 +56,8 @@ stmts:
   lhs: !name;1
     value: main
   rhs: !func;1
-    body: !block;1
+    body: !block;2
+      expr: null
       stmts:
       - !call;1
         args:
