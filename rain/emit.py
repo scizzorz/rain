@@ -378,7 +378,14 @@ def emit(self, module):
 
   func_box = module.emit(func_node(self.params, self.body))
 
-  module.fncall(user_ptr, T.null, func_box)
+  ptrs = module.fnalloc(T.null, func_box)
+
+  env = module.get_env(func_box)
+  is_env = module.builder.icmp_unsigned('!=', env, T.vp(None))
+  with module.builder.if_then(is_env):
+    module.store(func_box, ptrs[0])
+
+  module.call(user_ptr, *ptrs)
 
 
 @loop_node.method
@@ -421,6 +428,9 @@ def emit(self, module):
   func_ptr = module.get_value(func_box, T.vfunc(T.arg))
   check_callable(module, func_box, 0)
 
+  env = module.get_env(func_box)
+  is_env = module.builder.icmp_unsigned('!=', env, T.vp(None))
+
   # set up the return pointer
   with module.goto_entry():
     ret_ptr = module[self.name] = module.alloc(T.box, name='for_var')
@@ -429,6 +439,9 @@ def emit(self, module):
     with before:
       # call our function and break if it returns null
       module.store(T.null, ret_ptr)
+      with module.builder.if_then(is_env):
+        module.store(func_box, ret_ptr)
+
       module.call(func_ptr, ret_ptr)
       box = module.load(ret_ptr)
       typ = module.get_type(box)
@@ -563,7 +576,6 @@ def emit(self, module, name=None):
   if env:
     env_raw_ptr = module.excall('GC_malloc', T.i32(T.BOX_SIZE * len(env)))
     env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
-
 
     func_box = module.insert(T._func(func, len(self.params)), env_raw_ptr, T.ENV)
 
