@@ -79,9 +79,6 @@ def ctx_partial(func, *args, **kwargs):
 
 externs = {
   'GC_malloc': T.func(T.ptr(T.i8), [T.i32]),
-  'llvm.init.trampoline': T.func(T.void, [T.ptr(T.i8)] * 3),
-  'llvm.adjust.trampoline': T.func(T.ptr(T.i8), [T.ptr(T.i8)]),
-  'mmap': T.func(T.ptr(T.i8), [T.ptr(T.i8), T.i64, T.i32, T.i32, T.i32, T.i64]),
 
   'rain_main': T.vfunc(T.arg, T.arg),
   'rain_init_args': T.vfunc(T.i32, T.ptr(T.ptr(T.i8))),
@@ -128,7 +125,7 @@ class Module(S.Scope):
       key = key.value
     return normalize_name(key)
 
-  def __init__(self, file=None, name=None, mmap=False):
+  def __init__(self, file=None, name=None):
     S.Scope.__init__(self)
 
     if name:
@@ -136,8 +133,6 @@ class Module(S.Scope):
     else:
       self.file = file
       self.qname, self.mname = find_name(self.file)
-
-    self.mmap = mmap
 
     self.llvm = ir.Module(name=self.qname)
     self.llvm.triple = binding.get_default_triple()
@@ -420,23 +415,6 @@ class Module(S.Scope):
   # allocate stack space and call an extern function
   def exfncall(self, fn, *args, unwind=None):
     return self.fncall(self.extern(fn), *args, unwind=unwind)
-
-  # add a trampoline
-  def add_tramp(self, func_ptr, env_ptr):
-    # the JIT requires mmap to make memory exec, but compiling seems to work fine with GC_malloc
-    if self.mmap:
-      tramp_buf = self.excall('mmap', T.ptr(T.i8)(None), T.i64(T.TRAMP_SIZE), T.i32(7), T.i32(34), T.i32(0), T.i64(0))
-    else:
-      tramp_buf = self.excall('GC_malloc', T.i32(T.TRAMP_SIZE))
-
-    raw_func_ptr = self.builder.bitcast(func_ptr, T.ptr(T.i8))
-    raw_env_ptr = self.builder.bitcast(env_ptr, T.ptr(T.i8))
-
-    self.excall('llvm.init.trampoline', tramp_buf, raw_func_ptr, raw_env_ptr)
-    tramp_ptr = self.excall('llvm.adjust.trampoline', tramp_buf)
-    new_func_ptr = self.builder.bitcast(tramp_ptr, T.ptr(T.i8))
-
-    return new_func_ptr
 
   # llvmlite shortcuts ########################################################
 
