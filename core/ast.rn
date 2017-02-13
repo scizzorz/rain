@@ -322,3 +322,28 @@ _unary.init = func(self, op, val)
   save ret
   ret.op = op
   ret.val = val
+
+
+# message nodes
+
+export _message = table from node
+
+_message.init = func(self, msg)
+  let ret = self:new()
+  save ret
+  ret.msg = msg
+
+
+export _error = table from _message
+
+_error.tag = "error"
+
+
+export _warning = table from _message
+
+_warning.tag = "warning"
+
+
+export _hint = table from _message
+
+_hint.tag = "hint"
