@@ -7,11 +7,14 @@ macro new(block) as (body)
   node:add(ast._let:init(tab, ast._table))
 
   let i = 0
-  while body.stmts[i] != null
-    if body.stmts[i].tag != "assn"
-      print("Ignoring invalid statement in dictionary expansion: " $ body.stmts[i].tag)
-      continue
-
-    let idx = ast.idx:init(tab, ast._str:init(body.stmts[i].lhs.value))
-    node:add(ast.assn:init(idx, body.stmts[i].rhs))
+  while body.stmts[i]
+    let stmt = body.stmts[i]
     i = i + 1
+
+    if stmt.tag == "assn"
+      let idx = ast.idx:init(tab, ast._str:init(stmt.lhs.value))
+      node:add(ast.assn:init(idx, stmt.rhs))
+
+    else
+      let msg = "Ignoring invalid statement in dictionary expansion: " $ stmt.tag
+      node:add(ast.warning:init(msg))
