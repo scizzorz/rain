@@ -526,12 +526,11 @@ def emit(self, module, name=None):
 
   if env:
     env_typ = T.arr(T.box, len(env))
-    typ = T.vfunc(T.ptr(env_typ), T.arg, *[T.arg for x in self.params])
+    typ = T.vfunc(T.arg, *[T.arg for x in self.params])
 
     func = module.add_func(typ)
     func.attributes.personality = module.extern('rain_personality_v0')
-    func.args[0].add_attribute('nest')
-    func.args[1].add_attribute('sret')
+    func.args[0].add_attribute('sret')
 
   else:
     typ = T.vfunc(T.arg, *[T.arg for x in self.params])
@@ -542,17 +541,18 @@ def emit(self, module, name=None):
 
   with module:
     with module.add_func_body(func):
-      func_args = func.args
-
       if env:
+        env_box = module.load(func.args[0])
+        module.store(T.null, func.args[0])
+
+        env_raw_ptr = module.get_env(env_box)
+        env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
+
         for i, (name, ptr) in enumerate(env.items()):
-          gep = module.builder.gep(func_args[0], [T.i32(0), T.i32(i)])
+          gep = module.builder.gep(env_ptr, [T.i32(0), T.i32(i)])
           module[name] = gep
 
-        func_args = func_args[1:]
-        module.ret_ptr = func.args[1]
-
-      for name, ptr in zip(self.params, func_args[1:]):
+      for name, ptr in zip(self.params, func.args[1:]):
         module[name] = ptr
 
       module.emit(self.body)
@@ -564,9 +564,8 @@ def emit(self, module, name=None):
     env_raw_ptr = module.excall('GC_malloc', T.i32(T.BOX_SIZE * len(env)))
     env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
 
-    func = module.add_tramp(func, env_ptr)
-    func_i64 = module.builder.ptrtoint(func, T.i64)
-    func_box = module.insert(T._func(args=len(self.params)), func_i64, T.DATA)
+
+    func_box = module.insert(T._func(func, len(self.params)), env_raw_ptr, T.ENV)
 
     env_val = env_typ(None)
 
@@ -616,17 +615,23 @@ def do_call(module, func_box, arg_boxes, catch=False):
   func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
 
   check_callable(module, func_box, len(arg_boxes))
+  ptrs = module.fnalloc(T.null, *arg_boxes)
+
+  env = module.get_env(func_box)
+  is_env = module.builder.icmp_unsigned('!=', env, T.vp(None))
+  with module.builder.if_then(is_env):
+    module.store(func_box, ptrs[0])
 
   if catch:
     with module.add_catch() as catch:
-      ret_ptr = module.fncall(func_ptr, T.null, *arg_boxes, unwind=module.catch)
+      module.call(func_ptr, *ptrs, unwind=module.catch)
 
-      catch(ret_ptr, module.builder.block)
+      catch(ptrs[0], module.builder.block)
 
-      return module.load(ret_ptr)
+      return module.load(ptrs[0])
 
-  ret_ptr = module.fncall(func_ptr, T.null, *arg_boxes)
-  return module.load(ret_ptr)
+  module.call(func_ptr, *ptrs)
+  return module.load(ptrs[0])
 
 
 @call_node.method

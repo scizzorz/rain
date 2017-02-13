@@ -366,7 +366,7 @@ class Module(S.Scope):
   def get_size(self, box):
     return self.extract(box, T.SIZE)
 
-  def get_env(slef, box):
+  def get_env(self, box):
     return self.extract(box, T.ENV)
 
   def truthy(self, node):
@@ -382,15 +382,20 @@ class Module(S.Scope):
 
   # Function helpers ##########################################################
 
-  # allocate stack space for a function arguments, then call it
-  # only used for Rain functions! (eg they only take box *)
-  def fncall(self, fn, *args, unwind=None):
+  # allocate stack space for function arguments
+  def fnalloc(self, *args):
     with self.builder.goto_entry_block():
       ptrs = [self.alloc(T.box) for arg in args]
 
     for arg, ptr in zip(args, ptrs):
       self.store(arg, ptr)
 
+    return ptrs
+
+  # allocate stack space for a function arguments, then call it
+  # only used for Rain functions! (eg they only take box *)
+  def fncall(self, fn, *args, unwind=None):
+    ptrs = self.fnalloc(*args)
     self.call(fn, *ptrs, unwind=unwind)
     return ptrs[0]
 
