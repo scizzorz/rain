@@ -1,6 +1,7 @@
 program :: (stmt NEWLINE)+ EOF
 
 block :: INDENT (stmt NEWLINE)+ DEDENT
+expr_block :: INDENT (expr NEWLINE)+ DEDENT
 
 stmt :: 'let' NAME '=' expr
       | 'export' NAME '=' expr

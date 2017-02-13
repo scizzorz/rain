@@ -62,13 +62,10 @@ def emit(self, module):
   for stmt in self.stmts:
     module.emit(stmt)
 
+  if self.expr:
+    return module.emit(self.expr)
 
-@expr_block_node.method
-def emit(self, module):
-  for stmt in self.stmts:
-    module.emit(stmt)
-
-  return module.emit(self.expr)
+  return T.null
 
 
 # Helpers #####################################################################

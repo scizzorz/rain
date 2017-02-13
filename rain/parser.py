@@ -165,6 +165,19 @@ def block(ctx):
 
   return A.block_node(stmts)
 
+# expr_block :: INDENT (expr NEWLINE)+ DEDENT
+def expr_block(ctx):
+  exprs = []
+  ctx.require(indent)
+
+  while not ctx.expect(dedent):
+    exprs.append(expr(ctx))
+    ctx.require(newline)
+
+  ctx.require(dedent)
+
+  return A.block_node(exprs)
+
 
 # stmt :: 'let' NAME '=' expr
 #       | 'export' NAME '=' expr
@@ -236,6 +249,7 @@ def stmt(ctx):
       'args': fnargs,
       'params': fnparams,
       'block': block,
+      'exprblock': expr_block,
       'stmt': stmt,
       'name': lambda x: x.require(K.name_token).value,
       'namestr': lambda x: x.require(K.name_token, K.string_token).value,
