@@ -739,3 +739,20 @@ def emit(self, module):
 
   ret_ptr = module.exfncall(arith[self.op], T.null, lhs, rhs)
   return module.load(ret_ptr)
+
+# Warning statements ##########################################################
+
+
+@error_node.method
+def emit(self, module):
+  Q.abort(self.msg)
+
+
+@warning_node.method
+def emit(self, module):
+  Q.warn(self.msg)
+
+
+@hint_node.method
+def emit(self, module):
+  Q.hint(self.msg)
