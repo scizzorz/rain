@@ -20,11 +20,11 @@ compilers = {}
 
 # USE THIS to get a new compiler. it fuzzy searches for the source file and
 # also prevents multiple compilers from being made for the same file
-def get_compiler(src, target=None, main=False):
+def get_compiler(src, target=None, main=False, mmap=False):
   abspath = os.path.abspath(src)
 
   if abspath not in compilers:
-    compilers[abspath] = Compiler(abspath, target, main)
+    compilers[abspath] = Compiler(abspath, target, main, mmap)
 
   return compilers[abspath]
 
@@ -53,7 +53,7 @@ class Compiler:
   quiet = False
   verbose = False
 
-  def __init__(self, file, target=None, main=False):
+  def __init__(self, file, target=None, main=False, mmap=False):
     self.file = file
     self.qname, self.mname = M.find_name(file)
 
@@ -62,6 +62,7 @@ class Compiler:
 
     self.target = target
     self.main = main
+    self.mmap = mmap
 
     self.mods = OrderedSet()
     self.links = set()
@@ -145,7 +146,7 @@ class Compiler:
       return
     self.phase = Compiler.EMIT
 
-    self.mod = M.Module(self.file)
+    self.mod = M.Module(self.file, mmap=self.mmap)
     self.mods.add(self.mod)
 
     # always link with lib/_pkg.rn
