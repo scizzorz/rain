@@ -537,20 +537,12 @@ def emit(self, module, name=None):
     for nm, ptr in scope.items():
       env[nm] = ptr
 
-  if env:
-    env_typ = T.arr(T.box, len(env))
-    typ = T.vfunc(T.arg, *[T.arg for x in self.params])
+  env_typ = T.arr(T.box, len(env))
+  typ = T.vfunc(T.arg, *[T.arg for x in self.params])
 
-    func = module.add_func(typ)
-    func.attributes.personality = module.extern('rain_personality_v0')
-    func.args[0].add_attribute('sret')
-
-  else:
-    typ = T.vfunc(T.arg, *[T.arg for x in self.params])
-
-    func = module.add_func(typ, name=name)
-    func.attributes.personality = module.extern('rain_personality_v0')
-    func.args[0].add_attribute('sret')
+  func = module.add_func(typ, name=name)
+  func.attributes.personality = module.extern('rain_personality_v0')
+  func.args[0].add_attribute('sret')
 
   with module:
     with module.add_func_body(func):
@@ -573,11 +565,13 @@ def emit(self, module, name=None):
       if not module.builder.block.is_terminated:
         module.builder.ret_void()
 
+  func_box = T._func(func, len(self.params))
+
   if env:
     env_raw_ptr = module.excall('GC_malloc', T.i32(T.BOX_SIZE * len(env)))
     env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
 
-    func_box = module.insert(T._func(func, len(self.params)), env_raw_ptr, T.ENV)
+    func_box = module.insert(func_box, env_raw_ptr, T.ENV)
 
     env_val = env_typ(None)
 
@@ -592,9 +586,7 @@ def emit(self, module, name=None):
 
     module.store(env_val, env_ptr)
 
-    return func_box
-
-  return T._func(func, len(self.params))
+  return func_box
 
 
 @foreign_node.method
