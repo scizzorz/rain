@@ -375,3 +375,32 @@ class unary_node(expr_node):
   def __init__(self, op, val):
     self.op = op
     self.val = val
+
+
+# message nodes
+
+class error_node(node):
+  __tag__ = 'error'
+  __version__ = 1
+  __slots__ = ['msg']
+
+  def __init__(self, msg):
+    self.msg = msg
+
+
+class warning_node(node):
+  __tag__ = 'warning'
+  __version__ = 1
+  __slots__ = ['msg']
+
+  def __init__(self, msg):
+    self.msg = msg
+
+
+class hint_node(node):
+  __tag__ = 'hint'
+  __version__ = 1
+  __slots__ = ['msg']
+
+  def __init__(self, msg):
+    self.msg = msg
