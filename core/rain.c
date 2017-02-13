@@ -396,7 +396,7 @@ void rain_to_string(box *ret, box *val) {
       break;
 
     case ITYP_FUNC:
-      sprintf(rain_to_str_buf, "func 0x%08lx", val->data.ui);
+      sprintf(rain_to_str_buf, "func 0x%08lx + %08lx", val->data.ui, (unsigned long)(val->env));
       rain_set_strcpy(ret, rain_to_str_buf, strlen(rain_to_str_buf));
       break;
 
