@@ -381,7 +381,7 @@ def emit(self, module):
   ptrs = module.fnalloc(T.null, func_box)
 
   env = module.get_env(func_box)
-  is_env = module.builder.icmp_unsigned('!=', env, T.vp(None))
+  is_env = module.builder.icmp_unsigned('!=', env, T.arg(None))
   with module.builder.if_then(is_env):
     module.store(func_box, ptrs[0])
 
@@ -429,7 +429,7 @@ def emit(self, module):
   module.check_callable(func_box, 0)
 
   env = module.get_env(func_box)
-  is_env = module.builder.icmp_unsigned('!=', env, T.vp(None))
+  is_env = module.builder.icmp_unsigned('!=', env, T.arg(None))
 
   # set up the return pointer
   with module.goto_entry():
@@ -612,7 +612,7 @@ def do_call(module, func_box, arg_boxes, catch=False):
   ptrs = module.fnalloc(T.null, *arg_boxes)
 
   env = module.get_env(func_box)
-  is_env = module.builder.icmp_unsigned('!=', env, T.vp(None))
+  is_env = module.builder.icmp_unsigned('!=', env, T.arg(None))
   with module.builder.if_then(is_env):
     module.store(func_box, ptrs[0])
 
