@@ -46,7 +46,7 @@ def emit_main(self, module, mods=[]):
           with tmp.borrow_builder(module):
             init_box = load_global(tmp, 'init')
             init_ptr = module.get_value(init_box, typ=T.vfunc(T.arg))
-            check_callable(module, init_box, 0, unwind=module.catch)
+            module.check_callable(init_box, 0, unwind=module.catch)
             module.fncall(init_ptr, T.null, unwind=module.catch)
 
       module.excall('rain_main', ret_ptr, module['main'], unwind=module.catch)
@@ -374,7 +374,7 @@ def emit(self, module):
 def emit(self, module):
   user_box = module.emit(self.expr)
   user_ptr = module.get_value(user_box, typ=T.vfunc(T.arg, T.arg))
-  check_callable(module, user_box, 1)
+  module.check_callable(user_box, 1)
 
   func_box = module.emit(func_node(self.params, self.body))
 
@@ -426,7 +426,7 @@ def emit(self, module):
   # evaluate the expression and pull out the function pointer
   func_box = module.emit(self.func)
   func_ptr = module.get_value(func_box, T.vfunc(T.arg))
-  check_callable(module, func_box, 0)
+  module.check_callable(func_box, 0)
 
   env = module.get_env(func_box)
   is_env = module.builder.icmp_unsigned('!=', env, T.vp(None))
@@ -605,15 +605,10 @@ def get_exception(module, name):
   return module.load(glob)
 
 
-def check_callable(module, box, args, unwind=None):
-  module.store(box, module.callable_ptr)
-  module.excall('rain_check_callable', module.callable_ptr, T.i32(args), unwind=unwind)
-
-
 def do_call(module, func_box, arg_boxes, catch=False):
   func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
 
-  check_callable(module, func_box, len(arg_boxes))
+  module.check_callable(func_box, len(arg_boxes))
   ptrs = module.fnalloc(T.null, *arg_boxes)
 
   env = module.get_env(func_box)

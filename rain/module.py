@@ -293,9 +293,11 @@ class Module(S.Scope):
 
   @contextmanager
   def add_main(self):
-    block = self.main.append_basic_block(name='entry')
-    with self.add_builder(block):
-      yield self.main
+    with self.stack('callable_ptr'):
+      block = self.main.append_basic_block(name='entry')
+      with self.add_builder(block):
+        self.callable_ptr = self.alloc(T.box)
+        yield self.main
 
   @contextmanager
   def add_loop(self):
@@ -380,6 +382,10 @@ class Module(S.Scope):
     return self.builder.and_(not_null, not_zero)
 
   # Function helpers ##########################################################
+
+  def check_callable(self, box, num_args, unwind=None):
+    self.store(box, self.callable_ptr)
+    self.excall('rain_check_callable', self.callable_ptr, T.i32(num_args), unwind=unwind)
 
   # allocate stack space for function arguments
   def fnalloc(self, *args):
