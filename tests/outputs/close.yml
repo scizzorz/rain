@@ -1,0 +1,155 @@
+!program;1
+stmts:
+- !import;1
+  name: iter
+  rename: null
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;2
+      expr: null
+      stmts:
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: r
+        rhs: !call;1
+          args:
+          - !int;1
+            value: 10
+          catch: false
+          func: !index;1
+            lhs: !name;1
+              value: iter
+            rhs: !str;1
+              value: range
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !str;1
+            value: 'start = '
+          op: $
+          rhs: !call;1
+            args:
+            - !index;1
+              lhs: !name;1
+                value: r
+              rhs: !str;1
+                value: i
+            catch: false
+            func: !name;1
+              value: tostr
+        catch: false
+        func: !name;1
+          value: print
+      - !for;1
+        body: !block;2
+          expr: null
+          stmts:
+          - !call;1
+            args:
+            - !binary;1
+              lhs: !binary;1
+                lhs: !call;1
+                  args:
+                  - !name;1
+                    value: i
+                  catch: false
+                  func: !name;1
+                    value: tostr
+                op: $
+                rhs: !str;1
+                  value: ' -> '
+              op: $
+              rhs: !call;1
+                args:
+                - !index;1
+                  lhs: !name;1
+                    value: r
+                  rhs: !str;1
+                    value: i
+                catch: false
+                func: !name;1
+                  value: tostr
+            catch: false
+            func: !name;1
+              value: print
+        func: !name;1
+          value: r
+        name: i
+      - !assn;2
+        export: false
+        let: false
+        lhs: !index;1
+          lhs: !name;1
+            value: r
+          rhs: !str;1
+            value: i
+        rhs: !int;1
+          value: 5
+      - !call;1
+        args:
+        - !str;1
+          value: '---'
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !str;1
+            value: 'start = '
+          op: $
+          rhs: !call;1
+            args:
+            - !index;1
+              lhs: !name;1
+                value: r
+              rhs: !str;1
+                value: i
+            catch: false
+            func: !name;1
+              value: tostr
+        catch: false
+        func: !name;1
+          value: print
+      - !for;1
+        body: !block;2
+          expr: null
+          stmts:
+          - !call;1
+            args:
+            - !binary;1
+              lhs: !binary;1
+                lhs: !call;1
+                  args:
+                  - !name;1
+                    value: i
+                  catch: false
+                  func: !name;1
+                    value: tostr
+                op: $
+                rhs: !str;1
+                  value: ' -> '
+              op: $
+              rhs: !call;1
+                args:
+                - !index;1
+                  lhs: !name;1
+                    value: r
+                  rhs: !str;1
+                    value: i
+                catch: false
+                func: !name;1
+                  value: tostr
+            catch: false
+            func: !name;1
+              value: print
+        func: !name;1
+          value: r
+        name: i
+    params: []

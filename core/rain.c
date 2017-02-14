@@ -40,6 +40,15 @@ void rain_exit(box *ret, box *val) {
   exit(rain_box_to_exit(val));
 }
 
+void rain_check_callable(box *val, int num_args) {
+  if(BOX_ISNT(val, FUNC)) {
+    rain_throw(rain_exc_uncallable);
+  }
+  else if(val->size != num_args) {
+    rain_throw(rain_exc_arg_mismatch);
+  }
+}
+
 // unary operators
 
 void rain_neg(box *ret, box *val) {

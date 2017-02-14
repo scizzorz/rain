@@ -1,0 +1,13 @@
+import iter
+
+let main = func()
+  let r = iter.range(10)
+  print("start = " $ tostr(r.i))
+  for i in r
+    print(tostr(i) $ " -> " $ tostr(r.i))
+
+  r.i = 5
+  print("---")
+  print("start = " $ tostr(r.i))
+  for i in r
+    print(tostr(i) $ " -> " $ tostr(r.i))
