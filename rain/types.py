@@ -35,7 +35,7 @@ def vfunc(*args, var_arg=False):
 
 
 # set struct bodies
-box.set_body(i8, i32, i64, vp)
+box.set_body(i8, i32, i64, arg)
 column.set_body(box, box, ptr(column))
 
 # constant aliases
@@ -44,16 +44,16 @@ bin = func(void, [arg, arg, arg])
 
 
 def _int(val):
-  return box([ityp.int, i32(0), cast.int(val), vp(None)])
+  return box([ityp.int, i32(0), cast.int(val), arg(None)])
 
 
 def _float(val):
   val = cast.float(val).bitcast(cast.int)
-  return box([ityp.float, i32(0), val, vp(None)])
+  return box([ityp.float, i32(0), val, arg(None)])
 
 
 def _bool(val):
-  return box([ityp.bool, i32(0), cast.bool(int(val)), vp(None)])
+  return box([ityp.bool, i32(0), cast.bool(int(val)), arg(None)])
 
 
 def ptrtoint(ptr):
@@ -63,18 +63,18 @@ def ptrtoint(ptr):
 
 
 def _str(ptr, size):
-  return box([ityp.str, i32(size), ptrtoint(ptr), vp(None)])
+  return box([ityp.str, i32(size), ptrtoint(ptr), arg(None)])
 
 
 def _table(ptr):
-  return box([ityp.table, i32(0), ptrtoint(ptr), vp(None)])
+  return box([ityp.table, i32(0), ptrtoint(ptr), arg(None)])
 
 
 def _func(ptr=None, args=0):
   if ptr:
-    return box([ityp.func, i32(args), ptrtoint(ptr), vp(None)])
+    return box([ityp.func, i32(args), ptrtoint(ptr), arg(None)])
 
-  return box([ityp.func, i32(args), i64(0), vp(None)])
+  return box([ityp.func, i32(args), i64(0), arg(None)])
 
 
 class cast:
@@ -111,10 +111,6 @@ class ityp:
 
 class cbox(ct.Structure):
   _saves_ = []
-  _fields_ = [('type', ct.c_uint8),
-              ('size', ct.c_uint32),
-              ('data', ct.c_uint64),
-              ('env', ct.c_void_p)]
 
   def __str__(self):
     return 'cbox({}, {}, {}, {})'.format(self.type, self.size, self.data, self.env)
@@ -131,21 +127,21 @@ class cbox(ct.Structure):
   @classmethod
   def to_rain(cls, val):
     if val is None:
-      return cls.new(typi.null, 0, 0, 0)
+      return cls.new(typi.null, 0, 0, cls.null)
     elif val is False:
-      return cls.new(typi.bool, 0, 0, 0)
+      return cls.new(typi.bool, 0, 0, cls.null)
     elif val is True:
-      return cls.new(typi.bool, 0, 1, 0)
+      return cls.new(typi.bool, 0, 1, cls.null)
     elif isinstance(val, int):
-      return cls.new(typi.int, 0, val, 0)
+      return cls.new(typi.int, 0, val, cls.null)
     elif isinstance(val, float):
       raw = struct.pack('d', val)
       intrep = struct.unpack('Q', raw)[0]
-      return cls.new(typi.float, 0, intrep, 0)
+      return cls.new(typi.float, 0, intrep, cls.null)
     elif isinstance(val, str):
       str_p = ct.create_string_buffer(val.encode('utf-8'))
       cls._saves_.append(str_p)
-      return cls.new(typi.str, len(val), ct.cast(str_p, ct.c_void_p).value, 0)
+      return cls.new(typi.str, len(val), ct.cast(str_p, ct.c_void_p).value, cls.null)
 
     raise Exception("Can't convert value {!r} to Rain".format(val))
 
@@ -167,3 +163,8 @@ class cbox(ct.Structure):
 
 
 carg = ct.POINTER(cbox)
+cbox._fields_ = [('type', ct.c_uint8),
+                 ('size', ct.c_uint32),
+                 ('data', ct.c_uint64),
+                 ('env', carg)]
+cbox.null = carg()

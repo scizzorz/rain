@@ -549,8 +549,7 @@ def emit(self, module, name=None):
       if env:
         env_box = module.load(func.args[0])
 
-        env_raw_ptr = module.get_env(env_box)
-        env_ptr = module.builder.bitcast(env_raw_ptr, T.arg)
+        env_ptr = module.get_env(env_box)
 
         for i, (name, ptr) in enumerate(env.items()):
           module.store(str_node(name).emit(module), func.args[0])
@@ -570,9 +569,8 @@ def emit(self, module, name=None):
 
   if env:
     env_ptr = module.excall('rain_new_table')
-    env_raw_ptr = module.builder.bitcast(env_ptr, T.vp)
 
-    func_box = module.insert(func_box, env_raw_ptr, T.ENV)
+    func_box = module.insert(func_box, env_ptr, T.ENV)
 
     with module.goto_entry():
       key_ptr = module.alloc(T.box)

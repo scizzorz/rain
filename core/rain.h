@@ -21,6 +21,7 @@
 #define BOX_ISNT(x, t) ((x)->type != ITYP_##t)
 
 struct column_s;
+struct box_s;
 
 typedef union {
   unsigned long ui;
@@ -31,11 +32,11 @@ typedef union {
   void *vp;
 } cast;
 
-typedef struct {
+typedef struct box_s {
   unsigned char type;
   int size;
   cast data;
-  void *env;
+  struct box_s *env;
 } box;
 
 typedef struct column_s {
