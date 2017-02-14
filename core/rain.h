@@ -33,8 +33,9 @@ typedef union {
 
 typedef struct {
   unsigned char type;
-  cast data;
   int size;
+  cast data;
+  void *env;
 } box;
 
 typedef struct column_s {
