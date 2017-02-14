@@ -6,11 +6,7 @@ macro new(block) as (body)
   node.expr = tab
   node:add(ast._let:init(tab, ast._table))
 
-  let i = 0
-  while body.stmts[i]
-    let stmt = body.stmts[i]
-    i = i + 1
-
+  for stmt in ast.block.list(body)
     if stmt.tag == "assn"
       let idx = ast.idx:init(tab, ast._str:init(stmt.lhs.value))
       node:add(ast.assn:init(idx, stmt.rhs))
