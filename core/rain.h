@@ -21,6 +21,7 @@
 #define BOX_ISNT(x, t) ((x)->type != ITYP_##t)
 
 struct column_s;
+struct box_s;
 
 typedef union {
   unsigned long ui;
@@ -31,11 +32,11 @@ typedef union {
   void *vp;
 } cast;
 
-typedef struct {
+typedef struct box_s {
   unsigned char type;
   int size;
   cast data;
-  void *env;
+  struct box_s *env;
 } box;
 
 typedef struct column_s {
@@ -80,6 +81,7 @@ unsigned char rain_hash_eq(box *, box *);
 unsigned long rain_hash(box *);
 int rain_array_length(box *);
 column *rain_has(box *, box *);
+box *rain_get_ptr(box *, box *);
 void rain_get(box *, box *, box *);
 void rain_put(box *, box *, box *);
 

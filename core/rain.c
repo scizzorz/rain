@@ -481,6 +481,11 @@ column *rain_has(box *table, box *key) {
   return row;
 }
 
+box *rain_get_ptr(box *table, box *key) {
+  column *ptr = rain_has(table, key);
+  return &(ptr->val);
+}
+
 void rain_get(box *ret, box *table, box *key) {
   if(BOX_IS(table, STR) && BOX_IS(key, INT)) {
     if(key->data.si >= 0 && key->data.si < table->size) {
@@ -491,6 +496,12 @@ void rain_get(box *ret, box *table, box *key) {
     }
     return;
   }
+
+  if(BOX_IS(table, FUNC)) {
+    rain_get(ret, table->env, key);
+    return;
+  }
+
   if(BOX_ISNT(table, TABLE)) {
     rain_throw(rain_exc_arg_mismatch);
   }
@@ -518,6 +529,15 @@ void rain_get(box *ret, box *table, box *key) {
 }
 
 void rain_put(box *table, box *key, box *val) {
+  if(BOX_IS(table, FUNC)) {
+    rain_put(table->env, key, val);
+    return;
+  }
+
+  if(BOX_ISNT(table, TABLE)) {
+    rain_throw(rain_exc_arg_mismatch);
+  }
+
   unsigned long key_hash = rain_hash(key) % HASH_SIZE;
   column **dict = table->data.t;
   column **row = dict + key_hash;
