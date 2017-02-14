@@ -27,9 +27,14 @@ int rain_box_to_exit(box* val) {
 }
 
 void rain_print(box *val) {
-  box ret;
-  rain_to_string(&ret, val);
-  printf("%.*s\n", ret.size, ret.data.s);
+  if(BOX_IS(val, STR)) {
+    printf("%.*s\n", val->size, val->data.s);
+  }
+  else {
+    box ret;
+    rain_to_string(&ret, val);
+    printf("%.*s\n", ret.size, ret.data.s);
+  }
 }
 
 void rain_ext_print(box *ret, box *val) {
