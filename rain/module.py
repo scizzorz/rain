@@ -82,6 +82,7 @@ externs = {
 
   'rain_main': T.vfunc(T.arg, T.arg),
   'rain_init_args': T.vfunc(T.i32, T.ptr(T.ptr(T.i8))),
+  'rain_check_callable': T.vfunc(T.arg, T.i32),
   'rain_box_to_exit': T.func(T.i32, [T.arg]),
   'rain_print': T.vfunc(T.arg),
   'rain_throw': T.vfunc(T.arg),
@@ -153,6 +154,7 @@ class Module(S.Scope):
     self.loop = None
     self.after = None
     self.ret_ptr = None
+    self.callable_ptr = None
 
     self.name_counter = 0
 
@@ -277,12 +279,13 @@ class Module(S.Scope):
 
   @contextmanager
   def add_func_body(self, func):
-    with self.stack('ret_ptr', 'catchall'):
+    with self.stack('ret_ptr', 'callable_ptr', 'catchall'):
       entry = func.append_basic_block('entry')
       body = func.append_basic_block('body')
       self.ret_ptr = func.args[0]
       self.catchall = False
       with self.add_builder(entry):
+        self.callable_ptr = self.alloc(T.box)
         self.builder.branch(body)
 
       with self.add_builder(body):

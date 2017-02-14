@@ -51,6 +51,7 @@ void rain_print(box *);
 void rain_ext_print(box *, box *);
 void rain_exit(box *, box *);
 void rain_panic(box *, box *);
+void rain_check_callable(box *, int);
 
 void rain_neg(box *, box *);
 void rain_not(box *, box *);

@@ -606,15 +606,8 @@ def get_exception(module, name):
 
 
 def check_callable(module, box, args, unwind=None):
-  func_typ = module.get_type(box)
-  is_func = module.builder.icmp_unsigned('!=', T.ityp.func, func_typ)
-  with module.builder.if_then(is_func):
-    module.excall('rain_throw', get_exception(module, 'rain_exc_uncallable'), unwind=unwind)
-
-  exp_args = module.get_size(box)
-  arg_match = module.builder.icmp_unsigned('!=', exp_args, T.i32(args))
-  with module.builder.if_then(arg_match):
-    module.excall('rain_throw', get_exception(module, 'rain_exc_arg_mismatch'), unwind=unwind)
+  module.store(box, module.callable_ptr)
+  module.excall('rain_check_callable', module.callable_ptr, T.i32(args), unwind=unwind)
 
 
 def do_call(module, func_box, arg_boxes, catch=False):
