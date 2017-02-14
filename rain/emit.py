@@ -548,14 +548,15 @@ def emit(self, module, name=None):
     with module.add_func_body(func):
       if env:
         env_box = module.load(func.args[0])
-        module.store(T.null, func.args[0])
 
         env_raw_ptr = module.get_env(env_box)
-        env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
+        env_ptr = module.builder.bitcast(env_raw_ptr, T.arg)
 
         for i, (name, ptr) in enumerate(env.items()):
-          gep = module.builder.gep(env_ptr, [T.i32(0), T.i32(i)])
-          module[name] = gep
+          module.store(str_node(name).emit(module), func.args[0])
+          module[name] = module.excall('rain_get_ptr', env_ptr, func.args[0])
+
+        module.store(T.null, func.args[0])
 
       for name, ptr in zip(self.params, func.args[1:]):
         module[name] = ptr
@@ -568,23 +569,26 @@ def emit(self, module, name=None):
   func_box = T._func(func, len(self.params))
 
   if env:
-    env_raw_ptr = module.excall('GC_malloc', T.i32(T.BOX_SIZE * len(env)))
-    env_ptr = module.builder.bitcast(env_raw_ptr, T.ptr(env_typ))
+    env_ptr = module.excall('rain_new_table')
+    env_raw_ptr = module.builder.bitcast(env_ptr, T.vp)
 
     func_box = module.insert(func_box, env_raw_ptr, T.ENV)
 
-    env_val = env_typ(None)
+    with module.goto_entry():
+      key_ptr = module.alloc(T.box)
+      self_ptr = module.alloc(T.box)
+
+    module.store(func_box, self_ptr)
 
     for i, (name, ptr) in enumerate(env.items()):
       # cheesy hack - the only time any of these values will ever
       # have a bound value of False will be when it's the item
       # currently being bound, ie, it's this function
+      module.store(str_node(name).emit(module), key_ptr)
       if getattr(ptr, 'bound', None) is False:
-        env_val = module.insert(env_val, func_box, i)
+        module.excall('rain_put', env_ptr, key_ptr, self_ptr)
       else:
-        env_val = module.insert(env_val, module.load(ptr), i)
-
-    module.store(env_val, env_ptr)
+        module.excall('rain_put', env_ptr, key_ptr, ptr)
 
   return func_box
 

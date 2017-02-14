@@ -481,6 +481,11 @@ column *rain_has(box *table, box *key) {
   return row;
 }
 
+box *rain_get_ptr(box *table, box *key) {
+  column *ptr = rain_has(table, key);
+  return &(ptr->val);
+}
+
 void rain_get(box *ret, box *table, box *key) {
   if(BOX_IS(table, STR) && BOX_IS(key, INT)) {
     if(key->data.si >= 0 && key->data.si < table->size) {

@@ -111,6 +111,7 @@ externs = {
 
   'rain_new_table': T.func(T.arg, []),
   'rain_new_pair': T.vfunc(T.arg, T.arg),
+  'rain_get_ptr': T.func(T.arg, [T.arg, T.arg]),
   'rain_put': T.bin,
   'rain_get': T.bin,
 }
