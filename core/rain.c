@@ -496,6 +496,12 @@ void rain_get(box *ret, box *table, box *key) {
     }
     return;
   }
+
+  if(BOX_IS(table, FUNC)) {
+    rain_get(ret, table->env, key);
+    return;
+  }
+
   if(BOX_ISNT(table, TABLE)) {
     rain_throw(rain_exc_arg_mismatch);
   }
@@ -523,6 +529,15 @@ void rain_get(box *ret, box *table, box *key) {
 }
 
 void rain_put(box *table, box *key, box *val) {
+  if(BOX_IS(table, FUNC)) {
+    rain_put(table->env, key, val);
+    return;
+  }
+
+  if(BOX_ISNT(table, TABLE)) {
+    rain_throw(rain_exc_arg_mismatch);
+  }
+
   unsigned long key_hash = rain_hash(key) % HASH_SIZE;
   column **dict = table->data.t;
   column **row = dict + key_hash;
