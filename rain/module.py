@@ -1,3 +1,8 @@
+from . import ast as A
+from . import error as Q
+from . import scope as S
+from . import token as K
+from . import types as T
 from contextlib import contextmanager
 from llvmlite import binding
 from llvmlite import ir
@@ -5,11 +10,6 @@ from os.path import isdir, isfile
 from os.path import join
 import os.path
 import re
-
-from . import ast as A
-from . import scope as S
-from . import token as K
-from . import types as T
 
 name_chars = re.compile('[^a-z0-9]')
 
@@ -79,8 +79,6 @@ def ctx_partial(func, *args, **kwargs):
 
 externs = {
   'GC_malloc': T.func(T.ptr(T.i8), [T.i32]),
-  'llvm.init.trampoline': T.func(T.void, [T.ptr(T.i8)] * 3),
-  'llvm.adjust.trampoline': T.func(T.ptr(T.i8), [T.ptr(T.i8)]),
 
   'rain_main': T.vfunc(T.arg, T.arg),
   'rain_init_args': T.vfunc(T.i32, T.ptr(T.ptr(T.i8))),
@@ -363,6 +361,9 @@ class Module(S.Scope):
   def get_size(self, box):
     return self.extract(box, T.SIZE)
 
+  def get_env(self, box):
+    return self.extract(box, T.ENV)
+
   def truthy(self, node):
     box = self.emit(node)
     return self.truthy_val(box)
@@ -376,15 +377,20 @@ class Module(S.Scope):
 
   # Function helpers ##########################################################
 
-  # allocate stack space for a function arguments, then call it
-  # only used for Rain functions! (eg they only take box *)
-  def fncall(self, fn, *args, unwind=None):
+  # allocate stack space for function arguments
+  def fnalloc(self, *args):
     with self.builder.goto_entry_block():
       ptrs = [self.alloc(T.box) for arg in args]
 
     for arg, ptr in zip(args, ptrs):
       self.store(arg, ptr)
 
+    return ptrs
+
+  # allocate stack space for a function arguments, then call it
+  # only used for Rain functions! (eg they only take box *)
+  def fncall(self, fn, *args, unwind=None):
+    ptrs = self.fnalloc(*args)
     self.call(fn, *ptrs, unwind=unwind)
     return ptrs[0]
 
@@ -409,18 +415,6 @@ class Module(S.Scope):
   # allocate stack space and call an extern function
   def exfncall(self, fn, *args, unwind=None):
     return self.fncall(self.extern(fn), *args, unwind=unwind)
-
-  # add a trampoline
-  def add_tramp(self, func_ptr, env_ptr):
-    tramp_buf = self.excall('GC_malloc', T.i32(T.TRAMP_SIZE))
-    raw_func_ptr = self.builder.bitcast(func_ptr, T.ptr(T.i8))
-    raw_env_ptr = self.builder.bitcast(env_ptr, T.ptr(T.i8))
-
-    self.excall('llvm.init.trampoline', tramp_buf, raw_func_ptr, raw_env_ptr)
-    tramp_ptr = self.excall('llvm.adjust.trampoline', tramp_buf)
-    new_func_ptr = self.builder.bitcast(tramp_ptr, T.ptr(T.i8))
-
-    return new_func_ptr
 
   # llvmlite shortcuts ########################################################
 
