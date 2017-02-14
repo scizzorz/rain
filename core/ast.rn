@@ -30,6 +30,14 @@ pred_block.init = func(self, pred, body)
 
 # structure
 
+export _list = table from node
+
+_list.items = func(self)
+  let i = 0
+  return func()
+    save self[i]
+    i = i + 1
+
 export _block = table from node
 
 _block.tag = "block"
@@ -45,6 +53,12 @@ _block.empty = func(self)
 _block.add = func(self, stmt)
   let idx = length(self.stmts)
   self.stmts[idx] = stmt
+
+_block.list = func(self)
+  let i = 0
+  return func()
+    save self.stmts[i]
+    i = i + 1
 
 
 # statements
