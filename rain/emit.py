@@ -323,7 +323,20 @@ def emit(self, module):
 
 @macro_node.method
 def expand(self, module):
-  return func_node(self.params, self.body).emit(module, name='macro.func.main')
+  typ = T.vfunc(T.arg, *[T.arg for x in self.params])
+
+  func_node(self.params, self.body).emit(module, name='macro.func.real')
+  real_func = module.find_func(typ, 'macro.func.real')
+
+  main_func = module.add_func(typ, name='macro.func.main')
+  main_func.attributes.personality = module.extern('rain_personality_v0')
+  main_func.args[0].add_attribute('sret')
+  with module.add_func_body(main_func):
+    with module.add_abort() as abort:
+      module.call(real_func, *main_func.args, unwind=module.catch)
+      abort(module.builder.block)
+
+    module.builder.ret_void()
 
 
 @lib_node.method
