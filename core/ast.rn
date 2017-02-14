@@ -30,6 +30,14 @@ pred_block.init = func(self, pred, body)
 
 # structure
 
+export _list = table from node
+
+_list.items = func(self)
+  let i = 0
+  return func()
+    save self[i]
+    i = i + 1
+
 export _block = table from node
 
 _block.tag = "block"
