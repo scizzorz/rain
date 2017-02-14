@@ -1,0 +1,106 @@
+keyword 'import'
+name 'iter'
+newline
+keyword 'let'
+name 'main'
+symbol '='
+keyword 'func'
+symbol '('
+symbol ')'
+indent
+keyword 'let'
+name 'r'
+symbol '='
+name 'iter'
+symbol '.'
+name 'range'
+symbol '('
+int 10
+symbol ')'
+newline
+name 'print'
+symbol '('
+string 'start = '
+operator '$'
+name 'tostr'
+symbol '('
+name 'r'
+symbol '.'
+name 'i'
+symbol ')'
+symbol ')'
+newline
+keyword 'for'
+name 'i'
+keyword 'in'
+name 'r'
+indent
+name 'print'
+symbol '('
+name 'tostr'
+symbol '('
+name 'i'
+symbol ')'
+operator '$'
+string ' -> '
+operator '$'
+name 'tostr'
+symbol '('
+name 'r'
+symbol '.'
+name 'i'
+symbol ')'
+symbol ')'
+newline
+dedent
+newline
+name 'r'
+symbol '.'
+name 'i'
+symbol '='
+int 5
+newline
+name 'print'
+symbol '('
+string '---'
+symbol ')'
+newline
+name 'print'
+symbol '('
+string 'start = '
+operator '$'
+name 'tostr'
+symbol '('
+name 'r'
+symbol '.'
+name 'i'
+symbol ')'
+symbol ')'
+newline
+keyword 'for'
+name 'i'
+keyword 'in'
+name 'r'
+indent
+name 'print'
+symbol '('
+name 'tostr'
+symbol '('
+name 'i'
+symbol ')'
+operator '$'
+string ' -> '
+operator '$'
+name 'tostr'
+symbol '('
+name 'r'
+symbol '.'
+name 'i'
+symbol ')'
+symbol ')'
+newline
+dedent
+newline
+dedent
+newline
+EOF
