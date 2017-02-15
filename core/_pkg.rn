@@ -2,7 +2,7 @@ link "builtins.c"
 link "core.c"
 link "util.c"
 
-link "arith/arith.c"
+link "ops/ops.c"
 link "set/set.c"
 link "table/table.c"
 
