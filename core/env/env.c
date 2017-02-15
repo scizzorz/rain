@@ -1,5 +1,7 @@
-#include <stdio.h>
-#include "env.h"
+#include "../rain.h"
+#include <stdlib.h>
+#include <string.h>
+
 
 void rain_init_args(int argc, char **argv) {
   box key;

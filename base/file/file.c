@@ -1,6 +1,6 @@
 #include "../../core/rain.h"
-
 #include <stdio.h>
+
 
 // TODO this whole thing is just a temporary proof-of-concept
 // it's bad

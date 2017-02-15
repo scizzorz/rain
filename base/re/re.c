@@ -1,10 +1,11 @@
 #include "../../core/rain.h"
-#include "../../core/except/except.h"
-
-#include <stdio.h>
 #include <pcre.h>
+#include <stdio.h>
+#include <string.h>
 
-extern box *rain_exc_pcre_cannot_compile;
+
+box *rain_exc_pcre_cannot_compile;
+
 
 /* proof of concept regular expression library */
 

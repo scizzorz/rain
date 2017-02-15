@@ -1,11 +1,13 @@
 #include "../../core/rain.h"
-#include "../../core/util.h"
-
-#include <sys/wait.h>
+#include <gc.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
+
 #define BUF_SIZE 4096
+
 
 void rain_process_output(box *, box *);
 

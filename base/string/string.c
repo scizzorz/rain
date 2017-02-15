@@ -1,6 +1,7 @@
-#include <stdlib.h>
 #include "string.h"
-
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 void rain_fmt(box *ret, box *val, box *fmt) {
   if(BOX_ISNT(fmt, STR)) {
