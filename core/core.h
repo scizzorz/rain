@@ -40,18 +40,8 @@ typedef struct column_s {
   struct column_s *next;
 } column;
 
-void rain_main(box *, box *);
 int rain_box_to_exit(box *);
-void rain_print(box *);
-void rain_ext_print(box *, box *);
-void rain_ext_exit(box *, box *);
-void rain_panic(box *, box *);
 void rain_check_callable(box *, int);
-
-void rain_ext_to_str(box *, box *);
-char rain_to_str_buf[1024];
-
-void rain_ext_length(box *, box *);
-void rain_ext_type(box *, box *);
+void rain_main(box *, box *);
 
 #endif

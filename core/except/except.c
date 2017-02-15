@@ -241,10 +241,6 @@ void rain_throw(box *val) {
   abort();
 }
 
-void rain_ext_throw(box *ret, box *val) {
-  rain_throw(val);
-}
-
 void rain_catch(box *ret) {
   rain_set_box(ret, &exception.val);
 }

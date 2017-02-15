@@ -47,18 +47,6 @@ unsigned char rain_hash_eq(box *one, box *two) {
   return one->data.ui == two->data.ui;
 }
 
-int rain_array_length(box *table) {
-  int length = 0;
-  box i_box;
-
-  rain_set_int(&i_box, 0);
-  while(rain_has(table, &i_box)) {
-    i_box.data.si++;
-  }
-
-  return i_box.data.si;
-}
-
 column *rain_has(box *table, box *key) {
   unsigned long key_hash = rain_hash(key) % HASH_SIZE;
   column **dict = table->data.t;

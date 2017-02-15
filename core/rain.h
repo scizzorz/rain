@@ -1,4 +1,5 @@
 #include "core.h"
+#include "builtins.h"
 #include "util.h"
 
 #include "arith/arith.h"
