@@ -20,7 +20,7 @@ void rain_fmt(box *ret, box *val, box *fmt) {
       break;
 
     default:
-      rain_to_string(ret, val);
+      rain_ext_to_str(ret, val);
   }
 }
 

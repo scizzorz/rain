@@ -1,7 +1,5 @@
 # base
 
-let length = foreign "rain_length"(val)
-
 let node = table
 
 node.new = func(self)

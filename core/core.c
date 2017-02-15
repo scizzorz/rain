@@ -35,7 +35,7 @@ void rain_print(box *val) {
   }
   else {
     box ret;
-    rain_to_string(&ret, val);
+    rain_ext_to_str(&ret, val);
     printf("%.*s\n", ret.size, ret.data.s);
   }
 }
@@ -44,7 +44,7 @@ void rain_ext_print(box *ret, box *val) {
   rain_print(val);
 }
 
-void rain_exit(box *ret, box *val) {
+void rain_ext_exit(box *ret, box *val) {
   exit(rain_box_to_exit(val));
 }
 
@@ -59,7 +59,7 @@ void rain_check_callable(box *val, int num_args) {
 
 // string helpers
 
-void rain_to_string(box *ret, box *val) {
+void rain_ext_to_str(box *ret, box *val) {
   box key;
   box to_str;
 
@@ -113,7 +113,7 @@ void rain_to_string(box *ret, box *val) {
 
 // string AND table helpers
 
-void rain_length(box *ret, box *val) {
+void rain_ext_length(box *ret, box *val) {
   if(BOX_IS(val, STR) || BOX_IS(val, FUNC)) {
     rain_set_int(ret, val->size);
   }
@@ -122,6 +122,6 @@ void rain_length(box *ret, box *val) {
   }
 }
 
-void rain_type(box *ret, box *val) {
+void rain_ext_type(box *ret, box *val) {
   rain_set_int(ret, val->type);
 }

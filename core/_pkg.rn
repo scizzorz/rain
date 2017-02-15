@@ -12,9 +12,9 @@ library ":libgcc_s.so.1"
 import env
 import except
 
-let print = foreign "rain_ext_print"(val)
-let exit = foreign "rain_exit"(val)
-let panic = foreign "rain_ext_throw"(val)
-let length = foreign "rain_length"(val)
-let type = foreign "rain_type"(val)
-let to_str = foreign "rain_to_string"(val)
+let print   = foreign "rain_ext_print"(val)
+let exit    = foreign "rain_ext_exit"(val)
+let panic   = foreign "rain_ext_throw"(val)
+let length  = foreign "rain_ext_length"(val)
+let type    = foreign "rain_ext_type"(val)
+let to_str  = foreign "rain_ext_to_str"(val)
