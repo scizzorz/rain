@@ -1,7 +1,7 @@
 #ifndef ENV_H
 #define ENV_H
 
-#include "../rain.h"
+#include "../core.h"
 
 box *rain_args;
 

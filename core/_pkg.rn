@@ -1,5 +1,11 @@
-link "rain.c"
+link "builtins.c"
+link "core.c"
 link "util.c"
+
+link "ops/ops.c"
+link "set/set.c"
+link "table/table.c"
+
 library "gc"
 library "unwind"
 library ":libgcc_s.so.1"
@@ -7,8 +13,9 @@ library ":libgcc_s.so.1"
 import env
 import except
 
-let print = foreign "rain_ext_print"(val)
-let exit = foreign "rain_exit"(val)
-let panic = foreign "rain_ext_throw"(val)
-let type = foreign "rain_type"(val)
-let to_str = foreign "rain_to_string"(val)
+let exit    = foreign "rain_ext_exit"(val)
+let length  = foreign "rain_ext_length"(val)
+let panic   = foreign "rain_ext_throw"(val)
+let print   = foreign "rain_ext_print"(val)
+let to_str  = foreign "rain_ext_to_str"(val)
+let type    = foreign "rain_ext_type"(val)

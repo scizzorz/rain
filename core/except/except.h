@@ -7,8 +7,7 @@ Please see the PONY-LICENSE in the repository root, or view it at
 https://github.com/ponylang/ponyc
 */
 
-#include "../rain.h"
-#include <stdbool.h>
+#include "../core.h"
 #include <stdint.h>
 #include <unwind.h>
 
@@ -54,7 +53,6 @@ enum {
 };
 
 void rain_throw(box *);
-void rain_ext_throw(box *, box *);
 void rain_abort();
 void rain_catch(box *);
 _Unwind_Reason_Code rain_personality_v0(int, _Unwind_Action, uint64_t, unwind_exception_t *, exception_context_t *);

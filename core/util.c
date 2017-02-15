@@ -1,4 +1,6 @@
-#include "util.h"
+#include "rain.h"
+#include <gc.h>
+
 
 char **rain_table_str_array_gather(box *table, int length) {
   box ret ;

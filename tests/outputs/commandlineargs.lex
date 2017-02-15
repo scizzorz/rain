@@ -1,7 +1,4 @@
 keyword 'import'
-name 'env'
-newline
-keyword 'import'
 name 'array'
 newline
 keyword 'let'
@@ -13,8 +10,6 @@ symbol ')'
 indent
 name 'print'
 symbol '('
-name 'array'
-symbol '.'
 name 'length'
 symbol '('
 name 'env'

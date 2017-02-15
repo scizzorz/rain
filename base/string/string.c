@@ -1,8 +1,9 @@
-#include <stdlib.h>
 #include "string.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
-
-void rain_fmt(box *ret, box *val, box *fmt) {
+void rain_ext_fmt(box *ret, box *val, box *fmt) {
   if(BOX_ISNT(fmt, STR)) {
     return;
   }
@@ -19,10 +20,10 @@ void rain_fmt(box *ret, box *val, box *fmt) {
       break;
 
     default:
-      rain_to_string(ret, val);
+      rain_ext_to_str(ret, val);
   }
 }
 
-void rain_string_to_int(box *ret, box *str) {
+void rain_ext_str_to_int(box *ret, box *str) {
   rain_set_int(ret, atoi(str->data.s));
 }

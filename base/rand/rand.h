@@ -1,5 +1,5 @@
-#ifndef RAND_H_
-#define RAND_H_
+#ifndef RAND_H
+#define RAND_H
 
 #include "../../core/rain.h"
 

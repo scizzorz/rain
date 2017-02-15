@@ -95,7 +95,7 @@ def stream(source):
 
       # handle indents
       if depth_amt > indents[-1]:
-        last = indent_token(pos=coord(line, col))
+        last = indent_token(pos=coord(line, col, len=depth_amt))
         yield last
         indents.append(depth_amt)
 

@@ -1,10 +1,11 @@
 #include "../../core/rain.h"
-#include "../../core/except/except.h"
-
-#include <stdio.h>
 #include <pcre.h>
+#include <stdio.h>
+#include <string.h>
 
-extern box *rain_exc_pcre_cannot_compile;
+
+box *rain_exc_pcre_cannot_compile;
+
 
 /* proof of concept regular expression library */
 
@@ -65,7 +66,7 @@ void rain_pcre_compiled_match(box *ret, box *table, box *to_match) {
   }
 }
 
-void rain_pcre_compile(box *ret, box *regex) {
+void rain_ext_pcre_compile(box *ret, box *regex) {
   if(BOX_ISNT(regex, STR)) {
     rain_throw(rain_exc_arg_mismatch);
   }
@@ -96,7 +97,7 @@ void rain_pcre_compile(box *ret, box *regex) {
   rain_put(ret, &key, &val);
 }
 
-void rain_pcre_match(box *ret, box *regex, box *to_match) {
+void rain_ext_pcre_match(box *ret, box *regex, box *to_match) {
   if(BOX_ISNT(regex, STR) || BOX_ISNT(to_match, STR)) {
     rain_throw(rain_exc_arg_mismatch);
   }

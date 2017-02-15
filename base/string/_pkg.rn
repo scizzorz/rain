@@ -3,13 +3,12 @@ link "string.c"
 import core
 import iter
 
-export length = core.length
-export to_int = foreign "rain_string_to_int"(val)
-export fmt    = foreign "rain_fmt"(val, fmt)
+export to_int = foreign "rain_ext_str_to_int"(val)
+export fmt    = foreign "rain_ext_fmt"(val, fmt)
 
 export substring = func(s, start, end)
-  let length = length(s)
-  if start >= end | end >= length
+  let len = length(s)
+  if start >= end | end >= len
     return ""
   return s[start] $ substring(s, start+1, end)
 

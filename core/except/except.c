@@ -1,7 +1,10 @@
-#include "except.h"
+#include "../rain.h"
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unwind.h>
+
 
 /*
 DISCLAIMER: Much of this code was borrowed and modified from the Pony language.
@@ -236,10 +239,6 @@ void rain_throw(box *val) {
 
   _Unwind_RaiseException((unwind_exception_t *)&exception);
   abort();
-}
-
-void rain_ext_throw(box *ret, box *val) {
-  rain_throw(val);
 }
 
 void rain_catch(box *ret) {

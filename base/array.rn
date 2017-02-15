@@ -1,5 +1,3 @@
-import rain
-
 macro new(args) as (args)
   let node = ast.block:empty()
   save node
@@ -12,8 +10,6 @@ macro new(args) as (args)
   while args[i] != null
     node:add(ast.assn:init(ast.idx:init(tab, ast._int:init(i)), args[i]))
     i = i + 1
-
-export length = rain.length
 
 export values = func(self)
   let i = 0
@@ -72,7 +68,6 @@ export from_iter = func(iter)
 export slice = func(self, start, end)
   let ret = table
   save ret
-  let length = length(self)
   let to_idx = 0
   let from_idx = start
   while from_idx < end
