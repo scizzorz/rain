@@ -48,7 +48,6 @@ void rain_exit(box *, box *);
 void rain_panic(box *, box *);
 void rain_check_callable(box *, int);
 
-void rain_string_concat(box *, box *, box*);
 void rain_to_string(box *, box *);
 char rain_to_str_buf[1024];
 

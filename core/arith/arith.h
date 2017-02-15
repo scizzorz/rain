@@ -22,4 +22,6 @@ void rain_ge(box *, box *, box *);
 void rain_lt(box *, box *, box *);
 void rain_le(box *, box *, box *);
 
+void rain_string_concat(box *, box *, box*);
+
 #endif

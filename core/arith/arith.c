@@ -1,4 +1,5 @@
 #include "../rain.h"
+#include <gc.h>
 #include <string.h>
 
 
@@ -120,6 +121,7 @@ void rain_div(box *ret, box *lhs, box *rhs) {
   }
 }
 
+
 // boolean
 // NOTE: these aren't actually used by the | and & operators
 
@@ -144,6 +146,7 @@ void rain_or(box *ret, box *lhs, box *rhs) {
 
   rain_set_box(ret, rhs);
 }
+
 
 // comparison
 
@@ -259,3 +262,26 @@ void rain_le(box *ret, box *lhs, box *rhs) {
   }
 }
 
+
+// string concat
+
+void rain_string_concat(box *ret, box *lhs, box *rhs) {
+  if(BOX_ISNT(lhs, STR) && BOX_ISNT(rhs, STR)) {
+    rain_throw(rain_exc_arg_mismatch);
+  }
+  else if(BOX_ISNT(rhs, STR)) {
+    rain_set_box(ret, lhs);
+  }
+  else if(BOX_ISNT(lhs, STR)) {
+    rain_set_box(ret, rhs);
+  }
+  else {
+    int length = lhs->size + rhs->size;
+    char *cat = GC_malloc(length + 1);
+
+    strcat(cat, lhs->data.s);
+    strcat(cat + lhs->size, rhs->data.s);
+
+    rain_set_strcpy(ret, cat, length);
+  }
+}
