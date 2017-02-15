@@ -9,9 +9,7 @@ DATA = 2
 ENV = 3
 
 # sizes of things
-BOX_SIZE = 24
 HASH_SIZE = 32
-TRAMP_SIZE = 72
 
 # all sorts of type aliases
 i8 = ir.IntType(8)
@@ -26,7 +24,6 @@ arr = ir.ArrayType
 box = ir.context.global_context.get_identified_type('box')
 column = ir.context.global_context.get_identified_type('column')
 arg = ptr(box)
-vp = ptr(i8)
 lp = ir.LiteralStructType([ptr(i8), i32])
 
 

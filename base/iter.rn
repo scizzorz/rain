@@ -5,10 +5,11 @@ export range = func(end)
       save i
     i = i + 1
 
-export map = func(iter, fn) -> func()
-  let val = iter()
-  if val != null
-    return fn(val)
+export map = func(iter, fn)
+  return func()
+    let val = iter()
+    if val != null
+      return fn(val)
 
 export foldl = func(iter, fn, z)
   let a = z

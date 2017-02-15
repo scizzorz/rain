@@ -323,7 +323,20 @@ def emit(self, module):
 
 @macro_node.method
 def expand(self, module):
-  return func_node(self.params, self.body).emit(module, name='macro.func.main')
+  typ = T.vfunc(T.arg, *[T.arg for x in self.params])
+
+  func_node(self.params, self.body).emit(module, name='macro.func.real')
+  real_func = module.find_func(typ, 'macro.func.real')
+
+  main_func = module.add_func(typ, name='macro.func.main')
+  main_func.attributes.personality = module.extern('rain_personality_v0')
+  main_func.args[0].add_attribute('sret')
+  with module.add_func_body(main_func):
+    with module.add_abort() as abort:
+      module.call(real_func, *main_func.args, unwind=module.catch)
+      abort(module.builder.block)
+
+    module.builder.ret_void()
 
 
 @lib_node.method
@@ -381,7 +394,7 @@ def emit(self, module):
   ptrs = module.fnalloc(T.null, func_box)
 
   env = module.get_env(func_box)
-  is_env = module.builder.icmp_unsigned('!=', env, T.vp(None))
+  is_env = module.builder.icmp_unsigned('!=', env, T.arg(None))
   with module.builder.if_then(is_env):
     module.store(func_box, ptrs[0])
 
@@ -429,7 +442,7 @@ def emit(self, module):
   module.check_callable(func_box, 0)
 
   env = module.get_env(func_box)
-  is_env = module.builder.icmp_unsigned('!=', env, T.vp(None))
+  is_env = module.builder.icmp_unsigned('!=', env, T.arg(None))
 
   # set up the return pointer
   with module.goto_entry():
@@ -612,7 +625,7 @@ def do_call(module, func_box, arg_boxes, catch=False):
   ptrs = module.fnalloc(T.null, *arg_boxes)
 
   env = module.get_env(func_box)
-  is_env = module.builder.icmp_unsigned('!=', env, T.vp(None))
+  is_env = module.builder.icmp_unsigned('!=', env, T.arg(None))
   with module.builder.if_then(is_env):
     module.store(func_box, ptrs[0])
 
