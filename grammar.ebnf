@@ -1,10 +1,9 @@
 program :: (stmt NEWLINE)+ EOF
 
 block :: INDENT (stmt NEWLINE)+ DEDENT
-expr_block :: INDENT (expr NEWLINE)+ DEDENT
 
-stmt :: 'let' NAME '=' expr
-      | 'export' NAME '=' expr
+stmt :: 'let' NAME '=' compound
+      | 'export' NAME '=' compound
       | 'export' NAME 'as' 'foreign' (NAME | STRING)
       | 'import' (NAME | STRING) ('as' NAME)?
       | 'macro' NAME fnparams 'as' fnparams block
@@ -13,42 +12,44 @@ stmt :: 'let' NAME '=' expr
       | 'library' STRING
       | if_stmt
       | 'catch' NAME block
-      | 'for' NAME 'in' expr block
-      | 'with' expr ('as' NAME (',' NAME)*)
-      | 'while' expr block
-      | 'until' expr block
+      | 'for' NAME 'in' binexpr block
+      | 'with' binexpr ('as' NAME (',' NAME)*)
+      | 'while' binexpr block
+      | 'until' binexpr block
       | 'loop' block
       | 'pass'
-      | 'break' ('if' expr)?
-      | 'continue' ('if' expr)?
-      | 'return' expr?
-      | 'save' expr
-      | assn_prefix ('=' expr | fnargs | ':' NAME  fnargs)
+      | 'break' ('if' binexpr)?
+      | 'continue' ('if' binexpr)?
+      | 'return' compound?
+      | 'save' compound
+      | assn_prefix ('=' compound | fnargblock | fnargs | ':' NAME  fnargs)
 
-if_stmt :: 'if' expr block (NEWLINE 'else' (if_stmt | block))?
+if_stmt :: 'if' binexpr block (NEWLINE 'else' (if_stmt | block))?
 
 macro_exp :: '@' NAME ('.' NAME)* ***
 
-assn_prefix :: prefix ('.' NAME | '[' expr ']')*
+assn_prefix :: prefix ('.' NAME | '[' binexpr ']')*
 
-fnargs :: '(' (expr (',' expr)*)? ')'
+fnargs :: '(' (binexpr (',' binexpr)*)? ')'
+
+fnargblock :: INDENT (compound NEWLINE)+ DEDENT
 
 fnparams :: '(' (NAME (',' NAME)*)? ')'
 
-expr :: macro_exp
-      | binexpr
+compound :: macro_exp
+          | 'func' fnparams ('->' binexpr | block)
+          | binexpr ('?'? fnargblock)?
 
 binexpr :: unexpr (OPERATOR unexpr)*
 
 unexpr :: ('-' | '!') simple
         | simple
 
-simple :: 'func' fnparams ('->' expr | block)
+simple :: 'func' fnparams '->' binexpr
         | 'foreign' (NAME | STRING) fnparams
-        | INT | FLOAT | BOOL | STRING | NULL | TABLE ('from' expr)?
         | primary
 
-primary :: prefix ('?'? fnargs | ':' NAME '?'? fnargs | '.' NAME | '[' expr ']')*
+primary :: prefix ('?'? fnargs | ':' NAME '?'? fnargs | '.' NAME | '[' binexpr ']')*
 
-prefix :: '(' expr ')'
-        | NAME
+prefix :: '(' binexpr ')'
+        | NAME | INT | FLOAT | BOOL | STRING | NULL | TABLE ('from' binexpr)?
