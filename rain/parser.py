@@ -186,7 +186,7 @@ def block(ctx):
 #       | 'continue' ('if' binexpr)?
 #       | 'return' compound?
 #       | 'save' compound
-#       | assn_prefix ('=' compound | fnargblock | fnargs | ':' NAME  fnargs)
+#       | assn_prefix ('=' compound | fnargs | ':' NAME  fnargs)
 def stmt(ctx):
   if ctx.consume(K.keyword_token('let')):
     lhs = A.name_node(ctx.require(K.name_token).value)
@@ -342,10 +342,6 @@ def stmt(ctx):
     rhs = compound(ctx)
     return A.assn_node(lhs, rhs, let=False)
 
-  if ctx.expect(indent):
-    args = fnargblock(ctx)
-    return A.call_node(lhs, args)
-
   if ctx.expect(K.symbol_token('(')):
     args = fnargs(ctx)
     return A.call_node(lhs, args)
@@ -464,7 +460,7 @@ def fnparams(ctx, parens=True, tokens=[K.name_token]):
 
 # compound :: macro_exp
 #           | 'func' fnparams ('->' binexpr | block)
-#           | binexpr ('?'? fnargblock)?
+#           | binexpr
 def compound(ctx):
   if ctx.expect(K.symbol_token('@')):
     return macro_exp(ctx)
@@ -479,13 +475,7 @@ def compound(ctx):
     body = block(ctx)
     return A.func_node(params, body)
 
-  ret = binexpr(ctx)
-  catch = ctx.consume(K.symbol_token('?'))
-  if catch or ctx.expect(indent):
-    args = fnargblock(ctx)
-    return A.call_node(ret, args, catch=catch)
-
-  return ret
+  return binexpr(ctx)
 
 
 # binexpr :: unexpr (OPERATOR unexpr)*

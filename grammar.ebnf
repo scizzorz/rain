@@ -22,7 +22,7 @@ stmt :: 'let' NAME '=' compound
       | 'continue' ('if' binexpr)?
       | 'return' compound?
       | 'save' compound
-      | assn_prefix ('=' compound | fnargblock | fnargs | ':' NAME  fnargs)
+      | assn_prefix ('=' compound | fnargs | ':' NAME  fnargs)
 
 if_stmt :: 'if' binexpr block (NEWLINE 'else' (if_stmt | block))?
 
@@ -38,7 +38,7 @@ fnparams :: '(' (NAME (',' NAME)*)? ')'
 
 compound :: macro_exp
           | 'func' fnparams ('->' binexpr | block)
-          | binexpr ('?'? fnargblock)?
+          | binexpr
 
 binexpr :: unexpr (OPERATOR unexpr)*
 
