@@ -1,9 +1,9 @@
 link "file.c"
 
-let fopen = foreign "rain_fopen"(name, mode)
-let freadline = foreign "rain_freadline"(handle)
-let fwriteline = foreign "rain_fwriteline"(handle, line)
-let fclose = foreign "rain_fclose"(handle)
+let fopen = foreign "rain_ext_fopen"(name, mode)
+let freadline = foreign "rain_ext_freadline"(handle)
+let fwriteline = foreign "rain_ext_fwriteline"(handle, line)
+let fclose = foreign "rain_ext_fclose"(handle)
 
 let base = table
 base.new = func(self, handle)

@@ -1,2 +1,2 @@
 link "process.c"
-export run = foreign "rain_process_output"(cmd)
+export run = foreign "rain_ext_process_output"(cmd)

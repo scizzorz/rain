@@ -9,9 +9,7 @@
 #define BUF_SIZE 4096
 
 
-void rain_process_output(box *, box *);
-
-void rain_process_output(box *ret, box *command) {
+void rain_ext_process_output(box *ret, box *command) {
   if(BOX_ISNT(command, TABLE)) {
     return;
   }

@@ -13,7 +13,7 @@ void rain_init_args(int argc, char **argv) {
   }
 }
 
-void rain_get_env(box *ret, box *val) {
+void rain_ext_get_env(box *ret, box *val) {
   char *env = getenv(val->data.s);
   rain_set_strcpy(ret, env, strlen(env));
 }
