@@ -58,6 +58,11 @@ def ptrtoint(ptr):
   raw_ir = 'ptrtoint ({0} {1} to {2})'.format(ptr.type, ptr.get_reference(), cast.int)
   return ir.FormattedConstant(cast.int, raw_ir)
 
+def insertvalue(container, value, idx):
+  # same as ptrtoint
+  raw_ir = 'insertvalue ({0} {1}, {2} {3}, {4})'.format(container.type, container.get_reference(), value.type, value.get_reference(), idx)
+  return ir.FormattedConstant(container.type, raw_ir)
+
 
 def _str(ptr, size):
   return box([ityp.str, i32(size), ptrtoint(ptr), arg(None)])

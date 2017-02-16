@@ -43,5 +43,6 @@ typedef struct column_s {
 int rain_box_to_exit(box *);
 void rain_check_callable(box *, int);
 void rain_main(box *, box *);
+box *rain_box_malloc();
 
 #endif

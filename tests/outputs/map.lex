@@ -27,7 +27,7 @@ keyword 'let'
 name 'a'
 symbol '='
 'table'
-keyword 'from'
+operator '::'
 name 'array'
 newline
 name 'a'

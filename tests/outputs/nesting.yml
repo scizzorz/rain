@@ -19,8 +19,7 @@ stmts:
   let: true
   lhs: !name;1
     value: loc
-  rhs: !table;1
-    parent: null
+  rhs: !table;2 {}
 - !assn;2
   export: false
   let: false
@@ -39,8 +38,7 @@ stmts:
       value: loc
     rhs: !str;1
       value: nest
-  rhs: !table;1
-    parent: null
+  rhs: !table;2 {}
 - !assn;2
   export: false
   let: false
@@ -59,8 +57,7 @@ stmts:
   let: false
   lhs: !name;1
     value: exp
-  rhs: !table;1
-    parent: null
+  rhs: !table;2 {}
 - !assn;2
   export: false
   let: false
@@ -79,8 +76,7 @@ stmts:
       value: exp
     rhs: !str;1
       value: nest
-  rhs: !table;1
-    parent: null
+  rhs: !table;2 {}
 - !assn;2
   export: false
   let: false

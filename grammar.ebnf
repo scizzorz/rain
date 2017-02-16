@@ -52,4 +52,4 @@ simple :: 'func' fnparams '->' binexpr
 primary :: prefix ('?'? fnargs | ':' NAME '?'? fnargs | '.' NAME | '[' binexpr ']')*
 
 prefix :: '(' binexpr ')'
-        | NAME | INT | FLOAT | BOOL | STRING | NULL | TABLE ('from' binexpr)?
+        | NAME | INT | FLOAT | BOOL | STRING | NULL | TABLE

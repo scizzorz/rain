@@ -3,14 +3,14 @@
 let node = table
 
 node.new = func(self)
-  return table from self
+  return table :: self
 
 node.init = func(self)
   let ret = self:new()
   save ret
 
 
-let value_node = table from node
+let value_node = table :: node
 
 value_node.init = func(self, value)
   let ret = self:new()
@@ -18,7 +18,7 @@ value_node.init = func(self, value)
   ret.value = value
 
 
-let pred_block = table from node
+let pred_block = table :: node
 
 pred_block.init = func(self, pred, body)
   let ret = self:new()
@@ -28,7 +28,7 @@ pred_block.init = func(self, pred, body)
 
 # structure
 
-export _list = table from node
+export _list = table :: node
 
 _list.items = func(self)
   let i = 0
@@ -36,7 +36,7 @@ _list.items = func(self)
     save self[i]
     i = i + 1
 
-export _block = table from node
+export _block = table :: node
 
 _block.tag = "block"
 _block.init = func(self, stmts, expr)
@@ -61,7 +61,7 @@ _block.list = func(self)
 
 # statements
 
-export _assn = table from node
+export _assn = table :: node
 
 _assn.tag = "assn"
 _assn._let = false
@@ -73,17 +73,17 @@ _assn.init = func(self, lhs, rhs)
   ret.rhs = rhs
 
 
-export _let = table from _assn
+export _let = table :: _assn
 
 _let._let = true
 
 
-export _export = table from _assn
+export _export = table :: _assn
 
 _export._export = true
 
 
-export _break = table from node
+export _break = table :: node
 
 _break.tag = "break"
 _break.init = func(self, cond)
@@ -92,7 +92,7 @@ _break.init = func(self, cond)
   ret.cond = cond
 
 
-export _catch = table from node
+export _catch = table :: node
 
 _catch.tag = "catch"
 _catch.init = func(self, name, body)
@@ -102,7 +102,7 @@ _catch.init = func(self, name, body)
   ret.body = body
 
 
-export _cont = table from node
+export _cont = table :: node
 
 _cont.tag = "continue"
 _cont.init = func(self, cond)
@@ -111,7 +111,7 @@ _cont.init = func(self, cond)
   ret.cond = cond
 
 
-export _export_foreign = table from node
+export _export_foreign = table :: node
 
 _export_foreign.tag = "export_foreign"
 _export_foreign.init = func(self, name, rename)
@@ -121,7 +121,7 @@ _export_foreign.init = func(self, name, rename)
   ret.rename = rename
 
 
-export _if = table from node
+export _if = table :: node
 
 _if.tag = "if"
 _if.init = func(self, pred, body, els)
@@ -132,7 +132,7 @@ _if.init = func(self, pred, body, els)
   ret._els = _els
 
 
-export _import = table from node
+export _import = table :: node
 
 _import.tag = "import"
 _import.init = func(self, name, rename)
@@ -142,7 +142,7 @@ _import.init = func(self, name, rename)
   ret.rename = rename
 
 
-export _link = table from node
+export _link = table :: node
 
 _link.tag = "link"
 _link.init = func(self, name)
@@ -151,7 +151,7 @@ _link.init = func(self, name)
   ret.name = name
 
 
-export _lib = table from node
+export _lib = table :: node
 
 _lib.tag = "library"
 _lib.init = func(self, name)
@@ -160,7 +160,7 @@ _lib.init = func(self, name)
   ret.name = name
 
 
-export _loop = table from node
+export _loop = table :: node
 
 _loop.tag = "loop"
 _loop.init = func(self, body)
@@ -169,7 +169,7 @@ _loop.init = func(self, body)
   ret.body = body
 
 
-export _for = table from node
+export _for = table :: node
 
 _for.tag = "for"
 _for.init = func(self, name, _func, body)
@@ -180,7 +180,7 @@ _for.init = func(self, name, _func, body)
   ret.body = body
 
 
-export _with = table from node
+export _with = table :: node
 
 _with.tag = "with"
 _with.init = func(self, expr, params, body)
@@ -191,34 +191,34 @@ _with.init = func(self, expr, params, body)
   ret.body = body
 
 
-export _pass = table from node
+export _pass = table :: node
 
 _pass.tag = "pass"
 
 
-export _return = table from value_node
+export _return = table :: value_node
 
 _return.tag = "return"
 
 
-export _save = table from value_node
+export _save = table :: value_node
 
 _save.tag = "save"
 
 
-export _until = table from pred_block
+export _until = table :: pred_block
 
 _until.tag = "until"
 
 
-export _while = table from pred_block
+export _while = table :: pred_block
 
 _while.tag = "while"
 
 
 # expressions
 
-export _idx = table from node
+export _idx = table :: node
 
 _idx.tag = "index"
 _idx.init = func(self, lhs, rhs)
@@ -228,46 +228,42 @@ _idx.init = func(self, lhs, rhs)
   ret.rhs = rhs
 
 
-export _name = table from value_node
+export _name = table :: value_node
 
 _name.tag = "name"
 
 
-export _null = table from node
+export _null = table :: node
 
 _null.tag = "null"
 
 
-export _int = table from value_node
+export _int = table :: value_node
 
 _int.tag = "int"
 
 
-export _float = table from value_node
+export _float = table :: value_node
 
 _float.tag = "float"
 
 
-export _bool = table from value_node
+export _bool = table :: value_node
 
 _bool.tag = "bool"
 
 
-export _str = table from value_node
+export _str = table :: value_node
 
 _str.tag = "str"
 
 
-export _table = table from node
+export _table = table :: node
 
 _table.tag = "table"
-_table.init = func(self, parent)
-  let ret = self:new()
-  save ret
-  ret.parent = parent
 
 
-export _func = table from node
+export _func = table :: node
 
 _func.tag = "func"
 _func.init = func(self, params, body)
@@ -277,7 +273,7 @@ _func.init = func(self, params, body)
   ret.body = body
 
 
-export _foreign = table from node
+export _foreign = table :: node
 
 _foreign.tag = "foreign"
 _foreign.init = func(self, name, params)
@@ -287,7 +283,7 @@ _foreign.init = func(self, name, params)
   ret.params = params
 
 
-export _call = table from node
+export _call = table :: node
 
 _call.tag = "call"
 _call._catch = false
@@ -298,12 +294,12 @@ _call.init = func(self, _func, args)
   ret.args = args
 
 
-export _catch_call = table from _call
+export _catch_call = table :: _call
 
 _catch_call._catch = true
 
 
-export _meth = table from node
+export _meth = table :: node
 
 _meth.tag = "method"
 _meth.init = func(self, lhs, rhs, args, _catch)
@@ -315,7 +311,7 @@ _meth.init = func(self, lhs, rhs, args, _catch)
   ret._catch = _catch
 
 
-export _binary = table from node
+export _binary = table :: node
 
 _binary.tag = "binary"
 _binary.init = func(self, lhs, rhs, op)
@@ -326,7 +322,7 @@ _binary.init = func(self, lhs, rhs, op)
   ret.op = op
 
 
-export _unary = table from node
+export _unary = table :: node
 
 _unary.tag = "unary"
 _unary.init = func(self, op, val)
@@ -338,7 +334,7 @@ _unary.init = func(self, op, val)
 
 # message nodes
 
-export _message = table from node
+export _message = table :: node
 
 _message.init = func(self, msg)
   let ret = self:new()
@@ -346,16 +342,16 @@ _message.init = func(self, msg)
   ret.msg = msg
 
 
-export _error = table from _message
+export _error = table :: _message
 
 _error.tag = "error"
 
 
-export _warning = table from _message
+export _warning = table :: _message
 
 _warning.tag = "warning"
 
 
-export _hint = table from _message
+export _hint = table :: _message
 
 _hint.tag = "hint"

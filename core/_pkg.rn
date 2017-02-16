@@ -15,6 +15,7 @@ import except
 
 let exit    = foreign "rain_ext_exit"(val)
 let length  = foreign "rain_ext_length"(val)
+let meta    = foreign "rain_ext_meta"(val)
 let panic   = foreign "rain_ext_throw"(val)
 let print   = foreign "rain_ext_print"(val)
 let to_str  = foreign "rain_ext_to_str"(val)

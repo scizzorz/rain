@@ -8,13 +8,8 @@ export _func = 6
 export _cdata = 7
 
 export is = func(child, parent)
-  if type(parent) != _table
-    panic(except.arg_mismatch)
-
-  if type(child) != _table
-    return false
-
-  while child.metatable != null
-    if child.metatable == parent
+  while meta(child) != null
+    if meta(child) == parent
       return true
+
   return false

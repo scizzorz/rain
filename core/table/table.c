@@ -7,7 +7,7 @@
 // table helpers
 
 box* rain_new_table() {
-  box* val = (box *)GC_malloc(sizeof(box));
+  box* val = rain_box_malloc();
   rain_set_table(val);
   return val;
 }
@@ -82,33 +82,18 @@ void rain_get(box *ret, box *table, box *key) {
     return;
   }
 
-  if(BOX_IS(table, FUNC)) {
+  if(BOX_IS(table, TABLE)) {
+    column *row = rain_has(table, key);
+    if(row != NULL) {
+      rain_set_box(ret, &row->val);
+      return;
+    }
+  }
+
+  if(table->env != NULL) {
     rain_get(ret, table->env, key);
     return;
   }
-
-  if(BOX_ISNT(table, TABLE)) {
-    rain_throw(rain_exc_arg_mismatch);
-  }
-
-  column *row = rain_has(table, key);
-
-  if(row == NULL) {
-    box mt_key;
-    rain_set_str(&mt_key, "metatable");
-    column* metatable = rain_has(table, &mt_key);
-    if(metatable == NULL) {
-      rain_set_null(ret);
-      return;
-    }
-
-    if(BOX_IS(&metatable->val, TABLE) && (&metatable->val) != table) {
-      rain_get(ret, &metatable->val, key);
-    }
-    return;
-  }
-
-  rain_set_box(ret, &row->val);
 }
 
 void rain_put(box *table, box *key, box *val) {

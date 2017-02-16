@@ -80,15 +80,16 @@ def ctx_partial(func, *args, **kwargs):
 externs = {
   'GC_malloc': T.func(T.ptr(T.i8), [T.i32]),
 
-  'rain_main': T.vfunc(T.arg, T.arg),
-  'rain_init_args': T.vfunc(T.i32, T.ptr(T.ptr(T.i8))),
-  'rain_check_callable': T.vfunc(T.arg, T.i32),
+  'rain_abort': T.vfunc(),
+  'rain_box_malloc': T.func(T.arg, []),
   'rain_box_to_exit': T.func(T.i32, [T.arg]),
+  'rain_catch': T.vfunc(T.arg),
+  'rain_check_callable': T.vfunc(T.arg, T.i32),
+  'rain_init_args': T.vfunc(T.i32, T.ptr(T.ptr(T.i8))),
+  'rain_main': T.vfunc(T.arg, T.arg),
+  'rain_personality_v0': T.func(T.i32, [], var_arg=True),
   'rain_print': T.vfunc(T.arg),
   'rain_throw': T.vfunc(T.arg),
-  'rain_abort': T.vfunc(),
-  'rain_catch': T.vfunc(T.arg),
-  'rain_personality_v0': T.func(T.i32, [], var_arg=True),
 
   'rain_neg': T.vfunc(T.arg, T.arg),
   'rain_not': T.vfunc(T.arg, T.arg),

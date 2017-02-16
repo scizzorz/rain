@@ -23,8 +23,7 @@ stmts:
       let: true
       lhs: !name;1
         value: :base.array:new:0
-      rhs: !table;1
-        parent: null
+      rhs: !table;2 {}
     - !assn;2
       export: false
       let: false
@@ -69,8 +68,7 @@ stmts:
       let: true
       lhs: !name;1
         value: :base.dict:new:0
-      rhs: !table;1
-        parent: null
+      rhs: !table;2 {}
     - !assn;2
       export: false
       let: false

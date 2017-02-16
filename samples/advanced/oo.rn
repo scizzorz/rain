@@ -2,7 +2,7 @@
 
 let rect = table
 rect.new = func(self)
-  return table from self   # a new instance of this object
+  return table :: self   # a new instance of this object
 
 rect.init = func(self, w, h)
   self.w = w
@@ -11,7 +11,7 @@ rect.init = func(self, w, h)
 rect.area = func(self)
   return self.w * self.h
 
-let square = table from rect    # inherits from rect
+let square = table :: rect    # inherits from rect
 square.init = func(self, s) # overrides rect.init
   self.w = s
   self.h = s

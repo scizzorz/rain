@@ -5,19 +5,19 @@ error.msg = "error"
 error["_str"] = func(self)
   return self.msg
 
-export arg_mismatch = table from error
+export arg_mismatch = table :: error
 arg_mismatch.msg = "argument mismatch"
 
-export uncallable = table from error
+export uncallable = table :: error
 uncallable.msg = "uncallable value"
 
-export interrupt = table from error
+export interrupt = table :: error
 interrupt.msg = "received interrupt signal"
 
-export fpe = table from error
+export fpe = table :: error
 fpe.msg = "floating point error"
 
-export segfault = table from error
+export segfault = table :: error
 segfault.msg = "segmentation fault"
 
 export arg_mismatch as foreign "rain_exc_arg_mismatch"

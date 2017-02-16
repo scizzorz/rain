@@ -14,7 +14,7 @@ symbol ')'
 indent
 keyword 'return'
 'table'
-keyword 'from'
+operator '::'
 name 'self'
 newline
 dedent
@@ -70,7 +70,7 @@ keyword 'let'
 name 'square'
 symbol '='
 'table'
-keyword 'from'
+operator '::'
 name 'rect'
 newline
 name 'square'

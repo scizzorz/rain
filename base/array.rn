@@ -27,7 +27,7 @@ export keys = func(self)
     i = i + 1
 
 export map = func(self, fn)
-  let ret = table from self.metatable
+  let ret = table :: meta(self)
   save ret
   for i in keys(self)
     ret[i] = fn(self[i])
@@ -39,7 +39,7 @@ export foldl = func(self, fn, z)
   return a
 
 export concat = func(self, other)
-  let ret = table from self.metatable
+  let ret = table :: meta(self)
   save ret
   for i in keys(self)
     ret[i] = self[i]
@@ -49,7 +49,7 @@ export concat = func(self, other)
 
 export flatmap = func(self, fn)
   let mapped = map(self, fn)
-  return foldl(mapped, concat, table from self.metatable)
+  return foldl(mapped, concat, table :: meta(self))
 
 export contains = func(self, value)
   save false

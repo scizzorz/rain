@@ -1,4 +1,0 @@
-link "rand.c"
-
-export rand  = foreign "rain_ext_rand"()
-export srand = foreign "rain_ext_srand"(val)

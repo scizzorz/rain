@@ -4,7 +4,7 @@ import iter
 let double = func(n) -> n * 2
 
 let main = func()
-  let a = table from array
+  let a = table :: array
   a[0] = 10
   a[1] = 11
   a[2] = 12

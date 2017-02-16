@@ -7,7 +7,7 @@ let fclose = foreign "rain_ext_fclose"(handle)
 
 let base = table
 base.new = func(self, handle)
-  let ret = table from self
+  let ret = table :: self
   save ret
 
   ret["_file"] = handle
