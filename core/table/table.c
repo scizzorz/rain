@@ -7,7 +7,7 @@
 // table helpers
 
 box* rain_new_table() {
-  box* val = (box *)GC_malloc(sizeof(box));
+  box* val = rain_box_malloc();
   rain_set_table(val);
   return val;
 }

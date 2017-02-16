@@ -19,7 +19,7 @@ from termcolor import colored as X
 import re
 
 OPERATORS = (
-  '->',
+  '->', '::',
   '<=', '>=', '>', '<', '==', '!=',
   '*', '/', '+', '-',
   '&', '|', '!', '$',

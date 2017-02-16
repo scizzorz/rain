@@ -16,6 +16,8 @@ dedent = K.dedent_token()
 newline = K.newline_token()
 
 binary_ops = {
+  '::': 100,
+
   '*': 90,
   '/': 90,
   '+': 80,

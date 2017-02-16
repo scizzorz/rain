@@ -729,6 +729,13 @@ def emit(self, module):
 
     return module.load(res)
 
+  if self.op == '::':
+    lhs = module.emit(self.lhs)
+    rhs = module.emit(self.rhs)
+    ptr = module.excall('rain_box_malloc')
+    module.store(rhs, ptr)
+    return module.insert(lhs, ptr, T.ENV)
+
   arith = {
     '+': 'rain_add',
     '-': 'rain_sub',

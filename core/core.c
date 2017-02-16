@@ -37,3 +37,7 @@ void rain_check_callable(box *val, int num_args) {
     rain_throw(rain_exc_arg_mismatch);
   }
 }
+
+box *rain_box_malloc() {
+  return (box *)GC_malloc(sizeof(box));
+}
