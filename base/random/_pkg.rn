@@ -1,0 +1,10 @@
+link "random.c"
+
+let rand  = foreign "rain_ext_rand"()
+let srand = foreign "rain_ext_srand"(val)
+
+export seed = 0
+export next = func(self)
+  srand(self.seed)
+  self.seed = rand()
+  return self.seed
