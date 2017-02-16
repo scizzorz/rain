@@ -41,6 +41,12 @@ void rain_ext_length(box *ret, box *val) {
   }
 }
 
+void rain_ext_meta(box *ret, box *val) {
+  if(val->env != NULL) {
+    rain_set_box(ret, val->env);
+  }
+}
+
 void rain_ext_print(box *ret, box *val) {
   rain_print(val);
 }
