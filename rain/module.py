@@ -387,9 +387,25 @@ class Module(S.Scope):
 
   # Function helpers ##########################################################
 
+  def get_exception(self, name):
+    glob = self.find_global(T.ptr(T.box), 'rain_exc_' + name)
+    return self.load(glob)
+
   def check_callable(self, box, num_args, unwind=None):
+    func_typ = self.get_type(box)
+    is_func = self.builder.icmp_unsigned('!=', T.ityp.func, func_typ)
+    with self.builder.if_then(is_func):
+      self.excall('rain_throw', self.get_exception('uncallable'))
+
+    exp_args = self.get_size(box)
+    arg_match = self.builder.icmp_unsigned('!=', exp_args, T.i32(num_args))
+    with self.builder.if_then(arg_match):
+      self.excall('rain_throw', self.get_exception('arg_mismatch'))
+
+    '''
     self.store(box, self.callable_ptr)
     self.excall('rain_check_callable', self.callable_ptr, T.i32(num_args), unwind=unwind)
+    '''
 
   # allocate stack space for function arguments
   def fnalloc(self, *args):
