@@ -709,6 +709,24 @@ def emit(self, module):
 
 @binary_node.method
 def emit(self, module):
+  if self.op == '::':
+    lhs = module.emit(self.lhs)
+    rhs = module.emit(self.rhs)
+
+    if module.is_global:
+      ptr = module.add_global(T.box)
+      ptr.initializer = rhs
+      new_lhs = T.insertvalue(lhs, ptr, T.ENV)
+
+      if getattr(lhs, 'source', None): # this is for my dirty table hack
+        new_lhs.source = lhs.source
+
+      return new_lhs
+
+    ptr = module.excall('rain_box_malloc')
+    module.store(rhs, ptr)
+    return module.insert(lhs, ptr, T.ENV)
+
   if module.is_global:
     Q.abort("Can't use binary operators at global scope")
 
@@ -728,13 +746,6 @@ def emit(self, module):
       module.store(rhs, res)
 
     return module.load(res)
-
-  if self.op == '::':
-    lhs = module.emit(self.lhs)
-    rhs = module.emit(self.rhs)
-    ptr = module.excall('rain_box_malloc')
-    module.store(rhs, ptr)
-    return module.insert(lhs, ptr, T.ENV)
 
   arith = {
     '+': 'rain_add',
