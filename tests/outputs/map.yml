@@ -35,8 +35,10 @@ stmts:
         let: true
         lhs: !name;1
           value: a
-        rhs: !table;1
-          parent: !name;1
+        rhs: !binary;1
+          lhs: !table;2 {}
+          op: '::'
+          rhs: !name;1
             value: array
       - !assn;2
         export: false

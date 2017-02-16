@@ -49,8 +49,7 @@ stmts:
         let: true
         lhs: !name;1
           value: a
-        rhs: !table;1
-          parent: null
+        rhs: !table;2 {}
       - !assn;2
         export: false
         let: false

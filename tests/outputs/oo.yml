@@ -5,8 +5,7 @@ stmts:
   let: true
   lhs: !name;1
     value: rect
-  rhs: !table;1
-    parent: null
+  rhs: !table;2 {}
 - !assn;2
   export: false
   let: false
@@ -20,8 +19,10 @@ stmts:
       expr: null
       stmts:
       - !return;1
-        value: !table;1
-          parent: !name;1
+        value: !binary;1
+          lhs: !table;2 {}
+          op: '::'
+          rhs: !name;1
             value: self
     params:
     - self
@@ -93,8 +94,10 @@ stmts:
   let: true
   lhs: !name;1
     value: square
-  rhs: !table;1
-    parent: !name;1
+  rhs: !binary;1
+    lhs: !table;2 {}
+    op: '::'
+    rhs: !name;1
       value: rect
 - !assn;2
   export: false
