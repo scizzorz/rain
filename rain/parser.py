@@ -582,7 +582,7 @@ def primary(ctx):
 
 
 # prefix :: '(' binexpr ')'
-#         | NAME | INT | FLOAT | BOOL | STRING | NULL | TABLE ('from' binexpr)?
+#         | NAME | INT | FLOAT | BOOL | STRING | NULL | TABLE
 def prefix(ctx):
   if ctx.consume(K.symbol_token('(')):
     node = binexpr(ctx)
@@ -605,10 +605,6 @@ def prefix(ctx):
     return A.null_node()
 
   if ctx.consume(K.table_token):
-    metatable = None
-    if ctx.consume(K.keyword_token('from')):
-      metatable = binexpr(ctx)
-
-    return A.table_node(metatable)
+    return A.table_node()
 
   return A.name_node(ctx.require(K.name_token).value)

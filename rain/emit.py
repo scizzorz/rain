@@ -12,9 +12,6 @@ import os.path
 
 @program_node.method
 def emit(self, module):
-  module.metatable_key = module.add_global(T.box)
-  module.metatable_key.initializer = str_node('metatable').emit(module)
-
   module.exports = module.add_global(T.box, name=module.mangle('exports'))
   module.exports.initializer = static_table_alloc(module, name=module.mangle('exports.table'))
 
@@ -136,29 +133,20 @@ def static_table_get(module, table_ptr, key_node, key):
 
 
 # Allocate a [column] array
-def static_table_alloc(module, name, metatable=None):
+def static_table_alloc(module, name):
   # make an empty array of column*
   typ = T.arr(T.ptr(T.column), T.HASH_SIZE)
   ptr = module.add_global(typ, name=name)
   ptr.initializer = typ([None] * T.HASH_SIZE)
-  return static_table_from_ptr(module, ptr, metatable)
+  return static_table_from_ptr(module, ptr)
 
 
 # Return a box from a [column] array
-# Inject the metatable if necessary
-def static_table_from_ptr(module, ptr, metatable=None):
+def static_table_from_ptr(module, ptr):
   gep = ptr.gep([T.i32(0), T.i32(0)])
 
   box = T._table(gep)
   box.source = ptr  # save this for later!
-
-  if metatable:
-    key_node = str_node('metatable')
-    key = module.metatable_key.initializer
-    val = module.emit(metatable)
-
-    column_ptr = module.add_global(T.column, name=module.uniq('column'))
-    static_table_put(module, ptr, column_ptr, key_node, key, val)
 
   return box
 
@@ -527,19 +515,9 @@ def emit(self, module):
 @table_node.method
 def emit(self, module):
   if module.is_global:
-    return static_table_alloc(module, module.uniq('table'), metatable=self.parent)
+    return static_table_alloc(module, module.uniq('table'))
 
   ptr = module.excall('rain_new_table')
-
-  if self.parent:
-    val = module.emit(self.parent)
-
-    with module.goto_entry():
-      val_ptr = module.alloc(T.box, name='key_ptr')
-
-    module.store(val, val_ptr)
-    module.excall('rain_put', ptr, module.metatable_key, val_ptr)
-
   return module.load(ptr)
 
 

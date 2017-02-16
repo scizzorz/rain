@@ -306,11 +306,7 @@ class str_node(value_node, literal_node):
 
 class table_node(expr_node):
   __tag__ = 'table'
-  __version__ = 1
-  __slots__ = ['parent']
-
-  def __init__(self, parent=None):
-    self.parent = parent
+  __version__ = 2
 
 
 class func_node(expr_node):
