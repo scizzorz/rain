@@ -35,7 +35,6 @@ typedef struct {
   unsigned char type;
   int size;
   cast data;
-  void *env;
 } box;
 
 typedef struct column_s {

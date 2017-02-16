@@ -366,9 +366,6 @@ class Module(S.Scope):
   def get_size(self, box):
     return self.extract(box, T.SIZE)
 
-  def get_env(slef, box):
-    return self.extract(box, T.ENV)
-
   def truthy(self, node):
     box = self.emit(node)
     return self.truthy_val(box)
