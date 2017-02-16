@@ -149,6 +149,7 @@ class Module(S.Scope):
       self.extern(name)
 
     self.builder = None
+    self.arg_ptrs = None
     self.catch = None
     self.catchall = None
     self.before = None
@@ -280,10 +281,11 @@ class Module(S.Scope):
 
   @contextmanager
   def add_func_body(self, func):
-    with self.stack('ret_ptr', 'callable_ptr', 'catchall'):
+    with self.stack('ret_ptr', 'callable_ptr', 'catchall', 'arg_ptrs'):
       entry = func.append_basic_block('entry')
       body = func.append_basic_block('body')
       self.ret_ptr = func.args[0]
+      self.arg_ptrs = []
       self.catchall = False
       with self.add_builder(entry):
         self.callable_ptr = self.alloc(T.box)
@@ -294,7 +296,8 @@ class Module(S.Scope):
 
   @contextmanager
   def add_main(self):
-    with self.stack('callable_ptr'):
+    with self.stack('callable_ptr', 'arg_ptrs'):
+      self.arg_ptrs = []
       block = self.main.append_basic_block(name='entry')
       with self.add_builder(block):
         self.callable_ptr = self.alloc(T.box)
@@ -391,12 +394,14 @@ class Module(S.Scope):
   # allocate stack space for function arguments
   def fnalloc(self, *args):
     with self.builder.goto_entry_block():
-      ptrs = [self.alloc(T.box) for arg in args]
+      if len(args) + 1 > len(self.arg_ptrs):
+        for i in range(len(self.arg_ptrs), len(args) + 1):
+          self.arg_ptrs.append(self.alloc(T.box, name='arg' + str(i)))
 
-    for arg, ptr in zip(args, ptrs):
+    for arg, ptr in zip(args, self.arg_ptrs):
       self.store(arg, ptr)
 
-    return ptrs
+    return self.arg_ptrs[:len(args)]
 
   # allocate stack space for a function arguments, then call it
   # only used for Rain functions! (eg they only take box *)
