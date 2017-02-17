@@ -318,6 +318,15 @@ class array_node(expr_node):
     self.items = items
 
 
+class dict_node(expr_node):
+  __tag__ = 'dict'
+  __version__ = 1
+  __slots__ = ['items']
+
+  def __init__(self, items):
+    self.items = items
+
+
 class func_node(expr_node):
   __tag__ = 'func'
   __version__ = 1

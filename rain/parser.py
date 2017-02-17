@@ -415,8 +415,8 @@ def assn_prefix(ctx):
   return lhs
 
 
-# array :: '[' (binexpr (',' binexpr)*)? ']'
-def array(ctx):
+# array_expr :: '[' (binexpr (',' binexpr)*)? ']'
+def array_expr(ctx):
   ctx.require(K.symbol_token('['))
   arr = []
   if not ctx.expect(K.symbol_token(']')):
@@ -427,6 +427,38 @@ def array(ctx):
 
   ctx.require(K.symbol_token(']'))
   return arr
+
+
+# dict_item :: ((NAME | '[' binexpr ']') '=' binexpr)
+def dict_item(ctx):
+  key = ctx.consume(K.name_token)
+
+  if key:
+    key = A.str_node(key.value)
+  else:
+    ctx.require(K.symbol_token('['))
+    key = binexpr(ctx)
+    ctx.require(K.symbol_token(']'))
+
+  ctx.require(K.symbol_token('='))
+  val = binexpr(ctx)
+
+  return key, val
+
+
+# dict_expr :: '{' ((NAME | '[' binexpr ']') '=' binexpr '}'
+def dict_expr(ctx):
+  ctx.require(K.symbol_token('{'))
+  items = []
+  if not ctx.expect(K.symbol_token('}')):
+    items.append(dict_item(ctx))
+    while not ctx.expect(K.symbol_token('}')):
+      ctx.require(K.symbol_token(','))
+      items.append(dict_item(ctx))
+
+  ctx.require(K.symbol_token('}'))
+
+  return items
 
 
 # fnargs :: '(' (binexpr (',' binexpr)*)? ')'
@@ -536,7 +568,8 @@ def unexpr(ctx):
 
 # simple :: 'func' fnparams '->' binexpr
 #         | 'foreign' (NAME | STRING) fnparams
-#         | array
+#         | array_expr
+#         | dict_expr
 #         | primary
 def simple(ctx):
   if ctx.consume(K.keyword_token('func')):
@@ -551,7 +584,10 @@ def simple(ctx):
     return A.foreign_node(name, params)
 
   if ctx.expect(K.symbol_token('[')):
-    return A.array_node(array(ctx))
+    return A.array_node(array_expr(ctx))
+
+  if ctx.expect(K.symbol_token('{')):
+    return A.dict_node(dict_expr(ctx))
 
   return primary(ctx)
 
