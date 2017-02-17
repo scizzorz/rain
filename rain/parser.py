@@ -415,7 +415,7 @@ def assn_prefix(ctx):
   return lhs
 
 
-# array_expr :: '[' (binexpr (',' binexpr)*)? ']'
+# array_expr :: '[' (binexpr (',' binexpr)*)? ','? ']'
 def array_expr(ctx):
   ctx.require(K.symbol_token('['))
   arr = []
@@ -423,6 +423,8 @@ def array_expr(ctx):
     arr.append(binexpr(ctx))
     while not ctx.expect(K.symbol_token(']')):
       ctx.require(K.symbol_token(','))
+      if ctx.expect(K.symbol_token(']')):
+        break
       arr.append(binexpr(ctx))
 
   ctx.require(K.symbol_token(']'))
@@ -446,7 +448,7 @@ def dict_item(ctx):
   return key, val
 
 
-# dict_expr :: '{' ((NAME | '[' binexpr ']') '=' binexpr '}'
+# dict_expr :: '{' (dict_item (',' dict_item)*)? ','? '}'
 def dict_expr(ctx):
   ctx.require(K.symbol_token('{'))
   items = []
@@ -454,6 +456,8 @@ def dict_expr(ctx):
     items.append(dict_item(ctx))
     while not ctx.expect(K.symbol_token('}')):
       ctx.require(K.symbol_token(','))
+      if ctx.expect(K.symbol_token('}')):
+        break
       items.append(dict_item(ctx))
 
   ctx.require(K.symbol_token('}'))

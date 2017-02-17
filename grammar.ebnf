@@ -30,11 +30,11 @@ macro_exp :: '@' NAME ('.' NAME)* ***
 
 assn_prefix :: prefix ('.' NAME | '[' binexpr ']')*
 
-array_expr :: '[' (binexpr (',' binexpr)*)? ']'
+array_expr :: '[' (binexpr (',' binexpr)*)? ','? ']'
 
 dict_item :: ((NAME | '[' binexpr ']') '=' binexpr)
 
-dict_expr :: '{' ((NAME | '[' binexpr ']') '=' binexpr '}'
+dict_expr :: '{' (dict_item (',' dict_item)*)? ','? '}'
 
 fnargs :: '(' (binexpr (',' binexpr)*)? ')'
 
