@@ -535,6 +535,10 @@ def emit(self, module):
       column_ptr = module.add_global(T.column, name=module.uniq('column'))
       static_table_put(module, table_ptr, column_ptr, key_node, key, val)
 
+    if 'base.array.exports' in module.llvm.globals:
+      table_box = T.insertvalue(table_box, module.get_global('base.array.exports'), T.ENV)
+      table_box.source = table_ptr
+
     return table_box
 
   ptr = module.excall('rain_new_table')
@@ -542,7 +546,11 @@ def emit(self, module):
     args = module.fnalloc(int_node(i).emit(module), module.emit(item))
     module.excall('rain_put', ptr, *args)
 
-  return module.load(ptr)
+  ret = module.load(ptr)
+  if 'base.array.exports' in module.llvm.globals:
+    ret = module.insert(ret, module.get_global('base.array.exports'), T.ENV)
+
+  return ret
 
 
 @func_node.method
