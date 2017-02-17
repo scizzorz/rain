@@ -415,6 +415,20 @@ def assn_prefix(ctx):
   return lhs
 
 
+# array :: '[' (binexpr (',' binexpr)*)? ']'
+def array(ctx):
+  ctx.require(K.symbol_token('['))
+  arr = []
+  if not ctx.expect(K.symbol_token(']')):
+    arr.append(binexpr(ctx))
+    while not ctx.expect(K.symbol_token(']')):
+      ctx.require(K.symbol_token(','))
+      arr.append(binexpr(ctx))
+
+  ctx.require(K.symbol_token(']'))
+  return arr
+
+
 # fnargs :: '(' (binexpr (',' binexpr)*)? ')'
 def fnargs(ctx):
   ctx.require(K.symbol_token('('))
@@ -522,6 +536,7 @@ def unexpr(ctx):
 
 # simple :: 'func' fnparams '->' binexpr
 #         | 'foreign' (NAME | STRING) fnparams
+#         | array
 #         | primary
 def simple(ctx):
   if ctx.consume(K.keyword_token('func')):
@@ -534,6 +549,9 @@ def simple(ctx):
     name = ctx.require(K.name_token, K.string_token).value
     params = fnparams(ctx)
     return A.foreign_node(name, params)
+
+  if ctx.expect(K.symbol_token('[')):
+    return A.array_node(array(ctx))
 
   return primary(ctx)
 

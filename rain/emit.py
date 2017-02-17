@@ -521,6 +521,38 @@ def emit(self, module):
   return module.load(ptr)
 
 
+@array_node.method
+def emit(self, module):
+  if module.is_global:
+    table_box = static_table_alloc(module, module.uniq('array'))
+    table_ptr = table_box.source
+
+    for i, item in enumerate(self.items):
+      key_node = int_node(i)
+      key = module.emit(key_node)
+      val = module.emit(item)
+
+      column_ptr = module.add_global(T.column, name=module.uniq('column'))
+      static_table_put(module, table_ptr, column_ptr, key_node, key, val)
+
+    if 'base.array.exports' in module.llvm.globals:
+      table_box = T.insertvalue(table_box, module.get_global('base.array.exports'), T.ENV)
+      table_box.source = table_ptr
+
+    return table_box
+
+  ptr = module.excall('rain_new_table')
+  for i, item in enumerate(self.items):
+    args = module.fnalloc(int_node(i).emit(module), module.emit(item))
+    module.excall('rain_put', ptr, *args)
+
+  ret = module.load(ptr)
+  if 'base.array.exports' in module.llvm.globals:
+    ret = module.insert(ret, module.get_global('base.array.exports'), T.ENV)
+
+  return ret
+
+
 @func_node.method
 def emit(self, module, name=None):
   env = OrderedDict()

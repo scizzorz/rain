@@ -30,6 +30,8 @@ macro_exp :: '@' NAME ('.' NAME)* ***
 
 assn_prefix :: prefix ('.' NAME | '[' binexpr ']')*
 
+array :: '[' (binexpr (',' binexpr)*)? ']'
+
 fnargs :: '(' (binexpr (',' binexpr)*)? ')'
 
 fnargblock :: INDENT (compound NEWLINE)+ DEDENT
@@ -47,6 +49,7 @@ unexpr :: ('-' | '!') simple
 
 simple :: 'func' fnparams '->' binexpr
         | 'foreign' (NAME | STRING) fnparams
+        | array
         | primary
 
 primary :: prefix ('?'? fnargs | ':' NAME '?'? fnargs | '.' NAME | '[' binexpr ']')*

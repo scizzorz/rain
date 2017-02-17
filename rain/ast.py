@@ -309,6 +309,15 @@ class table_node(expr_node):
   __version__ = 2
 
 
+class array_node(expr_node):
+  __tag__ = 'array'
+  __version__ = 1
+  __slots__ = ['items']
+
+  def __init__(self, items):
+    self.items = items
+
+
 class func_node(expr_node):
   __tag__ = 'func'
   __version__ = 1
