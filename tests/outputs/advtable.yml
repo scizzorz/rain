@@ -1,0 +1,193 @@
+!program;1
+stmts:
+- !import;1
+  name: array
+  rename: null
+- !import;1
+  name: dict
+  rename: null
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: ga
+  rhs: !array;1
+    items:
+    - !int;1
+      value: 1
+    - !int;1
+      value: 2
+    - !int;1
+      value: 3
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: gd
+  rhs: !dict;1
+    items:
+    - - !str;1
+        value: greeting
+      - !str;1
+        value: Good day.
+    - - !str;1
+        value: name
+      - !str;1
+        value: John
+    - - !str;1
+        value: age
+      - !int;1
+        value: 24
+    - - !int;1
+        value: 1
+      - !str;1
+        value: One
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;2
+      expr: null
+      stmts:
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: la
+        rhs: !array;1
+          items:
+          - !int;1
+            value: 4
+          - !int;1
+            value: 5
+          - !int;1
+            value: 6
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: ld
+        rhs: !dict;1
+          items:
+          - - !str;1
+              value: greeting
+            - !str;1
+              value: Hello!
+          - - !str;1
+              value: name
+            - !str;1
+              value: Phil
+          - - !str;1
+              value: age
+            - !int;1
+              value: 27
+          - - !index;1
+              lhs: !name;1
+                value: la
+              rhs: !int;1
+                value: 0
+            - !str;1
+              value: Four
+      - !for;1
+        body: !block;2
+          expr: null
+          stmts:
+          - !call;1
+            args:
+            - !name;1
+              value: val
+            catch: false
+            func: !name;1
+              value: print
+        func: !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: ga
+          rhs: !str;1
+            value: values
+        name: val
+      - !for;1
+        body: !block;2
+          expr: null
+          stmts:
+          - !call;1
+            args:
+            - !name;1
+              value: val
+            catch: false
+            func: !name;1
+              value: print
+        func: !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: la
+          rhs: !str;1
+            value: values
+        name: val
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !binary;1
+            lhs: !index;1
+              lhs: !name;1
+                value: gd
+              rhs: !str;1
+                value: name
+            op: $
+            rhs: !str;1
+              value: ' says '
+          op: $
+          rhs: !index;1
+            lhs: !name;1
+              value: gd
+            rhs: !str;1
+              value: greeting
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !index;1
+          lhs: !name;1
+            value: gd
+          rhs: !int;1
+            value: 1
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !binary;1
+          lhs: !binary;1
+            lhs: !index;1
+              lhs: !name;1
+                value: ld
+              rhs: !str;1
+                value: name
+            op: $
+            rhs: !str;1
+              value: ' says '
+          op: $
+          rhs: !index;1
+            lhs: !name;1
+              value: ld
+            rhs: !str;1
+              value: greeting
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !index;1
+          lhs: !name;1
+            value: ld
+          rhs: !int;1
+            value: 4
+        catch: false
+        func: !name;1
+          value: print
+    params: []
