@@ -521,6 +521,19 @@ def emit(self, module):
   return module.load(ptr)
 
 
+@array_node.method
+def emit(self, module):
+  if module.is_global:
+    Q.abort("Can't do table literals at global scope yet")
+
+  ptr = module.excall('rain_new_table')
+  for i, item in enumerate(self.items):
+    args = module.fnalloc(int_node(i).emit(module), module.emit(item))
+    module.excall('rain_put', ptr, *args)
+
+  return module.load(ptr)
+
+
 @func_node.method
 def emit(self, module, name=None):
   env = OrderedDict()
