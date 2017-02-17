@@ -62,6 +62,8 @@ for k, v in raw.items():
 
 indent = re.compile('^[ ]*')
 
+ignore_whitespace = []
+
 
 def stream(source):
   indents = [0]
@@ -94,23 +96,24 @@ def stream(source):
         continue
 
       # handle indents
-      if depth_amt > indents[-1]:
-        last = indent_token(pos=coord(line, col, len=depth_amt))
-        yield last
-        indents.append(depth_amt)
-
-      # handle newlines at the same indentation
-      else:
-        if not isinstance(last, (type(None), indent_token, newline_token)):
-          last = newline_token(pos=coord(line, col))
+      if not ignore_whitespace:
+        if depth_amt > indents[-1]:
+          last = indent_token(pos=coord(line, col, len=depth_amt))
           yield last
+          indents.append(depth_amt)
 
-      # handle dedents
-      while depth_amt < indents[-1]:
-        last = newline_token(pos=coord(line, col))
-        yield dedent_token(pos=coord(line, col))
-        yield last
-        del indents[-1]
+        # handle newlines at the same indentation
+        else:
+          if not isinstance(last, (type(None), indent_token, newline_token)):
+            last = newline_token(pos=coord(line, col))
+            yield last
+
+        # handle dedents
+        while depth_amt < indents[-1]:
+          last = newline_token(pos=coord(line, col))
+          yield dedent_token(pos=coord(line, col))
+          yield last
+          del indents[-1]
 
       skip(depth_amt)
       if not source:
@@ -128,6 +131,12 @@ def stream(source):
         value = match.group(0)
         if kind:
           last = kind(value, pos=coord(line, col, len=len(value)))
+
+          if last in (symbol_token('['), symbol_token('{'), symbol_token('(')):
+            ignore_whitespace.append(True)
+          elif last in (symbol_token(']'), symbol_token('}'), symbol_token(')')):
+            ignore_whitespace.pop()
+
           yield last
         skip(len(value))
         break
