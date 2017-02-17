@@ -1,0 +1,30 @@
+import array
+import dict
+
+let ga = [1, 2, 3]
+let gd = {greeting = "Good day.", ["name"] = "John", age = 24, [1] = "One"}
+
+let main = func()
+  let la = [
+    4,
+    5,
+    6,
+  ]
+  let ld = {
+    greeting = "Hello!",
+    ["name"] = "Phil",
+    age = 27,
+    [la[0]] = "Four",
+  }
+
+  for val in ga:values()
+    print(val)
+
+  for val in la:values()
+    print(val)
+
+  print(gd.name $ " says " $ gd.greeting)
+  print(gd[1])
+
+  print(ld.name $ " says " $ ld.greeting)
+  print(ld[4])
