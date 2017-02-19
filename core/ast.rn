@@ -113,7 +113,7 @@ _cont.init = func(self, cond)
 
 export _export_foreign = table :: node
 
-_export_foreign.tag = "export_foreign"
+_export_foreign.tag = "exportforeign"
 _export_foreign.init = func(self, name, rename)
   let ret = self:new()
   save ret
@@ -261,6 +261,24 @@ _str.tag = "str"
 export _table = table :: node
 
 _table.tag = "table"
+
+
+export _array = table :: node
+
+_array.tag = "array"
+_array.init = func(self, items)
+  let ret = self:new()
+  save ret
+  self.items = items
+
+
+export _dict = table :: node
+
+_dict.tag = "dict"
+_dict.init = func(self, items)
+  let ret = self:new()
+  save ret
+  self.items = items
 
 
 export _func = table :: node

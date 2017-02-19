@@ -122,7 +122,7 @@ class cont_node(node):
 
 
 class export_foreign_node(node):
-  __tag__ = 'export_foreign'
+  __tag__ = 'exportforeign'
   __version__ = 1
   __slots__ = ['name', 'rename']
 
