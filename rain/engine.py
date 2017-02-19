@@ -118,6 +118,7 @@ class Engine:
     if isinstance(val, list):
       table_box = T.cbox.to_rain(None)
       self.rain_set_table(table_box)
+      self.rain_set_env_col(table_box, 'core.ast.list.export')
 
       for i, n in enumerate(val):
         self.rain_put_py(table_box, i, self.to_rain(n))
