@@ -13,5 +13,6 @@ void rain_set_strcpy(box *, const char *, int);
 void rain_set_table(box *);
 void rain_set_func(box *, void *, int);
 void rain_set_cdata(box *, void *);
+void rain_set_env(box *, box *);
 
 #endif

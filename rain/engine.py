@@ -1,5 +1,6 @@
 from . import ast as A
 from . import types as T
+from . import error as Q
 import ctypes as ct
 import llvmlite.binding as llvm
 
@@ -57,6 +58,9 @@ class Engine:
     func_ptr = self.engine.get_function_address(name)
     return func_typ(func_ptr)
 
+  def get_global(self, name):
+    return self.engine.get_global_value_address(name)
+
   def main(self):
     main = self.get_func('main', ct.c_int, ct.c_int, ct.POINTER(ct.c_char_p))
 
@@ -92,6 +96,22 @@ class Engine:
     set_table = self.get_func('rain_set_table', T.carg)
     set_table(ct.byref(table_box))
 
+
+  # set environment
+
+  def rain_set_env(self, table_box, meta_box):
+    set_meta = self.get_func('rain_set_env', T.carg, T.carg)
+    set_meta(ct.byref(table_box), ct.byref(meta_box))
+
+  def rain_set_env_col(self, table_box, col_name):
+    meta_addr = self.get_global(col_name)
+    if meta_addr == 0:
+      Q.abort('Unable to find core.ast node for {}', col_name)
+
+    meta_vp = ct.c_void_p(meta_addr)
+    meta_ccol = ct.cast(meta_vp, ct.POINTER(T.ccolumn)).contents
+    self.rain_set_env(table_box, meta_ccol.val)
+
   # converting between Rain and Python AST
 
   def to_rain(self, val):
@@ -107,6 +127,7 @@ class Engine:
     elif isinstance(val, A.node):
       table_box = T.cbox.to_rain(None)
       self.rain_set_table(table_box)
+      self.rain_set_env_col(table_box, 'core.ast.{}.export'.format(val.__tag__))
 
       slots = [self.to_rain(getattr(val, key, None)) for key in val.__slots__]
 
