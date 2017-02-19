@@ -382,9 +382,10 @@ def emit(self, module):
   ptrs = module.fnalloc(T.null, func_box)
 
   env = module.get_env(func_box)
-  is_env = module.builder.icmp_unsigned('!=', env, T.arg(None))
-  with module.builder.if_then(is_env):
-    module.store(func_box, ptrs[0])
+  has_env = module.builder.icmp_unsigned('!=', env, T.arg(None))
+  with module.builder.if_then(has_env):
+    env_box = module.load(env)
+    module.store(env_box, ptrs[0])
 
   module.call(user_ptr, *ptrs)
 
@@ -430,7 +431,7 @@ def emit(self, module):
   module.check_callable(func_box, 0)
 
   env = module.get_env(func_box)
-  is_env = module.builder.icmp_unsigned('!=', env, T.arg(None))
+  has_env = module.builder.icmp_unsigned('!=', env, T.arg(None))
 
   # set up the return pointer
   with module.goto_entry():
@@ -440,8 +441,9 @@ def emit(self, module):
     with before:
       # call our function and break if it returns null
       module.store(T.null, ret_ptr)
-      with module.builder.if_then(is_env):
-        module.store(func_box, ret_ptr)
+      with module.builder.if_then(has_env):
+        env_box = module.load(env)
+        module.store(env_box, ret_ptr)
 
       module.call(func_ptr, ret_ptr)
       box = module.load(ret_ptr)
@@ -602,13 +604,15 @@ def emit(self, module, name=None):
   with module:
     with module.add_func_body(func):
       if env:
-        env_box = module.load(func.args[0])
+        with module.goto_entry():
+          key_ptr = module.alloc(T.box)
 
-        env_ptr = module.get_env(env_box)
+        #env_box = module.load(func.args[0])
+        env_ptr = func.args[0]
 
         for i, (name, ptr) in enumerate(env.items()):
-          module.store(str_node(name).emit(module), func.args[0])
-          module[name] = module.excall('rain_get_ptr', env_ptr, func.args[0])
+          module.store(str_node(name).emit(module), key_ptr)
+          module[name] = module.excall('rain_get_ptr', env_ptr, key_ptr)
 
         module.store(T.null, func.args[0])
 
@@ -667,9 +671,10 @@ def do_call(module, func_box, arg_boxes, catch=False):
   ptrs = module.fnalloc(T.null, *arg_boxes)
 
   env = module.get_env(func_box)
-  is_env = module.builder.icmp_unsigned('!=', env, T.arg(None))
-  with module.builder.if_then(is_env):
-    module.store(func_box, ptrs[0])
+  has_env = module.builder.icmp_unsigned('!=', env, T.arg(None))
+  with module.builder.if_then(has_env):
+    env_box = module.load(env)
+    module.store(env_box, ptrs[0])
 
   if catch:
     with module.add_catch() as catch:
