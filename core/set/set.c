@@ -82,3 +82,7 @@ void rain_set_cdata(box *ret, void *vp) {
   ret->size = 0;
   ret->env = NULL;
 }
+
+void rain_set_env(box *val, box *env) {
+  val->env = env;
+}

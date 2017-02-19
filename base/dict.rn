@@ -6,9 +6,9 @@ macro new(block) as (body)
   node.expr = tab
   node:add(ast._let:init(tab, ast._table))
 
-  for stmt in ast.block.list(body)
+  for stmt in body:items()
     if stmt.tag == "assn"
-      let idx = ast.idx:init(tab, ast._str:init(stmt.lhs.value))
+      let idx = ast.index:init(tab, ast._str:init(stmt.lhs.value))
       node:add(ast.assn:init(idx, stmt.rhs))
 
     else

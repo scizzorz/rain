@@ -163,10 +163,19 @@ class cbox(ct.Structure):
 
     raise Exception("Can't convert value {!r} to Python".format(self))
 
+class ccolumn(ct.Structure):
+  pass
+
 
 carg = ct.POINTER(cbox)
 cbox._fields_ = [('type', ct.c_uint8),
                  ('size', ct.c_uint32),
                  ('data', ct.c_uint64),
-                 ('env', carg)]
+                 ('env', carg),
+                 ]
 cbox.null = carg()
+
+ccolumn._fields_ = [('key', cbox),
+                    ('val', cbox),
+                    ('next', ct.POINTER(ccolumn)),
+                    ]
