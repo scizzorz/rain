@@ -8,7 +8,7 @@ macro new(args) as (args)
 
   let i = 0
   while args[i] != null
-    node:add(ast.assn:init(ast.idx:init(tab, ast._int:init(i)), args[i]))
+    node:add(ast.assn:init(ast.index:init(tab, ast._int:init(i)), args[i]))
     i = i + 1
 
 export values = func(self)

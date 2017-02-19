@@ -218,10 +218,10 @@ _while.tag = "while"
 
 # expressions
 
-export _idx = table :: node
+export _index = table :: node
 
-_idx.tag = "index"
-_idx.init = func(self, lhs, rhs)
+_index.tag = "index"
+_index.init = func(self, lhs, rhs)
   let ret = self:new()
   save ret
   ret.lhs = lhs
