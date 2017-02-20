@@ -2,12 +2,12 @@ macro new(args) as (args)
   let node = ast.block:empty()
   save node
 
-  let tab = ast.name:init(gensym())
+  let tab = ast.name:new(gensym())
   node.expr = tab
-  node:add(ast._let:init(tab, ast._table))
+  node:add(ast._let:new(tab, ast._table))
 
   for i, arg in args:keys(), args:items()
-    node:add(ast.assn:init(ast.index:init(tab, ast._int:init(i)), arg))
+    node:add(ast.assn:new(ast.index:new(tab, ast._int:new(i)), arg))
 
 export values = func(self)
   let i = 0

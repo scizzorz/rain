@@ -1,5 +1,5 @@
 macro test(expr, block) as (pred, body)
-  return ast._if:init(pred, body, null)
+  return ast._if:new(pred, body, null)
 
 let test = func(n)
   @test n > 0

@@ -19,7 +19,7 @@ stmts:
           rhs: !str;1
             value: if
         rhs: !str;1
-          value: init
+          value: new
   name: test
   params:
   - pred
