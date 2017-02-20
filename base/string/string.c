@@ -1,7 +1,10 @@
-#include "string.h"
+#include "../../rain.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
+
+#define FMT_SIZE 1024
+char fmt_buf[FMT_SIZE];
 
 void rain_ext_fmt(box *ret, box *val, box *fmt) {
   if(BOX_ISNT(fmt, STR)) {
