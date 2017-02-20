@@ -24,10 +24,6 @@ let main = func()
 
   let b = a:map(double)
 
-  print("keys from b:")
-  for x in b:keys()
-    print(x)
-
-  print("values from b:")
-  for x in b:values()
-    print(x)
+  print("key/values from b:")
+  for k, v in b:keys(), b:values()
+    print(tostr(k) $ " = " $ tostr(v))

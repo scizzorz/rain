@@ -90,7 +90,7 @@ stmts:
                 value: 0
             - !str;1
               value: Four
-      - !for;1
+      - !for;2
         body: !block;2
           expr: null
           stmts:
@@ -101,15 +101,17 @@ stmts:
             catch: false
             func: !name;1
               value: print
-        func: !method;1
+        funcs:
+        - !method;1
           args: []
           catch: false
           lhs: !name;1
             value: ga
           rhs: !str;1
             value: values
-        name: val
-      - !for;1
+        names:
+        - val
+      - !for;2
         body: !block;2
           expr: null
           stmts:
@@ -120,14 +122,16 @@ stmts:
             catch: false
             func: !name;1
               value: print
-        func: !method;1
+        funcs:
+        - !method;1
           args: []
           catch: false
           lhs: !name;1
             value: la
           rhs: !str;1
             value: values
-        name: val
+        names:
+        - val
       - !call;1
         args:
         - !binary;1

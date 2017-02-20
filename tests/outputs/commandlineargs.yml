@@ -27,7 +27,7 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !for;1
+      - !for;2
         body: !block;2
           expr: null
           stmts:
@@ -38,7 +38,8 @@ stmts:
             catch: false
             func: !name;1
               value: print
-        func: !call;1
+        funcs:
+        - !call;1
           args:
           - !index;1
             lhs: !name;1
@@ -51,7 +52,8 @@ stmts:
               value: array
             rhs: !str;1
               value: values
-        name: arg
+        names:
+        - arg
       - !call;1
         args:
         - !binary;1

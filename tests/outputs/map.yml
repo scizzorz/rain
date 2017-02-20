@@ -87,7 +87,7 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !for;1
+      - !for;2
         body: !block;2
           expr: null
           stmts:
@@ -98,14 +98,16 @@ stmts:
             catch: false
             func: !name;1
               value: print
-        func: !method;1
+        funcs:
+        - !method;1
           args: []
           catch: false
           lhs: !name;1
             value: a
           rhs: !str;1
             value: keys
-        name: x
+        names:
+        - x
       - !call;1
         args:
         - !str;1
@@ -113,7 +115,7 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !for;1
+      - !for;2
         body: !block;2
           expr: null
           stmts:
@@ -124,14 +126,16 @@ stmts:
             catch: false
             func: !name;1
               value: print
-        func: !method;1
+        funcs:
+        - !method;1
           args: []
           catch: false
           lhs: !name;1
             value: a
           rhs: !str;1
             value: values
-        name: x
+        names:
+        - x
       - !call;1
         args:
         - !str;1
@@ -139,7 +143,7 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !for;1
+      - !for;2
         body: !block;2
           expr: null
           stmts:
@@ -150,7 +154,8 @@ stmts:
             catch: false
             func: !name;1
               value: print
-        func: !call;1
+        funcs:
+        - !call;1
           args:
           - !method;1
             args: []
@@ -167,7 +172,8 @@ stmts:
               value: iter
             rhs: !str;1
               value: map
-        name: x
+        names:
+        - x
       - !assn;2
         export: false
         let: true
@@ -185,53 +191,55 @@ stmts:
       - !call;1
         args:
         - !str;1
-          value: 'keys from b:'
+          value: 'key/values from b:'
         catch: false
         func: !name;1
           value: print
-      - !for;1
+      - !for;2
         body: !block;2
           expr: null
           stmts:
           - !call;1
             args:
-            - !name;1
-              value: x
+            - !binary;1
+              lhs: !binary;1
+                lhs: !call;1
+                  args:
+                  - !name;1
+                    value: k
+                  catch: false
+                  func: !name;1
+                    value: tostr
+                op: $
+                rhs: !str;1
+                  value: ' = '
+              op: $
+              rhs: !call;1
+                args:
+                - !name;1
+                  value: v
+                catch: false
+                func: !name;1
+                  value: tostr
             catch: false
             func: !name;1
               value: print
-        func: !method;1
+        funcs:
+        - !method;1
           args: []
           catch: false
           lhs: !name;1
             value: b
           rhs: !str;1
             value: keys
-        name: x
-      - !call;1
-        args:
-        - !str;1
-          value: 'values from b:'
-        catch: false
-        func: !name;1
-          value: print
-      - !for;1
-        body: !block;2
-          expr: null
-          stmts:
-          - !call;1
-            args:
-            - !name;1
-              value: x
-            catch: false
-            func: !name;1
-              value: print
-        func: !method;1
+        - !method;1
           args: []
           catch: false
           lhs: !name;1
             value: b
           rhs: !str;1
             value: values
-        name: x
+        names:
+        - k
+        - v
     params: []
