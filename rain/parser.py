@@ -295,7 +295,7 @@ def stmt(ctx):
 
     body = block(ctx)
 
-    return A.for_node(names[0], funcs[0], body)
+    return A.for_node(names, funcs, body)
 
   if ctx.consume(K.keyword_token('with')):
     func = binexpr(ctx)

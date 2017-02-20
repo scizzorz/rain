@@ -172,11 +172,11 @@ _loop.init = func(self, body)
 export _for = table :: node
 
 _for.tag = "for"
-_for.init = func(self, name, _func, body)
+_for.init = func(self, names, funcs, body)
   let ret = self:new()
   save ret
-  ret.name = name
-  ret._func = _func
+  ret.names = names
+  ret.funcs = funcs
   ret.body = body
 
 
