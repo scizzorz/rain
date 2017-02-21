@@ -47,121 +47,109 @@ unsigned char rain_hash_eq(box *one, box *two) {
   return one->data.ui == two->data.ui;
 }
 
-column *rain_has(box *table, box *key) {
+item *rain_has(box *tab, box *key) {
   int searches = 0;
-  int size = table->size;
+  int cur = tab->data.lpt->cur;
+  int max = tab->data.lpt->max;
+  item *items = tab->data.lpt->items;
   unsigned long key_hash = rain_hash(key);
-  column **dict = table->data.t;
-  column *row = dict[key_hash % size];
 
-  if(row == NULL) {
+  if(!items[key_hash % max].valid) {
     return NULL;
   }
 
-  while(!rain_hash_eq(key, &row->key)) {
+  while(!rain_hash_eq(key, &(items[key_hash % max].key))) {
     searches += 1;
-    if(searches == size) {
+    if(searches == max) {
       return NULL;
     }
 
     key_hash += 1;
-    row = dict[key_hash % size];
-    if(row == NULL) {
+    if(!items[key_hash % max].valid) {
       return NULL;
     }
   }
 
-  return row;
+  return items + (key_hash % max);
 }
 
-box *rain_get_ptr(box *table, box *key) {
-  column *ptr = rain_has(table, key);
-  return &(ptr->val);
+box *rain_get_ptr(box *tab, box *key) {
+  item *ptr = rain_has(tab, key);
+  return &ptr->val;
 }
 
-void rain_get(box *ret, box *table, box *key) {
-  if(BOX_IS(table, STR) && BOX_IS(key, INT)) {
-    if(key->data.si >= 0 && key->data.si < table->size) {
-      rain_set_strcpy(ret, table->data.s + key->data.si, 1);
+void rain_get(box *ret, box *tab, box *key) {
+  if(BOX_IS(tab, STR) && BOX_IS(key, INT)) {
+    if(key->data.si >= 0 && key->data.si < tab->size) {
+      rain_set_strcpy(ret, tab->data.s + key->data.si, 1);
     }
-    else if(key->data.si < 0 && key->data.si >= -(table->size)) {
-      rain_set_strcpy(ret, table->data.s + table->size + key->data.si, 1);
+    else if(key->data.si < 0 && key->data.si >= -(tab->size)) {
+      rain_set_strcpy(ret, tab->data.s + tab->size + key->data.si, 1);
     }
     return;
   }
 
-  if(BOX_IS(table, TABLE)) {
-    column *row = rain_has(table, key);
+  if(BOX_IS(tab, TABLE)) {
+    item *row = rain_has(tab, key);
     if(row != NULL) {
       rain_set_box(ret, &row->val);
       return;
     }
   }
 
-  if(table->env != NULL) {
-    rain_get(ret, table->env, key);
+  if(tab->env != NULL) {
+    rain_get(ret, tab->env, key);
     return;
   }
 }
 
-void rain_put(box *table, box *key, box *val) {
-  if(BOX_IS(table, FUNC)) {
-    rain_put(table->env, key, val);
+void rain_put(box *tab, box *key, box *val) {
+  if(BOX_IS(tab, FUNC)) {
+    rain_put(tab->env, key, val);
     return;
   }
 
-  if(BOX_ISNT(table, TABLE)) {
+  if(BOX_ISNT(tab, TABLE)) {
     rain_throw(rain_exc_arg_mismatch);
   }
 
-  int used = 0;
-  int size = table->size;
-  unsigned long key_hash = rain_hash(key) % size;
-  column **dict = table->data.t;
-  column **rowp = dict + (key_hash % size);
+  int cur = tab->data.lpt->cur;
+  int max = tab->data.lpt->max;
+  item *items = tab->data.lpt->items;
+  unsigned long key_hash = rain_hash(key);
 
   while(1) {
-    if(*rowp == NULL) { // new pair
-      *rowp = rain_new_pair(key, val);
-      break;
-    }
-    else if(rain_hash_eq(&(*rowp)->key, key)) { // update
-      (*rowp)->val = *val;
+    if(!items[key_hash % max].valid) {
+      items[key_hash % max].valid = 1;
+      items[key_hash % max].key = *key;
+      items[key_hash % max].val = *val;
+      tab->data.lpt->cur += 1;
+      cur += 1;
       break;
     }
 
-    used += 1;
-    if(used >= size / 2) {
+    if(rain_hash_eq(&(items[key_hash % max].key), key)) {
+      items[key_hash % max].key = *key;
       break;
     }
 
     key_hash += 1;
-    rowp = dict + (key_hash % size);
   }
 
-  used = 0;
-  for(int i=0; i<size; i++) {
-    if(dict[i] != NULL) {
-      used += 1;
-    }
-  }
+  if(cur > max / 2) {
+    table *old_arr = tab->data.lpt;
+    table *new_arr = (table *)GC_malloc(sizeof(table) + sizeof(item) * max * 2);
+    new_arr->cur = 0;
+    new_arr->max = max * 2;
+    tab->data.lpt = new_arr;
 
-  if(used >= size / 2) {
-    table->size *= 2;
-
-    column **new_arr = (column **)GC_malloc(sizeof(column *) * table->size);
-    table->data.t = new_arr; // dict still points to old array
-
-    rain_put(table, key, val);
-    rain_print(key);
-    for(int i=0; i<size; i++) {
-      if(dict[i] != NULL) {
-        rain_print(&dict[i]->key);
-        rain_put(table, &dict[i]->key, &dict[i]->val);
+    for(int i=0; i<max; i++) {
+      if(items[i].valid) {
+        rain_put(tab, &items[i].key, &items[i].val);
       }
     }
 
-    GC_free((void *)dict);
+    GC_free((void *)old_arr);
 
   }
 }
