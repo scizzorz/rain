@@ -1,21 +1,15 @@
 # Rain
 
-A programming language.
+A dynamically-typed, whitespace-delimited, garbage-collected language focused
+on simplicity, expressiveness, and extensibility via a powerful C API.
 
-## Nutshells
-
-* Compiled
-  * via Python + LLVM
-* Dynamically typed
-  * Types: `null`, `int`, `float`, `bool`, `string`, `table`, `func`, `cdata`
-* Whitespace block delimiters
-* Garbage-collected
+Check out the [docs](https://scizzorz.github.io/rain/) for more.
 
 ## Dependencies
 
-Definitely Python 3, LLVM-3.8, and clang-3.8. Check out [requirements.txt](https://github.com/scizzorz/rain/blob/master/requirements.txt) for the Python packages.
+Definitely Python 3, LLVM-3.8, clang-3.8, `libunwind`, and [`libgc`](https://www.hboehm.info/gc/). Check out [requirements.txt](https://github.com/scizzorz/rain/blob/master/requirements.txt) for the Python packages.
 
-Also requires `libgc` and `libunwind`. The `re` module requires `libpcre`.
+The regular expression package (`base.re`) module requires `libpcre`.
 
 ## Having fun
 
