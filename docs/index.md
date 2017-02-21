@@ -8,6 +8,13 @@ title: Rain - a programming language
 A dynamically-typed, whitespace-delimited, garbage-collected language focused
 on simplicity, expressiveness, and extensibility via a powerful C API.
 
+<div id="toc-sidebar" markdown="block">
+
+* This text is scraped
+{:toc}
+
+</div>
+
 ## Language Reference
 
 ### Lexical Analysis
