@@ -15,4 +15,5 @@ test:
   override:
     - tests/fix.sh
     - py.test -rap -v --tb=long --cov=rain --junit-xml=$CIRCLE_TEST_REPORTS/tests.xml
-    - cd tests/lib && make init suite && LD_LIBRARY_PATH=./criterion/build ./suite --xml=$CIRCLE_TEST_REPORTS/tests_c.xml
+
+#- cd tests/lib && make init suite && LD_LIBRARY_PATH=./criterion/build ./suite --xml=$CIRCLE_TEST_REPORTS/tests_c.xml
