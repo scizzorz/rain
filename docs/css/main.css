@@ -1,6 +1,6 @@
 .container {
-  margin-top: 2em;
-  max-width: 720px;
+  padding: 2em 0;
+  max-width: 48em;
   font-family: Roboto;
 }
 
@@ -19,3 +19,64 @@ h1 { font-size: 2.0em; }
 h2 { font-size: 1.5em; }
 h3 { font-size: 1.25em; }
 h4, h5, h6 { font-size: 1.0em; }
+
+#toc-sidebar {
+  position: relative;
+  top: 0;
+  left: 0;
+  min-height: 100%;
+  overflow-y: auto;
+}
+
+#toc-sidebar ul {
+  list-style-type: none;
+}
+
+#markdown-toc li {
+  margin-bottom: 0.5em;
+}
+
+#markdown-toc ul {
+  margin: 0.5em 0 0.5em 1em;
+}
+
+#markdown-toc li a {
+  color: #333;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+#markdown-toc ul a {
+  font-weight: normal;
+}
+
+#markdown-toc li a:hover {
+  color: hsl(210, 75%, 50%);
+}
+
+@media (min-width: 550px) {
+  .container {
+    padding: 2em;
+  }
+
+  #toc-sidebar {
+    position: fixed;
+    width: 14em;
+    border-right: 1px solid #E7E7E7;
+    background-color: #F7F7F7;
+    box-shadow: #CCC 0 0 1em;
+  }
+
+  #markdown-toc {
+    position: absolute;
+    padding: 1em;
+    width: 12em;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 1155px) and (min-width: 550px) {
+  .container {
+    margin-left: 14em;
+  }
+}
