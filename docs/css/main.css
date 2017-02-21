@@ -26,7 +26,6 @@ h4, h5, h6 { font-size: 1.0em; }
   left: 0;
   min-height: 100%;
   overflow-y: auto;
-  padding: 1em;
 }
 
 #toc-sidebar ul {
@@ -52,7 +51,7 @@ h4, h5, h6 { font-size: 1.0em; }
 }
 
 #markdown-toc li a:hover {
-  text-decoration: underline;
+  color: hsl(210, 75%, 50%);
 }
 
 @media (min-width: 550px) {
@@ -62,7 +61,7 @@ h4, h5, h6 { font-size: 1.0em; }
 
   #toc-sidebar {
     position: fixed;
-    width: 12em;
+    width: 14em;
     border-right: 1px solid #E7E7E7;
     background-color: #F7F7F7;
     box-shadow: #CCC 0 0 1em;
@@ -70,10 +69,9 @@ h4, h5, h6 { font-size: 1.0em; }
 
   #markdown-toc {
     position: absolute;
-    left: 2em;
-    top: 2em;
-    right: 2em;
-    bottom: 2em;
+    padding: 1em;
+    width: 12em;
+    box-sizing: border-box;
   }
 }
 

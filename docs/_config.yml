@@ -1,1 +1,3 @@
 baseurl:
+kramdown:
+  toc_levels: "2,3,4"
