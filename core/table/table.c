@@ -137,11 +137,9 @@ void rain_put(box *tab, box *key, box *val) {
   }
 
   if(cur > max / 2) {
-    table *old_arr = tab->data.lpt;
-    table *new_arr = (table *)GC_malloc(sizeof(table) + sizeof(item) * max * 2);
-    new_arr->cur = 0;
-    new_arr->max = max * 2;
-    tab->data.lpt = new_arr;
+    tab->data.lpt->cur = 0;
+    tab->data.lpt->max = max * 2;
+    tab->data.lpt->items = (item *)GC_malloc(sizeof(item) * max * 2);
 
     for(int i=0; i<max; i++) {
       if(items[i].valid) {
@@ -149,7 +147,7 @@ void rain_put(box *tab, box *key, box *val) {
       }
     }
 
-    GC_free((void *)old_arr);
+    GC_free((void *)items);
 
   }
 }
