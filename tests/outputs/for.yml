@@ -60,7 +60,7 @@ stmts:
     body: !block;2
       expr: null
       stmts:
-      - !for;1
+      - !for;2
         body: !block;2
           expr: null
           stmts:
@@ -85,12 +85,14 @@ stmts:
             catch: false
             func: !name;1
               value: print
-        func: !call;1
+        funcs:
+        - !call;1
           args:
           - !int;1
             value: 20
           catch: false
           func: !name;1
             value: range
-        name: i
+        names:
+        - i
     params: []

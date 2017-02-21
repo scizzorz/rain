@@ -425,31 +425,48 @@ def emit(self, module):
 
 @for_node.method
 def emit(self, module):
-  # evaluate the expression and pull out the function pointer
-  func_box = module.emit(self.func)
-  func_ptr = module.get_value(func_box, T.vfunc(T.arg))
-  module.check_callable(func_box, 0)
+  if len(self.funcs) != len(self.names):
+    Q.abort("Name and function count mismatch; found {} functions, expected {}", len(self.funcs), len(self.names))
 
-  env = module.get_env(func_box)
-  has_env = module.builder.icmp_unsigned('!=', env, T.arg(None))
+  # evaluate the expressions and pull out the function pointers
+  func_boxes = [module.emit(func) for func in self.funcs]
+  for box in func_boxes:
+    module.check_callable(box, 0)
 
-  # set up the return pointer
+  func_ptrs = [module.get_value(box, T.vfunc(T.arg)) for box in func_boxes]
+  func_envs = [module.get_env(box) for box in func_boxes]
+  has_envs = [module.builder.icmp_unsigned('!=', env, T.arg(None)) for env in func_envs]
+
+
+  # set up the return pointers
+  ret_ptrs = []
+
   with module.goto_entry():
-    ret_ptr = module[self.name] = module.alloc(T.box, name='for_var')
+    for name in self.names:
+      module[name] = module.alloc(T.box, name='for:' + name)
+      ret_ptrs.append(module[name])
 
   with module.add_loop() as (before, loop):
     with before:
       # call our function and break if it returns null
-      module.store(T.null, ret_ptr)
-      with module.builder.if_then(has_env):
-        env_box = module.load(env)
-        module.store(env_box, ret_ptr)
+      for ret_ptr, has_env, env in zip(ret_ptrs, has_envs, func_envs):
+        module.store(T.null, ret_ptr)
 
-      module.call(func_ptr, ret_ptr)
-      box = module.load(ret_ptr)
-      typ = module.get_type(box)
-      not_null = module.builder.icmp_unsigned('!=', typ, T.ityp.null)
-      module.builder.cbranch(not_null, module.loop, module.after)
+        with module.builder.if_then(has_env):
+          env_box = module.load(env)
+          module.store(env_box, ret_ptr)
+
+      for ret_ptr, func_ptr in zip(ret_ptrs, func_ptrs):
+        module.call(func_ptr, ret_ptr)
+        box = module.load(ret_ptr)
+        typ = module.get_type(box)
+
+        next = module.builder.append_basic_block()
+        not_null = module.builder.icmp_unsigned('!=', typ, T.ityp.null)
+        module.builder.cbranch(not_null, next, module.after)
+        module.builder.position_at_end(next)
+
+      module.builder.branch(module.loop)
 
     with loop:
       module.emit(self.body)

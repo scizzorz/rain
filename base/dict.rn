@@ -2,15 +2,15 @@ macro new(block) as (body)
   let node = ast.block:empty()
   save node
 
-  let tab = ast.name:init(gensym())
+  let tab = ast.name:new(gensym())
   node.expr = tab
-  node:add(ast._let:init(tab, ast._table))
+  node:add(ast._let:new(tab, ast._table))
 
   for stmt in body:items()
     if stmt.tag == "assn"
-      let idx = ast.index:init(tab, ast._str:init(stmt.lhs.value))
-      node:add(ast.assn:init(idx, stmt.rhs))
+      let idx = ast.index:new(tab, ast._str:new(stmt.lhs.value))
+      node:add(ast.assn:new(idx, stmt.rhs))
 
     else
       let msg = "Ignoring invalid statement in dictionary expansion: " $ stmt.tag
-      node:add(ast.warning:init(msg))
+      node:add(ast.warning:new(msg))

@@ -3,12 +3,12 @@ macro print_all(args) as (args)
   save node
 
   for arg in args:items()
-    let call = ast.call:init(ast.name:init("print"), table)
+    let call = ast.call:new(ast.name:new("print"), table)
     call.args[0] = arg
     node:add(call)
 
 macro call(expr, argblock) as (fn, args)
-  return ast.call:init(fn, args)
+  return ast.call:new(fn, args)
 
 macro catchcall(expr, argblock) as (fn, args)
-  return ast.catchcall:init(fn, args)
+  return ast.catchcall:new(fn, args)

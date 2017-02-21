@@ -42,7 +42,7 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !for;1
+      - !for;2
         body: !block;2
           expr: null
           stmts:
@@ -53,7 +53,8 @@ stmts:
             catch: false
             func: !name;1
               value: print
-        func: !call;1
+        funcs:
+        - !call;1
           args:
           - !name;1
             value: match
@@ -63,7 +64,8 @@ stmts:
               value: array
             rhs: !str;1
               value: values
-        name: m
+        names:
+        - m
       - !assn;2
         export: false
         let: true
@@ -103,7 +105,7 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !for;1
+      - !for;2
         body: !block;2
           expr: null
           stmts:
@@ -114,7 +116,8 @@ stmts:
             catch: false
             func: !name;1
               value: print
-        func: !call;1
+        funcs:
+        - !call;1
           args:
           - !name;1
             value: match
@@ -124,7 +127,8 @@ stmts:
               value: array
             rhs: !str;1
               value: values
-        name: m
+        names:
+        - m
       - !assn;2
         export: false
         let: true

@@ -2,26 +2,26 @@
 
 let node = table
 
+node.slots = []
 node.new = func(self)
-  return table :: self
-
-node.init = func(self)
-  let ret = self:new()
+  let ret = table :: self
   save ret
 
 
 let value_node = table :: node
 
-value_node.init = func(self, value)
-  let ret = self:new()
+value_node.slots = ["value"]
+value_node.new = func(self, value)
+  let ret = table :: self
   save ret
   ret.value = value
 
 
 let pred_block = table :: node
 
-pred_block.init = func(self, pred, body)
-  let ret = self:new()
+pred_block.slots = ["pred", "body"]
+pred_block.new = func(self, pred, body)
+  let ret = table :: self
   save ret
   ret.pred = pred
   ret.body = body
@@ -36,17 +36,27 @@ _list.items = func(self)
     save self[i]
     i = i + 1
 
+_list.keys = func(self)
+  let i = 0
+  return func()
+    if self[i] == null
+      return
+
+    save i
+    i = i + 1
+
 export _block = table :: node
 
 _block.tag = "block"
-_block.init = func(self, stmts, expr)
-  let ret = self:new()
+_block.slots = ["expr", "stmts"]
+_block.new = func(self, stmts, expr)
+  let ret = table :: self
   save ret
   ret.stmts = stmts
   ret.expr = expr
 
 _block.empty = func(self)
-  return self:init(table, null)
+  return self:new(table, null)
 
 _block.add = func(self, stmt)
   let idx = length(self.stmts)
@@ -64,10 +74,11 @@ _block.items = func(self)
 export _assn = table :: node
 
 _assn.tag = "assn"
+_assn.slots = ["let", "export", "lhs", "rhs"]
 _assn._let = false
 _assn._export = false
-_assn.init = func(self, lhs, rhs)
-  let ret = self:new()
+_assn.new = func(self, lhs, rhs)
+  let ret = table :: self
   save ret
   ret.lhs = lhs
   ret.rhs = rhs
@@ -86,8 +97,9 @@ _export._export = true
 export _break = table :: node
 
 _break.tag = "break"
-_break.init = func(self, cond)
-  let ret = self:new()
+_break.slots = ["cond"]
+_break.new = func(self, cond)
+  let ret = table :: self
   save ret
   ret.cond = cond
 
@@ -95,8 +107,9 @@ _break.init = func(self, cond)
 export _catch = table :: node
 
 _catch.tag = "catch"
-_catch.init = func(self, name, body)
-  let ret = self:new()
+_catch.slots = ["name", "body"]
+_catch.new = func(self, name, body)
+  let ret = table :: self
   save ret
   ret.name = name
   ret.body = body
@@ -105,8 +118,9 @@ _catch.init = func(self, name, body)
 export _cont = table :: node
 
 _cont.tag = "continue"
-_cont.init = func(self, cond)
-  let ret = self:new()
+_cont.slots = ["cond"]
+_cont.new = func(self, cond)
+  let ret = table :: self
   save ret
   ret.cond = cond
 
@@ -114,8 +128,9 @@ _cont.init = func(self, cond)
 export _export_foreign = table :: node
 
 _export_foreign.tag = "exportforeign"
-_export_foreign.init = func(self, name, rename)
-  let ret = self:new()
+_export_foreign.slots = ["name", "rename"]
+_export_foreign.new = func(self, name, rename)
+  let ret = table :: self
   save ret
   ret.name = name
   ret.rename = rename
@@ -124,8 +139,9 @@ _export_foreign.init = func(self, name, rename)
 export _if = table :: node
 
 _if.tag = "if"
-_if.init = func(self, pred, body, els)
-  let ret = self:new()
+_if.slots = ["pred", "body", "els"]
+_if.new = func(self, pred, body, els)
+  let ret = table :: self
   save ret
   ret.pred = pred
   ret.body = body
@@ -135,8 +151,9 @@ _if.init = func(self, pred, body, els)
 export _import = table :: node
 
 _import.tag = "import"
-_import.init = func(self, name, rename)
-  let ret = self:new()
+_import.slots = ["name", "rename"]
+_import.new = func(self, name, rename)
+  let ret = table :: self
   save ret
   ret.name = name
   ret.rename = rename
@@ -145,8 +162,9 @@ _import.init = func(self, name, rename)
 export _link = table :: node
 
 _link.tag = "link"
-_link.init = func(self, name)
-  let ret = self:new()
+_link.slots = ["name"]
+_link.new = func(self, name)
+  let ret = table :: self
   save ret
   ret.name = name
 
@@ -154,8 +172,9 @@ _link.init = func(self, name)
 export _lib = table :: node
 
 _lib.tag = "library"
-_lib.init = func(self, name)
-  let ret = self:new()
+_lib.slots = ["name"]
+_lib.new = func(self, name)
+  let ret = table :: self
   save ret
   ret.name = name
 
@@ -163,8 +182,9 @@ _lib.init = func(self, name)
 export _loop = table :: node
 
 _loop.tag = "loop"
-_loop.init = func(self, body)
-  let ret = self:new()
+_loop.slots = ["body"]
+_loop.new = func(self, body)
+  let ret = table :: self
   save ret
   ret.body = body
 
@@ -172,19 +192,21 @@ _loop.init = func(self, body)
 export _for = table :: node
 
 _for.tag = "for"
-_for.init = func(self, name, _func, body)
-  let ret = self:new()
+_for.slots = ["names", "funcs", "body"]
+_for.new = func(self, names, funcs, body)
+  let ret = table :: self
   save ret
-  ret.name = name
-  ret._func = _func
+  ret.names = names
+  ret.funcs = funcs
   ret.body = body
 
 
 export _with = table :: node
 
 _with.tag = "with"
-_with.init = func(self, expr, params, body)
-  let ret = self:new()
+_with.slots = ["expr", "params", "body"]
+_with.new = func(self, expr, params, body)
+  let ret = table :: self
   save ret
   ret.expr = expr
   ret.params = params
@@ -221,8 +243,9 @@ _while.tag = "while"
 export _index = table :: node
 
 _index.tag = "index"
-_index.init = func(self, lhs, rhs)
-  let ret = self:new()
+_index.slots = ["lhs", "rhs"]
+_index.new = func(self, lhs, rhs)
+  let ret = table :: self
   save ret
   ret.lhs = lhs
   ret.rhs = rhs
@@ -266,8 +289,9 @@ _table.tag = "table"
 export _array = table :: node
 
 _array.tag = "array"
-_array.init = func(self, items)
-  let ret = self:new()
+_array.slots = ["items"]
+_array.new = func(self, items)
+  let ret = table :: self
   save ret
   self.items = items
 
@@ -275,8 +299,9 @@ _array.init = func(self, items)
 export _dict = table :: node
 
 _dict.tag = "dict"
-_dict.init = func(self, items)
-  let ret = self:new()
+_dict.slots = ["items"]
+_dict.new = func(self, items)
+  let ret = table :: self
   save ret
   self.items = items
 
@@ -284,8 +309,9 @@ _dict.init = func(self, items)
 export _func = table :: node
 
 _func.tag = "func"
-_func.init = func(self, params, body)
-  let ret = self:new()
+_func.slots = ["params", "body"]
+_func.new = func(self, params, body)
+  let ret = table :: self
   save ret
   ret.params = params
   ret.body = body
@@ -294,8 +320,9 @@ _func.init = func(self, params, body)
 export _foreign = table :: node
 
 _foreign.tag = "foreign"
-_foreign.init = func(self, name, params)
-  let ret = self:new()
+_foreign.slots = ["name", "params"]
+_foreign.new = func(self, name, params)
+  let ret = table :: self
   save ret
   ret.name = name
   ret.params = params
@@ -305,8 +332,9 @@ export _call = table :: node
 
 _call.tag = "call"
 _call._catch = false
-_call.init = func(self, _func, args)
-  let ret = self:new()
+_call.slots = ["func", "args", "catch"]
+_call.new = func(self, _func, args)
+  let ret = table :: self
   save ret
   ret._func = _func
   ret.args = args
@@ -320,8 +348,9 @@ _catch_call._catch = true
 export _meth = table :: node
 
 _meth.tag = "method"
-_meth.init = func(self, lhs, rhs, args, _catch)
-  let ret = self:new()
+_meth.slots = ["lhs", "rhs", "args", "catch"]
+_meth.new = func(self, lhs, rhs, args, _catch)
+  let ret = table :: self
   save ret
   ret.lhs = lhs
   ret.rhs = rhs
@@ -332,8 +361,9 @@ _meth.init = func(self, lhs, rhs, args, _catch)
 export _binary = table :: node
 
 _binary.tag = "binary"
-_binary.init = func(self, lhs, rhs, op)
-  let ret = self:new()
+_binary.slots = ["op", "lhs", "rhs"]
+_binary.new = func(self, lhs, rhs, op)
+  let ret = table :: self
   save ret
   ret.lhs = lhs
   ret.rhs = rhs
@@ -343,8 +373,9 @@ _binary.init = func(self, lhs, rhs, op)
 export _unary = table :: node
 
 _unary.tag = "unary"
-_unary.init = func(self, op, val)
-  let ret = self:new()
+_unary.slots = ["op", "val"]
+_unary.new = func(self, op, val)
+  let ret = table :: self
   save ret
   ret.op = op
   ret.val = val
@@ -354,8 +385,9 @@ _unary.init = func(self, op, val)
 
 export _message = table :: node
 
-_message.init = func(self, msg)
-  let ret = self:new()
+_message.slots = ["msg"]
+_message.new = func(self, msg)
+  let ret = table :: self
   save ret
   ret.msg = msg
 
