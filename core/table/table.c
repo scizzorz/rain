@@ -48,16 +48,24 @@ unsigned char rain_hash_eq(box *one, box *two) {
 }
 
 column *rain_has(box *table, box *key) {
-  unsigned long key_hash = rain_hash(key) % HASH_SIZE;
+  int searches = 0;
+  int size = table->size;
+  unsigned long key_hash = rain_hash(key);
   column **dict = table->data.t;
-  column *row = dict[key_hash];
+  column *row = dict[key_hash % size];
 
   if(row == NULL) {
     return NULL;
   }
 
   while(!rain_hash_eq(key, &row->key)) {
-    row = row->next;
+    searches += 1;
+    if(searches == size) {
+      return NULL;
+    }
+
+    key_hash += 1;
+    row = dict[key_hash % size];
     if(row == NULL) {
       return NULL;
     }
@@ -106,19 +114,55 @@ void rain_put(box *table, box *key, box *val) {
     rain_throw(rain_exc_arg_mismatch);
   }
 
-  unsigned long key_hash = rain_hash(key) % HASH_SIZE;
+  int used = 0;
+  int size = table->size;
+  unsigned long key_hash = rain_hash(key) % size;
   column **dict = table->data.t;
-  column **row = dict + key_hash;
+  column **rowp = dict + (key_hash % size);
+
   while(1) {
-    if(*row == NULL) { // new pair
-      *row = rain_new_pair(key, val);
-      return;
+    if(*rowp == NULL) { // new pair
+      *rowp = rain_new_pair(key, val);
+      break;
     }
-    else if(rain_hash_eq(&(*row)->key, key)) { // update
-      (*row)->val = *val;
-      return;
+    else if(rain_hash_eq(&(*rowp)->key, key)) { // update
+      (*rowp)->val = *val;
+      break;
     }
-    row = &((*row)->next);
+
+    used += 1;
+    if(used >= size / 2) {
+      break;
+    }
+
+    key_hash += 1;
+    rowp = dict + (key_hash % size);
+  }
+
+  used = 0;
+  for(int i=0; i<size; i++) {
+    if(dict[i] != NULL) {
+      used += 1;
+    }
+  }
+
+  if(used >= size / 2) {
+    table->size *= 2;
+
+    column **new_arr = (column **)GC_malloc(sizeof(column *) * table->size);
+    table->data.t = new_arr; // dict still points to old array
+
+    rain_put(table, key, val);
+    rain_print(key);
+    for(int i=0; i<size; i++) {
+      if(dict[i] != NULL) {
+        rain_print(&dict[i]->key);
+        rain_put(table, &dict[i]->key, &dict[i]->val);
+      }
+    }
+
+    GC_free((void *)dict);
+
   }
 }
 
