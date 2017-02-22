@@ -16,9 +16,7 @@
 #define BOX_ISNT(x, t) ((x)->type != ITYP_##t)
 
 struct box_s;
-
 struct table_s;
-struct item_s;
 
 typedef union {
   unsigned long ui;

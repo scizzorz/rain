@@ -65,7 +65,7 @@ void rain_set_table(box *ret) {
 
   ret->type = ITYP_TABLE;
   ret->data.lpt = arr;
-  ret->size = HASH_SIZE;
+  ret->size = 0;
   ret->env = NULL;
 }
 
