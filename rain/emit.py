@@ -67,35 +67,6 @@ def emit(self, module):
 
 # Helpers #####################################################################
 
-def static_table_put(module, table_box, key_node, key, val):
-  lpt_ptr = table_box.lpt_ptr
-  arr_ptr = lpt_ptr.arr_ptr
-  item = T.item([T.i32(1), key, val])
-  item.key = key_node
-
-  cur = lpt_ptr.initializer.constant[0].constant
-  max = lpt_ptr.initializer.constant[1].constant
-  items = arr_ptr.initializer.constant
-  key_hash = key_node.hash()
-
-  while True:
-    if items[key_hash % max].constant is None:
-      cur += 1
-      break
-
-    if items[key_hash % max].key == key_node:
-      break
-
-    key_hash += 1
-
-  items[key_hash % max] = item
-  arr_ptr.initializer = arr_ptr.value_type(items)
-  arr_gep = arr_ptr.gep([T.i32(0), T.i32(0)])
-
-  lpt_ptr.initializer = lpt_ptr.value_type([T.i32(cur), T.i32(max), arr_gep])
-  lpt_ptr.arr_ptr = arr_ptr
-
-
 def static_table_get_idx(module, table_box, key_node, key):
   lpt_ptr = table_box.lpt_ptr
   arr_ptr = lpt_ptr.arr_ptr
@@ -106,7 +77,7 @@ def static_table_get_idx(module, table_box, key_node, key):
 
   while True:
     if items[key_hash % max].constant is None:
-      return -1
+      break
 
     if items[key_hash % max].key == key_node:
       break
@@ -116,13 +87,37 @@ def static_table_get_idx(module, table_box, key_node, key):
   return key_hash % max
 
 
+def static_table_put(module, table_box, key_node, key, val):
+  lpt_ptr = table_box.lpt_ptr
+  arr_ptr = lpt_ptr.arr_ptr
+  item = T.item([T.i32(1), key, val])
+  item.key = key_node
+
+  cur = lpt_ptr.initializer.constant[0].constant
+  max = lpt_ptr.initializer.constant[1].constant
+  items = arr_ptr.initializer.constant
+
+  idx = static_table_get_idx(module, table_box, key_node, key)
+  if items[idx].constant is None:
+    cur += 1
+
+  # TODO resize if cur > max / 2! currently, it infinite loops.
+
+  items[idx] = item
+  arr_ptr.initializer = arr_ptr.value_type(items)
+  arr_gep = arr_ptr.gep([T.i32(0), T.i32(0)])
+
+  lpt_ptr.initializer = lpt_ptr.value_type([T.i32(cur), T.i32(max), arr_gep])
+  lpt_ptr.arr_ptr = arr_ptr
+
+
 def static_table_get(module, table_box, key_node, key):
   lpt_ptr = table_box.lpt_ptr
   arr_ptr = lpt_ptr.arr_ptr
   items = arr_ptr.initializer.constant
 
   idx = static_table_get_idx(module, table_box, key_node, key)
-  if idx < 0:
+  if items[idx].constant is None:
     return T.null
 
   return items[idx].constant[2]
@@ -176,12 +171,8 @@ def emit(self, module):
         table_box = module.exports.initializer
         key_node = str_node(self.lhs.value)
         key = key_node.emit(module)
-        val = module.emit(self.rhs)
-        static_table_put(module, table_box, key_node, key, val)
         idx = static_table_get_idx(module, table_box, key_node, key)
         module[self.lhs.value] = table_box.lpt_ptr.arr_ptr.gep([T.i32(0), T.i32(idx), T.i32(2)])
-        module[self.lhs.value].initializer = val
-        return
 
       if self.let:
         module[self.lhs] = module.add_global(T.box, name=module.mangle(self.lhs.value))
