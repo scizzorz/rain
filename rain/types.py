@@ -22,7 +22,8 @@ func = ir.FunctionType
 ptr = ir.PointerType
 arr = ir.ArrayType
 box = ir.context.global_context.get_identified_type('box')
-column = ir.context.global_context.get_identified_type('column')
+item = ir.context.global_context.get_identified_type('item')
+lpt = ir.context.global_context.get_identified_type('table')
 arg = ptr(box)
 lp = ir.LiteralStructType([ptr(i8), i32])
 
@@ -33,7 +34,8 @@ def vfunc(*args, var_arg=False):
 
 # set struct bodies
 box.set_body(i8, i32, i64, arg)
-column.set_body(box, box, ptr(column))
+item.set_body(i32, box, box)
+lpt.set_body(i32, i32, ptr(item))
 
 # constant aliases
 null = box(None)
@@ -85,7 +87,7 @@ class cast:
   float = f64
   bool = i64
   str = ptr(i8)
-  table = ptr(ptr(column))
+  table = ptr(lpt)
   func = ptr(i8)
 
 
@@ -163,7 +165,10 @@ class cbox(ct.Structure):
 
     raise Exception("Can't convert value {!r} to Python".format(self))
 
-class ccolumn(ct.Structure):
+class citem(ct.Structure):
+  pass
+
+class ctable(ct.Structure):
   pass
 
 
@@ -174,8 +179,3 @@ cbox._fields_ = [('type', ct.c_uint8),
                  ('env', carg),
                  ]
 cbox.null = carg()
-
-ccolumn._fields_ = [('key', cbox),
-                    ('val', cbox),
-                    ('next', ct.POINTER(ccolumn)),
-                    ]

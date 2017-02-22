@@ -67,87 +67,86 @@ def emit(self, module):
 
 # Helpers #####################################################################
 
-# Put a value into a static table
-def static_table_put(module, table_ptr, column_ptr, key_node, key, val):
-  table = table_ptr.initializer
+def static_table_put(module, table_box, key_node, key, val):
+  lpt_ptr = table_box.lpt_ptr
+  arr_ptr = lpt_ptr.arr_ptr
+  item = T.item([T.i32(1), key, val])
+  item.key = key_node
 
-  # we can only hash things that are known to this compiler (not addresses)
-  if not isinstance(key_node, literal_node):
-    Q.abort('Unable to hash {!s}', key_node)
+  cur = lpt_ptr.initializer.constant[0].constant
+  max = lpt_ptr.initializer.constant[1].constant
+  items = arr_ptr.initializer.constant
+  key_hash = key_node.hash()
 
-  # get these for storing
-  column = T.column([key, val, None])
-  column.next = None  # for later!
-  column.key = key_node
+  while True:
+    if items[key_hash % max].constant is None:
+      items[key_hash % max] = item
+      arr_ptr.initializer = arr_ptr.value_type(items)
+      cur += 1
+      break
 
-  # compute the hash and allocate a new column for it
-  idx = key_node.hash() % T.HASH_SIZE
-  column_ptr.initializer = column
+    if items[key_hash % max].key == key_node:
+      items[key_hash % max] = item
+      arr_ptr.initializer = arr_ptr.value_type(items)
+      break
 
-  # update the table array and then update the initializer
-  if not isinstance(table.constant[idx], ir.GlobalVariable):
-    # no chain
-    table.constant[idx] = column_ptr
-    table_ptr.initializer = table.type(table.constant)
+    key_hash += 1
 
-  else:
-    # chain through the list until we find the right key node or the end of the list
-    chain = table.constant[idx]
-    while chain.initializer.next is not None and chain.initializer.key != key_node:
-      chain = chain.initializer.next
+  arr_gep = arr_ptr.gep([T.i32(0), T.i32(0)])
+  lpt_ptr.initializer = lpt_ptr.value_type([T.i32(cur), T.i32(max), arr_gep])
+  lpt_ptr.arr_ptr = arr_ptr
 
-    if chain.initializer.key == key_node:  # we found the same key node in the list
-      save = chain.initializer.next
-      chain.initializer.constant[1] = val
+def static_table_get_idx(module, table_box, key_node, key):
+  lpt_ptr = table_box.lpt_ptr
+  arr_ptr = lpt_ptr.arr_ptr
 
-      chain.initializer = chain.initializer.type(chain.initializer.constant)
-      chain.initializer.next = save
-      chain.initializer.key = key_node
+  cur = lpt_ptr.initializer.constant[0].constant
+  max = lpt_ptr.initializer.constant[1].constant
+  items = arr_ptr.initializer.constant
+  key_hash = key_node.hash()
 
-    else:  # we never found the same key node, but we did find the end of the list
-      save = chain.initializer.key
-      chain.initializer.constant[2] = column_ptr
+  if items[key_hash % max].constant is None:
+    return -1
 
-      chain.initializer = chain.initializer.type(chain.initializer.constant)
-      chain.initializer.next = column_ptr
-      chain.initializer.key = save
+  while items[key_hash % max].key != key_node:
+    key_hash += 1
+    if items[key_hash % max].constant is None:
+      return -2
+
+  return key_hash % max
 
 
-# Get a value from a static table
-def static_table_get(module, table_ptr, key_node, key):
-  table = table_ptr.initializer
+def static_table_get(module, table_box, key_node, key):
+  lpt_ptr = table_box.lpt_ptr
+  arr_ptr = lpt_ptr.arr_ptr
+  items = arr_ptr.initializer.constant
 
-  idx = key_node.hash() % T.HASH_SIZE
-  chain = table.constant[idx]
-
-  if not isinstance(chain, ir.GlobalVariable):
+  idx = static_table_get_idx(module, table_box, key_node, key)
+  if idx < 0:
     return T.null
 
-  while chain.initializer.next is not None and chain.initializer.key != key_node:
-    chain = chain.initializer.next
-
-  if chain.initializer.key == key_node:
-    return chain.initializer.constant[1]
-
-  return T.null
+  return items[idx].constant[2]
 
 
 # Allocate a [column] array
 def static_table_alloc(module, name):
-  # make an empty array of column*
-  typ = T.arr(T.ptr(T.column), T.HASH_SIZE)
-  ptr = module.add_global(typ, name=name)
-  ptr.initializer = typ([None] * T.HASH_SIZE)
-  return static_table_from_ptr(module, ptr)
+  arr_typ = T.arr(T.item, T.HASH_SIZE)
+  arr_ptr = module.add_global(arr_typ)
+  arr_ptr.initializer = arr_typ([None] * T.HASH_SIZE)
+  arr_gep = arr_ptr.gep([T.i32(0), T.i32(0)])
+
+  lpt_typ = T.lpt
+  lpt_ptr = module.add_global(lpt_typ, name=name)
+  lpt_ptr.initializer = lpt_typ([T.i32(0), T.i32(T.HASH_SIZE), arr_gep])
+  lpt_ptr.arr_ptr = arr_ptr
+
+  return static_table_from_ptr(module, lpt_ptr)
 
 
 # Return a box from a [column] array
 def static_table_from_ptr(module, ptr):
-  gep = ptr.gep([T.i32(0), T.i32(0)])
-
-  box = T._table(gep)
-  box.source = ptr  # save this for later!
-
+  box = T._table(ptr)
+  box.lpt_ptr = ptr  # save this for later!
   return box
 
 
@@ -155,8 +154,7 @@ def static_table_from_ptr(module, ptr):
 def export_global(module, name: str, value: "LLVM value"):
   key_node = str_node(name)
   key = key_node.emit(module)
-  column_ptr = module.find_global(T.column, name=module.mangle(name + '.export'))
-  static_table_put(module, module.exports.initializer.source, column_ptr, key_node, key, value)
+  static_table_put(module, module.exports.initializer, column_ptr, key_node, key, value)
   return column_ptr.gep([T.i32(0), T.i32(1)])
 
 
@@ -166,7 +164,7 @@ def store_global(module, name: str, value: "LLVM value"):
     module[name].initializer = value
   else:
     module[name] = export_global(module, name, value)
-    module[name].col = value
+    module[name].box = value
 
 
 # Load a value from a global (respecting whether it's exported or not)
@@ -174,7 +172,7 @@ def load_global(module, name: str):
   if isinstance(module[name], ir.GlobalVariable):
     return module[name].initializer
   else:
-    return module[name].col
+    return module[name].box
 
 
 # Simple statements ###########################################################
@@ -184,11 +182,14 @@ def emit(self, module):
   if isinstance(self.lhs, name_node):
     if module.is_global:
       if self.export:
-        column_ptr = module.find_global(T.column, name=module.mangle(self.lhs.value + '.export'))
-        module[self.lhs.value] = column_ptr.gep([T.i32(0), T.i32(1)])
-
+        table_box = module.exports.initializer
+        key_node = str_node(self.lhs.value)
+        key = key_node.emit(module)
         val = module.emit(self.rhs)
-        store_global(module, self.lhs.value, val)
+        static_table_put(module, table_box, key_node, key, val)
+        idx = static_table_get_idx(module, table_box, key_node, key)
+        module[self.lhs.value] = table_box.lpt_ptr.arr_ptr.gep([T.i32(0), T.i32(idx), T.i32(2)])
+        module[self.lhs.value].box = val
         return
 
       if self.let:
@@ -215,13 +216,12 @@ def emit(self, module):
 
   elif isinstance(self.lhs, idx_node):
     if module.is_global:
-      table_ptr = module.emit(self.lhs.lhs).source
+      table_box = module.emit(self.lhs.lhs)
       key_node = self.lhs.rhs
       key = module.emit(key_node)
       val = module.emit(self.rhs)
 
-      column_ptr = module.add_global(T.column, name=module.uniq('column'))
-      static_table_put(module, table_ptr, column_ptr, key_node, key, val)
+      static_table_put(module, table_box, key_node, key, val)
       return
 
     table = module.emit(self.lhs.lhs)
@@ -259,7 +259,7 @@ def emit(self, module):
     Q.abort("Can't export value {!r} as foreign at non-global scope", self.name)
 
   if self.name not in module:
-    Q.abort("Can't export unknown value {!r}", self.name)
+    Q.abort("Can't export unknown value {!r} as foreign {!r}", self.name, self.rename)
 
   glob = module.add_global(T.ptr(T.box), name=self.rename)
   glob.initializer = module[self.name]
@@ -544,19 +544,18 @@ def emit(self, module):
 def emit(self, module):
   if module.is_global:
     table_box = static_table_alloc(module, module.uniq('array'))
-    table_ptr = table_box.source
 
     for i, item in enumerate(self.items):
       key_node = int_node(i)
       key = module.emit(key_node)
       val = module.emit(item)
 
-      column_ptr = module.add_global(T.column, name=module.uniq('column'))
-      static_table_put(module, table_ptr, column_ptr, key_node, key, val)
+      static_table_put(module, table_box, key_node, key, val)
 
     if 'base.array.exports' in module.llvm.globals:
+      temp = table_box.lpt_ptr
       table_box = T.insertvalue(table_box, module.get_global('base.array.exports'), T.ENV)
-      table_box.source = table_ptr
+      table_box.lpt_ptr = temp
 
     return table_box
 
@@ -576,19 +575,18 @@ def emit(self, module):
 def emit(self, module):
   if module.is_global:
     table_box = static_table_alloc(module, module.uniq('array'))
-    table_ptr = table_box.source
 
     for key, item in self.items:
       key_node = key
       key = module.emit(key_node)
       val = module.emit(item)
 
-      column_ptr = module.add_global(T.column, name=module.uniq('column'))
-      static_table_put(module, table_ptr, column_ptr, key_node, key, val)
+      static_table_put(module, table_box, key_node, key, val)
 
     if 'base.dict.exports' in module.llvm.globals:
+      temp = table_box.lpt_ptr
       table_box = T.insertvalue(table_box, module.get_global('base.dict.exports'), T.ENV)
-      table_box.source = table_ptr
+      table_box.lpt_ptr = temp
 
     return table_box
 
@@ -740,11 +738,11 @@ def emit(self, module):
       return load_global(module[self.lhs].mod, self.rhs)
 
     # otherwise, do normal lookups
-    table_ptr = module.emit(self.lhs).source
+    table_ptr = module.emit(self.lhs)
     key_node = self.rhs
     key = module.emit(key_node)
 
-    return static_table_get(module, table_ptr, key_node, key)
+    return static_table_get(module, table_box, key_node, key)
 
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
@@ -782,8 +780,8 @@ def emit(self, module):
       ptr.initializer = rhs
       new_lhs = T.insertvalue(lhs, ptr, T.ENV)
 
-      if getattr(lhs, 'source', None): # this is for my dirty table hack
-        new_lhs.source = lhs.source
+      if getattr(lhs, 'lpt_ptr', None): # this is for my dirty table hack
+        new_lhs.lpt_ptr = lhs.lpt_ptr
 
       return new_lhs
 

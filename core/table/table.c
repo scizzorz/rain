@@ -12,14 +12,6 @@ box* rain_new_table() {
   return val;
 }
 
-column *rain_new_pair(box *key, box *val) {
-  column *ret = (column *)GC_malloc(sizeof(column));
-  ret->key = *key;
-  ret->val = *val;
-  ret->next = NULL;
-  return ret;
-}
-
 unsigned long rain_hash(box *val) {
   unsigned int hash = 0;
   switch(val->type) {
@@ -129,7 +121,7 @@ void rain_put(box *tab, box *key, box *val) {
     }
 
     if(rain_hash_eq(&(items[key_hash % max].key), key)) {
-      items[key_hash % max].key = *key;
+      items[key_hash % max].val = *val;
       break;
     }
 
