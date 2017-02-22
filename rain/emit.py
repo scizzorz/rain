@@ -67,7 +67,9 @@ def emit(self, module):
 
 # Helpers #####################################################################
 
-def static_table_get_idx(module, table_box, key_node, key):
+# Return the index to insert / fetch from a static table
+# Note: if the key isn't found, the returned index points to a None constant
+def static_table_idx(module, table_box, key_node):
   lpt_ptr = table_box.lpt_ptr
   arr_ptr = lpt_ptr.arr_ptr
 
@@ -87,7 +89,10 @@ def static_table_get_idx(module, table_box, key_node, key):
   return key_hash % max
 
 
-def static_table_put(module, table_box, key_node, key, val):
+# Insert a box into a static table
+def static_table_put(module, table_box, key_node, val):
+  key = module.emit(key_node)
+
   lpt_ptr = table_box.lpt_ptr
   arr_ptr = lpt_ptr.arr_ptr
   item = T.item([T.i32(1), key, val])
@@ -97,7 +102,7 @@ def static_table_put(module, table_box, key_node, key, val):
   max = lpt_ptr.initializer.constant[1].constant
   items = arr_ptr.initializer.constant
 
-  idx = static_table_get_idx(module, table_box, key_node, key)
+  idx = static_table_idx(module, table_box, key_node)
   if items[idx].constant is None:
     cur += 1
 
@@ -111,19 +116,20 @@ def static_table_put(module, table_box, key_node, key, val):
   lpt_ptr.arr_ptr = arr_ptr
 
 
-def static_table_get(module, table_box, key_node, key):
+# Return a box from a static table
+def static_table_get(module, table_box, key_node):
   lpt_ptr = table_box.lpt_ptr
   arr_ptr = lpt_ptr.arr_ptr
   items = arr_ptr.initializer.constant
 
-  idx = static_table_get_idx(module, table_box, key_node, key)
+  idx = static_table_idx(module, table_box, key_node)
   if items[idx].constant is None:
     return T.null
 
   return items[idx].constant[2]
 
 
-# Allocate a table pointer
+# Allocate a static table
 def static_table_alloc(module, name):
   arr_typ = T.arr(T.item, T.HASH_SIZE)
   arr_ptr = module.add_global(arr_typ)
@@ -138,7 +144,7 @@ def static_table_alloc(module, name):
   return static_table_from_ptr(module, lpt_ptr)
 
 
-# Return a box from a table pointer
+# Return a box from a static table
 def static_table_from_ptr(module, ptr):
   box = T._table(ptr)
   box.lpt_ptr = ptr  # save this for later!
@@ -150,8 +156,7 @@ def store_global(module, name: str, value: "LLVM value"):
   if not isinstance(module[name], ir.GlobalVariable):
     table_box = module.exports.initializer
     key_node = str_node(name)
-    key = key_node.emit(module)
-    static_table_put(module, table_box, key_node, key, value)
+    static_table_put(module, table_box, key_node, value)
 
   module[name].initializer = value
 
@@ -170,8 +175,7 @@ def emit(self, module):
       if self.export:
         table_box = module.exports.initializer
         key_node = str_node(self.lhs.value)
-        key = key_node.emit(module)
-        idx = static_table_get_idx(module, table_box, key_node, key)
+        idx = static_table_idx(module, table_box, key_node)
         module[self.lhs.value] = table_box.lpt_ptr.arr_ptr.gep([T.i32(0), T.i32(idx), T.i32(2)])
 
       if self.let:
@@ -200,10 +204,9 @@ def emit(self, module):
     if module.is_global:
       table_box = module.emit(self.lhs.lhs)
       key_node = self.lhs.rhs
-      key = module.emit(key_node)
       val = module.emit(self.rhs)
 
-      static_table_put(module, table_box, key_node, key, val)
+      static_table_put(module, table_box, key_node, val)
       return
 
     table = module.emit(self.lhs.lhs)
@@ -529,10 +532,9 @@ def emit(self, module):
 
     for i, item in enumerate(self.items):
       key_node = int_node(i)
-      key = module.emit(key_node)
       val = module.emit(item)
 
-      static_table_put(module, table_box, key_node, key, val)
+      static_table_put(module, table_box, key_node, val)
 
     if 'base.array.exports' in module.llvm.globals:
       temp = table_box.lpt_ptr
@@ -560,10 +562,9 @@ def emit(self, module):
 
     for key, item in self.items:
       key_node = key
-      key = module.emit(key_node)
       val = module.emit(item)
 
-      static_table_put(module, table_box, key_node, key, val)
+      static_table_put(module, table_box, key_node, val)
 
     if 'base.dict.exports' in module.llvm.globals:
       temp = table_box.lpt_ptr
@@ -722,9 +723,8 @@ def emit(self, module):
     # otherwise, do normal lookups
     table_box = module.emit(self.lhs)
     key_node = self.rhs
-    key = module.emit(key_node)
 
-    return static_table_get(module, table_box, key_node, key)
+    return static_table_get(module, table_box, key_node)
 
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
