@@ -150,32 +150,20 @@ def static_table_from_ptr(module, ptr):
   return box
 
 
-# Put a value into the exports table
-def export_global(module, name: str, value: "LLVM value"):
-  key_node = str_node(name)
-  key = key_node.emit(module)
-  static_table_put(module, module.exports.initializer, column_ptr, key_node, key, value)
-  return column_ptr.gep([T.i32(0), T.i32(1)])
-
-
 # Store a value into a global (respecting whether it's exported or not)
 def store_global(module, name: str, value: "LLVM value"):
-  if isinstance(module[name], ir.GlobalVariable):
-    module[name].initializer = value
-  else:
+  if not isinstance(module[name], ir.GlobalVariable):
     table_box = module.exports.initializer
     key_node = str_node(name)
     key = key_node.emit(module)
     static_table_put(module, table_box, key_node, key, value)
-    module[name].box = value
+
+  module[name].initializer = value
 
 
 # Load a value from a global (respecting whether it's exported or not)
 def load_global(module, name: str):
-  if isinstance(module[name], ir.GlobalVariable):
-    return module[name].initializer
-  else:
-    return module[name].box
+  return module[name].initializer
 
 
 # Simple statements ###########################################################
@@ -192,7 +180,7 @@ def emit(self, module):
         static_table_put(module, table_box, key_node, key, val)
         idx = static_table_get_idx(module, table_box, key_node, key)
         module[self.lhs.value] = table_box.lpt_ptr.arr_ptr.gep([T.i32(0), T.i32(idx), T.i32(2)])
-        module[self.lhs.value].box = val
+        module[self.lhs.value].initializer = val
         return
 
       if self.let:
