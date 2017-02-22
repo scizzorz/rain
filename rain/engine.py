@@ -81,6 +81,13 @@ class Engine:
   def rain_get_py(self, table_box, key):
     return self.rain_get(table_box, T.cbox.to_rain(key))
 
+  def rain_get_ptr(self, table_ptr, key_box):
+    get_ptr = self.get_func('rain_get_ptr', T.carg, T.carg, T.carg)
+    return get_ptr(table_ptr, ct.byref(key_box))
+
+  def rain_get_ptr_py(self, table_ptr, key):
+    return self.rain_get_ptr(table_ptr, T.cbox.to_rain(key))
+
 
   # rain_put
 
@@ -99,9 +106,9 @@ class Engine:
 
   # set environment
 
-  def rain_set_env(self, table_box, meta_box):
+  def rain_set_env(self, table_box, meta_ptr):
     set_meta = self.get_func('rain_set_env', T.carg, T.carg)
-    set_meta(ct.byref(table_box), ct.byref(meta_box))
+    set_meta(ct.byref(table_box), meta_ptr)
 
   def rain_set_env_col(self, table_box, col_name):
     meta_addr = self.get_global(col_name)
@@ -118,7 +125,11 @@ class Engine:
     if isinstance(val, list):
       table_box = T.cbox.to_rain(None)
       self.rain_set_table(table_box)
-      self.rain_set_env_col(table_box, 'core.ast.list.export')
+
+      ast_exports_addr = self.get_global('core.ast.exports')
+      ast_exports_ptr = ct.cast(ct.c_void_p(ast_exports_addr), T.carg)
+      meta_ptr = self.rain_get_ptr_py(ast_exports_ptr, 'list')
+      self.rain_set_env(table_box, meta_ptr)
 
       for i, n in enumerate(val):
         self.rain_put_py(table_box, i, self.to_rain(n))
@@ -128,7 +139,11 @@ class Engine:
     elif isinstance(val, A.node):
       table_box = T.cbox.to_rain(None)
       self.rain_set_table(table_box)
-      self.rain_set_env_col(table_box, 'core.ast.{}.export'.format(val.__tag__))
+
+      ast_exports_addr = self.get_global('core.ast.exports')
+      ast_exports_ptr = ct.cast(ct.c_void_p(ast_exports_addr), T.carg)
+      meta_ptr = self.rain_get_ptr_py(ast_exports_ptr,val.__tag__)
+      self.rain_set_env(table_box, meta_ptr)
 
       slots = [self.to_rain(getattr(val, key, None)) for key in val.__slots__]
 
