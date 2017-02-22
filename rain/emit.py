@@ -151,6 +151,18 @@ def static_table_from_ptr(module, ptr):
   return box
 
 
+# Return a pointer to a static table's value box
+def static_table_get_box_ptr(module, table_box, key_node):
+  idx = static_table_idx(module, table_box, key_node)
+  return table_box.lpt_ptr.arr_ptr.gep([T.i32(0), T.i32(idx), T.i32(2)])
+
+
+# Repair a static table box from another one
+def static_table_repair(new_box, old_box):
+  if getattr(old_box, 'lpt_ptr', None):
+    new_box.lpt_ptr = old_box.lpt_ptr
+
+
 # Store a value into a global (respecting whether it's exported or not)
 def store_global(module, name: str, value: "LLVM value"):
   if not isinstance(module[name], ir.GlobalVariable):
@@ -175,8 +187,7 @@ def emit(self, module):
       if self.export:
         table_box = module.exports.initializer
         key_node = str_node(self.lhs.value)
-        idx = static_table_idx(module, table_box, key_node)
-        module[self.lhs.value] = table_box.lpt_ptr.arr_ptr.gep([T.i32(0), T.i32(idx), T.i32(2)])
+        module[self.lhs.value] = static_table_get_box_ptr(module, table_box, key_node)
 
       if self.let:
         module[self.lhs] = module.add_global(T.box, name=module.mangle(self.lhs.value))
@@ -537,9 +548,9 @@ def emit(self, module):
       static_table_put(module, table_box, key_node, val)
 
     if 'base.array.exports' in module.llvm.globals:
-      temp = table_box.lpt_ptr
+      old_box = table_box
       table_box = T.insertvalue(table_box, module.get_global('base.array.exports'), T.ENV)
-      table_box.lpt_ptr = temp
+      static_table_repair(table_box, old_box)
 
     return table_box
 
@@ -567,9 +578,9 @@ def emit(self, module):
       static_table_put(module, table_box, key_node, val)
 
     if 'base.dict.exports' in module.llvm.globals:
-      temp = table_box.lpt_ptr
+      old_box = table_box
       table_box = T.insertvalue(table_box, module.get_global('base.dict.exports'), T.ENV)
-      table_box.lpt_ptr = temp
+      static_table_repair(table_box, old_box)
 
     return table_box
 
@@ -760,10 +771,9 @@ def emit(self, module):
     if module.is_global:
       ptr = module.add_global(T.box)
       ptr.initializer = rhs
-      new_lhs = T.insertvalue(lhs, ptr, T.ENV)
 
-      if getattr(lhs, 'lpt_ptr', None): # this is for my dirty table hack
-        new_lhs.lpt_ptr = lhs.lpt_ptr
+      new_lhs = T.insertvalue(lhs, ptr, T.ENV)
+      static_table_repair(new_lhs, lhs)
 
       return new_lhs
 
