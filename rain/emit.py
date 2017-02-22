@@ -80,38 +80,38 @@ def static_table_put(module, table_box, key_node, key, val):
 
   while True:
     if items[key_hash % max].constant is None:
-      items[key_hash % max] = item
-      arr_ptr.initializer = arr_ptr.value_type(items)
       cur += 1
       break
 
     if items[key_hash % max].key == key_node:
-      items[key_hash % max] = item
-      arr_ptr.initializer = arr_ptr.value_type(items)
       break
 
     key_hash += 1
 
+  items[key_hash % max] = item
+  arr_ptr.initializer = arr_ptr.value_type(items)
   arr_gep = arr_ptr.gep([T.i32(0), T.i32(0)])
+
   lpt_ptr.initializer = lpt_ptr.value_type([T.i32(cur), T.i32(max), arr_gep])
   lpt_ptr.arr_ptr = arr_ptr
+
 
 def static_table_get_idx(module, table_box, key_node, key):
   lpt_ptr = table_box.lpt_ptr
   arr_ptr = lpt_ptr.arr_ptr
 
-  cur = lpt_ptr.initializer.constant[0].constant
   max = lpt_ptr.initializer.constant[1].constant
   items = arr_ptr.initializer.constant
   key_hash = key_node.hash()
 
-  if items[key_hash % max].constant is None:
-    return -1
-
-  while items[key_hash % max].key != key_node:
-    key_hash += 1
+  while True:
     if items[key_hash % max].constant is None:
-      return -2
+      return -1
+
+    if items[key_hash % max].key == key_node:
+      break
+
+    key_hash += 1
 
   return key_hash % max
 
@@ -128,7 +128,7 @@ def static_table_get(module, table_box, key_node, key):
   return items[idx].constant[2]
 
 
-# Allocate a [column] array
+# Allocate a table pointer
 def static_table_alloc(module, name):
   arr_typ = T.arr(T.item, T.HASH_SIZE)
   arr_ptr = module.add_global(arr_typ)
@@ -143,7 +143,7 @@ def static_table_alloc(module, name):
   return static_table_from_ptr(module, lpt_ptr)
 
 
-# Return a box from a [column] array
+# Return a box from a table pointer
 def static_table_from_ptr(module, ptr):
   box = T._table(ptr)
   box.lpt_ptr = ptr  # save this for later!

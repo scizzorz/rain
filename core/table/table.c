@@ -40,26 +40,21 @@ unsigned char rain_hash_eq(box *one, box *two) {
 }
 
 item *rain_has(box *tab, box *key) {
-  int searches = 0;
   int cur = tab->data.lpt->cur;
   int max = tab->data.lpt->max;
   item *items = tab->data.lpt->items;
   unsigned long key_hash = rain_hash(key);
 
-  if(!items[key_hash % max].valid) {
-    return NULL;
-  }
-
-  while(!rain_hash_eq(key, &(items[key_hash % max].key))) {
-    searches += 1;
-    if(searches == max) {
-      return NULL;
-    }
-
-    key_hash += 1;
+  while(1) {
     if(!items[key_hash % max].valid) {
       return NULL;
     }
+
+    if(rain_hash_eq(key, &(items[key_hash % max].key))) {
+      break;
+    }
+
+    key_hash += 1;
   }
 
   return items + (key_hash % max);
