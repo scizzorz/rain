@@ -9,7 +9,7 @@ DATA = 2
 ENV = 3
 
 # sizes of things
-HASH_SIZE = 32
+HASH_SIZE = 128
 
 # all sorts of type aliases
 i8 = ir.IntType(8)
