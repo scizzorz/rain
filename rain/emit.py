@@ -163,7 +163,10 @@ def store_global(module, name: str, value: "LLVM value"):
   if isinstance(module[name], ir.GlobalVariable):
     module[name].initializer = value
   else:
-    module[name] = export_global(module, name, value)
+    table_box = module.exports.initializer
+    key_node = str_node(name)
+    key = key_node.emit(module)
+    static_table_put(module, table_box, key_node, key, value)
     module[name].box = value
 
 
@@ -738,7 +741,7 @@ def emit(self, module):
       return load_global(module[self.lhs].mod, self.rhs)
 
     # otherwise, do normal lookups
-    table_ptr = module.emit(self.lhs)
+    table_box = module.emit(self.lhs)
     key_node = self.rhs
     key = module.emit(key_node)
 
