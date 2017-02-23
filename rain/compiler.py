@@ -16,6 +16,7 @@ import tempfile
 import traceback
 
 compilers = {}
+c_files = {}
 
 
 # USE THIS to get a new compiler. it fuzzy searches for the source file and
@@ -29,9 +30,41 @@ def get_compiler(src, target=None, main=False):
   return compilers[abspath]
 
 
+def compile_c(src):
+  if src not in c_files:
+    clang = os.getenv('CLANG', 'clang')
+
+    handle, target = tempfile.mkstemp(prefix=os.path.basename(src), suffix='.ll')
+    flags = ['-O2', '-S', '-emit-llvm']
+
+    cmd = [clang, '-o', target, src] + flags
+    subprocess.check_call(cmd)
+
+    c_files[src] = target
+
+  return c_files[src]
+
+
+def compile_so(libs):
+  # I don't know how else to find these .so files other than just asking clang
+  # to make a .so file out of all of them
+
+  clang = os.getenv('CLANG', 'clang')
+
+  handle, target = tempfile.mkstemp(prefix='slibs', suffix='.so')
+  libs = ['-l' + lib for lib in libs]
+
+  cmd = [clang, '-shared', '-o', target] + libs
+  subprocess.check_call(cmd)
+
+  return target
+
+
 def reset_compilers():
   global compilers
+  global c_files
   compilers = {}
+  c_files = {}
 
 
 class phases(Enum):
@@ -216,7 +249,6 @@ class Compiler:
       self.ll = name
 
   def compile_links(self):
-    clang = os.getenv('CLANG', 'clang')
     drop = set()
     add = set()
 
@@ -224,27 +256,21 @@ class Compiler:
       if link.endswith('.ll'):
         continue
 
-      handle, target = tempfile.mkstemp(prefix=os.path.basename(link), suffix='.ll')
-      flags = ['-O2', '-S', '-emit-llvm']
-      cmd = [clang, '-o', target, link] + flags
-      subprocess.check_call(cmd)
+      target = compile_c(link)
 
       drop.add(link)
       add.add(target)
 
     self.links = (self.links | add) - drop
 
-    # compile shared libraries too!
-    handle, target = tempfile.mkstemp(prefix='slibs', suffix='.so')
-    libs = ['-l' + lib for lib in self.libs]
-    cmd = [clang, '-shared', '-o', target] + libs
-    subprocess.check_call(cmd)
-    return target
+    return compile_so(self.libs)
 
   def compile(self):
     if self.phase >= Compiler.COMP:
       return
     self.phase = Compiler.COMP
+
+    self.compile_links()
 
     with self.okay('compiling'):
       target = self.target or self.mname
