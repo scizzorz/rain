@@ -89,7 +89,7 @@ void rain_ext_pcre_compile(box *ret, box *regex) {
 
   /* TODO: how to eventually free the compiled regex? */
   rain_set_strcpy(&key, "_pcre_pointer", 13);
-  rain_set_int(&val, (signed long)compiled);
+  rain_set_cdata(&val, compiled);
   rain_put(ret, &key, &val);
 
   rain_set_strcpy(&key, "match", 5);
