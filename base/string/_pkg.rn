@@ -17,6 +17,13 @@ export index_of = func(s, of)
     if s[i] == of
       return i
 
+export stripl = func(s)
+  let start = 0
+  for i in iter.range(length(s))
+    break if !(s[i] == " " | s[i] == "\n" | s[i] == "\t")
+    start = start + 1
+  return substring(s, start, length(s))
+
 export split = func(s, at)
   let arr = table
   let arr_idx = 0
