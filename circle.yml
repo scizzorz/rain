@@ -2,13 +2,19 @@ machine:
   python:
     version: 3.5.1
   environment:
-    CLANG: /usr/bin/clang
+    CLANG: /usr/bin/clang-3.9
     PYTHONPATH: /home/ubuntu/rain/
     RAINLIB: /home/ubuntu/rain/core/
     RAINBASE: /home/ubuntu/rain/base/
 dependencies:
   pre:
-    - sudo apt-get install libgc-dev libunwind8-dev
+    - sudo echo "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main" >> /etc/apt/sources.list
+    - sudo echo "deb-src http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main" >> /etc/apt/sources.list
+    - wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+    - sudo apt-get update
+    - sudo apt-get install llvm-3.9 clang-3.9 libgc-dev libunwind8-dev
+    - sudo rm /usr/bin/llvm-config
+    - sudo ln -s /usr/bin/llvm-config-3.9 /usr/bin/llvm-config
 test:
   override:
     - tests/fix.sh
