@@ -1,0 +1,41 @@
+!program;1
+stmts:
+- !import;1
+  name: ast
+  rename: null
+- !macro;1
+  body: !block;2
+    expr: null
+    stmts:
+    - !return;1
+      value: !name;1
+        value: expr
+  name: expr
+  params:
+  - expr
+  types:
+  - expr
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: main
+  rhs: !func;1
+    body: !block;2
+      expr: null
+      stmts:
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: x
+        rhs: !str;1
+          value: This better work.
+      - !call;1
+        args:
+        - !name;1
+          value: x
+        catch: false
+        func: !name;1
+          value: print
+    params: []
