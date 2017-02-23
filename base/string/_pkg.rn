@@ -8,7 +8,7 @@ export fmt    = foreign "rain_ext_fmt"(val, fmt)
 
 export substring = func(s, start, end)
   let len = length(s)
-  if start >= end | end >= len
+  if start >= end | end > len
     return ""
   return s[start] $ substring(s, start+1, end)
 
