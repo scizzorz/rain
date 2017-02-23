@@ -1,3 +1,6 @@
+keyword 'import'
+name 'string'
+newline
 keyword 'let'
 name 'main'
 symbol '='
@@ -27,6 +30,33 @@ newline
 name 'print'
 symbol '('
 name 'sp'
+symbol ')'
+newline
+keyword 'let'
+name 'a'
+symbol '='
+string 'abc'
+newline
+keyword 'let'
+name 'b'
+symbol '='
+name 'string'
+symbol '.'
+name 'substring'
+symbol '('
+name 'a'
+symbol ','
+int 1
+symbol ','
+name 'length'
+symbol '('
+name 'a'
+symbol ')'
+symbol ')'
+newline
+name 'print'
+symbol '('
+name 'b'
 symbol ')'
 newline
 dedent

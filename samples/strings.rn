@@ -1,5 +1,11 @@
+import string
+
 let main = func()
   let s = "hello"
   let p = "world"
   let sp = s $ " " $ p
   print(sp)
+
+  let a = "abc"
+  let b = string.substring(a, 1, length(a))
+  print(b)
