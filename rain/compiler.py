@@ -57,8 +57,7 @@ class Compiler:
     self.file = file
     self.qname, self.mname = M.find_name(file)
 
-    if Compiler.verbose:
-      self.print('{:>10} {} from {}', 'using', X(self.qname, 'green'), X(self.file, 'blue'))
+    self.vprint('{:>10} {} from {}', 'using', X(self.qname, 'green'), X(self.file, 'blue'))
 
     self.target = target
     self.main = main
@@ -76,6 +75,11 @@ class Compiler:
   @classmethod
   def print(cls, msg, *args, end='\n'):
     if not cls.quiet:
+      print(msg.format(*args), end=end)
+
+  @classmethod
+  def vprint(cls, msg, *args, end='\n'):
+    if cls.verbose:
       print(msg.format(*args), end=end)
 
   @contextmanager
@@ -175,12 +179,11 @@ class Compiler:
     self.links |= set(links)
     self.libs |= set(libs)
 
-    if Compiler.verbose:
-      for link in links:
-        self.print('{:>10} {}', 'linking', X(link, 'blue'))
+    for link in links:
+      self.vprint('{:>10} {}', 'linking', X(link, 'blue'))
 
-      for lib in libs:
-        self.print('{:>10} {}', 'sharing', X(lib, 'blue'))
+    for lib in libs:
+      self.vprint('{:>10} {}', 'sharing', X(lib, 'blue'))
 
     # only spit out the main if this is the main file
     if self.main:
