@@ -2,15 +2,13 @@ machine:
   python:
     version: 3.5.1
   environment:
-    CLANG: /usr/bin/clang-3.8
+    CLANG: /usr/bin/clang
     PYTHONPATH: /home/ubuntu/rain/
     RAINLIB: /home/ubuntu/rain/core/
     RAINBASE: /home/ubuntu/rain/base/
 dependencies:
   pre:
-    - sudo apt-get install llvm-3.8 clang-3.8 libgc-dev libunwind8-dev
-    - sudo rm /usr/bin/llvm-config
-    - sudo ln -s /usr/bin/llvm-config-3.8 /usr/bin/llvm-config
+    - sudo apt-get install libgc-dev libunwind8-dev
 test:
   override:
     - tests/fix.sh
