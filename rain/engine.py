@@ -58,8 +58,10 @@ class Engine:
     func_ptr = self.engine.get_function_address(name)
     return func_typ(func_ptr)
 
-  def get_global(self, name):
-    return self.engine.get_global_value_address(name)
+  def get_global(self, name, typ):
+    addr = self.engine.get_global_value_address(name)
+    ptr = ct.cast(ct.c_void_p(addr), typ)
+    return ptr
 
   def main(self):
     main = self.get_func('main', ct.c_int, ct.c_int, ct.POINTER(ct.c_char_p))
@@ -110,14 +112,6 @@ class Engine:
     set_meta = self.get_func('rain_set_env', T.carg, T.carg)
     set_meta(ct.byref(table_box), meta_ptr)
 
-  def rain_set_env_col(self, table_box, col_name):
-    meta_addr = self.get_global(col_name)
-    if meta_addr == 0:
-      Q.abort('Unable to find core.ast node for {}', col_name)
-
-    meta_vp = ct.c_void_p(meta_addr)
-    meta_ccol = ct.cast(meta_vp, ct.POINTER(T.ccolumn)).contents
-    self.rain_set_env(table_box, meta_ccol.val)
 
   # converting between Rain and Python AST
 
@@ -126,9 +120,8 @@ class Engine:
       table_box = T.cbox.to_rain(None)
       self.rain_set_table(table_box)
 
-      ast_exports_addr = self.get_global('core.ast.exports')
-      ast_exports_ptr = ct.cast(ct.c_void_p(ast_exports_addr), T.carg)
-      meta_ptr = self.rain_get_ptr_py(ast_exports_ptr, 'list')
+      ast_ptr = self.get_global('core.ast.exports', T.carg)
+      meta_ptr = self.rain_get_ptr_py(ast_ptr, 'list')
       self.rain_set_env(table_box, meta_ptr)
 
       for i, n in enumerate(val):
@@ -140,9 +133,8 @@ class Engine:
       table_box = T.cbox.to_rain(None)
       self.rain_set_table(table_box)
 
-      ast_exports_addr = self.get_global('core.ast.exports')
-      ast_exports_ptr = ct.cast(ct.c_void_p(ast_exports_addr), T.carg)
-      meta_ptr = self.rain_get_ptr_py(ast_exports_ptr,val.__tag__)
+      ast_ptr = self.get_global('core.ast.exports', T.carg)
+      meta_ptr = self.rain_get_ptr_py(ast_ptr, val.__tag__)
       self.rain_set_env(table_box, meta_ptr)
 
       slots = [self.to_rain(getattr(val, key, None)) for key in val.__slots__]

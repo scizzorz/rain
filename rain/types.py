@@ -165,12 +165,6 @@ class cbox(ct.Structure):
 
     raise Exception("Can't convert value {!r} to Python".format(self))
 
-class citem(ct.Structure):
-  pass
-
-class ctable(ct.Structure):
-  pass
-
 
 carg = ct.POINTER(cbox)
 cbox._fields_ = [('type', ct.c_uint8),
