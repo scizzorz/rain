@@ -58,13 +58,13 @@ void rain_set_strcpy(box *ret, const char *s, int size) {
 }
 
 void rain_set_table(box *ret) {
-  column **arr = (column **)GC_malloc(sizeof(column *) * HASH_SIZE);
-  for(int i=0; i<HASH_SIZE; i++) {
-    arr[i] = NULL;
-  }
+  table *arr = (table *)GC_malloc(sizeof(table));
+  arr->cur = 0;
+  arr->max = HASH_SIZE;
+  arr->items = (item *)GC_malloc(sizeof(item) * HASH_SIZE);
 
   ret->type = ITYP_TABLE;
-  ret->data.t = arr;
+  ret->data.lpt = arr;
   ret->size = 0;
   ret->env = NULL;
 }

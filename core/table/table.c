@@ -12,14 +12,6 @@ box* rain_new_table() {
   return val;
 }
 
-column *rain_new_pair(box *key, box *val) {
-  column *ret = (column *)GC_malloc(sizeof(column));
-  ret->key = *key;
-  ret->val = *val;
-  ret->next = NULL;
-  return ret;
-}
-
 unsigned long rain_hash(box *val) {
   unsigned int hash = 0;
   switch(val->type) {
@@ -47,78 +39,103 @@ unsigned char rain_hash_eq(box *one, box *two) {
   return one->data.ui == two->data.ui;
 }
 
-column *rain_has(box *table, box *key) {
-  unsigned long key_hash = rain_hash(key) % HASH_SIZE;
-  column **dict = table->data.t;
-  column *row = dict[key_hash];
+item *rain_has(box *tab, box *key) {
+  int cur = tab->data.lpt->cur;
+  int max = tab->data.lpt->max;
+  item *items = tab->data.lpt->items;
+  unsigned long key_hash = rain_hash(key);
 
-  if(row == NULL) {
-    return NULL;
-  }
-
-  while(!rain_hash_eq(key, &row->key)) {
-    row = row->next;
-    if(row == NULL) {
+  while(1) {
+    if(!items[key_hash % max].valid) {
       return NULL;
     }
+
+    if(rain_hash_eq(key, &(items[key_hash % max].key))) {
+      break;
+    }
+
+    key_hash += 1;
   }
 
-  return row;
+  return items + (key_hash % max);
 }
 
-box *rain_get_ptr(box *table, box *key) {
-  column *ptr = rain_has(table, key);
-  return &(ptr->val);
+box *rain_get_ptr(box *tab, box *key) {
+  item *ptr = rain_has(tab, key);
+  return &ptr->val;
 }
 
-void rain_get(box *ret, box *table, box *key) {
-  if(BOX_IS(table, STR) && BOX_IS(key, INT)) {
-    if(key->data.si >= 0 && key->data.si < table->size) {
-      rain_set_strcpy(ret, table->data.s + key->data.si, 1);
+void rain_get(box *ret, box *tab, box *key) {
+  if(BOX_IS(tab, STR) && BOX_IS(key, INT)) {
+    if(key->data.si >= 0 && key->data.si < tab->size) {
+      rain_set_strcpy(ret, tab->data.s + key->data.si, 1);
     }
-    else if(key->data.si < 0 && key->data.si >= -(table->size)) {
-      rain_set_strcpy(ret, table->data.s + table->size + key->data.si, 1);
+    else if(key->data.si < 0 && key->data.si >= -(tab->size)) {
+      rain_set_strcpy(ret, tab->data.s + tab->size + key->data.si, 1);
     }
     return;
   }
 
-  if(BOX_IS(table, TABLE)) {
-    column *row = rain_has(table, key);
+  if(BOX_IS(tab, TABLE)) {
+    item *row = rain_has(tab, key);
     if(row != NULL) {
       rain_set_box(ret, &row->val);
       return;
     }
   }
 
-  if(table->env != NULL) {
-    rain_get(ret, table->env, key);
+  if(tab->env != NULL) {
+    rain_get(ret, tab->env, key);
     return;
   }
 }
 
-void rain_put(box *table, box *key, box *val) {
-  if(BOX_IS(table, FUNC)) {
-    rain_put(table->env, key, val);
+void rain_put(box *tab, box *key, box *val) {
+  if(BOX_IS(tab, FUNC)) {
+    rain_put(tab->env, key, val);
     return;
   }
 
-  if(BOX_ISNT(table, TABLE)) {
+  if(BOX_ISNT(tab, TABLE)) {
     rain_throw(rain_exc_arg_mismatch);
   }
 
-  unsigned long key_hash = rain_hash(key) % HASH_SIZE;
-  column **dict = table->data.t;
-  column **row = dict + key_hash;
+  int cur = tab->data.lpt->cur;
+  int max = tab->data.lpt->max;
+  item *items = tab->data.lpt->items;
+  unsigned long key_hash = rain_hash(key);
+
   while(1) {
-    if(*row == NULL) { // new pair
-      *row = rain_new_pair(key, val);
-      return;
+    if(!items[key_hash % max].valid) {
+      items[key_hash % max].valid = 1;
+      items[key_hash % max].key = *key;
+      items[key_hash % max].val = *val;
+      tab->data.lpt->cur += 1;
+      cur += 1;
+      break;
     }
-    else if(rain_hash_eq(&(*row)->key, key)) { // update
-      (*row)->val = *val;
-      return;
+
+    if(rain_hash_eq(&(items[key_hash % max].key), key)) {
+      items[key_hash % max].val = *val;
+      break;
     }
-    row = &((*row)->next);
+
+    key_hash += 1;
+  }
+
+  if(cur > max / 2) {
+    tab->data.lpt->cur = 0;
+    tab->data.lpt->max = max * 2;
+    tab->data.lpt->items = (item *)GC_malloc(sizeof(item) * max * 2);
+
+    for(int i=0; i<max; i++) {
+      if(items[i].valid) {
+        rain_put(tab, &items[i].key, &items[i].val);
+      }
+    }
+
+    GC_free((void *)items);
+
   }
 }
 

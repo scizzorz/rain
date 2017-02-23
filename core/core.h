@@ -15,15 +15,15 @@
 #define BOX_IS(x, t) ((x)->type == ITYP_##t)
 #define BOX_ISNT(x, t) ((x)->type != ITYP_##t)
 
-struct column_s;
 struct box_s;
+struct table_s;
 
 typedef union {
   unsigned long ui;
   signed long si;
   double f;
   char *s;
-  struct column_s **t;
+  struct table_s *lpt;
   void *vp;
 } cast;
 
@@ -34,11 +34,17 @@ typedef struct box_s {
   struct box_s *env;
 } box;
 
-typedef struct column_s {
+typedef struct item_s {
+  int valid;
   box key;
   box val;
-  struct column_s *next;
-} column;
+} item;
+
+typedef struct table_s {
+  int cur;
+  int max;
+  item *items;
+} table;
 
 int rain_box_to_exit(box *);
 void rain_check_callable(box *, int);
