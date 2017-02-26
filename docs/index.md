@@ -155,13 +155,6 @@ The return value of `main` is used as the program's exit status:
 * `false` exits as `1`
 * All other values exit as `0`
 
-### Comments
-
-Rain supports line comments with the `#` symbol.
-
-    # This is a comment.
-    let x = 5 # This value is used later.
-
 ### `pass` statement
 
 `pass` is simply a no-op instruction:
