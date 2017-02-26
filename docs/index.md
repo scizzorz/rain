@@ -89,12 +89,10 @@ Functions are defined using the `func` keyword and a list of parameters:
     let add = func(x, y)
       return x + y
 
-The `return` keyword behaves exactly like most other programming languages.
-By default, all functions return `null` - an empty `return` statement will
-simply terminate the function and return `null`.
+The `return` keyword exits the function and returns its expression. An empty 
+or missing `return` statement will terminate the function and return `null`. 
 
-A secondary shorthand definition is available for functions that only do small
-calculations that fit in one expression:
+A secondary shorthand definition exists for single expressions:
 
     let add = func(x, y) -> x + y
 
