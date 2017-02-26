@@ -20,8 +20,8 @@ on simplicity, expressiveness, and extensibility via a powerful C API.
 ### Lexical Analysis
 
 * **Operators**
-  * `->` - used only for "lambda" functions
-  * `::` - used for metatable assignment
+  * `->` - lambda expression operator
+  * `::` - metatable assignment operator
   * `<=`, `>=`, `<`, `>`, `==`, `!=` - comparison operators
   * `+`, `-`, `*`, `/` - arithmetic operators (`-` is also a unary negation)
   * `&`, `|` - logical boolean operators
@@ -51,9 +51,9 @@ Rain supports 8 data types:
 
 * `int` - 64-bit signed integers
 * `float` - 64-bit precision floats
-* `str` - pointers unsigned 8-bit integers with an associated size. Usually
-  null-terminated for compatibility with C, but not required
-* `bool` - either of the keywords `true` or `false`
+* `str` - character pointers with an associated length. String literals are
+  null-terminated for compatibility with C
+* `bool` - `true` or `false`
 * `func` - a function
 * `null` - the single value `null` (it *is* possible for C extensions to create
   other `null`-typed values, but it's not recommended!)
@@ -63,10 +63,9 @@ Rain supports 8 data types:
 
 ### Values
 
-All values are copied "by value" - meaning functions cannot mutate their
-arguments nor can they mutate values in outer scopes that they close over.
-However, because the "value" of a `table` object is a pointer to its hash
-table, mutating a table will mutate its value outside of the function.
+All values are copied "by value". A called function's parameter is a copy of
+the caller's argument. However, because the "value" of a `table` object is a 
+pointer to its hash table, mutating a table will mutate the referenced hash table.
 
 ### Assignment
 
