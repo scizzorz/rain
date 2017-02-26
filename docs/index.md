@@ -164,8 +164,6 @@ The return value of `main` is used as the program's exit status:
 
 ### `if` statement
 
-`if` behaves like most other programming languages:
-
     let test = func(n)
       if n == 0
         print("n is zero")
@@ -174,9 +172,9 @@ The return value of `main` is used as the program's exit status:
       else
         print("n is negative")
 
-All values except `null`, `false`, the integer `0`, and `0.0` are "truthy" -
-that is, they evaluate to true in boolean contexts like `if` statements. Null
-`cdata` values will also evaluate to false.
+All values except `null`, `false`, `0`, and `0.0` are "truthy" - that is, they 
+evaluate to true in boolean contexts like `if` statements. Null `cdata` values 
+will also evaluate to false.
 
 ### Loops
 
