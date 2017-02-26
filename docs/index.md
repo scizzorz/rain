@@ -162,7 +162,7 @@ The return value of `main` is used as the program's exit status:
     let main = func()
       pass # does nothing
 
-### `if` statement
+### The `if` statement
 
     let test = func(n)
       if n == 0
