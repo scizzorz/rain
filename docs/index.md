@@ -96,13 +96,12 @@ A secondary shorthand definition exists for single expressions:
 
     let add = func(x, y) -> x + y
 
-#### `save` statement
+#### The `save` statement
 
 The `save` statement acts as a "lazy" `return` - it saves a value to return,
-but does not immediately terminate the function. When the function returns, the
-most recently saved value will be used as its return value. After saving a
-value, subsequent empty `return` statements *will* return the saved value.
-Explicit `return` statements will override any saved values.
+but does not immediately terminate the function. After saving a value, empty 
+or missing `return` statements *will* return the saved value. Explicit `return` 
+statements will override any saved values.
 
     let add = func(x, y)
       save x + y
@@ -115,17 +114,15 @@ Explicit `return` statements will override any saved values.
 
 #### Calling
 
-Function values can be called by wrapping a list of arguments in parentheses.
+Functions can be called by wrapping a list of arguments in parentheses.
 
     let sum = add(3, 4)
 
 #### Closures
 
 Creating a function in a local scope (ie, inside another function) enables it
-to close over any non-global variables in the outer scope(s). Values being
-closed over are *copied* into a *closure environment* for the function. If the
-function mutates those variables, they are persistent *inside* the function but
-will not mutate the original variable.
+to close over all non-global variables in the outer scope(s). Variables being
+closed over are *copied by value* into a *closure environment* for the function.
 
     let i = 0
     let counter = func()
@@ -137,24 +134,26 @@ will not mutate the original variable.
     print(i)         # 0 - original variable is untouched
 
 The closure environment of a function can be inspected and mutated from outside
-of the function via indexing. External mutations are visible inside the
-function and internal mutations are visible outside the function.
+of the function via indexing.
+
+TODO update example
 
     print(counter.i) # 2 - inspect closure environment from outside
     counter.i = 0    # mutate closure environment from outside
     print(counter()) # 0 - external mutations are visible internally
 
-#### `main` function
+#### The `main` function
 
 Every Rain program must define a no-argument `main` function at the top level:
 
     let main = func()
       print("Hello!")
 
-This function serves as the program entry point - similar to `main` in C/C++.
-The return value of `main` is used as the program's exit status - `null` and
-`true` evaluate to exit status `0`, while `int` and `float` types evaluate to
-their value. All other values evaluate to `0`.
+This function serves as the entry point of the program.
+The return value of `main` is used as the program's exit status:
+* integers exit as their value (floats are converted to integers)
+* `false` exits as `1`
+* All other values exit as `0`
 
 ### Comments
 
