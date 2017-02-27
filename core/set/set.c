@@ -24,14 +24,14 @@ void rain_set_int(box *ret, signed long si) {
   ret->type = ITYP_INT;
   ret->data.si = si;
   ret->size = 0;
-  ret->env = NULL;
+  ret->env = rain_vt_num;
 }
 
 void rain_set_float(box *ret, double f) {
   ret->type = ITYP_FLOAT;
   ret->data.f = f;
   ret->size = 0;
-  ret->env = NULL;
+  ret->env = rain_vt_num;
 }
 
 void rain_set_bool(box *ret, unsigned char v) {

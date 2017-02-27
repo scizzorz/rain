@@ -15,6 +15,20 @@ def emit(self, module):
   module.exports = module.add_global(T.box, name=module.mangle('exports'))
   module.exports.initializer = static_table_alloc(module, name=module.mangle('exports.table'))
 
+  module.ariths = {
+    '+': str_node('_add').emit(module),
+    '-': str_node('_sub').emit(module),
+    '*': str_node('_mul').emit(module),
+    '/': str_node('_div').emit(module),
+    '==': str_node('_eq').emit(module),
+    '!=': str_node('_ne').emit(module),
+    '>': str_node('_gt').emit(module),
+    '>=': str_node('_ge').emit(module),
+    '<': str_node('_lt').emit(module),
+    '<=': str_node('_le').emit(module),
+    '$': str_node('_concat').emit(module),
+  }
+
   imports = []
   links = []
   libs = []
@@ -504,12 +518,12 @@ def emit(self, module):
 
 @int_node.method
 def emit(self, module):
-  return T._int(self.value)
+  return T._int(self.value, module.get_vt('num'))
 
 
 @float_node.method
 def emit(self, module):
-  return T._float(self.value)
+  return T._float(self.value, module.get_vt('num'))
 
 
 @bool_node.method
@@ -801,31 +815,20 @@ def emit(self, module):
 
     return module.load(res)
 
-  arith = {
-    '+': 'rain_add',
-    '-': 'rain_sub',
-    '*': 'rain_mul',
-    '/': 'rain_div',
-    '==': 'rain_eq',
-    '!=': 'rain_ne',
-    '>': 'rain_gt',
-    '>=': 'rain_ge',
-    '<': 'rain_lt',
-    '<=': 'rain_le',
-    '$': 'rain_string_concat',
-  }
-
-  if self.op not in arith:
+  if self.op not in module.ariths:
     Q.abort("Invalid binary operator {!r}", self.op)
 
   lhs = module.emit(self.lhs)
   rhs = module.emit(self.rhs)
+  lhs_env = module.get_env(lhs)
 
-  ret_ptr = module.exfncall(arith[self.op], T.null, lhs, rhs)
-  return module.load(ret_ptr)
+  func_ptr = module.exfncall('rain_get', T.null, lhs, module.ariths[self.op])
+  func_box = module.load(func_ptr)
+
+  return do_call(module, func_box, [lhs, rhs])
+
 
 # Warning statements ##########################################################
-
 
 @error_node.method
 def emit(self, module):

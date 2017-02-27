@@ -1,0 +1,14 @@
+let num = table
+num["_add"] = foreign "rain_add"(lhs, rhs)
+num["_sub"] = foreign "rain_sub"(lhs, rhs)
+num["_mul"] = foreign "rain_mul"(lhs, rhs)
+num["_div"] = foreign "rain_div"(lhs, rhs)
+
+num["_eq"] = foreign "rain_eq"(lhs, rhs)
+num["_ne"] = foreign "rain_ne"(lhs, rhs)
+num["_le"] = foreign "rain_le"(lhs, rhs)
+num["_lt"] = foreign "rain_lt"(lhs, rhs)
+num["_ge"] = foreign "rain_ge"(lhs, rhs)
+num["_gt"] = foreign "rain_gt"(lhs, rhs)
+
+export num as foreign "rain_vt_num"

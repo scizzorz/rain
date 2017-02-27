@@ -374,6 +374,9 @@ class Module(S.Scope):
   def get_env(self, box):
     return self.extract(box, T.ENV)
 
+  def get_vt(self, name):
+    return self.find_global(T.box, 'core.vtable.' + name)
+
   def truthy(self, node):
     box = self.emit(node)
     return self.truthy_val(box)

@@ -5,11 +5,13 @@ link "util.c"
 link "ops/ops.c"
 link "set/set.c"
 link "table/table.c"
+link "vtable/vtable.c"
 
 library "gc"
 library "unwind"
 library ":libgcc_s.so.1"
 
+import vtable
 import env
 import except
 
