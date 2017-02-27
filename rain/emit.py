@@ -391,7 +391,7 @@ def emit(self, module):
 
   ptrs = module.fnalloc(T.null, func_box)
 
-  env = module.get_env(func_box)
+  env = module.get_env(user_box)
   has_env = module.builder.icmp_unsigned('!=', env, T.arg(None))
   with module.builder.if_then(has_env):
     env_box = module.load(env)
