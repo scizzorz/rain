@@ -3,6 +3,7 @@
 
 #include "../core.h"
 
-box *rain_vt_num;
+box *rain_vt_int;
+box *rain_vt_float;
 
 #endif
