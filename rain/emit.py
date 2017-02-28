@@ -94,6 +94,10 @@ def static_table_put(module, table_box, key_node, val):
   key = module.emit(key_node)
 
   lpt_ptr = table_box.lpt_ptr
+
+  if getattr(lpt_ptr, 'arr_ptr', None) is None:
+    Q.abort('Global value is opaque.')
+
   arr_ptr = lpt_ptr.arr_ptr
   item = T.item([T.i32(1), key, val])
   item.key = key_node
@@ -132,7 +136,7 @@ def static_table_get(module, table_box, key_node):
 # Allocate a static table
 def static_table_alloc(module, name):
   arr_typ = T.arr(T.item, T.HASH_SIZE)
-  arr_ptr = module.add_global(arr_typ)
+  arr_ptr = module.add_global(arr_typ, name=name + '.array')
   arr_ptr.initializer = arr_typ([None] * T.HASH_SIZE)
   arr_gep = arr_ptr.gep([T.i32(0), T.i32(0)])
 
@@ -282,6 +286,7 @@ def emit(self, module):
 
   module.import_from(comp.mod)
   glob = module.get_global(comp.mod.mangle('exports.table'))
+  #glob.arr_ptr = module.get_global(comp.mod.mangle('exports.table.array'))
 
   rename = self.rename or comp.mname
 
