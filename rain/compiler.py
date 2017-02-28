@@ -183,22 +183,24 @@ class Compiler:
 
     # compile the imports
     imports, links, libs = self.ast.emit(self.mod)
+
     for mod in imports:
       comp = get_compiler(mod)
+      self.vprint('           {} imports {}', X(self.qname, 'green'), X(comp.qname, 'blue'))
       comp.build()  # should be done during import but might as well be safe
 
       # add the module's IR as well as all of its imports' IR
       self.link(comp)
       self.mods.add(comp.mod)
 
-    self.links |= set(links)
-    self.libs |= set(libs)
-
     for link in links:
-      self.vprint('{:>10} {}', 'linking', X(link, 'blue'))
+      self.vprint('           {} links {}', X(self.qname, 'green'), X(link, 'blue'))
 
     for lib in libs:
-      self.vprint('{:>10} {}', 'sharing', X(lib, 'blue'))
+      self.vprint('           {} shares {}', X(self.qname, 'green'), X(lib, 'blue'))
+
+    self.links |= set(links)
+    self.libs |= set(libs)
 
     # only spit out the main if this is the main file
     if self.main:
