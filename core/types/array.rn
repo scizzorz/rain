@@ -1,0 +1,66 @@
+let meta = foreign "rain_ext_meta"(val)
+let length = foreign "rain_ext_length"(val)
+
+export values = func(self)
+  let i = 0
+  return func()
+    save self[i]
+    i = i + 1
+
+export keys = func(self)
+  let i = 0
+  return func()
+    if self[i] == null
+      return
+
+    save i
+    i = i + 1
+
+export map = func(self, fn)
+  let ret = table :: meta(self)
+  save ret
+  for i in keys(self)
+    ret[i] = fn(self[i])
+
+export foldl = func(self, fn, z)
+  let a = z
+  for v in values(self)
+    a = fn(a, v)
+  return a
+
+export concat = func(self, other)
+  let ret = table :: meta(self)
+  save ret
+  for i in keys(self)
+    ret[i] = self[i]
+  let len = length(self)
+  for i in keys(other)
+    ret[i+len] = other[i]
+
+export flatmap = func(self, fn)
+  let mapped = map(self, fn)
+  return foldl(mapped, concat, table :: meta(self))
+
+export contains = func(self, value)
+  save false
+  for v in values(self)
+    if v == value
+      return true
+
+export from_iter = func(iter)
+  let ret = table
+  save ret
+  let idx = 0
+  for i in iter
+    ret[idx] = i
+    idx = idx + 1
+
+export slice = func(self, start, end)
+  let ret = table
+  save ret
+  let to_idx = 0
+  let from_idx = start
+  while from_idx < end
+    ret[to_idx] = self[from_idx]
+    from_idx = from_idx + 1
+    to_idx = to_idx + 1
