@@ -8,7 +8,7 @@ stmts:
   let: true
   lhs: !name;1
     value: gadd
-  rhs: !func;1
+  rhs: !func;2
     body: !return;1
       value: !binary;1
         lhs: !name;1
@@ -19,12 +19,13 @@ stmts:
     params:
     - a
     - b
+    rename: null
 - !assn;2
   export: false
   let: true
   lhs: !name;1
     value: main
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -33,7 +34,7 @@ stmts:
         let: true
         lhs: !name;1
           value: ladd
-        rhs: !func;1
+        rhs: !func;2
           body: !return;1
             value: !binary;1
               lhs: !name;1
@@ -44,6 +45,7 @@ stmts:
           params:
           - a
           - b
+          rename: null
       - !assn;2
         export: false
         let: true
@@ -119,3 +121,4 @@ stmts:
         func: !name;1
           value: print
     params: []
+    rename: null

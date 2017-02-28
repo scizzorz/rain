@@ -8,7 +8,7 @@ stmts:
   let: true
   lhs: !name;1
     value: main
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -58,3 +58,4 @@ stmts:
         rhs: !str;1
           value: close
     params: []
+    rename: null

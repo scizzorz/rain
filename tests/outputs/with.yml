@@ -5,7 +5,7 @@ stmts:
   let: true
   lhs: !name;1
     value: ctx0
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -30,12 +30,13 @@ stmts:
           value: print
     params:
     - block
+    rename: null
 - !assn;2
   export: false
   let: true
   lhs: !name;1
     value: ctx1
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -69,12 +70,13 @@ stmts:
           value: print
     params:
     - block
+    rename: null
 - !assn;2
   export: false
   let: true
   lhs: !name;1
     value: ctx2
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -112,12 +114,13 @@ stmts:
           value: print
     params:
     - block
+    rename: null
 - !assn;2
   export: false
   let: true
   lhs: !name;1
     value: main
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -183,3 +186,4 @@ stmts:
         - a
         - b
     params: []
+    rename: null

@@ -293,6 +293,7 @@ class Compiler:
       subprocess.check_call(cmd)
 
   def share(self):
+    '''Compile a single Rain file into a shared object file.'''
     self.build()
 
     if self.compiled:

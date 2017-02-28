@@ -14,7 +14,7 @@ stmts:
       value: rect
     rhs: !str;1
       value: new
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -26,6 +26,7 @@ stmts:
             value: self
     params:
     - self
+    rename: null
 - !assn;2
   export: false
   let: false
@@ -34,7 +35,7 @@ stmts:
       value: rect
     rhs: !str;1
       value: init
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -62,6 +63,7 @@ stmts:
     - self
     - w
     - h
+    rename: null
 - !assn;2
   export: false
   let: false
@@ -70,7 +72,7 @@ stmts:
       value: rect
     rhs: !str;1
       value: area
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -89,6 +91,7 @@ stmts:
               value: h
     params:
     - self
+    rename: null
 - !assn;2
   export: false
   let: true
@@ -107,7 +110,7 @@ stmts:
       value: square
     rhs: !str;1
       value: init
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -134,12 +137,13 @@ stmts:
     params:
     - self
     - s
+    rename: null
 - !assn;2
   export: false
   let: true
   lhs: !name;1
     value: main
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -212,3 +216,4 @@ stmts:
         func: !name;1
           value: print
     params: []
+    rename: null

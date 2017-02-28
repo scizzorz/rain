@@ -5,7 +5,7 @@ stmts:
   let: true
   lhs: !name;1
     value: range
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -17,7 +17,7 @@ stmts:
         rhs: !int;1
           value: 0
       - !return;1
-        value: !func;1
+        value: !func;2
           body: !block;2
             expr: null
             stmts:
@@ -49,14 +49,16 @@ stmts:
                 rhs: !int;1
                   value: 1
           params: []
+          rename: null
     params:
     - n
+    rename: null
 - !assn;2
   export: false
   let: true
   lhs: !name;1
     value: main
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -96,3 +98,4 @@ stmts:
         names:
         - i
     params: []
+    rename: null

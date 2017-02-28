@@ -329,7 +329,7 @@ class dict_node(expr_node):
 
 class func_node(expr_node):
   __tag__ = 'func'
-  __version__ = 1
+  __version__ = 2
   __slots__ = ['params', 'body', 'rename']
 
   def __init__(self, params, body, rename=None):

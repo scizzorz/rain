@@ -15,7 +15,7 @@ stmts:
   let: false
   lhs: !name;1
     value: init
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -27,12 +27,13 @@ stmts:
         func: !name;1
           value: print
     params: []
+    rename: null
 - !assn;2
   export: true
   let: false
   lhs: !name;1
     value: test
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -48,12 +49,13 @@ stmts:
         func: !name;1
           value: print
     params: []
+    rename: null
 - !assn;2
   export: false
   let: true
   lhs: !name;1
     value: main
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -108,3 +110,4 @@ stmts:
           rhs: !str;1
             value: test
     params: []
+    rename: null
