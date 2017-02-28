@@ -7,23 +7,23 @@ import os.path
 import sys
 
 parser = argparse.ArgumentParser(description='Compile Rain code.')
-parser.add_argument('-r', '--run', action='store_true',
-                    help='Execute the compiled code.')
-parser.add_argument('-o', '--output', metavar='FILE', default=None,
+parser.add_argument('--output', '-o', metavar='FILE', default=None,
                     help='Executable file to produce.')
-parser.add_argument('-l', '--lib', metavar='FILE', action='append',
+parser.add_argument('--lib', '-l', metavar='FILE', action='append',
                     help='Extra libraries to link with.')
-parser.add_argument('-q', '--quiet', action='store_true',
+parser.add_argument('--quiet', '-q', action='store_true',
                     help='Quiet the compiler.')
-parser.add_argument('-v', '--verbose', action='store_true',
+parser.add_argument('--verbose', '-v', action='store_true',
                     help='Print extra output.')
 
-parser.add_argument('--lex', action='store_true',
+parser.add_argument('--lex', '-L', action='store_true',
                     help='Stop and output the results of lexing.')
-parser.add_argument('--parse', action='store_true',
+parser.add_argument('--parse', '-P', action='store_true',
                     help='Stop and output the results of parsing.')
-parser.add_argument('--emit', action='store_true',
+parser.add_argument('--emit', '-S', action='store_true',
                     help='Stop and output the results of code generation.')
+parser.add_argument('--run', '-r', action='store_true',
+                    help='Execute the compiled code.')
 
 parser.add_argument('file', metavar='RAIN', type=str, default='.', nargs='?',
                     help='Main source file.')
