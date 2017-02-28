@@ -11,16 +11,18 @@ stages:
       RAINBASE: ~/rain/base
       PYTHONPATH: ~/rain
     steps:
-      - type: checkout
       - type: shell
         command: |
           sudo sh -c 'echo "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main" >> /etc/apt/sources.list'
           sudo sh -c 'echo "deb-src http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main" >> /etc/apt/sources.list'
           wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
           sudo apt-get update
-          sudo apt-get install llvm-3.9 clang-3.9 libgc-dev libunwind8-dev python3
+          sudo apt-get install llvm-3.9 clang-3.9 libgc-dev libunwind8-dev python3 git
           sudo rm /usr/bin/llvm-config
           sudo ln -s /usr/bin/llvm-config-3.9 /usr/bin/llvm-config
+
+      - type: checkout
+
       - type: shell
         command: |
           tests/fix.sh
