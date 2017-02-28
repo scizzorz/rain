@@ -1,11 +1,11 @@
-export _null = 0
-export _int = 1
-export _float = 2
-export _bool = 3
-export _str = 4
-export _table = 5
-export _func = 6
-export _cdata = 7
+export i_null = 0
+export i_int = 1
+export i_float = 2
+export i_bool = 3
+export i_string = 4
+export i_table = 5
+export i_func = 6
+export i_cdata = 7
 
 export is = func(child, parent)
   while meta(child) != null
