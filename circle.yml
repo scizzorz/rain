@@ -1,28 +1,29 @@
-machine:
-  python:
-    version: 3.5.1
-  environment:
-    CLANG: /usr/bin/clang-3.9
-    PYTHONPATH: /home/ubuntu/rain/
-    RAINLIB: /home/ubuntu/rain/core/
-    RAINBASE: /home/ubuntu/rain/base/
-dependencies:
-  pre:
-    - sudo sh -c 'echo "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main" >> /etc/apt/sources.list'
-    - sudo sh -c 'echo "deb-src http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main" >> /etc/apt/sources.list'
-    - wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-    - sudo apt-get update
-    - sudo apt-get install llvm-3.9 clang-3.9 libgc-dev libunwind8-dev
-    - sudo rm /usr/bin/llvm-config
-    - sudo ln -s /usr/bin/llvm-config-3.9 /usr/bin/llvm-config
-  post:
-    - git clone git@github.com:numba/llvmlite.git # need to override the PyPI llvmlite...
-    - sed -i -e 's/-static-libstdc++ //' llvmlite/ffi/Makefile.linux
-    - cd llvmlite; python setup.py build
-    - cd llvmlite; python setup.py install
-test:
-  override:
-    - tests/fix.sh
-    - py.test -rap -v --tb=long --cov=rain --junit-xml=$CIRCLE_TEST_REPORTS/tests.xml
+version: 2
+executorType: docker
+containerInfo:
+  - image: ubuntu:16.04
+stages:
+  build:
+    workDir: ~/
+    environment:
+      CLANG: /usr/bin/clang-3.9
+      RAINLIB: ~/rain/core
+      RAINBASE: ~/rain/base
+      PYTHONPATH: ~/rain
+    steps:
+      - type: checkout
+      - type: shell
+        command: |
+          sudo sh -c 'echo "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main" >> /etc/apt/sources.list'
+          sudo sh -c 'echo "deb-src http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main" >> /etc/apt/sources.list'
+          wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get install llvm-3.9 clang-3.9 libgc-dev libunwind8-dev python3
+          sudo rm /usr/bin/llvm-config
+          sudo ln -s /usr/bin/llvm-config-3.9 /usr/bin/llvm-config
+      - type: shell
+        command: |
+          tests/fix.sh
+          py.test -rap -v --tb=long --cov=rain --junit-exml=$CIRCLE_TEST_REPORTS/test.xml
 
 #- cd tests/lib && make init suite && LD_LIBRARY_PATH=./criterion/build ./suite --xml=$CIRCLE_TEST_REPORTS/tests_c.xml
