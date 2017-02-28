@@ -67,13 +67,6 @@ def reset_compilers():
   c_files = {}
 
 
-class phases(Enum):
-  lexing = 0
-  parsing = 1
-  emitting = 2
-  building = 3
-
-
 class Compiler:
   quiet = False
   verbose = False
@@ -137,25 +130,6 @@ class Compiler:
     self.libs |= other.libs
     self.mods |= other.mods
 
-  def goodies(self, phase=phases.building):
-    # don't do this twice
-    if self.mod is not None:
-      return
-
-    # do everything but compile
-    with self.okay(phase.name):
-      self.read()
-      self.lex()
-
-      if phase.value > phases.lexing.value:
-        self.parse()
-      if phase.value > phases.parsing.value:
-        self.emit()
-      if phase.value > phases.emitting.value:
-        self.build()
-
-      self.write()
-
   def read(self):
     if self.readen:
       return
@@ -196,7 +170,7 @@ class Compiler:
     # always link with lib/_pkg.rn
     builtin = get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
     if self is not builtin:  # unless we ARE lib/_pkg.rn
-      builtin.goodies()
+      builtin.build()
 
       self.link(builtin)
 
@@ -211,7 +185,7 @@ class Compiler:
     imports, links, libs = self.ast.emit(self.mod)
     for mod in imports:
       comp = get_compiler(mod)
-      comp.goodies()  # should be done during import but might as well be safe
+      comp.build()  # should be done during import but might as well be safe
 
       # add the module's IR as well as all of its imports' IR
       self.link(comp)
@@ -229,13 +203,6 @@ class Compiler:
     # only spit out the main if this is the main file
     if self.main:
       self.ast.emit_main(self.mod, mods=self.mods)
-
-  def build(self):
-    self.emit()
-
-    if self.built:
-      return
-    self.built = True
 
   def write(self):
     if self.written:
@@ -263,6 +230,15 @@ class Compiler:
           tmp.write(str(token))
           tmp.write('\n')
 
+  def build(self):
+    if self.built:
+      return
+    self.built = True
+
+    with self.okay('building'):
+      self.emit()
+      self.write()
+
   def compile_links(self):
     drop = set()
     add = set()
@@ -282,7 +258,6 @@ class Compiler:
 
   def compile(self):
     self.build()
-    self.write()
 
     if self.compiled:
       return

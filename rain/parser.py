@@ -44,11 +44,11 @@ class macro:
 
     # compile builtins
     builtin = C.get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
-    builtin.goodies()
+    builtin.build()
 
     # compile lib.ast and use its links/libs
     ast = C.get_compiler(join(ENV['RAINLIB'], 'ast.rn'))
-    ast.goodies()
+    ast.build()
     so = ast.compile_links()
 
     # import builtins

@@ -282,7 +282,7 @@ def emit(self, module):
     Q.abort("Can't find module {!r}", self.name)
 
   comp = C.get_compiler(file)
-  comp.goodies()
+  comp.build()
 
   module.import_from(comp.mod)
   glob = module.get_global(comp.mod.mangle('exports.table'))
