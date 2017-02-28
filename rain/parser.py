@@ -44,17 +44,16 @@ class macro:
 
     # compile builtins
     builtin = C.get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
-    builtin.goodies()
+    builtin.build()
 
     # compile lib.ast and use its links/libs
     ast = C.get_compiler(join(ENV['RAINLIB'], 'ast.rn'))
-    ast.goodies()
+    ast.build()
     so = ast.compile_links()
 
     # import builtins
-    for name, val in builtin.mod.globals.items():
-      mod[name] = val
-    mod.import_from(builtin.mod)
+    mod.import_scope(builtin.mod)
+    mod.import_llvm(builtin.mod)
 
     # emit the macro code
     A.import_node('ast').emit(mod)  # auto-import lib/ast.rn
@@ -519,13 +518,17 @@ def fnparams(ctx, parens=True, tokens=[K.name_token]):
 
 
 # compound :: macro_exp
-#           | 'func' fnparams ('->' binexpr | block)
+#           | 'func' (NAME | STRING)? fnparams ('->' binexpr | block)
 #           | binexpr
 def compound(ctx):
   if ctx.expect(K.symbol_token('@')):
     return macro_exp(ctx)
 
   if ctx.consume(K.keyword_token('func')):
+    rename = None
+    if ctx.expect(K.name_token, K.string_token):
+      rename = ctx.require(K.name_token, K.string_token).value
+
     params = fnparams(ctx)
 
     if ctx.consume(K.operator_token('->')):
@@ -533,7 +536,7 @@ def compound(ctx):
       return A.func_node(params, A.return_node(exp))
 
     body = block(ctx)
-    return A.func_node(params, body)
+    return A.func_node(params, body, rename)
 
   return binexpr(ctx)
 

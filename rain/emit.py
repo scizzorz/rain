@@ -282,9 +282,9 @@ def emit(self, module):
     Q.abort("Can't find module {!r}", self.name)
 
   comp = C.get_compiler(file)
-  comp.goodies()
+  comp.build()
 
-  module.import_from(comp.mod)
+  module.import_llvm(comp.mod)
   glob = module.get_global(comp.mod.mangle('exports.table'))
   #glob.arr_ptr = module.get_global(comp.mod.mangle('exports.table.array'))
 
@@ -317,7 +317,7 @@ def emit(self, module):
 def expand(self, module):
   typ = T.vfunc(T.arg, *[T.arg for x in self.params])
 
-  func_node(self.params, self.body).emit(module, name='macro.func.real')
+  func_node(self.params, self.body, 'macro.func.real').emit(module)
   real_func = module.find_func(typ, 'macro.func.real')
 
   main_func = module.add_func(typ, name='macro.func.main')
@@ -601,7 +601,7 @@ def emit(self, module):
 
 
 @func_node.method
-def emit(self, module, name=None):
+def emit(self, module):
   env = OrderedDict()
   for scope in module.scopes[1:]:
     for nm, ptr in scope.items():
@@ -610,7 +610,7 @@ def emit(self, module, name=None):
   env_typ = T.arr(T.box, len(env))
   typ = T.vfunc(T.arg, *[T.arg for x in self.params])
 
-  func = module.add_func(typ, name=name)
+  func = module.add_func(typ, name=self.rename)
   func.attributes.personality = module.extern('rain_personality_v0')
   func.args[0].add_attribute('sret')
 

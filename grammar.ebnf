@@ -43,7 +43,7 @@ fnargblock :: INDENT (compound NEWLINE)+ DEDENT
 fnparams :: '(' (NAME (',' NAME)*)? ')'
 
 compound :: macro_exp
-          | 'func' fnparams ('->' binexpr | block)
+          | 'func' (NAME | STRING)? fnparams ('->' binexpr | block)
           | binexpr
 
 binexpr :: unexpr (OPERATOR unexpr)*

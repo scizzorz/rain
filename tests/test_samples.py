@@ -38,7 +38,8 @@ def test_lex(src):
 
   comp = C.get_compiler(src, main=True)
   comp.target = comp.mname + '.lex'
-  comp.goodies(C.phases.lexing)
+  comp.lex()
+  comp.write()
 
   check_file(comp.target)
   os.remove(comp.target)
@@ -50,7 +51,8 @@ def test_parse(src):
   C.reset_compilers()
   comp = C.get_compiler(src, main=True)
   comp.target = comp.mname + '.yml'
-  comp.goodies(C.phases.parsing)
+  comp.parse()
+  comp.write()
 
   check_file(comp.target)
   os.remove(comp.target)
@@ -62,7 +64,6 @@ def test_compile(src):
   C.reset_compilers()
   comp = C.get_compiler(src, main=True)
   comp.target = comp.mname
-  comp.goodies(C.phases.building)
   comp.compile()
   os.remove(comp.target)
 
@@ -73,7 +74,6 @@ def test_run(src):
   C.reset_compilers()
   comp = C.get_compiler(src, main=True)
   comp.target = comp.mname
-  comp.goodies(C.phases.building)
   comp.compile()
 
   with open(comp.target + '.out', 'w') as tmp:

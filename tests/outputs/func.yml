@@ -5,7 +5,7 @@ stmts:
   let: true
   lhs: !name;1
     value: add
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -19,12 +19,13 @@ stmts:
     params:
     - x
     - y
+    rename: null
 - !assn;2
   export: false
   let: true
   lhs: !name;1
     value: mul
-  rhs: !func;1
+  rhs: !func;2
     body: !return;1
       value: !binary;1
         lhs: !name;1
@@ -35,12 +36,13 @@ stmts:
     params:
     - x
     - y
+    rename: null
 - !assn;2
   export: false
   let: true
   lhs: !name;1
     value: apply
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -58,12 +60,13 @@ stmts:
     - fn
     - x
     - y
+    rename: null
 - !assn;2
   export: false
   let: true
   lhs: !name;1
     value: main
-  rhs: !func;1
+  rhs: !func;2
     body: !block;2
       expr: null
       stmts:
@@ -138,7 +141,7 @@ stmts:
         args:
         - !call;1
           args:
-          - !func;1
+          - !func;2
             body: !return;1
               value: !binary;1
                 lhs: !binary;1
@@ -153,6 +156,7 @@ stmts:
             params:
             - x
             - y
+            rename: null
           - !int;1
             value: 3
           - !int;1
@@ -164,3 +168,4 @@ stmts:
         func: !name;1
           value: print
     params: []
+    rename: null

@@ -309,12 +309,13 @@ _dict.new = func(self, items)
 export _func = table :: node
 
 _func.tag = "func"
-_func.slots = ["params", "body"]
-_func.new = func(self, params, body)
+_func.slots = ["params", "body", "rename"]
+_func.new = func(self, params, body, rename)
   let ret = table :: self
   save ret
   ret.params = params
   ret.body = body
+  ret.rename = rename
 
 
 export _foreign = table :: node

@@ -67,30 +67,13 @@ def reset_compilers():
   c_files = {}
 
 
-class phases(Enum):
-  lexing = 0
-  parsing = 1
-  emitting = 2
-  building = 3
-
-
 class Compiler:
-  NONE  = 0
-  READ  = 1
-  LEX   = 2
-  PARSE = 3
-  EMIT  = 4
-  WRITE = 5
-  COMP  = 6
-
   quiet = False
   verbose = False
 
   def __init__(self, file, target=None, main=False):
     self.file = file
     self.qname, self.mname = M.find_name(file)
-
-    self.vprint('{:>10} {} from {}', 'using', X(self.qname, 'green'), X(self.file, 'blue'))
 
     self.target = target
     self.main = main
@@ -99,11 +82,19 @@ class Compiler:
     self.links = set()
     self.libs = set()
 
-    self.phase = Compiler.NONE
     self.stream = None  # set after lexing
     self.ast = None     # set after parsing
     self.mod = None     # set before emitting
     self.ll = None      # set after writing
+
+    self.readen = False # read is the past tense of read, which is a method
+    self.lexed = False
+    self.parsed = False
+    self.emitted = False
+    self.built = False
+    self.written = False
+    self.compiled = False
+    self.ran = False
 
   @classmethod
   def print(cls, msg, *args, end='\n'):
@@ -116,9 +107,8 @@ class Compiler:
       print(msg.format(*args), end=end)
 
   @contextmanager
-  def okay(self, fmt, *args):
-    msg = fmt.format(*args)
-    self.print('{:>10} {}', msg, X(self.qname, 'green'))
+  def okay(self, tag, msg=''):
+    self.print('{:>10} {}{}', tag, X(self.qname, 'green'), msg)
     try:
       yield
     except Exception as exc:
@@ -129,47 +119,8 @@ class Compiler:
 
       sys.exit(1)
 
-  def goodies(self, phase=phases.building):
-    # don't do this twice
-    if self.mod is not None:
-      return
-
-    # do everything but compile
-    with self.okay(phase.name):
-      self.read()
-      self.lex()
-
-      if phase.value > phases.lexing.value:
-        self.parse()
-      if phase.value > phases.parsing.value:
-        self.emit()
-
-      self.write(phase)
-
-  def read(self):
-    if self.phase >= Compiler.READ:
-      return
-    self.phase = Compiler.READ
-
-    with open(self.file) as tmp:
-      self.src = tmp.read()
-
-  def lex(self):
-    if self.phase >= Compiler.LEX:
-      return
-    self.phase = Compiler.LEX
-
-    self.stream = L.stream(self.src)
-
-  def parse(self):
-    if self.phase >= Compiler.PARSE:
-      return
-    self.phase = Compiler.PARSE
-
-    self.parser = P.context(self.stream, file=self.file)
-    self.ast = P.program(self.parser)
-
   def link(self, other):
+    '''Copy all of the links, libraries, and modules from another module.'''
     if other.ll:
       self.links.add(other.ll)
 
@@ -177,10 +128,43 @@ class Compiler:
     self.libs |= other.libs
     self.mods |= other.mods
 
-  def emit(self):
-    if self.phase >= Compiler.EMIT:
+  def read(self):
+    '''Read the primary source file.'''
+    if self.readen:
       return
-    self.phase = Compiler.EMIT
+    self.readen = True
+
+    with open(self.file) as tmp:
+      self.src = tmp.read()
+
+  def lex(self):
+    '''Create a token stream from the source code.'''
+    self.read()
+
+    if self.lexed:
+      return
+    self.lexed = True
+
+    self.stream = L.stream(self.src)
+
+  def parse(self):
+    '''Parse the token stream into an AST.'''
+    self.lex()
+
+    if self.parsed:
+      return
+    self.parsed = True
+
+    self.parser = P.context(self.stream, file=self.file)
+    self.ast = P.program(self.parser)
+
+  def emit(self):
+    '''Emit LLVM IR for the module.'''
+    self.parse()
+
+    if self.emitted:
+      return
+    self.emitted = True
 
     self.mod = M.Module(self.file)
     self.mods.add(self.mod)
@@ -188,72 +172,87 @@ class Compiler:
     # always link with lib/_pkg.rn
     builtin = get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
     if self is not builtin:  # unless we ARE lib/_pkg.rn
-      builtin.goodies()
+      builtin.build()
 
       self.link(builtin)
 
-      # copy builtins into scope
-      for name, val in builtin.mod.globals.items():
-        self.mod[name] = val
-
-      # import LLVM globals
-      self.mod.import_from(builtin.mod)
+      # import globals
+      self.mod.import_scope(builtin.mod)
+      self.mod.import_llvm(builtin.mod)
 
     # compile the imports
     imports, links, libs = self.ast.emit(self.mod)
+
     for mod in imports:
       comp = get_compiler(mod)
-      comp.goodies()  # should be done during import but might as well be safe
+      self.vprint('           {} imports {}', X(self.qname, 'green'), X(comp.qname, 'blue'))
+      comp.build()  # should be done during import but might as well be safe
 
       # add the module's IR as well as all of its imports' IR
       self.link(comp)
-
-    self.mods |= OrderedSet(get_compiler(mod).mod for mod in imports)
-    self.links |= set(links)
-    self.libs |= set(libs)
+      self.mods.add(comp.mod)
 
     for link in links:
-      self.vprint('{:>10} {}', 'linking', X(link, 'blue'))
+      self.vprint('           {} links {}', X(self.qname, 'green'), X(link, 'blue'))
 
     for lib in libs:
-      self.vprint('{:>10} {}', 'sharing', X(lib, 'blue'))
+      self.vprint('           {} shares {}', X(self.qname, 'green'), X(lib, 'blue'))
+
+    self.links |= set(links)
+    self.libs |= set(libs)
 
     # only spit out the main if this is the main file
     if self.main:
       self.ast.emit_main(self.mod, mods=self.mods)
 
-  def write(self, phase=phases.building):
-    if self.phase >= Compiler.WRITE:
+  def write(self):
+    '''Write data based on what the latest compilation step is.'''
+    if self.written:
       return
-    self.phase = Compiler.WRITE
+    self.written = True
 
-    if phase == phases.lexing:
-      with open(self.target or self.mname + '.lex', 'w') as tmp:
-        for token in self.stream:
-          tmp.write(str(token))
-          tmp.write('\n')
-
-    elif phase == phases.parsing:
-      with open(self.target or self.mname + '.yml', 'w') as tmp:
-        tmp.write(A.machine.dump(self.ast))
-
-    elif phase == phases.emitting:
-      with open(self.target or self.mname + '.ll', 'w') as tmp:
-        tmp.write(self.mod.ir)
-
-    elif phase == phases.building:
+    if self.built:
       handle, name = tempfile.mkstemp(prefix=self.qname + '.', suffix='.ll')
       with os.fdopen(handle, 'w') as tmp:
         tmp.write(self.mod.ir)
 
       self.ll = name
 
+    elif self.emitted:
+      with open(self.target or self.mname + '.ll', 'w') as tmp:
+        tmp.write(self.mod.ir)
+
+    elif self.parsed:
+      with open(self.target or self.mname + '.yml', 'w') as tmp:
+        tmp.write(A.machine.dump(self.ast))
+
+    elif self.lexed:
+      with open(self.target or self.mname + '.lex', 'w') as tmp:
+        for token in self.stream:
+          tmp.write(str(token))
+          tmp.write('\n')
+
+  def build(self):
+    '''Emit code and write it to a file.'''
+    if self.built:
+      return
+    self.built = True
+
+    msg = ''
+    if Compiler.verbose:
+      msg = ' from {}'.format(X(self.file, 'blue'))
+
+    with self.okay('building', msg=msg):
+      self.emit()
+      self.write()
+
   def compile_links(self):
+    '''Compile all additional link files into LLVM IR.'''
     drop = set()
     add = set()
 
     for link in self.links:
-      if link.endswith('.ll'):
+      if link.endswith('.ll') or link.endswith('.so'):
         continue
 
       target = compile_c(link)
@@ -266,9 +265,12 @@ class Compiler:
     return compile_so(self.libs)
 
   def compile(self):
-    if self.phase >= Compiler.COMP:
+    '''Compile a full program into an executable.'''
+    self.build()
+
+    if self.compiled:
       return
-    self.phase = Compiler.COMP
+    self.compiled = True
 
     self.compile_links()
 
@@ -278,9 +280,42 @@ class Compiler:
       flags = ['-O2']
       libs = ['-l' + lib for lib in self.libs]
       cmd = [clang, '-o', target, self.ll] + flags + libs + list(self.links)
+
+      self.vprint('{:>10} {}', 'target', X(target, 'yellow'))
+      self.vprint('{:>10} {}', 'flags', X('  '.join(flags), 'yellow'))
+      self.vprint('{:>10} {}', 'main', X(self.ll, 'yellow'))
+      for link in self.links:
+        self.vprint('{:>10} {}', 'link', X(link, 'yellow'))
+
+      for lib in libs:
+        self.vprint('{:>10} {}', 'lib', X(lib, 'yellow'))
+
+      subprocess.check_call(cmd)
+
+  def share(self):
+    '''Compile a single Rain file into a shared object file.'''
+    self.build()
+
+    if self.compiled:
+      return
+    self.compiled = True
+
+    self.compile_links()
+
+    with self.okay('sharing'):
+      target = self.target or self.mname + '.so'
+      clang = os.getenv('CLANG', 'clang')
+      flags = ['-O2', '-shared', '-fPIC']
+      cmd = [clang, '-o', target, self.ll] + flags
+
+      self.vprint('{:>10} {}', 'target', X(target, 'yellow'))
+      self.vprint('{:>10} {}', 'flags', X('  '.join(flags), 'yellow'))
+      self.vprint('{:>10} {}', 'src', X(self.ll, 'yellow'))
+
       subprocess.check_call(cmd)
 
   def run(self):
+    '''Execute a generated executable.'''
     with self.okay('running'):
       target = self.target or self.mname
       subprocess.check_call([os.path.abspath(target)])
