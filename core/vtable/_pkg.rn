@@ -9,6 +9,12 @@ _int.times = func(self)
 
 let _float = table
 
+let _bool = table
+
+let _str = table
+
 
 export _int as foreign "rain_vt_int"
 export _float as foreign "rain_vt_float"
+export _bool as foreign "rain_vt_bool"
+export _str as foreign "rain_vt_str"

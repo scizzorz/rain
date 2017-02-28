@@ -190,7 +190,8 @@ def emit(self, module):
         module[self.lhs.value] = static_table_get_box_ptr(module, table_box, key_node)
 
       if self.let:
-        module[self.lhs] = module.add_global(T.box, name=module.mangle(self.lhs.value))
+        module[self.lhs] = module.find_global(T.box, name=module.mangle(self.lhs.value))
+        module[self.lhs].linkage = '' # make sure we know it's visible here
 
       if self.lhs not in module:
         Q.abort("Undeclared global {!r}", self.lhs.value)
@@ -514,7 +515,7 @@ def emit(self, module):
 
 @bool_node.method
 def emit(self, module):
-  return T._bool(self.value)
+  return T._bool(self.value, module.get_vt('bool'))
 
 
 @str_node.method
@@ -524,7 +525,7 @@ def emit(self, module):
   ptr.initializer = typ(bytearray(self.value + '\0', 'utf-8'))
   gep = ptr.gep([T.i32(0), T.i32(0)])
 
-  return T._str(gep, len(self.value))
+  return T._str(gep, len(self.value), module.get_vt('str'))
 
 
 @table_node.method
