@@ -555,10 +555,9 @@ def emit(self, module):
 
       static_table_put(module, table_box, key_node, val)
 
-    if 'base.array.exports' in module.llvm.globals:
-      old_box = table_box
-      table_box = T.insertvalue(table_box, module.get_global('base.array.exports'), T.ENV)
-      static_table_repair(table_box, old_box)
+    old_box = table_box
+    table_box = T.insertvalue(table_box, module.get_vt('array'), T.ENV)
+    static_table_repair(table_box, old_box)
 
     return table_box
 
@@ -568,8 +567,7 @@ def emit(self, module):
     module.excall('rain_put', ptr, *args)
 
   ret = module.load(ptr)
-  if 'base.array.exports' in module.llvm.globals:
-    ret = module.insert(ret, module.get_global('base.array.exports'), T.ENV)
+  ret = module.insert(ret, module.get_vt('array'), T.ENV)
 
   return ret
 
@@ -585,10 +583,9 @@ def emit(self, module):
 
       static_table_put(module, table_box, key_node, val)
 
-    if 'base.dict.exports' in module.llvm.globals:
-      old_box = table_box
-      table_box = T.insertvalue(table_box, module.get_global('base.dict.exports'), T.ENV)
-      static_table_repair(table_box, old_box)
+    old_box = table_box
+    table_box = T.insertvalue(table_box, module.get_vt('dict'), T.ENV)
+    static_table_repair(table_box, old_box)
 
     return table_box
 
@@ -598,8 +595,7 @@ def emit(self, module):
     module.excall('rain_put', ptr, *args)
 
   ret = module.load(ptr)
-  if 'base.dict.exports' in module.llvm.globals:
-    ret = module.insert(ret, module.get_global('base.dict.exports'), T.ENV)
+  ret = module.insert(ret, module.get_vt('dict'), T.ENV)
 
   return ret
 
