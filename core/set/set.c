@@ -24,28 +24,28 @@ void rain_set_int(box *ret, signed long si) {
   ret->type = ITYP_INT;
   ret->data.si = si;
   ret->size = 0;
-  ret->env = NULL;
+  ret->env = rain_vt_int;
 }
 
 void rain_set_float(box *ret, double f) {
   ret->type = ITYP_FLOAT;
   ret->data.f = f;
   ret->size = 0;
-  ret->env = NULL;
+  ret->env = rain_vt_float;
 }
 
 void rain_set_bool(box *ret, unsigned char v) {
   ret->type = ITYP_BOOL;
   ret->data.ui = !!v;
   ret->size = 0;
-  ret->env = NULL;
+  ret->env = rain_vt_bool;
 }
 
 void rain_set_str(box *ret, char* s) {
   ret->type = ITYP_STR;
   ret->data.s = s;
   ret->size = strlen(s);
-  ret->env = NULL;
+  ret->env = rain_vt_str;
 }
 
 void rain_set_strcpy(box *ret, const char *s, int size) {
@@ -54,7 +54,7 @@ void rain_set_strcpy(box *ret, const char *s, int size) {
   ret->size = size;
   memcpy(ret->data.s, s, size);
   ret->data.s[size] = 0;
-  ret->env = NULL;
+  ret->env = rain_vt_str;
 }
 
 void rain_set_table(box *ret) {

@@ -190,7 +190,8 @@ def emit(self, module):
         module[self.lhs.value] = static_table_get_box_ptr(module, table_box, key_node)
 
       if self.let:
-        module[self.lhs] = module.add_global(T.box, name=module.mangle(self.lhs.value))
+        module[self.lhs] = module.find_global(T.box, name=module.mangle(self.lhs.value))
+        module[self.lhs].linkage = '' # make sure we know it's visible here
 
       if self.lhs not in module:
         Q.abort("Undeclared global {!r}", self.lhs.value)
@@ -284,7 +285,9 @@ def emit(self, module):
 
   rename = self.rename or comp.mname
 
-  module[rename] = module.add_global(T.box, module.mangle(rename))
+  module[rename] = module.find_global(T.box, module.mangle(rename))
+  module[rename].linkage = '' # make sure we know it's visible here
+
   module[rename].initializer = static_table_from_ptr(module, glob)
   module[rename].mod = comp.mod
   return file
@@ -377,7 +380,7 @@ def emit(self, module):
 
   ptrs = module.fnalloc(T.null, func_box)
 
-  env = module.get_env(func_box)
+  env = module.get_env(user_box)
   has_env = module.builder.icmp_unsigned('!=', env, T.arg(None))
   with module.builder.if_then(has_env):
     env_box = module.load(env)
@@ -504,17 +507,17 @@ def emit(self, module):
 
 @int_node.method
 def emit(self, module):
-  return T._int(self.value)
+  return T._int(self.value, module.get_vt('int'))
 
 
 @float_node.method
 def emit(self, module):
-  return T._float(self.value)
+  return T._float(self.value, module.get_vt('float'))
 
 
 @bool_node.method
 def emit(self, module):
-  return T._bool(self.value)
+  return T._bool(self.value, module.get_vt('bool'))
 
 
 @str_node.method
@@ -524,7 +527,7 @@ def emit(self, module):
   ptr.initializer = typ(bytearray(self.value + '\0', 'utf-8'))
   gep = ptr.gep([T.i32(0), T.i32(0)])
 
-  return T._str(gep, len(self.value))
+  return T._str(gep, len(self.value), module.get_vt('str'))
 
 
 @table_node.method
@@ -824,8 +827,8 @@ def emit(self, module):
   ret_ptr = module.exfncall(arith[self.op], T.null, lhs, rhs)
   return module.load(ret_ptr)
 
-# Warning statements ##########################################################
 
+# Warning statements ##########################################################
 
 @error_node.method
 def emit(self, module):

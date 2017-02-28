@@ -12,6 +12,7 @@ library ":libgcc_s.so.1"
 
 import env
 import except
+import types
 
 let exit    = foreign "rain_ext_exit"(val)
 let length  = foreign "rain_ext_length"(val)

@@ -42,23 +42,11 @@ null = box(None)
 bin = func(void, [arg, arg, arg])
 
 
-def _int(val):
-  return box([ityp.int, i32(0), cast.int(val), arg(None)])
-
-
-def _float(val):
-  val = cast.float(val).bitcast(cast.int)
-  return box([ityp.float, i32(0), val, arg(None)])
-
-
-def _bool(val):
-  return box([ityp.bool, i32(0), cast.bool(int(val)), arg(None)])
-
-
 def ptrtoint(ptr):
   # need to bullshit around to get this to work - see llvmlite#229
   raw_ir = 'ptrtoint ({0} {1} to {2})'.format(ptr.type, ptr.get_reference(), cast.int)
   return ir.FormattedConstant(cast.int, raw_ir)
+
 
 def insertvalue(container, value, idx):
   # same as ptrtoint
@@ -66,8 +54,21 @@ def insertvalue(container, value, idx):
   return ir.FormattedConstant(container.type, raw_ir)
 
 
-def _str(ptr, size):
-  return box([ityp.str, i32(size), ptrtoint(ptr), arg(None)])
+def _int(val, meta=arg(None)):
+  return box([ityp.int, i32(0), cast.int(val), meta])
+
+
+def _float(val, meta=arg(None)):
+  val = cast.float(val).bitcast(cast.int)
+  return box([ityp.float, i32(0), val, meta])
+
+
+def _bool(val, meta=arg(None)):
+  return box([ityp.bool, i32(0), cast.bool(int(val)), meta])
+
+
+def _str(ptr, size, meta=arg(None)):
+  return box([ityp.str, i32(size), ptrtoint(ptr), meta])
 
 
 def _table(ptr):

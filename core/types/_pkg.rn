@@ -1,0 +1,28 @@
+export i_null = 0
+export i_int = 1
+export i_float = 2
+export i_bool = 3
+export i_string = 4
+export i_table = 5
+export i_func = 6
+export i_cdata = 7
+
+import int
+import float
+import bool
+import str
+
+let meta    = foreign "rain_ext_meta"(val)
+
+export is = func(child, parent)
+  while meta(child) != null
+    if meta(child) == parent
+      return true
+    child = meta(child)
+
+  return false
+
+export int as foreign "rain_vt_int"
+export float as foreign "rain_vt_float"
+export bool as foreign "rain_vt_bool"
+export str as foreign "rain_vt_str"
