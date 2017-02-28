@@ -14,11 +14,10 @@ stages:
       - type: shell
         command: |
           apt-get update
-          apt-get install -qq -y git python3 sudo wget
+          apt-get install -qq -y git python3 python3-pip sudo wget
 
       - type: shell
         command: |
-          whoami
           sh -c 'echo "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main" >> /etc/apt/sources.list'
           sh -c 'echo "deb-src http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main" >> /etc/apt/sources.list'
           wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
@@ -29,6 +28,11 @@ stages:
 
       - type: checkout
         path: ~/rain
+
+      - type: shell
+        pwd: ~/rain
+        command: |
+          pip3 install -r requirements.txt
 
       - type: shell
         pwd: ~/rain
