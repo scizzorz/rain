@@ -107,8 +107,7 @@ class Compiler:
       print(msg.format(*args), end=end)
 
   @contextmanager
-  def okay(self, tag, fmt='', args=()):
-    msg = fmt.format(*args)
+  def okay(self, tag, msg=''):
     self.print('{:>10} {}{}', tag, X(self.qname, 'green'), msg)
     try:
       yield
@@ -239,13 +238,11 @@ class Compiler:
       return
     self.built = True
 
-    fmt = ''
-    args = ()
+    msg = ''
     if Compiler.verbose:
-      fmt = ' from {}'
-      args = (X(self.file, 'blue'),)
+      msg = ' from {}'.format(X(self.file, 'blue'))
 
-    with self.okay('building', fmt=fmt, args=args):
+    with self.okay('building', msg=msg):
       self.emit()
       self.write()
 
@@ -283,6 +280,16 @@ class Compiler:
       flags = ['-O2']
       libs = ['-l' + lib for lib in self.libs]
       cmd = [clang, '-o', target, self.ll] + flags + libs + list(self.links)
+
+      self.vprint('{:>10} {}', 'target', X(target, 'yellow'))
+      self.vprint('{:>10} {}', 'flags', X('  '.join(flags), 'yellow'))
+      self.vprint('{:>10} {}', 'main', X(self.ll, 'yellow'))
+      for link in self.links:
+        self.vprint('{:>10} {}', 'link', X(link, 'yellow'))
+
+      for lib in libs:
+        self.vprint('{:>10} {}', 'lib', X(lib, 'yellow'))
+
       subprocess.check_call(cmd)
 
   def run(self):
