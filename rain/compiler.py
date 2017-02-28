@@ -179,12 +179,9 @@ class Compiler:
 
       self.link(builtin)
 
-      # copy builtins into scope
-      for name, val in builtin.mod.globals.items():
-        self.mod[name] = val
-
-      # import LLVM globals
-      self.mod.import_from(builtin.mod)
+      # import globals
+      self.mod.import_scope(builtin.mod)
+      self.mod.import_llvm(builtin.mod)
 
     # compile the imports
     imports, links, libs = self.ast.emit(self.mod)

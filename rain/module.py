@@ -253,7 +253,7 @@ class Module(S.Scope):
     return self.find_func(externs[name], name=name)
 
   # import globals from another module
-  def import_from(self, other):
+  def import_llvm(self, other):
     for val in other.llvm.global_values:
       if val.name in self.llvm.globals:
         continue
@@ -264,6 +264,11 @@ class Module(S.Scope):
         g = ir.GlobalVariable(self.llvm, val.type.pointee, name=val.name)
         g.linkage = 'available_externally'
         g.initializer = val.initializer
+
+  # import the scope from other modules
+  def import_scope(self, other):
+    for name, val in other.globals.items():
+      self[name] = val
 
   # Block helpers #############################################################
 

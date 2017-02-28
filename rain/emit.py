@@ -284,7 +284,7 @@ def emit(self, module):
   comp = C.get_compiler(file)
   comp.build()
 
-  module.import_from(comp.mod)
+  module.import_llvm(comp.mod)
   glob = module.get_global(comp.mod.mangle('exports.table'))
   #glob.arr_ptr = module.get_global(comp.mod.mangle('exports.table.array'))
 

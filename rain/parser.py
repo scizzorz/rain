@@ -52,9 +52,8 @@ class macro:
     so = ast.compile_links()
 
     # import builtins
-    for name, val in builtin.mod.globals.items():
-      mod[name] = val
-    mod.import_from(builtin.mod)
+    mod.import_scope(builtin.mod)
+    mod.import_llvm(builtin.mod)
 
     # emit the macro code
     A.import_node('ast').emit(mod)  # auto-import lib/ast.rn
