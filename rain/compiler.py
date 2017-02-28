@@ -252,7 +252,7 @@ class Compiler:
     add = set()
 
     for link in self.links:
-      if link.endswith('.ll'):
+      if link.endswith('.ll') or link.endswith('.so'):
         continue
 
       target = compile_c(link)
@@ -289,6 +289,27 @@ class Compiler:
 
       for lib in libs:
         self.vprint('{:>10} {}', 'lib', X(lib, 'yellow'))
+
+      subprocess.check_call(cmd)
+
+  def share(self):
+    self.build()
+
+    if self.compiled:
+      return
+    self.compiled = True
+
+    self.compile_links()
+
+    with self.okay('sharing'):
+      target = self.target or self.mname + '.so'
+      clang = os.getenv('CLANG', 'clang')
+      flags = ['-O2', '-shared', '-fPIC']
+      cmd = [clang, '-o', target, self.ll] + flags
+
+      self.vprint('{:>10} {}', 'target', X(target, 'yellow'))
+      self.vprint('{:>10} {}', 'flags', X('  '.join(flags), 'yellow'))
+      self.vprint('{:>10} {}', 'src', X(self.ll, 'yellow'))
 
       subprocess.check_call(cmd)
 

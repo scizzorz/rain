@@ -24,6 +24,8 @@ parser.add_argument('--emit', '-S', action='store_true',
                     help='Stop and output the results of code generation.')
 parser.add_argument('--run', '-r', action='store_true',
                     help='Execute the compiled code.')
+parser.add_argument('--shared', '-s', action='store_true',
+                    help='Only compile the main module into a .so file with no links.')
 
 parser.add_argument('file', metavar='RAIN', type=str, default='.', nargs='?',
                     help='Main source file.')
@@ -41,7 +43,7 @@ if not src:
 
 C.Compiler.quiet = args.quiet
 C.Compiler.verbose = args.verbose
-comp = C.get_compiler(src, target=args.output, main=True)
+comp = C.get_compiler(src, target=args.output, main=not args.shared)
 
 if args.lib:
   for tmp in args.lib:
@@ -62,6 +64,9 @@ elif args.parse:
 elif args.emit:
   comp.emit()
   comp.write()
+
+elif args.shared:
+  comp.share()
 
 else:
   comp.compile()
