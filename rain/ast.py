@@ -330,11 +330,12 @@ class dict_node(expr_node):
 class func_node(expr_node):
   __tag__ = 'func'
   __version__ = 1
-  __slots__ = ['params', 'body']
+  __slots__ = ['params', 'body', 'rename']
 
-  def __init__(self, params, body):
+  def __init__(self, params, body, rename=None):
     self.params = params
     self.body = body
+    self.rename = rename
 
 
 class foreign_node(expr_node):
