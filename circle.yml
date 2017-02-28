@@ -41,6 +41,8 @@ stages:
       - type: shell
         name: "Run tests"
         pwd: ~/rain
+        environment:
+          PYTHONPATH: .
         command: |
           tests/fix.sh
           mkdir -p /tmp/results
