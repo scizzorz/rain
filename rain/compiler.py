@@ -123,6 +123,7 @@ class Compiler:
       sys.exit(1)
 
   def link(self, other):
+    '''Copy all of the links, libraries, and modules from another module.'''
     if other.ll:
       self.links.add(other.ll)
 
@@ -131,6 +132,7 @@ class Compiler:
     self.mods |= other.mods
 
   def read(self):
+    '''Read the primary source file.'''
     if self.readen:
       return
     self.readen = True
@@ -139,6 +141,7 @@ class Compiler:
       self.src = tmp.read()
 
   def lex(self):
+    '''Create a token stream from the source code.'''
     self.read()
 
     if self.lexed:
@@ -148,6 +151,7 @@ class Compiler:
     self.stream = L.stream(self.src)
 
   def parse(self):
+    '''Parse the token stream into an AST.'''
     self.lex()
 
     if self.parsed:
@@ -158,6 +162,7 @@ class Compiler:
     self.ast = P.program(self.parser)
 
   def emit(self):
+    '''Emit LLVM IR for the module.'''
     self.parse()
 
     if self.emitted:
@@ -189,8 +194,8 @@ class Compiler:
 
       # add the module's IR as well as all of its imports' IR
       self.link(comp)
+      self.mods.add(comp.mod)
 
-    self.mods |= OrderedSet(get_compiler(mod).mod for mod in imports)
     self.links |= set(links)
     self.libs |= set(libs)
 
@@ -205,6 +210,7 @@ class Compiler:
       self.ast.emit_main(self.mod, mods=self.mods)
 
   def write(self):
+    '''Write data based on what the latest compilation step is.'''
     if self.written:
       return
     self.written = True
@@ -231,6 +237,7 @@ class Compiler:
           tmp.write('\n')
 
   def build(self):
+    '''Emit code and write it to a file.'''
     if self.built:
       return
     self.built = True
@@ -240,6 +247,7 @@ class Compiler:
       self.write()
 
   def compile_links(self):
+    '''Compile all additional link files into LLVM IR.'''
     drop = set()
     add = set()
 
@@ -257,6 +265,7 @@ class Compiler:
     return compile_so(self.libs)
 
   def compile(self):
+    '''Compile a full program into an executable.'''
     self.build()
 
     if self.compiled:
@@ -274,6 +283,7 @@ class Compiler:
       subprocess.check_call(cmd)
 
   def run(self):
+    '''Execute a generated executable.'''
     with self.okay('running'):
       target = self.target or self.mname
       subprocess.check_call([os.path.abspath(target)])
