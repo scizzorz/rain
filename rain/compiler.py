@@ -75,14 +75,6 @@ class phases(Enum):
 
 
 class Compiler:
-  NONE  = 0
-  READ  = 1
-  LEX   = 2
-  PARSE = 3
-  EMIT  = 4
-  WRITE = 5
-  COMP  = 6
-
   quiet = False
   verbose = False
 
@@ -99,11 +91,18 @@ class Compiler:
     self.links = set()
     self.libs = set()
 
-    self.phase = Compiler.NONE
     self.stream = None  # set after lexing
     self.ast = None     # set after parsing
     self.mod = None     # set before emitting
     self.ll = None      # set after writing
+
+    self.readen = False # read is the past tense of read, which is a method
+    self.lexed = False
+    self.parsed = False
+    self.emitted = False
+    self.written = False
+    self.compiled = False
+    self.ran = False
 
   @classmethod
   def print(cls, msg, *args, end='\n'):
@@ -129,6 +128,14 @@ class Compiler:
 
       sys.exit(1)
 
+  def link(self, other):
+    if other.ll:
+      self.links.add(other.ll)
+
+    self.links |= other.links
+    self.libs |= other.libs
+    self.mods |= other.mods
+
   def goodies(self, phase=phases.building):
     # don't do this twice
     if self.mod is not None:
@@ -147,40 +154,41 @@ class Compiler:
       self.write(phase)
 
   def read(self):
-    if self.phase >= Compiler.READ:
+    if self.readen:
       return
-    self.phase = Compiler.READ
+    self.readen = True
 
     with open(self.file) as tmp:
       self.src = tmp.read()
 
   def lex(self):
-    if self.phase >= Compiler.LEX:
+    self.read()
+
+    if self.lexed:
       return
-    self.phase = Compiler.LEX
+    self.lexed = True
 
     self.stream = L.stream(self.src)
 
   def parse(self):
-    if self.phase >= Compiler.PARSE:
+    self.read()
+    self.lex()
+
+    if self.parsed:
       return
-    self.phase = Compiler.PARSE
+    self.parsed = True
 
     self.parser = P.context(self.stream, file=self.file)
     self.ast = P.program(self.parser)
 
-  def link(self, other):
-    if other.ll:
-      self.links.add(other.ll)
-
-    self.links |= other.links
-    self.libs |= other.libs
-    self.mods |= other.mods
-
   def emit(self):
-    if self.phase >= Compiler.EMIT:
+    self.read()
+    self.lex()
+    self.parse()
+
+    if self.emitted:
       return
-    self.phase = Compiler.EMIT
+    self.emitted = True
 
     self.mod = M.Module(self.file)
     self.mods.add(self.mod)
@@ -223,9 +231,9 @@ class Compiler:
       self.ast.emit_main(self.mod, mods=self.mods)
 
   def write(self, phase=phases.building):
-    if self.phase >= Compiler.WRITE:
+    if self.written:
       return
-    self.phase = Compiler.WRITE
+    self.written = True
 
     if phase == phases.lexing:
       with open(self.target or self.mname + '.lex', 'w') as tmp:
@@ -266,9 +274,9 @@ class Compiler:
     return compile_so(self.libs)
 
   def compile(self):
-    if self.phase >= Compiler.COMP:
+    if self.compiled:
       return
-    self.phase = Compiler.COMP
+    self.compiled = True
 
     self.compile_links()
 
