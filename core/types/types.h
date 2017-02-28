@@ -1,5 +1,5 @@
-#ifndef VTABLE_H
-#define VTABLE_H
+#ifndef TYPES_H
+#define TYPES_H
 
 #include "../core.h"
 

@@ -285,7 +285,9 @@ def emit(self, module):
 
   rename = self.rename or comp.mname
 
-  module[rename] = module.add_global(T.box, module.mangle(rename))
+  module[rename] = module.find_global(T.box, module.mangle(rename))
+  module[rename].linkage = '' # make sure we know it's visible here
+
   module[rename].initializer = static_table_from_ptr(module, glob)
   module[rename].mod = comp.mod
   return file
