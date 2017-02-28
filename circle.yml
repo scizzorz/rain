@@ -28,8 +28,10 @@ stages:
           ln -s /usr/bin/llvm-config-3.9 /usr/bin/llvm-config
 
       - type: checkout
+        path: ~/rain
 
       - type: shell
+        pwd: ~/rain
         command: |
           tests/fix.sh
           mkdir -p /tmp/results
