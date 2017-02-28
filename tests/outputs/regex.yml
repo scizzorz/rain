@@ -4,7 +4,7 @@ stmts:
   name: re
   rename: null
 - !import;1
-  name: array
+  name: types/array
   rename: null
 - !assn;2
   export: true

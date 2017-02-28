@@ -1,4 +1,4 @@
-import array
+import "types/array"
 
 let main = func()
   print(length(env.args))

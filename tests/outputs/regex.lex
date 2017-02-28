@@ -2,7 +2,7 @@ keyword 'import'
 name 're'
 newline
 keyword 'import'
-name 'array'
+string 'types/array'
 newline
 keyword 'export'
 name 'main'

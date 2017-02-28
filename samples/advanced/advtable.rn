@@ -1,6 +1,3 @@
-import array
-import dict
-
 let ga = [1, 2, 3]
 let gd = {greeting = "Good day.", ["name"] = "John", age = 24, [1] = "One"}
 

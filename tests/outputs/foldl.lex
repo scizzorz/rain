@@ -1,5 +1,5 @@
 keyword 'import'
-name 'array'
+string 'types/array'
 newline
 keyword 'let'
 name 'gadd'

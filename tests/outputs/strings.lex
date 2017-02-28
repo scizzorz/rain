@@ -1,6 +1,3 @@
-keyword 'import'
-name 'string'
-newline
 keyword 'let'
 name 'main'
 symbol '='
@@ -40,12 +37,10 @@ newline
 keyword 'let'
 name 'b'
 symbol '='
-name 'string'
-symbol '.'
+name 'a'
+symbol ':'
 name 'substring'
 symbol '('
-name 'a'
-symbol ','
 int 1
 symbol ','
 name 'length'

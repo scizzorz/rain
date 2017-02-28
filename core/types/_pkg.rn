@@ -11,6 +11,8 @@ import int
 import float
 import bool
 import str
+import array
+import dict
 
 let meta    = foreign "rain_ext_meta"(val)
 
@@ -26,3 +28,5 @@ export int as foreign "rain_vt_int"
 export float as foreign "rain_vt_float"
 export bool as foreign "rain_vt_bool"
 export str as foreign "rain_vt_str"
+export array as foreign "rain_vt_array"
+export dict as foreign "rain_vt_dict"

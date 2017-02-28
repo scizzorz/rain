@@ -1,4 +1,4 @@
-import array
+import "types/array"
 
 let gadd = func(a, b) -> a + b
 let main = func()

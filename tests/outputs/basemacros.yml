@@ -1,12 +1,6 @@
 !program;1
 stmts:
 - !import;1
-  name: array
-  rename: null
-- !import;1
-  name: dict
-  rename: null
-- !import;1
   name: macros
   rename: null
 - !assn;2
@@ -14,80 +8,28 @@ stmts:
   let: true
   lhs: !name;1
     value: fudge
-  rhs: !block;2
-    expr: !name;1
-      value: :base.array:new:0
-    stmts:
-    - !assn;2
-      export: false
-      let: true
-      lhs: !name;1
-        value: :base.array:new:0
-      rhs: !table;2 {}
-    - !assn;2
-      export: false
-      let: false
-      lhs: !index;1
-        lhs: !name;1
-          value: :base.array:new:0
-        rhs: !int;1
-          value: 0
-      rhs: !str;1
-        value: one
-    - !assn;2
-      export: false
-      let: false
-      lhs: !index;1
-        lhs: !name;1
-          value: :base.array:new:0
-        rhs: !int;1
-          value: 1
-      rhs: !str;1
-        value: two
-    - !assn;2
-      export: false
-      let: false
-      lhs: !index;1
-        lhs: !name;1
-          value: :base.array:new:0
-        rhs: !int;1
-          value: 2
-      rhs: !str;1
-        value: three
+  rhs: !array;1
+    items:
+    - !str;1
+      value: one
+    - !str;1
+      value: two
+    - !str;1
+      value: three
 - !assn;2
   export: false
   let: true
   lhs: !name;1
     value: node
-  rhs: !block;2
-    expr: !name;1
-      value: :base.dict:new:0
-    stmts:
-    - !assn;2
-      export: false
-      let: true
-      lhs: !name;1
-        value: :base.dict:new:0
-      rhs: !table;2 {}
-    - !assn;2
-      export: false
-      let: false
-      lhs: !index;1
-        lhs: !name;1
-          value: :base.dict:new:0
-        rhs: !str;1
-          value: tag
-      rhs: !str;1
+  rhs: !dict;1
+    items:
+    - - !str;1
+        value: tag
+      - !str;1
         value: node
-    - !assn;2
-      export: false
-      let: false
-      lhs: !index;1
-        lhs: !name;1
-          value: :base.dict:new:0
-        rhs: !str;1
-          value: body
-      rhs: !str;1
+    - - !str;1
+        value: body
+      - !str;1
         value: body
 - !assn;2
   export: false
