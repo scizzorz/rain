@@ -18,8 +18,8 @@ dependencies:
   post:
     - git clone git@github.com:numba/llvmlite.git # need to override the PyPI llvmlite...
     - sed -i -e 's/-static-libstdc++ //' llvmlite/ffi/Makefile.linux
-    - python setup.py build
-    - python setup.py install
+    - cd llvmlite; python setup.py build
+    - cd llvmlite; python setup.py install
 test:
   override:
     - tests/fix.sh
