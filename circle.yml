@@ -12,29 +12,33 @@ stages:
       PYTHONPATH: ~/rain
     steps:
       - type: shell
+        name: "Install system dependencies"
         command: |
           apt-get update
           apt-get install -qq -y git python3 python3-pip sudo wget
 
       - type: shell
+        name: "Install LLVM + Clang"
         command: |
           sh -c 'echo "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main" >> /etc/apt/sources.list'
           sh -c 'echo "deb-src http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main" >> /etc/apt/sources.list'
           wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
           apt-get update
           apt-get -qq -y install llvm-3.9 clang-3.9 libgc-dev libunwind8-dev
-          rm /usr/bin/llvm-config
-          ln -s /usr/bin/llvm-config-3.9 /usr/bin/llvm-config
+          echo "clang: " $(which clang)
+          echo "llvm-config: " $(which llvm-config)
 
       - type: checkout
         path: ~/rain
 
       - type: shell
+        name: "Install Python dependencies"
         pwd: ~/rain
         command: |
           pip3 install -r requirements.txt
 
       - type: shell
+        name: "Run tests"
         pwd: ~/rain
         command: |
           tests/fix.sh
