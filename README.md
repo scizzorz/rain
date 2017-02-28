@@ -7,7 +7,7 @@ Check out the [docs](https://scizzorz.github.io/rain/) for more.
 
 ## Dependencies
 
-Definitely Python 3, LLVM-3.8, clang-3.8, [`libunwind`](http://www.nongnu.org/libunwind/), and [`libgc`](https://www.hboehm.info/gc/). Check out [requirements.txt](https://github.com/scizzorz/rain/blob/master/requirements.txt) for the Python packages.
+Definitely Python 3, LLVM-3.9, clang-3.9, [`libunwind`](http://www.nongnu.org/libunwind/), and [`libgc`](https://www.hboehm.info/gc/). Check out [requirements.txt](https://github.com/scizzorz/rain/blob/master/requirements.txt) for the Python packages.
 
 The regular expression package (`base.re`) module requires `libpcre`.
 
