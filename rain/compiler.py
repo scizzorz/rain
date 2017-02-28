@@ -100,6 +100,7 @@ class Compiler:
     self.lexed = False
     self.parsed = False
     self.emitted = False
+    self.built = False
     self.written = False
     self.compiled = False
     self.ran = False
@@ -150,8 +151,10 @@ class Compiler:
         self.parse()
       if phase.value > phases.parsing.value:
         self.emit()
+      if phase.value > phases.emitting.value:
+        self.build()
 
-      self.write(phase)
+      self.write()
 
   def read(self):
     if self.readen:
@@ -171,7 +174,6 @@ class Compiler:
     self.stream = L.stream(self.src)
 
   def parse(self):
-    self.read()
     self.lex()
 
     if self.parsed:
@@ -182,8 +184,6 @@ class Compiler:
     self.ast = P.program(self.parser)
 
   def emit(self):
-    self.read()
-    self.lex()
     self.parse()
 
     if self.emitted:
@@ -230,31 +230,38 @@ class Compiler:
     if self.main:
       self.ast.emit_main(self.mod, mods=self.mods)
 
-  def write(self, phase=phases.building):
+  def build(self):
+    self.emit()
+
+    if self.built:
+      return
+    self.built = True
+
+  def write(self):
     if self.written:
       return
     self.written = True
 
-    if phase == phases.lexing:
-      with open(self.target or self.mname + '.lex', 'w') as tmp:
-        for token in self.stream:
-          tmp.write(str(token))
-          tmp.write('\n')
-
-    elif phase == phases.parsing:
-      with open(self.target or self.mname + '.yml', 'w') as tmp:
-        tmp.write(A.machine.dump(self.ast))
-
-    elif phase == phases.emitting:
-      with open(self.target or self.mname + '.ll', 'w') as tmp:
-        tmp.write(self.mod.ir)
-
-    elif phase == phases.building:
+    if self.built:
       handle, name = tempfile.mkstemp(prefix=self.qname + '.', suffix='.ll')
       with os.fdopen(handle, 'w') as tmp:
         tmp.write(self.mod.ir)
 
       self.ll = name
+
+    elif self.emitted:
+      with open(self.target or self.mname + '.ll', 'w') as tmp:
+        tmp.write(self.mod.ir)
+
+    elif self.parsed:
+      with open(self.target or self.mname + '.yml', 'w') as tmp:
+        tmp.write(A.machine.dump(self.ast))
+
+    elif self.lexed:
+      with open(self.target or self.mname + '.lex', 'w') as tmp:
+        for token in self.stream:
+          tmp.write(str(token))
+          tmp.write('\n')
 
   def compile_links(self):
     drop = set()
@@ -274,6 +281,9 @@ class Compiler:
     return compile_so(self.libs)
 
   def compile(self):
+    self.build()
+    self.write()
+
     if self.compiled:
       return
     self.compiled = True

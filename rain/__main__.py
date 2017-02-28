@@ -51,20 +51,19 @@ if args.links:
   for tmp in args.links:
     comp.links.add(tmp)
 
-phase = C.phases.building
-
-if args.emit:
-  phase = C.phases.emitting
-
-if args.parse:
-  phase = C.phases.parsing
-
 if args.lex:
-  phase = C.phases.lexing
+  comp.lex()
+  comp.write()
 
-comp.goodies(phase)
+elif args.parse:
+  comp.parse()
+  comp.write()
 
-if phase.value > C.phases.emitting.value:
+elif args.emit:
+  comp.emit()
+  comp.write()
+
+else:
   comp.compile()
 
 if args.run:
