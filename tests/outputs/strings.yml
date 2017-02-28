@@ -1,8 +1,5 @@
 !program;1
 stmts:
-- !import;1
-  name: string
-  rename: null
 - !assn;2
   export: false
   let: true
@@ -60,10 +57,8 @@ stmts:
         let: true
         lhs: !name;1
           value: b
-        rhs: !call;1
+        rhs: !method;1
           args:
-          - !name;1
-            value: a
           - !int;1
             value: 1
           - !call;1
@@ -74,11 +69,10 @@ stmts:
             func: !name;1
               value: length
           catch: false
-          func: !index;1
-            lhs: !name;1
-              value: string
-            rhs: !str;1
-              value: substring
+          lhs: !name;1
+            value: a
+          rhs: !str;1
+            value: substring
       - !call;1
         args:
         - !name;1
