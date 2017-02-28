@@ -12,6 +12,7 @@ stages:
       PYTHONPATH: ~/rain
     steps:
       - type: shell
+        command: |
           apt-get update
           apt-get install git python3 sudo wget
 
