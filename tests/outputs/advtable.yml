@@ -1,11 +1,5 @@
 !program;1
 stmts:
-- !import;1
-  name: array
-  rename: null
-- !import;1
-  name: dict
-  rename: null
 - !assn;2
   export: false
   let: true

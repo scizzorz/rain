@@ -1,44 +1,30 @@
 keyword 'import'
-name 'array'
-newline
-keyword 'import'
-name 'dict'
-newline
-keyword 'import'
 name 'macros'
 newline
 keyword 'let'
 name 'fudge'
 symbol '='
-symbol '@'
-name 'array'
-symbol '.'
-name 'new'
-symbol '('
+symbol '['
 string 'one'
 symbol ','
 string 'two'
 symbol ','
 string 'three'
-symbol ')'
+symbol ']'
 newline
 keyword 'let'
 name 'node'
 symbol '='
-symbol '@'
-name 'dict'
-symbol '.'
-name 'new'
-indent
+symbol '{'
 name 'tag'
 symbol '='
 string 'node'
-newline
+symbol ','
 name 'body'
 symbol '='
 string 'body'
-newline
-dedent
+symbol ','
+symbol '}'
 newline
 keyword 'let'
 name 'main'

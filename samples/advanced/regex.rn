@@ -1,5 +1,5 @@
 import re
-import array
+import "types/array"
 
 export main = func()
   let match = re.match("ab*ab*", "abbbab")

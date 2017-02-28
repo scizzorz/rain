@@ -1,9 +1,3 @@
-keyword 'import'
-name 'array'
-newline
-keyword 'import'
-name 'dict'
-newline
 keyword 'let'
 name 'ga'
 symbol '='
