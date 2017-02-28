@@ -44,7 +44,7 @@ stages:
         command: |
           tests/fix.sh
           mkdir -p /tmp/results
-          py.test -rap -v --tb=long --cov=rain --junit-exml=/tmp/results/py.test.xml
+          py.test -rap -v --tb=long --cov=rain --junit-xml=/tmp/results/py.test.xml
 
       - type: test-results-store
         path: /tmp/results
