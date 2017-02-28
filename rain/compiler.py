@@ -75,8 +75,6 @@ class Compiler:
     self.file = file
     self.qname, self.mname = M.find_name(file)
 
-    self.vprint('{:>10} {} from {}', 'using', X(self.qname, 'green'), X(self.file, 'blue'))
-
     self.target = target
     self.main = main
 
@@ -109,9 +107,9 @@ class Compiler:
       print(msg.format(*args), end=end)
 
   @contextmanager
-  def okay(self, fmt, *args):
+  def okay(self, tag, fmt='', args=()):
     msg = fmt.format(*args)
-    self.print('{:>10} {}', msg, X(self.qname, 'green'))
+    self.print('{:>10} {}{}', tag, X(self.qname, 'green'), msg)
     try:
       yield
     except Exception as exc:
@@ -239,7 +237,13 @@ class Compiler:
       return
     self.built = True
 
-    with self.okay('building'):
+    fmt = ''
+    args = ()
+    if Compiler.verbose:
+      fmt = ' from {}'
+      args = (X(self.file, 'blue'),)
+
+    with self.okay('building', fmt=fmt, args=args):
       self.emit()
       self.write()
 
