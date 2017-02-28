@@ -6,10 +6,10 @@ stages:
   build:
     workDir: ~/
     environment:
-      CLANG: /usr/bin/clang-3.9
-      RAINLIB: ~/rain/core
-      RAINBASE: ~/rain/base
-      PYTHONPATH: ~/rain
+      - CLANG: /usr/bin/clang-3.9
+      - RAINLIB: ~/rain/core
+      - RAINBASE: ~/rain/base
+      - PYTHONPATH: ~/rain
     steps:
       - type: shell
         name: "Install system dependencies"
@@ -41,8 +41,6 @@ stages:
       - type: shell
         name: "Run tests"
         pwd: ~/rain
-        environment:
-          PYTHONPATH: .
         command: |
           tests/fix.sh
           mkdir -p /tmp/results
