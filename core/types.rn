@@ -11,5 +11,6 @@ export is = func(child, parent)
   while meta(child) != null
     if meta(child) == parent
       return true
+    child = meta(child)
 
   return false
