@@ -298,9 +298,9 @@ class str_node(value_node, literal_node):
   __tag__ = 'str'
 
   def hash(self):
-    val = fixedint.MutableUInt64(0)
+    val = fixedint.MutableUInt64(5381)
     for char in self.value:
-      val += ord(char)
+      val += (val * 32) + ord(char)
     return int(val)
 
 
