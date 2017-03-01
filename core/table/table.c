@@ -13,13 +13,14 @@ box* rain_new_table() {
 }
 
 unsigned long rain_hash(box *val) {
-  unsigned int hash = 0;
+  unsigned int hash = 5381;
+
   switch(val->type) {
     case ITYP_BOOL:
       return !!val->data.ui;
     case ITYP_STR:
       for(int i=0; i<val->size; i++) {
-        hash += val->data.s[i];
+        hash += (hash << 5) + val->data.s[i];
       }
       return hash;
   }
