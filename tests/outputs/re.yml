@@ -1,7 +1,7 @@
 !program;1
 stmts:
 - !import;1
-  name: re
+  name: regex
   rename: null
 - !import;1
   name: types/array
@@ -29,7 +29,7 @@ stmts:
           catch: false
           func: !index;1
             lhs: !name;1
-              value: re
+              value: regex
             rhs: !str;1
               value: match
       - !call;1
@@ -78,7 +78,7 @@ stmts:
           catch: false
           func: !index;1
             lhs: !name;1
-              value: re
+              value: regex
             rhs: !str;1
               value: compile
       - !assn;2
@@ -143,7 +143,7 @@ stmts:
           catch: true
           func: !index;1
             lhs: !name;1
-              value: re
+              value: regex
             rhs: !str;1
               value: match
       - !call;1
