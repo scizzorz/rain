@@ -14,7 +14,7 @@ void table_from_matches(box *table, const char *matched, int *ovector, int pcre_
   box key;
   box val;
 
-  rain_set_strcpy(&key, "count", 5);
+  rain_set_str(&key, "count");
   rain_set_int(&val, pcre_exec_ret);
   rain_put(table, &key, &val);
 
@@ -29,43 +29,44 @@ void table_from_matches(box *table, const char *matched, int *ovector, int pcre_
   }
 }
 
-void rain_pcre_compiled_match(box *ret, box *table, box *to_match) {
-  if(BOX_ISNT(table, TABLE) || BOX_ISNT(to_match, STR)) {
+
+// ret : null | array
+// val : cdata
+// to_match : str
+void rain_ext_pcre_compiled_match(box *ret, box *val, box *to_match) {
+  if(BOX_ISNT(val, CDATA) || BOX_ISNT(to_match, STR)) {
     rain_throw(rain_exc_arg_mismatch);
   }
 
   const char *match;
-  int ovector[30];
+  int ovector[30]; // TODO should this be dynamic?
   int pcre_exec_ret;
 
-  box key;
-  box val;
+  pcre_exec_ret = pcre_exec((pcre*)val->data.vp, NULL, to_match->data.s, to_match->size, 0, 0, ovector, 30);
 
-  rain_set_strcpy(&key, "_pcre_pointer", 13);
-  if(!rain_has(table, &key)) {
-    rain_throw(rain_exc_arg_mismatch);
-  }
-  rain_get(&val, table, &key);
-
-  pcre_exec_ret = pcre_exec((pcre*)val.data.si, NULL, to_match->data.s, to_match->size, 0, 0, ovector, 30);
-
-  /* TODO: handle more errors besides PCRE_ERROR_NOMATCH */
+  // TODO handle errors better
   if(pcre_exec_ret < 0) {
+    return;
+    /* probably want this for later, but it's unnecessary right now
     switch(pcre_exec_ret) {
       case PCRE_ERROR_NOMATCH:
         rain_set_null(ret);
-      break;
+        break;
       default:
-	rain_set_null(ret);
-      break;
+        rain_set_null(ret);
+        break;
     }
-  } else {
-    rain_set_table(ret);
-
-    table_from_matches(ret, to_match->data.s, ovector, pcre_exec_ret);
+    */
   }
+
+  rain_set_table(ret);
+  rain_set_env(ret, rain_vt_array);
+  table_from_matches(ret, to_match->data.s, ovector, pcre_exec_ret);
 }
 
+
+// ret : cdata
+// regex : str
 void rain_ext_pcre_compile(box *ret, box *regex) {
   if(BOX_ISNT(regex, STR)) {
     rain_throw(rain_exc_arg_mismatch);
@@ -77,26 +78,19 @@ void rain_ext_pcre_compile(box *ret, box *regex) {
 
   compiled = pcre_compile(regex->data.s, 0, &pcre_error, &pcre_error_offset, NULL);
 
-  /* TODO: look at error string ,maybe return to user */
+  // TODO look at error string, maybe return to user
   if(!compiled) {
     rain_throw(rain_exc_pcre_cannot_compile);
   }
 
-  rain_set_table(ret);
-
-  box key;
-  box val;
-
-  /* TODO: how to eventually free the compiled regex? */
-  rain_set_strcpy(&key, "_pcre_pointer", 13);
-  rain_set_cdata(&val, compiled);
-  rain_put(ret, &key, &val);
-
-  rain_set_strcpy(&key, "match", 5);
-  rain_set_func(&val, (void*)rain_pcre_compiled_match, 2);
-  rain_put(ret, &key, &val);
+  rain_set_cdata(ret, compiled);
 }
 
+
+// ret : null | array
+// regex : str
+// to_match : str
+// TODO a lot of this is reused from the other two methods, maybe recycle them?
 void rain_ext_pcre_match(box *ret, box *regex, box *to_match) {
   if(BOX_ISNT(regex, STR) || BOX_ISNT(to_match, STR)) {
     rain_throw(rain_exc_arg_mismatch);
@@ -107,35 +101,25 @@ void rain_ext_pcre_match(box *ret, box *regex, box *to_match) {
   const char *match;
   int pcre_error_offset;
   int pcre_exec_ret;
-  int ovector[30];
-
-  box key;
-  box val;
+  int ovector[30]; // TODO should this be dynamic?
 
   compiled = pcre_compile(regex->data.s, 0, &pcre_error, &pcre_error_offset, NULL);
 
-  /* TODO: look at error string, maybe return to user */
+  // TODO look at error string, maybe return to user
   if(!compiled) {
     rain_throw(rain_exc_pcre_cannot_compile);
   }
 
   pcre_exec_ret = pcre_exec(compiled, NULL, to_match->data.s, to_match->size, 0, 0, ovector, 30);
 
-  /* TODO: handle more errors besides PCRE_ERROR_NOMATCH */
+  // TODO handle errors better
   if(pcre_exec_ret < 0) {
-    switch(pcre_exec_ret) {
-      case PCRE_ERROR_NOMATCH:
-        rain_set_null(ret);
-      break;
-      default:
-	rain_set_null(ret);
-      break;
-    }
-  } else {
-    rain_set_table(ret);
-
-    table_from_matches(ret, to_match->data.s, ovector, pcre_exec_ret);
+    return;
   }
+
+  rain_set_table(ret);
+  rain_set_env(ret, rain_vt_array);
+  table_from_matches(ret, to_match->data.s, ovector, pcre_exec_ret);
 
   pcre_free(compiled);
 }

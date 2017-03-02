@@ -1,0 +1,26 @@
+library "pcre"
+link "regex.c"
+
+let ext_compiled_match = foreign "rain_ext_pcre_compiled_match"(pcre_ptr, to_match)
+let ext_compile = foreign "rain_ext_pcre_compile"(val)
+
+
+let base = table
+base.new = func(self, pcre_ptr)
+  let ret = table :: self
+  save ret
+
+  ret["_pcre_ptr"] = pcre_ptr
+
+base.match = func(self, to_match)
+  return ext_compiled_match(self["_pcre_ptr"], to_match)
+
+
+export match = foreign "rain_ext_pcre_match"(val, to_match)
+export compile = func(val)
+  return base:new(ext_compile(val))
+
+
+export pcre_cannot_compile = table :: except.error
+pcre_cannot_compile.msg = "cannot compile pcre regular expression"
+export pcre_cannot_compile as foreign "rain_exc_pcre_cannot_compile"
