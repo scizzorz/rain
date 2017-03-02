@@ -255,20 +255,19 @@ second operand is evaluated and returned.
 
     let x = null | "default"  # x = "default"
 
-#### Comparison
+#### Relational
 
 The comparison operators (`<=`, `>=`, `<`, `>`) can operate on floats and
 integers, coercing integers to floats when necessary. Strings are compared in
 lexicographic order.
 
-The equality operators (`==`, `!=`) strictly compare for hashing equality (ie,
+The equality operators (`==`, `!=`) strictly compare for physical equality (ie,
 if two values will index into the same location in a table). This includes type
-checking as well as value checking. A consequence of this is that the
-expressions `x <= y` and `x >= y` are not equivalent to the expressions
-`x < y | x == y` and `x > y | x == y`, respectively. Function, table, and
-cdata values are compared by their *value*, not their contents - if two tables
-contain the same values but are not the same table reference, they are not
-equal.
+checking as well as value checking. A consequence of this is that the expressions 
+`x <= y` and `x >= y` are not equivalent to the expressions `x < y | x == y` and 
+`x > y | x == y`, respectively. Function, table, and cdata values are compared by 
+their *value*, not their contents - if two tables contain the same content but are 
+not the same table reference, they are not equal.
 
 *Note: this behavior may be changed in the future.*
 
