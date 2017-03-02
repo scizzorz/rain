@@ -4,11 +4,7 @@ import iter
 let double = func(n) -> n * 2
 
 let main = func()
-  let a = table :: array
-  a[0] = 10
-  a[1] = 11
-  a[2] = 12
-  a[3] = 13
+  let a = [10, 11, 12, 13]
 
   print("keys from a:")
   for x in a:keys()

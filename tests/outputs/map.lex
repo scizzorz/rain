@@ -26,37 +26,15 @@ indent
 keyword 'let'
 name 'a'
 symbol '='
-'table'
-operator '::'
-name 'array'
-newline
-name 'a'
 symbol '['
-int 0
-symbol ']'
-symbol '='
 int 10
-newline
-name 'a'
-symbol '['
-int 1
-symbol ']'
-symbol '='
+symbol ','
 int 11
-newline
-name 'a'
-symbol '['
-int 2
-symbol ']'
-symbol '='
+symbol ','
 int 12
-newline
-name 'a'
-symbol '['
-int 3
-symbol ']'
-symbol '='
+symbol ','
 int 13
+symbol ']'
 newline
 name 'print'
 symbol '('

@@ -39,37 +39,20 @@ newline
 keyword 'let'
 name 'a'
 symbol '='
-'table'
-newline
-name 'a'
-symbol '['
-int 0
-symbol ']'
-symbol '='
-int 1
-newline
-name 'a'
 symbol '['
 int 1
-symbol ']'
-symbol '='
+symbol ','
 int 2
-newline
-name 'a'
-symbol '['
-int 2
-symbol ']'
-symbol '='
+symbol ','
 int 3
+symbol ']'
 newline
 name 'print'
 symbol '('
-name 'array'
-symbol '.'
+name 'a'
+symbol ':'
 name 'foldl'
 symbol '('
-name 'a'
-symbol ','
 name 'gadd'
 symbol ','
 int 0
@@ -78,12 +61,10 @@ symbol ')'
 newline
 name 'print'
 symbol '('
-name 'array'
-symbol '.'
+name 'a'
+symbol ':'
 name 'foldl'
 symbol '('
-name 'a'
-symbol ','
 name 'ladd'
 symbol ','
 int 0
