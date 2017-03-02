@@ -179,14 +179,14 @@ will also evaluate to false.
 ### Loops
 
 Rain supports four types of loops: `loop`, `while`, `until`, and `for`, as well
-as the typical `break` and `continue` statements to control iteration. In
-addition, Rain supports conditional variants - `break if` and `continue if` -
-which evaluate the following expression and only terminate the loop or continue
-to the next iteration if their expression is truthy.
+as `break` and `continue` statements to control iteration. In addition, Rain 
+supports conditional variants - `break if` and `continue if` - which evaluate the 
+following expression and only terminate the loop or continue to the next iteration 
+if their expression is truthy.
 
 #### `loop`
 
-An infinite loop that can only be terminated via `break` statements:
+An infinite loop that can only be terminated via the `break` statement:
 
     let n = 0
     loop
@@ -220,8 +220,8 @@ variable. The loop is terminated when the iterator returns `null`.
     for n in range(20)
       print(n)
 
-An *iterator* is simply a no-argument function that simply returns the next
-value in a sequence.
+An *iterator* is a no-argument function that returns the next value in a 
+sequence.
 
     let range = func(n)
       let i = 0
