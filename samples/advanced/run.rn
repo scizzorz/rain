@@ -1,9 +1,5 @@
 import process
 
 let main = func()
-  let args = table
-  args[0] = "echo"
-  args[1] = "hi"
-  args[2] = "there"
-  let out = process.run(args)
+  let out = process.run(["echo", "hi", "there"])
   print(out)
