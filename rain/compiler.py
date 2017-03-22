@@ -35,11 +35,22 @@ def compile_c(src):
   if src not in c_files:
     clang = os.getenv('CLANG', 'clang')
 
-    handle, target = tempfile.mkstemp(prefix=os.path.basename(src), suffix='.ll')
-    flags = ['-O2', '-S', '-emit-llvm', '-I' + os.environ['RAINLIB']]
+    src_mtime = os.path.getmtime(src)
+    tempdir = tempfile.gettempdir()
+    target = join(tempdir, os.path.basename(src) + '.ll')
+    make = True
 
-    cmd = [clang, '-o', target, src] + flags
-    subprocess.check_call(cmd)
+    # if the target exists and is newer than the source, don't remake
+    if os.path.exists(target):
+      target_mtime = os.path.getmtime(target)
+      if target_mtime > src_mtime:
+        make = False
+
+    if make:
+      flags = ['-O2', '-S', '-emit-llvm', '-I' + os.environ['RAINLIB']]
+
+      cmd = [clang, '-o', target, src] + flags
+      subprocess.check_call(cmd)
 
     c_files[src] = target
 
