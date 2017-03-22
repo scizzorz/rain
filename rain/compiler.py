@@ -35,7 +35,7 @@ def compile_c(src):
     clang = os.getenv('CLANG', 'clang')
 
     handle, target = tempfile.mkstemp(prefix=os.path.basename(src), suffix='.ll')
-    flags = ['-O2', '-S', '-emit-llvm']
+    flags = ['-O2', '-S', '-emit-llvm', '-I' + os.environ['RAINLIB']]
 
     cmd = [clang, '-o', target, src] + flags
     subprocess.check_call(cmd)
@@ -53,8 +53,9 @@ def compile_so(libs):
 
   handle, target = tempfile.mkstemp(prefix='slibs', suffix='.so')
   libs = ['-l' + lib for lib in libs]
+  flags = ['-shared']
 
-  cmd = [clang, '-shared', '-o', target] + libs
+  cmd = [clang, '-o', target] + flags + libs
   subprocess.check_call(cmd)
 
   return target

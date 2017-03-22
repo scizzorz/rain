@@ -1,4 +1,4 @@
-#include "../../core/rain.h"
+#include "rain.h"
 #include <gc.h>
 #include <stdlib.h>
 #include <string.h>
