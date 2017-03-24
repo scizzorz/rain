@@ -1,4 +1,4 @@
-#include "../../core/rain.h"
+#include "rain.h"
 #include <stdlib.h>
 
 void rain_ext_rand(box * ret) {
