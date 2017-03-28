@@ -225,8 +225,9 @@ class Compiler:
     self.written = True
 
     if self.built:
-      handle, name = tempfile.mkstemp(prefix=self.qname + '.', suffix='.ll')
-      with os.fdopen(handle, 'w') as tmp:
+      tempdir = tempfile.gettempdir()
+      name = join(tempdir, self.qname + '.ll')
+      with open(name, 'w') as tmp:
         tmp.write(self.mod.ir)
 
       self.ll = name
