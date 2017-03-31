@@ -16,13 +16,7 @@ void rain_binary_magic(box *ret, box *lhs, box *rhs, char *meth) {
   rain_set_null(&val);
   rain_get(&val, lhs->env, &key);
 
-  if(BOX_ISNT(&val, FUNC)) {
-    rain_throw(rain_exc_uncallable);
-  }
-
-  if(val.size != 2) {
-    rain_throw(rain_exc_arg_mismatch);
-  }
+  rain_check_callable(&val, 2);
 
   void (*func_ptr)(box *, box *, box *) = (void (*)(box *, box *, box *))(val.data.vp);
   func_ptr(ret, lhs, rhs);
