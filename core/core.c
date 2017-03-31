@@ -7,6 +7,10 @@
 
 // system helpers
 
+int rain_gc_init() {
+  GC_init();
+}
+
 void rain_main(box *ret, box *func) {
   void (*func_ptr)(box *) = (void (*)(box *))(func->data.vp);
   func_ptr(ret);
