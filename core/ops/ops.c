@@ -3,6 +3,32 @@
 #include <string.h>
 
 
+// magic methods
+
+void rain_binary_magic(box *ret, box *lhs, box *rhs, char *meth) {
+  if(lhs->env->data.vp != rhs->env->data.vp) {
+    rain_throw(rain_exc_arg_mismatch);
+  }
+
+  box key;
+  box val;
+  rain_set_str(&key, meth);
+  rain_set_null(&val);
+  rain_get(&val, lhs->env, &key);
+
+  if(BOX_ISNT(&val, FUNC)) {
+    rain_throw(rain_exc_uncallable);
+  }
+
+  if(val.size != 2) {
+    rain_throw(rain_exc_arg_mismatch);
+  }
+
+  void (*func_ptr)(box *, box *, box *) = (void (*)(box *, box *, box *))(val.data.vp);
+  func_ptr(ret, lhs, rhs);
+}
+
+
 // unary
 
 void rain_neg(box *ret, box *val) {
@@ -43,6 +69,9 @@ void rain_add(box *ret, box *lhs, box *rhs) {
     double rhs_f = rhs->data.f;
     rain_set_float(ret, lhs_f + rhs_f);
   }
+  else if(BOX_IS(lhs, TABLE) && BOX_IS(rhs, TABLE)) {
+    rain_binary_magic(ret, lhs, rhs, "_add");
+  }
   else {
     rain_throw(rain_exc_arg_mismatch);
   }
@@ -66,6 +95,9 @@ void rain_sub(box *ret, box *lhs, box *rhs) {
     double lhs_f = lhs->data.f;
     double rhs_f = rhs->data.f;
     rain_set_float(ret, lhs_f - rhs_f);
+  }
+  else if(BOX_IS(lhs, TABLE) && BOX_IS(rhs, TABLE)) {
+    rain_binary_magic(ret, lhs, rhs, "_sub");
   }
   else {
     rain_throw(rain_exc_arg_mismatch);
@@ -91,6 +123,9 @@ void rain_mul(box *ret, box *lhs, box *rhs) {
     double rhs_f = rhs->data.f;
     rain_set_float(ret, lhs_f * rhs_f);
   }
+  else if(BOX_IS(lhs, TABLE) && BOX_IS(rhs, TABLE)) {
+    rain_binary_magic(ret, lhs, rhs, "_mul");
+  }
   else {
     rain_throw(rain_exc_arg_mismatch);
   }
@@ -115,6 +150,9 @@ void rain_div(box *ret, box *lhs, box *rhs) {
     double lhs_f = lhs->data.f;
     double rhs_f = rhs->data.f;
     rain_set_float(ret, lhs_f / rhs_f);
+  }
+  else if(BOX_IS(lhs, TABLE) && BOX_IS(rhs, TABLE)) {
+    rain_binary_magic(ret, lhs, rhs, "_div");
   }
   else {
     rain_throw(rain_exc_arg_mismatch);
