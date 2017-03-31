@@ -1,0 +1,181 @@
+!program;1
+stmts:
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: main
+  rhs: !func;2
+    body: !block;2
+      expr: null
+      stmts:
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: a
+        rhs: !float;1
+          value: 3.6
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: a
+          rhs: !str;1
+            value: floor
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: a
+          rhs: !str;1
+            value: round
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: a
+          rhs: !str;1
+            value: ceil
+        catch: false
+        func: !name;1
+          value: print
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: b
+        rhs: !float;1
+          value: 3.3
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: b
+          rhs: !str;1
+            value: floor
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: b
+          rhs: !str;1
+            value: round
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: b
+          rhs: !str;1
+            value: ceil
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !method;1
+            args: []
+            catch: false
+            lhs: !name;1
+              value: b
+            rhs: !str;1
+              value: floor
+          rhs: !str;1
+            value: float
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !method;1
+            args: []
+            catch: false
+            lhs: !name;1
+              value: b
+            rhs: !str;1
+              value: ceil
+          rhs: !str;1
+            value: float
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !name;1
+            value: b
+          rhs: !str;1
+            value: int
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !str;1
+            value: ' 111'
+          rhs: !str;1
+            value: int
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !str;1
+            value: '222.2'
+          rhs: !str;1
+            value: int
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !str;1
+            value: '333'
+          rhs: !str;1
+            value: int
+        catch: false
+        func: !name;1
+          value: print
+    params: []
+    rename: null
