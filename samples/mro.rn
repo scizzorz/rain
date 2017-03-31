@@ -1,0 +1,31 @@
+let s = table
+s.name = "s"
+s.meth = func(self)
+  print("s.meth")
+
+let a = table :: s
+a.name = "a"
+a.meth = func(self)
+  print("a.meth")
+  (meta(self)):meth()
+
+let b = table :: s
+b.name = "b"
+b.meth = func(self)
+  print("b.meth")
+  (meta(self)):meth()
+
+let c = table :: b :: a
+c.name = "c"
+c.meth = func(self)
+  print("c.meth")
+  (meta(self)):meth()
+
+let main = func()
+  s:meth()
+  print("----")
+  a:meth()
+  print("----")
+  b:meth()
+  print("----")
+  c:meth()

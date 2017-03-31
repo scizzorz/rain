@@ -1,0 +1,266 @@
+!program;1
+stmts:
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: s
+  rhs: !table;2 {}
+- !assn;2
+  export: false
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: s
+    rhs: !str;1
+      value: name
+  rhs: !str;1
+    value: s
+- !assn;2
+  export: false
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: s
+    rhs: !str;1
+      value: meth
+  rhs: !func;2
+    body: !block;2
+      expr: null
+      stmts:
+      - !call;1
+        args:
+        - !str;1
+          value: s.meth
+        catch: false
+        func: !name;1
+          value: print
+    params:
+    - self
+    rename: null
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: a
+  rhs: !binary;1
+    lhs: !table;2 {}
+    op: '::'
+    rhs: !name;1
+      value: s
+- !assn;2
+  export: false
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: a
+    rhs: !str;1
+      value: name
+  rhs: !str;1
+    value: a
+- !assn;2
+  export: false
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: a
+    rhs: !str;1
+      value: meth
+  rhs: !func;2
+    body: !block;2
+      expr: null
+      stmts:
+      - !call;1
+        args:
+        - !str;1
+          value: a.meth
+        catch: false
+        func: !name;1
+          value: print
+      - !method;1
+        args: []
+        catch: false
+        lhs: !call;1
+          args:
+          - !name;1
+            value: self
+          catch: false
+          func: !name;1
+            value: meta
+        rhs: !str;1
+          value: meth
+    params:
+    - self
+    rename: null
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: b
+  rhs: !binary;1
+    lhs: !table;2 {}
+    op: '::'
+    rhs: !name;1
+      value: s
+- !assn;2
+  export: false
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: b
+    rhs: !str;1
+      value: name
+  rhs: !str;1
+    value: b
+- !assn;2
+  export: false
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: b
+    rhs: !str;1
+      value: meth
+  rhs: !func;2
+    body: !block;2
+      expr: null
+      stmts:
+      - !call;1
+        args:
+        - !str;1
+          value: b.meth
+        catch: false
+        func: !name;1
+          value: print
+      - !method;1
+        args: []
+        catch: false
+        lhs: !call;1
+          args:
+          - !name;1
+            value: self
+          catch: false
+          func: !name;1
+            value: meta
+        rhs: !str;1
+          value: meth
+    params:
+    - self
+    rename: null
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: c
+  rhs: !binary;1
+    lhs: !table;2 {}
+    op: '::'
+    rhs: !binary;1
+      lhs: !name;1
+        value: b
+      op: '::'
+      rhs: !name;1
+        value: a
+- !assn;2
+  export: false
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: c
+    rhs: !str;1
+      value: name
+  rhs: !str;1
+    value: c
+- !assn;2
+  export: false
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: c
+    rhs: !str;1
+      value: meth
+  rhs: !func;2
+    body: !block;2
+      expr: null
+      stmts:
+      - !call;1
+        args:
+        - !str;1
+          value: c.meth
+        catch: false
+        func: !name;1
+          value: print
+      - !method;1
+        args: []
+        catch: false
+        lhs: !call;1
+          args:
+          - !name;1
+            value: self
+          catch: false
+          func: !name;1
+            value: meta
+        rhs: !str;1
+          value: meth
+    params:
+    - self
+    rename: null
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: main
+  rhs: !func;2
+    body: !block;2
+      expr: null
+      stmts:
+      - !method;1
+        args: []
+        catch: false
+        lhs: !name;1
+          value: s
+        rhs: !str;1
+          value: meth
+      - !call;1
+        args:
+        - !str;1
+          value: '----'
+        catch: false
+        func: !name;1
+          value: print
+      - !method;1
+        args: []
+        catch: false
+        lhs: !name;1
+          value: a
+        rhs: !str;1
+          value: meth
+      - !call;1
+        args:
+        - !str;1
+          value: '----'
+        catch: false
+        func: !name;1
+          value: print
+      - !method;1
+        args: []
+        catch: false
+        lhs: !name;1
+          value: b
+        rhs: !str;1
+          value: meth
+      - !call;1
+        args:
+        - !str;1
+          value: '----'
+        catch: false
+        func: !name;1
+          value: print
+      - !method;1
+        args: []
+        catch: false
+        lhs: !name;1
+          value: c
+        rhs: !str;1
+          value: meth
+    params: []
+    rename: null
