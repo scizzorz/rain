@@ -33,3 +33,11 @@ void rain_ext_float_ceil(box *ret, box *value) {
 
   rain_set_int(ret, (signed long)ceil(value->data.f));
 }
+
+void rain_ext_float_abs(box *ret, box *value) {
+  if(BOX_ISNT(value, FLOAT)) {
+    rain_throw(rain_exc_arg_mismatch);
+  }
+
+  rain_set_float(ret, fabs(value->data.f));
+}
