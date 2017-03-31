@@ -177,5 +177,57 @@ stmts:
         catch: false
         func: !name;1
           value: print
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !int;1
+            value: 3
+          rhs: !str;1
+            value: abs
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !unary;1
+            op: '-'
+            val: !int;1
+              value: 3
+          rhs: !str;1
+            value: abs
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !float;1
+            value: 3.5
+          rhs: !str;1
+            value: abs
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !method;1
+          args: []
+          catch: false
+          lhs: !unary;1
+            op: '-'
+            val: !float;1
+              value: 3.5
+          rhs: !str;1
+            value: abs
+        catch: false
+        func: !name;1
+          value: print
     params: []
     rename: null

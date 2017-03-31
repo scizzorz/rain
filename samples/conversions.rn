@@ -16,3 +16,9 @@ let main = func()
   print(" 111":int())
   print("222.2":int())
   print("333":int())
+
+  print((3):abs())
+  print((-3):abs())
+
+  print((3.5):abs())
+  print((-3.5):abs())

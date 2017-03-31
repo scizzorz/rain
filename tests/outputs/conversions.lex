@@ -131,6 +131,52 @@ symbol '('
 symbol ')'
 symbol ')'
 newline
+name 'print'
+symbol '('
+symbol '('
+int 3
+symbol ')'
+symbol ':'
+name 'abs'
+symbol '('
+symbol ')'
+symbol ')'
+newline
+name 'print'
+symbol '('
+symbol '('
+operator '-'
+int 3
+symbol ')'
+symbol ':'
+name 'abs'
+symbol '('
+symbol ')'
+symbol ')'
+newline
+name 'print'
+symbol '('
+symbol '('
+float 3.5
+symbol ')'
+symbol ':'
+name 'abs'
+symbol '('
+symbol ')'
+symbol ')'
+newline
+name 'print'
+symbol '('
+symbol '('
+operator '-'
+float 3.5
+symbol ')'
+symbol ':'
+name 'abs'
+symbol '('
+symbol ')'
+symbol ')'
+newline
 dedent
 newline
 EOF
