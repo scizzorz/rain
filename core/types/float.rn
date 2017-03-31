@@ -1,0 +1,7 @@
+library "m"
+link "float.c"
+
+export floor = foreign "rain_ext_float_floor"(self)
+export ceil = foreign "rain_ext_float_ceil"(self)
+export round = foreign "rain_ext_float_round"(self)
+export int = foreign "rain_ext_float_int"(self)
