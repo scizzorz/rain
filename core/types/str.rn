@@ -1,4 +1,7 @@
+link "str.c"
+
 export length = foreign "rain_ext_length"(val)
+export int = foreign "rain_ext_str_int"(self)
 
 export substring = func(s, start, end)
   let len = length(s)
