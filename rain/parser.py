@@ -36,6 +36,10 @@ binary_ops = {
   '|': 30,
 }
 
+rassoc = {
+  '::',
+}
+
 class macro:
   def __init__(self, name, node, parses):
     self.name = name
@@ -562,6 +566,9 @@ def bin_merge(lhs, pairs):
   pairs = pairs[1:]
   for nop, next in pairs:
     if binary_ops[nop] > binary_ops[op]:
+      rhs = bin_merge(rhs, pairs)
+      break
+    elif nop in rassoc and binary_ops[nop] == binary_ops[op]:
       rhs = bin_merge(rhs, pairs)
       break
     else:
