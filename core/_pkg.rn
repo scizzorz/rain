@@ -8,7 +8,7 @@ link "table/table.c"
 
 library "gc"
 library "unwind"
-library ":libgcc_s.so.1"
+library ":libgcc_s.so.1" # this isn't cross-platform!
 
 import env
 import except
