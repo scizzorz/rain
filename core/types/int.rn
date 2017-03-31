@@ -1,6 +1,10 @@
+link "int.c"
+
 export times = func(self)
   return func(block)
     let i = 0
     while i < self
       block(i)
       i = i + 1
+
+export float = foreign "rain_ext_int_float"(self)
