@@ -1,0 +1,362 @@
+!program;1
+stmts:
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: wrapper
+  rhs: !table;2 {}
+- !assn;2
+  export: false
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: wrapper
+    rhs: !str;1
+      value: new
+  rhs: !func;2
+    body: !block;2
+      expr: null
+      stmts:
+      - !return;1
+        value: !binary;1
+          lhs: !dict;1
+            items:
+            - - !str;1
+                value: value
+              - !name;1
+                value: value
+          op: '::'
+          rhs: !name;1
+            value: self
+    params:
+    - self
+    - value
+    rename: null
+- !assn;2
+  export: false
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: wrapper
+    rhs: !str;1
+      value: _str
+  rhs: !func;2
+    body: !block;2
+      expr: null
+      stmts:
+      - !return;1
+        value: !binary;1
+          lhs: !binary;1
+            lhs: !str;1
+              value: wrap(
+            op: $
+            rhs: !call;1
+              args:
+              - !index;1
+                lhs: !name;1
+                  value: self
+                rhs: !str;1
+                  value: value
+              catch: false
+              func: !name;1
+                value: tostr
+          op: $
+          rhs: !str;1
+            value: )
+    params:
+    - self
+    rename: null
+- !assn;2
+  export: false
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: wrapper
+    rhs: !str;1
+      value: _add
+  rhs: !func;2
+    body: !block;2
+      expr: null
+      stmts:
+      - !return;1
+        value: !binary;1
+          lhs: !dict;1
+            items:
+            - - !str;1
+                value: value
+              - !binary;1
+                lhs: !index;1
+                  lhs: !name;1
+                    value: self
+                  rhs: !str;1
+                    value: value
+                op: +
+                rhs: !index;1
+                  lhs: !name;1
+                    value: other
+                  rhs: !str;1
+                    value: value
+          op: '::'
+          rhs: !call;1
+            args:
+            - !name;1
+              value: self
+            catch: false
+            func: !name;1
+              value: meta
+    params:
+    - self
+    - other
+    rename: null
+- !assn;2
+  export: false
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: wrapper
+    rhs: !str;1
+      value: _mul
+  rhs: !func;2
+    body: !block;2
+      expr: null
+      stmts:
+      - !return;1
+        value: !binary;1
+          lhs: !dict;1
+            items:
+            - - !str;1
+                value: value
+              - !binary;1
+                lhs: !index;1
+                  lhs: !name;1
+                    value: self
+                  rhs: !str;1
+                    value: value
+                op: '*'
+                rhs: !index;1
+                  lhs: !name;1
+                    value: other
+                  rhs: !str;1
+                    value: value
+          op: '::'
+          rhs: !call;1
+            args:
+            - !name;1
+              value: self
+            catch: false
+            func: !name;1
+              value: meta
+    params:
+    - self
+    - other
+    rename: null
+- !assn;2
+  export: false
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: wrapper
+    rhs: !str;1
+      value: _sub
+  rhs: !func;2
+    body: !block;2
+      expr: null
+      stmts:
+      - !return;1
+        value: !binary;1
+          lhs: !dict;1
+            items:
+            - - !str;1
+                value: value
+              - !binary;1
+                lhs: !index;1
+                  lhs: !name;1
+                    value: self
+                  rhs: !str;1
+                    value: value
+                op: '-'
+                rhs: !index;1
+                  lhs: !name;1
+                    value: other
+                  rhs: !str;1
+                    value: value
+          op: '::'
+          rhs: !call;1
+            args:
+            - !name;1
+              value: self
+            catch: false
+            func: !name;1
+              value: meta
+    params:
+    - self
+    - other
+    rename: null
+- !assn;2
+  export: false
+  let: false
+  lhs: !index;1
+    lhs: !name;1
+      value: wrapper
+    rhs: !str;1
+      value: _div
+  rhs: !func;2
+    body: !block;2
+      expr: null
+      stmts:
+      - !return;1
+        value: !binary;1
+          lhs: !dict;1
+            items:
+            - - !str;1
+                value: value
+              - !binary;1
+                lhs: !index;1
+                  lhs: !name;1
+                    value: self
+                  rhs: !str;1
+                    value: value
+                op: /
+                rhs: !index;1
+                  lhs: !name;1
+                    value: other
+                  rhs: !str;1
+                    value: value
+          op: '::'
+          rhs: !call;1
+            args:
+            - !name;1
+              value: self
+            catch: false
+            func: !name;1
+              value: meta
+    params:
+    - self
+    - other
+    rename: null
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: main
+  rhs: !func;2
+    body: !block;2
+      expr: null
+      stmts:
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: a
+        rhs: !method;1
+          args:
+          - !int;1
+            value: 40
+          catch: false
+          lhs: !name;1
+            value: wrapper
+          rhs: !str;1
+            value: new
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: b
+        rhs: !method;1
+          args:
+          - !int;1
+            value: 8
+          catch: false
+          lhs: !name;1
+            value: wrapper
+          rhs: !str;1
+            value: new
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: add
+        rhs: !binary;1
+          lhs: !name;1
+            value: a
+          op: +
+          rhs: !name;1
+            value: b
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: mul
+        rhs: !binary;1
+          lhs: !name;1
+            value: a
+          op: '*'
+          rhs: !name;1
+            value: b
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: div
+        rhs: !binary;1
+          lhs: !name;1
+            value: a
+          op: /
+          rhs: !name;1
+            value: b
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: sub
+        rhs: !binary;1
+          lhs: !name;1
+            value: a
+          op: '-'
+          rhs: !name;1
+            value: b
+      - !call;1
+        args:
+        - !name;1
+          value: a
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !name;1
+          value: b
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !name;1
+          value: add
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !name;1
+          value: mul
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !name;1
+          value: div
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !name;1
+          value: sub
+        catch: false
+        func: !name;1
+          value: print
+    params: []
+    rename: null

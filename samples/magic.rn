@@ -1,0 +1,33 @@
+let wrapper = table
+
+wrapper.new = func(self, value)
+  return {value = value} :: self
+
+wrapper["_str"] = func(self)
+  return "wrap(" $ tostr(self.value) $ ")"
+
+wrapper["_add"] = func(self, other)
+  return {value = self.value + other.value} :: meta(self)
+
+wrapper["_mul"] = func(self, other)
+  return {value = self.value * other.value} :: meta(self)
+
+wrapper["_sub"] = func(self, other)
+  return {value = self.value - other.value} :: meta(self)
+
+wrapper["_div"] = func(self, other)
+  return {value = self.value / other.value} :: meta(self)
+
+let main = func()
+  let a = wrapper:new(40)
+  let b = wrapper:new(8)
+  let add = a + b
+  let mul = a * b
+  let div = a / b
+  let sub = a - b
+  print(a)
+  print(b)
+  print(add)
+  print(mul)
+  print(div)
+  print(sub)

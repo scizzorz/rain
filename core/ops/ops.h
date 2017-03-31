@@ -3,6 +3,8 @@
 
 #include "../core.h"
 
+void rain_binary_magic(box *, box *, box *, char *);
+
 void rain_neg(box *, box *);
 void rain_not(box *, box *);
 
