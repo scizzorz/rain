@@ -1,0 +1,24 @@
+let main = func()
+  let a = 3.6
+  print(a:floor())
+  print(a:round())
+  print(a:ceil())
+
+  let b = 3.3
+  print(b:floor())
+  print(b:round())
+  print(b:ceil())
+
+  print(b:floor():float())
+  print(b:ceil():float())
+  print(b:int())
+
+  print(" 111":int())
+  print("222.2":int())
+  print("333":int())
+
+  print((3):abs())
+  print((-3):abs())
+
+  print((3.5):abs())
+  print((-3.5):abs())
