@@ -1,7 +1,0 @@
-link "string.c"
-
-import core
-import iter
-
-export to_int = foreign "rain_ext_str_to_int"(val)
-export fmt    = foreign "rain_ext_fmt"(val, fmt)
