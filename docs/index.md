@@ -564,7 +564,9 @@ Because modules are tables, they can be used as metatables / classes.
 
 ### Macros
 
-Rain supports AST-rewriting macros.
+Rain supports AST-rewriting macros evaluated at compile-time. At this time,
+while fully functional, macros are still fairly experimental and under heavy
+development.
 
 ### Standard library
 
@@ -609,7 +611,7 @@ Used in macros.
 
 ##### `core.types`
 
-Contains type helpers.
+Contains type helpers and base type metatables.
 
 ##### `core.ops`
 
