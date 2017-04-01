@@ -1,5 +1,10 @@
 link "int.c"
 
+export bool = foreign "rain_ext_truthy"(self)
+export float = foreign "rain_ext_int_float"(self)
+export int = func(self) -> self
+export str = foreign "rain_ext_int_str"(self)
+
 export times = func(self)
   return func(block)
     let i = 0
@@ -7,5 +12,4 @@ export times = func(self)
       block(i)
       i = i + 1
 
-export float = foreign "rain_ext_int_float"(self)
 export abs = foreign "rain_ext_int_abs"(self)
