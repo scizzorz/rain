@@ -81,7 +81,7 @@ class macro:
     self.eng.link_file(ast.ll, *ast.links)
     self.eng.add_lib(so)
     self.eng.finalize()
-    self.eng.gc_init()
+    self.eng.init_gc()
 
   def parse(self, ctx):
     return [fn(ctx) for fn in self.parses]
