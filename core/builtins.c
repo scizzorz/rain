@@ -83,7 +83,7 @@ void rain_ext_to_str(box *ret, box *val) {
       break;
 
     case ITYP_TABLE:
-      rain_set_str(&key, "_str");
+      rain_set_str(&key, "str");
       rain_get(&to_str, val, &key);
       if(BOX_IS(&to_str, FUNC) && to_str.size == 1) {
         void (*func_ptr)(box *, box *) = (void (*)(box *, box *))(to_str.data.vp);
@@ -96,7 +96,7 @@ void rain_ext_to_str(box *ret, box *val) {
       break;
 
     case ITYP_FUNC:
-      sprintf(rain_to_str_buf, "func 0x%08lx + %08lx", val->data.ui, (unsigned long)(val->env));
+      sprintf(rain_to_str_buf, "func 0x%08lx", val->data.ui);
       rain_set_strcpy(ret, rain_to_str_buf, strlen(rain_to_str_buf));
       break;
 

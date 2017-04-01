@@ -3,19 +3,19 @@ let wrapper = table
 wrapper.new = func(self, value)
   return {value = value} :: self
 
-wrapper["_str"] = func(self)
+wrapper.str = func(self)
   return "wrap(" $ tostr(self.value) $ ")"
 
-wrapper["_add"] = func(self, other)
+wrapper.add = func(self, other)
   return {value = self.value + other.value} :: meta(self)
 
-wrapper["_mul"] = func(self, other)
+wrapper.mul = func(self, other)
   return {value = self.value * other.value} :: meta(self)
 
-wrapper["_sub"] = func(self, other)
+wrapper.sub = func(self, other)
   return {value = self.value - other.value} :: meta(self)
 
-wrapper["_div"] = func(self, other)
+wrapper.div = func(self, other)
   return {value = self.value / other.value} :: meta(self)
 
 let main = func()

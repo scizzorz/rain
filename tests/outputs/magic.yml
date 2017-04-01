@@ -40,7 +40,7 @@ stmts:
     lhs: !name;1
       value: wrapper
     rhs: !str;1
-      value: _str
+      value: str
   rhs: !func;2
     body: !block;2
       expr: null
@@ -74,7 +74,7 @@ stmts:
     lhs: !name;1
       value: wrapper
     rhs: !str;1
-      value: _add
+      value: add
   rhs: !func;2
     body: !block;2
       expr: null
@@ -116,7 +116,7 @@ stmts:
     lhs: !name;1
       value: wrapper
     rhs: !str;1
-      value: _mul
+      value: mul
   rhs: !func;2
     body: !block;2
       expr: null
@@ -158,7 +158,7 @@ stmts:
     lhs: !name;1
       value: wrapper
     rhs: !str;1
-      value: _sub
+      value: sub
   rhs: !func;2
     body: !block;2
       expr: null
@@ -200,7 +200,7 @@ stmts:
     lhs: !name;1
       value: wrapper
     rhs: !str;1
-      value: _div
+      value: div
   rhs: !func;2
     body: !block;2
       expr: null
