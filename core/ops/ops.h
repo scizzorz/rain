@@ -14,6 +14,7 @@ void rain_div(box *, box *, box *);
 void rain_mul(box *, box *, box *);
 
 unsigned char rain_truthy(box *);
+void rain_ext_truthy(box *, box *);
 void rain_and(box *, box *, box *);
 void rain_or(box *, box *, box *);
 

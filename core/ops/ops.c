@@ -157,6 +157,10 @@ unsigned char rain_truthy(box *val) {
   return (val->type != ITYP_NULL) && (val->data.ui != 0);
 }
 
+void rain_ext_truthy(box *ret, box *val) {
+  rain_set_bool(ret, rain_truthy(val));
+}
+
 void rain_and(box *ret, box *lhs, box *rhs) {
   if(!rain_truthy(lhs)) {
     rain_set_box(ret, lhs);
