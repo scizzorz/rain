@@ -20,8 +20,8 @@ on simplicity, expressiveness, and extensibility via a powerful C API.
 ### Lexical Analysis
 
 * **Operators**
-  * `->` - used only for "lambda" functions
-  * `::` - used for metatable assignment
+  * `->` - lambda expression operator
+  * `::` - metatable assignment operator
   * `<=`, `>=`, `<`, `>`, `==`, `!=` - comparison operators
   * `+`, `-`, `*`, `/` - arithmetic operators (`-` is also a unary negation)
   * `&`, `|` - logical boolean operators
@@ -51,9 +51,9 @@ Rain supports 8 data types:
 
 * `int` - 64-bit signed integers
 * `float` - 64-bit precision floats
-* `str` - pointers unsigned 8-bit integers with an associated size. Usually
-  null-terminated for compatibility with C, but not required
-* `bool` - either of the keywords `true` or `false`
+* `str` - character pointers with an associated length. String literals are
+  null-terminated for compatibility with C
+* `bool` - `true` or `false`
 * `func` - a function
 * `null` - the single value `null` (it *is* possible for C extensions to create
   other `null`-typed values, but it's not recommended!)
@@ -63,10 +63,9 @@ Rain supports 8 data types:
 
 ### Values
 
-All values are copied "by value" - meaning functions cannot mutate their
-arguments nor can they mutate values in outer scopes that they close over.
-However, because the "value" of a `table` object is a pointer to its hash
-table, mutating a table will mutate its value outside of the function.
+All values are copied "by value". A called function's parameter is a copy of
+the caller's argument. However, because the "value" of a `table` object is a
+pointer to its hash table, mutating a table will mutate the referenced hash table.
 
 ### Assignment
 
@@ -90,22 +89,19 @@ Functions are defined using the `func` keyword and a list of parameters:
     let add = func(x, y)
       return x + y
 
-The `return` keyword behaves exactly like most other programming languages.
-By default, all functions return `null` - an empty `return` statement will
-simply terminate the function and return `null`.
+The `return` keyword exits the function and returns its expression. An empty
+or missing `return` statement will terminate the function and return `null`.
 
-A secondary shorthand definition is available for functions that only do small
-calculations that fit in one expression:
+A secondary shorthand definition exists for single expressions:
 
     let add = func(x, y) -> x + y
 
-#### `save` statement
+#### The `save` statement
 
 The `save` statement acts as a "lazy" `return` - it saves a value to return,
-but does not immediately terminate the function. When the function returns, the
-most recently saved value will be used as its return value. After saving a
-value, subsequent empty `return` statements *will* return the saved value.
-Explicit `return` statements will override any saved values.
+but does not immediately terminate the function. After saving a value, empty
+or missing `return` statements *will* return the saved value. Explicit `return`
+statements will override any saved values.
 
     let add = func(x, y)
       save x + y
@@ -118,17 +114,15 @@ Explicit `return` statements will override any saved values.
 
 #### Calling
 
-Function values can be called by wrapping a list of arguments in parentheses.
+Functions can be called by wrapping a list of arguments in parentheses.
 
     let sum = add(3, 4)
 
 #### Closures
 
 Creating a function in a local scope (ie, inside another function) enables it
-to close over any non-global variables in the outer scope(s). Values being
-closed over are *copied* into a *closure environment* for the function. If the
-function mutates those variables, they are persistent *inside* the function but
-will not mutate the original variable.
+to close over all non-global variables in the outer scope(s). Variables being
+closed over are *copied by value* into a *closure environment* for the function.
 
     let i = 0
     let counter = func()
@@ -140,42 +134,35 @@ will not mutate the original variable.
     print(i)         # 0 - original variable is untouched
 
 The closure environment of a function can be inspected and mutated from outside
-of the function via indexing. External mutations are visible inside the
-function and internal mutations are visible outside the function.
+of the function via indexing.
+
+TODO update example
 
     print(counter.i) # 2 - inspect closure environment from outside
     counter.i = 0    # mutate closure environment from outside
     print(counter()) # 0 - external mutations are visible internally
 
-#### `main` function
+#### The `main` function
 
 Every Rain program must define a no-argument `main` function at the top level:
 
     let main = func()
       print("Hello!")
 
-This function serves as the program entry point - similar to `main` in C/C++.
-The return value of `main` is used as the program's exit status - `null` and
-`true` evaluate to exit status `0`, while `int` and `float` types evaluate to
-their value. All other values evaluate to `0`.
-
-### Comments
-
-Rain supports line comments with the `#` symbol.
-
-    # This is a comment.
-    let x = 5 # This value is used later.
+This function serves as the entry point of the program.
+The return value of `main` is used as the program's exit status:
+* integers exit as their value (floats are converted to integers)
+* `false` exits as `1`
+* All other values exit as `0`
 
 ### `pass` statement
 
-`pass` is simply a no-op instruction:
+`pass` is a no-op instruction:
 
     let main = func()
       pass # does nothing
 
-### `if` statement
-
-`if` behaves like most other programming languages:
+### The `if` statement
 
     let test = func(n)
       if n == 0
@@ -185,21 +172,21 @@ Rain supports line comments with the `#` symbol.
       else
         print("n is negative")
 
-All values except `null`, `false`, the integer `0`, and `0.0` are "truthy" -
-that is, they evaluate to true in boolean contexts like `if` statements. Null
-`cdata` values will also evaluate to false.
+All values except `null`, `false`, `0`, and `0.0` are "truthy" - that is, they
+evaluate to true in boolean contexts like `if` statements. Null `cdata` values
+will also evaluate to false.
 
 ### Loops
 
 Rain supports four types of loops: `loop`, `while`, `until`, and `for`, as well
-as the typical `break` and `continue` statements to control iteration. In
-addition, Rain supports conditional variants - `break if` and `continue if` -
-which evaluate the following expression and only terminate the loop or continue
-to the next iteration if their expression is truthy.
+as `break` and `continue` statements to control iteration. In addition, Rain
+supports conditional variants - `break if` and `continue if` - which evaluate the
+following expression and only terminate the loop or continue to the next iteration
+if their expression is truthy.
 
 #### `loop`
 
-An infinite loop that can only be terminated via `break` statements:
+An infinite loop that can only be terminated via the `break` statement:
 
     let n = 0
     loop
@@ -233,8 +220,8 @@ variable. The loop is terminated when the iterator returns `null`.
     for n in range(20)
       print(n)
 
-An *iterator* is simply a no-argument function that simply returns the next
-value in a sequence.
+An *iterator* is a no-argument function that returns the next value in a
+sequence.
 
     let range = func(n)
       let i = 0
@@ -268,20 +255,19 @@ second operand is evaluated and returned.
 
     let x = null | "default"  # x = "default"
 
-#### Comparison
+#### Relational
 
 The comparison operators (`<=`, `>=`, `<`, `>`) can operate on floats and
 integers, coercing integers to floats when necessary. Strings are compared in
 lexicographic order.
 
-The equality operators (`==`, `!=`) strictly compare for hashing equality (ie,
+The equality operators (`==`, `!=`) strictly compare for physical equality (ie,
 if two values will index into the same location in a table). This includes type
-checking as well as value checking. A consequence of this is that the
-expressions `x <= y` and `x >= y` are not equivalent to the expressions
-`x < y | x == y` and `x > y | x == y`, respectively. Function, table, and
-cdata values are compared by their *value*, not their contents - if two tables
-contain the same values but are not the same table reference, they are not
-equal.
+checking as well as value checking. A consequence of this is that the expressions
+`x <= y` and `x >= y` are not equivalent to the expressions `x < y | x == y` and
+`x > y | x == y`, respectively. Function, table, and cdata values are compared by
+their *value*, not their contents - if two tables contain the same content but are
+not the same table reference, they are not equal.
 
 *Note: this behavior may be changed in the future.*
 
@@ -375,9 +361,19 @@ Classes and inheritance can be emulated via metatables and methods:
     s:init(5)       # "init" is defined on square
     print(s:area()) # 25 - "area" is first defined on rectangle
 
+#### Modifying the metatable chain
+
+You can modify the metatable chain with multiple uses of the `::` operator.
+The `::` operator is right-associative.
+
+    let a = table                # a
+    let b = table :: a           # b -> a
+    let c = table :: a           # c -> a
+    let d = table :: c :: b :: a # d -> c -> b -> a
+
 #### Arrays
 
-Rain has no formal "arrays" - it simply mimics them by using tables with keys
+Rain has no formal "arrays" - it mimics them by using tables with keys
 from `0` to `n`:
 
     let arr = table
@@ -539,7 +535,7 @@ need to be imported as a path.
 
 #### Module names
 
-Typically, a module's name is simply the normalized version with the `.rn` suffix removed:
+Typically, a module's name is the normalized version with the `.rn` suffix removed:
 
     my_file.rn -> myfile
 
@@ -547,37 +543,30 @@ To avoid name conflicts with other modules, package modules are prefixed
 with the package name.
 
     base/_pkg.rn       -> base
-    base/array.rn      -> base.array
+    base/rand.rn       -> base.rand
     base/test/_pkg.rn  -> base.test
     base/test/extra.rn -> base.test.extra
 
 #### Modules as metatables
 
-Because modules are simply tables, they can be used as metatables / classes.
+Because modules are tables, they can be used as metatables / classes.
 
-    import array
+    import rand
 
-    let arr = table :: array
-    arr[0] = "Zero"
-    arr[1] = "One"
-    arr[2] = "Two"
+    let rng = table :: rand # `rng` acts as a new "instance" of `rand`
 
-    for val in arr:values() # values is a method defined in base.array
-      print(val)
+    rng:seed(0)
+    rand:seed(1)
 
-In fact, if `array` is imported, then array literals automatically have it set
-as their metatable:
+    print(rng:next())
+    print(rand:next())
 
-    import array
-
-    let arr = ["Zero", "One", "Two"]
-
-    for val in arr:values()
-      print(val)
-
-The same is true of dictionary literals and the `dict` module.
 
 ### Macros
+
+Rain supports AST-rewriting macros evaluated at compile-time. At this time,
+while fully functional, macros are still fairly experimental and under heavy
+development.
 
 ### Standard library
 
@@ -622,7 +611,7 @@ Used in macros.
 
 ##### `core.types`
 
-Contains type helpers.
+Contains type helpers and base type metatables.
 
 ##### `core.ops`
 
@@ -632,53 +621,46 @@ Contains the functions used by Rain's operators.
 
 Things that Rain likes to have.
 
-##### `base.array`
-
-A module containing array helpers. Often used as a metatable. If imported,
-array literals have it preset as their metatable.
-
-##### `base.dict`
-
-A module containing dict helpers. Often used as a metatable. If imported,
-dictionary literals have it preset as their metatable.
-
 #### `base.macros`
 
 Some helper macros.
 
 ### C extensions
 
-One of the primary goals of Rain is to be easily extendable with C.
+One of the primary goals of Rain is to be easily extensible with C. By exposing
+the runtime as a public API and allowing Rain modules to explicitly "import"
+foreign libraries, writing C extensions becomes a trivial task.
 
-#### C API
+*Note: the exposed API / extension system is subject to change.*
 
 #### `link` statement
 
-Instructs the Rain compiler to link with a file. The search paths are the same
-as the `import` statement.
+Adds a file that the Rain compiler should link into the final executable. The
+search paths are the same as the `import` statement.
 
     link "myfile.c"
 
 #### `library` statement
 
-Instructs the Rain compiler to link with a shared library. The search paths are
-defined by your system configuration.
+Add a library that the compiler should link into the final executable.  The
+search paths are defined by your system configuration; libraries are passed to
+`clang` via the `-l` flag.
 
     library "m"    # link with libm
     library "pcre" # link with libpcre
 
 #### `foreign` functions
 
-Return a function reference to an external C function. The parameter names are
-currently ignored, but the number of them is significant. The function name
-can be a name or a string literal.
+Return a function reference to an external function. The parameter names are
+currently ignored, but the number of them is significant. The function name can
+be a name or a string literal.
 
     # get a reference to `void rain_add(box *ret, box *lhs, box *rhs)`
     let add = foreign "rain_add"(lhs, rhs)
 
 #### `export..as foreign` statement
 
-Sometimes a global value needs to be shared between Rain and the C API.
+Exposes a global value that can be shared between Rain and extensions.
 
     // core/except/except.h
     box *rain_exc_arg_mismatch;
@@ -689,4 +671,71 @@ And:
     export arg_mismatch = table :: error
     export arg_mismatch as foreign "rain_exc_arg_mismatch"
 
+#### C API
+
+##### Boxes
+
+Rain's primary data structure is a "box" that contains the runtime type, value,
+length (if applicable), and a pointer to their metatable. Formally:
+
+    box {
+      unsigned char type;
+      int size;
+      cast data;
+      box* meta;
+    }
+
+Where `cast` is an untagged union that provides access to the various
+value types without conversion:
+
+    union {
+      unsigned long ui;
+      signed long si;
+      double f;
+      char *s;
+      struct table_s *lpt;
+      void *vp;
+    }
+
+##### "set" helpers
+
+Rain provides several helper functions to set the type, metatable, and value of
+a box:
+
+    void rain_set_box(box *dest, box *src);
+    void rain_set_null(box *);
+    void rain_set_int(box *, signed long);
+    void rain_set_float(box *, double);
+    void rain_set_bool(box *, unsigned char);
+    void rain_set_str(box *, char *);
+    void rain_set_strcpy(box *, const char *, int);
+    void rain_set_table(box *);
+    void rain_set_func(box *, void *, int);
+    void rain_set_cdata(box *, void *);
+    void rain_set_env(box *, box *);
+
 The exported name can be a name or a string literal.
+
+#### Putting it together
+
+Define your own function:
+
+    // mod.c
+    #include "rain.h"
+    void rain_ext_mod(box *ret, box *lhs, box *rhs) {
+      if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
+        rain_set_int(ret, lhs->data.si % rhs->data.si);
+      }
+
+      rain_throw(rain_exc_arg_mismatch);
+    }
+
+Link with the extension file in your Rain code and declare a `foreign`:
+
+    # mod.rn
+    link "mod.c"
+    export mod = foreign "rain_ext_mod"(lhs, rhs)
+
+    let main = func()
+      print(mod(5, 3))
+      print(mod(13, 3))
