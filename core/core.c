@@ -9,6 +9,7 @@
 
 int rain_gc_init() {
   GC_init();
+  return 0;
 }
 
 void rain_main(box *ret, box *func) {
