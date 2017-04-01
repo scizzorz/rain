@@ -2,7 +2,7 @@ link "except.c"
 
 export error = table
 error.msg = "error"
-error["_str"] = func(self)
+error.str = func(self)
   return self.msg
 
 export arg_mismatch = table :: error
