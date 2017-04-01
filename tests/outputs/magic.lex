@@ -26,9 +26,8 @@ newline
 dedent
 newline
 name 'wrapper'
-symbol '['
-string '_str'
-symbol ']'
+symbol '.'
+name 'str'
 symbol '='
 keyword 'func'
 symbol '('
@@ -50,9 +49,8 @@ newline
 dedent
 newline
 name 'wrapper'
-symbol '['
-string '_add'
-symbol ']'
+symbol '.'
+name 'add'
 symbol '='
 keyword 'func'
 symbol '('
@@ -82,9 +80,8 @@ newline
 dedent
 newline
 name 'wrapper'
-symbol '['
-string '_mul'
-symbol ']'
+symbol '.'
+name 'mul'
 symbol '='
 keyword 'func'
 symbol '('
@@ -114,9 +111,8 @@ newline
 dedent
 newline
 name 'wrapper'
-symbol '['
-string '_sub'
-symbol ']'
+symbol '.'
+name 'sub'
 symbol '='
 keyword 'func'
 symbol '('
@@ -146,9 +142,8 @@ newline
 dedent
 newline
 name 'wrapper'
-symbol '['
-string '_div'
-symbol ']'
+symbol '.'
+name 'div'
 symbol '='
 keyword 'func'
 symbol '('
