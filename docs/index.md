@@ -64,7 +64,7 @@ Rain supports 8 data types:
 ### Values
 
 All values are copied "by value". A called function's parameter is a copy of
-the caller's argument. However, because the "value" of a `table` object is a 
+the caller's argument. However, because the "value" of a `table` object is a
 pointer to its hash table, mutating a table will mutate the referenced hash table.
 
 ### Assignment
@@ -89,8 +89,8 @@ Functions are defined using the `func` keyword and a list of parameters:
     let add = func(x, y)
       return x + y
 
-The `return` keyword exits the function and returns its expression. An empty 
-or missing `return` statement will terminate the function and return `null`. 
+The `return` keyword exits the function and returns its expression. An empty
+or missing `return` statement will terminate the function and return `null`.
 
 A secondary shorthand definition exists for single expressions:
 
@@ -99,8 +99,8 @@ A secondary shorthand definition exists for single expressions:
 #### The `save` statement
 
 The `save` statement acts as a "lazy" `return` - it saves a value to return,
-but does not immediately terminate the function. After saving a value, empty 
-or missing `return` statements *will* return the saved value. Explicit `return` 
+but does not immediately terminate the function. After saving a value, empty
+or missing `return` statements *will* return the saved value. Explicit `return`
 statements will override any saved values.
 
     let add = func(x, y)
@@ -172,16 +172,16 @@ The return value of `main` is used as the program's exit status:
       else
         print("n is negative")
 
-All values except `null`, `false`, `0`, and `0.0` are "truthy" - that is, they 
-evaluate to true in boolean contexts like `if` statements. Null `cdata` values 
+All values except `null`, `false`, `0`, and `0.0` are "truthy" - that is, they
+evaluate to true in boolean contexts like `if` statements. Null `cdata` values
 will also evaluate to false.
 
 ### Loops
 
 Rain supports four types of loops: `loop`, `while`, `until`, and `for`, as well
-as `break` and `continue` statements to control iteration. In addition, Rain 
-supports conditional variants - `break if` and `continue if` - which evaluate the 
-following expression and only terminate the loop or continue to the next iteration 
+as `break` and `continue` statements to control iteration. In addition, Rain
+supports conditional variants - `break if` and `continue if` - which evaluate the
+following expression and only terminate the loop or continue to the next iteration
 if their expression is truthy.
 
 #### `loop`
@@ -220,7 +220,7 @@ variable. The loop is terminated when the iterator returns `null`.
     for n in range(20)
       print(n)
 
-An *iterator* is a no-argument function that returns the next value in a 
+An *iterator* is a no-argument function that returns the next value in a
 sequence.
 
     let range = func(n)
@@ -263,10 +263,10 @@ lexicographic order.
 
 The equality operators (`==`, `!=`) strictly compare for physical equality (ie,
 if two values will index into the same location in a table). This includes type
-checking as well as value checking. A consequence of this is that the expressions 
-`x <= y` and `x >= y` are not equivalent to the expressions `x < y | x == y` and 
-`x > y | x == y`, respectively. Function, table, and cdata values are compared by 
-their *value*, not their contents - if two tables contain the same content but are 
+checking as well as value checking. A consequence of this is that the expressions
+`x <= y` and `x >= y` are not equivalent to the expressions `x < y | x == y` and
+`x > y | x == y`, respectively. Function, table, and cdata values are compared by
+their *value*, not their contents - if two tables contain the same content but are
 not the same table reference, they are not equal.
 
 *Note: this behavior may be changed in the future.*
@@ -360,6 +360,16 @@ Classes and inheritance can be emulated via metatables and methods:
 
     s:init(5)       # "init" is defined on square
     print(s:area()) # 25 - "area" is first defined on rectangle
+
+#### Modifying the metatable chain
+
+You can modify the metatable chain with multiple uses of the `::` operator.
+The `::` operator is right-associative.
+
+    let a = table                # a
+    let b = table :: a           # b -> a
+    let c = table :: a           # c -> a
+    let d = table :: c :: b :: a # d -> c -> b -> a
 
 #### Arrays
 
@@ -533,7 +543,7 @@ To avoid name conflicts with other modules, package modules are prefixed
 with the package name.
 
     base/_pkg.rn       -> base
-    base/array.rn      -> base.array
+    base/rand.rn       -> base.rand
     base/test/_pkg.rn  -> base.test
     base/test/extra.rn -> base.test.extra
 
@@ -541,29 +551,20 @@ with the package name.
 
 Because modules are simply tables, they can be used as metatables / classes.
 
-    import array
+    import rand
 
-    let arr = table :: array
-    arr[0] = "Zero"
-    arr[1] = "One"
-    arr[2] = "Two"
+    let rng = table :: rand # `rng` acts as a new "instance" of `rand`
 
-    for val in arr:values() # values is a method defined in base.array
-      print(val)
+    rng:seed(0)
+    rand:seed(1)
 
-In fact, if `array` is imported, then array literals automatically have it set
-as their metatable:
+    print(rng:next())
+    print(rand:next())
 
-    import array
-
-    let arr = ["Zero", "One", "Two"]
-
-    for val in arr:values()
-      print(val)
-
-The same is true of dictionary literals and the `dict` module.
 
 ### Macros
+
+Rain supports AST-rewriting macros.
 
 ### Standard library
 
@@ -618,16 +619,6 @@ Contains the functions used by Rain's operators.
 
 Things that Rain likes to have.
 
-##### `base.array`
-
-A module containing array helpers. Often used as a metatable. If imported,
-array literals have it preset as their metatable.
-
-##### `base.dict`
-
-A module containing dict helpers. Often used as a metatable. If imported,
-dictionary literals have it preset as their metatable.
-
 #### `base.macros`
 
 Some helper macros.
@@ -635,8 +626,6 @@ Some helper macros.
 ### C extensions
 
 One of the primary goals of Rain is to be easily extendable with C.
-
-#### C API
 
 #### `link` statement
 
@@ -652,6 +641,56 @@ defined by your system configuration.
 
     library "m"    # link with libm
     library "pcre" # link with libpcre
+
+#### C API
+
+##### Boxes
+
+Rain's primary data structure is a "box" that contains the runtime type, value,
+length (if applicable), and a pointer to their metatable. Formally:
+
+    box {
+      unsigned char type;
+      int size;
+      cast data;
+      box* meta;
+    }
+
+Where `cast` is simply an untagged union that provides access to the various
+value types without conversion:
+
+    union {
+      unsigned long ui;
+      signed long si;
+      double f;
+      char *s;
+      struct table_s *lpt;
+      void *vp;
+    }
+
+##### `BOX_IS` / `BOX_ISNT` macros
+
+Use the included macros to easily check a box's runtime type:
+
+    if(BOX_IS(my_box, FLOAT)) { ... }
+    if(BOX_ISNT(my_box, STR)) { ... }
+
+##### "set" helpers
+
+Rain provides several helper functions to automatically set the appropriate
+values inside a box:
+
+    void rain_set_box(box *dest, box *src);
+    void rain_set_null(box *);
+    void rain_set_int(box *, signed long);
+    void rain_set_float(box *, double);
+    void rain_set_bool(box *, unsigned char);
+    void rain_set_str(box *, char *);
+    void rain_set_strcpy(box *, const char *, int);
+    void rain_set_table(box *);
+    void rain_set_func(box *, void *, int);
+    void rain_set_cdata(box *, void *);
+    void rain_set_env(box *, box *);
 
 #### `foreign` functions
 
@@ -676,3 +715,30 @@ And:
     export arg_mismatch as foreign "rain_exc_arg_mismatch"
 
 The exported name can be a name or a string literal.
+
+#### Putting it together
+
+Define your own function:
+
+    // ext.c
+    #include "rain.h"
+    void rain_ext_is_float(box *ret, box *val) {
+      if(BOX_IS(val, FLOAT)) {
+        printf("Your box is a float.\n");
+        rain_set_bool(ret, 1);
+      }
+      else {
+        printf("Your box is not a float.\n");
+        rain_set_bool(ret, 0);
+      }
+    }
+
+Link with the extension file in your Rain code and declare a `foreign`:
+
+    # ext.rn
+    link "ext.c"
+    export is_float = foreign "rain_ext_is_float"(val)
+
+    let main = func()
+      is_float(3.0)
+      is_float(3)
