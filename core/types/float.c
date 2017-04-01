@@ -1,5 +1,7 @@
 #include "rain.h"
+#include <gc.h>
 #include <math.h>
+#include <stdio.h>
 
 void rain_ext_float_int(box *ret, box *val) {
   if(BOX_ISNT(val, FLOAT)) {
