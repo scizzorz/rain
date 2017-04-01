@@ -1,5 +1,6 @@
 link "str.c"
 
+export bool = foreign "rain_ext_truthy"(self)
 export float = foreign "rain_ext_str_float"(self)
 export int = foreign "rain_ext_str_int"(self)
 export str = func(self) -> self
