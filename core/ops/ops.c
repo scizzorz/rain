@@ -6,10 +6,6 @@
 // magic methods
 
 void rain_binary_magic(box *ret, box *lhs, box *rhs, char *meth) {
-  if(lhs->env->data.vp != rhs->env->data.vp) {
-    rain_throw(rain_exc_arg_mismatch);
-  }
-
   box key;
   box val;
   rain_set_str(&key, meth);
@@ -64,7 +60,7 @@ void rain_add(box *ret, box *lhs, box *rhs) {
     rain_set_float(ret, lhs_f + rhs_f);
   }
   else if(BOX_IS(lhs, TABLE) && BOX_IS(rhs, TABLE)) {
-    rain_binary_magic(ret, lhs, rhs, "_add");
+    rain_binary_magic(ret, lhs, rhs, "add");
   }
   else {
     rain_throw(rain_exc_arg_mismatch);
@@ -91,7 +87,7 @@ void rain_sub(box *ret, box *lhs, box *rhs) {
     rain_set_float(ret, lhs_f - rhs_f);
   }
   else if(BOX_IS(lhs, TABLE) && BOX_IS(rhs, TABLE)) {
-    rain_binary_magic(ret, lhs, rhs, "_sub");
+    rain_binary_magic(ret, lhs, rhs, "sub");
   }
   else {
     rain_throw(rain_exc_arg_mismatch);
@@ -118,7 +114,7 @@ void rain_mul(box *ret, box *lhs, box *rhs) {
     rain_set_float(ret, lhs_f * rhs_f);
   }
   else if(BOX_IS(lhs, TABLE) && BOX_IS(rhs, TABLE)) {
-    rain_binary_magic(ret, lhs, rhs, "_mul");
+    rain_binary_magic(ret, lhs, rhs, "mul");
   }
   else {
     rain_throw(rain_exc_arg_mismatch);
@@ -146,7 +142,7 @@ void rain_div(box *ret, box *lhs, box *rhs) {
     rain_set_float(ret, lhs_f / rhs_f);
   }
   else if(BOX_IS(lhs, TABLE) && BOX_IS(rhs, TABLE)) {
-    rain_binary_magic(ret, lhs, rhs, "_div");
+    rain_binary_magic(ret, lhs, rhs, "div");
   }
   else {
     rain_throw(rain_exc_arg_mismatch);
@@ -215,7 +211,7 @@ void rain_gt(box *ret, box *lhs, box *rhs) {
     rain_set_bool(ret, strcmp(lhs_s, rhs_s) > 0);
   }
   else if(BOX_IS(lhs, TABLE) && BOX_IS(rhs, TABLE)) {
-    rain_binary_magic(ret, lhs, rhs, "_gt");
+    rain_binary_magic(ret, lhs, rhs, "gt");
   }
   else {
     rain_throw(rain_exc_arg_mismatch);
@@ -247,7 +243,7 @@ void rain_ge(box *ret, box *lhs, box *rhs) {
     rain_set_bool(ret, strcmp(lhs_s, rhs_s) >= 0);
   }
   else if(BOX_IS(lhs, TABLE) && BOX_IS(rhs, TABLE)) {
-    rain_binary_magic(ret, lhs, rhs, "_ge");
+    rain_binary_magic(ret, lhs, rhs, "ge");
   }
   else {
     rain_throw(rain_exc_arg_mismatch);
@@ -279,7 +275,7 @@ void rain_lt(box *ret, box *lhs, box *rhs) {
     rain_set_bool(ret, strcmp(lhs_s, rhs_s) < 0);
   }
   else if(BOX_IS(lhs, TABLE) && BOX_IS(rhs, TABLE)) {
-    rain_binary_magic(ret, lhs, rhs, "_lt");
+    rain_binary_magic(ret, lhs, rhs, "lt");
   }
   else {
     rain_throw(rain_exc_arg_mismatch);
@@ -311,7 +307,7 @@ void rain_le(box *ret, box *lhs, box *rhs) {
     rain_set_bool(ret, strcmp(lhs_s, rhs_s) <= 0);
   }
   else if(BOX_IS(lhs, TABLE) && BOX_IS(rhs, TABLE)) {
-    rain_binary_magic(ret, lhs, rhs, "_le");
+    rain_binary_magic(ret, lhs, rhs, "le");
   }
   else {
     rain_throw(rain_exc_arg_mismatch);
@@ -332,7 +328,7 @@ void rain_string_concat(box *ret, box *lhs, box *rhs) {
     rain_set_str(ret, cat);
   }
   else if(BOX_IS(lhs, TABLE) && BOX_IS(rhs, TABLE)) {
-    rain_binary_magic(ret, lhs, rhs, "_concat");
+    rain_binary_magic(ret, lhs, rhs, "concat");
   }
   else {
     rain_throw(rain_exc_arg_mismatch);
