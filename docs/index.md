@@ -157,7 +157,7 @@ The return value of `main` is used as the program's exit status:
 
 ### `pass` statement
 
-`pass` is simply a no-op instruction:
+`pass` is a no-op instruction:
 
     let main = func()
       pass # does nothing
@@ -373,7 +373,7 @@ The `::` operator is right-associative.
 
 #### Arrays
 
-Rain has no formal "arrays" - it simply mimics them by using tables with keys
+Rain has no formal "arrays" - it mimics them by using tables with keys
 from `0` to `n`:
 
     let arr = table
@@ -535,7 +535,7 @@ need to be imported as a path.
 
 #### Module names
 
-Typically, a module's name is simply the normalized version with the `.rn` suffix removed:
+Typically, a module's name is the normalized version with the `.rn` suffix removed:
 
     my_file.rn -> myfile
 
@@ -549,7 +549,7 @@ with the package name.
 
 #### Modules as metatables
 
-Because modules are simply tables, they can be used as metatables / classes.
+Because modules are tables, they can be used as metatables / classes.
 
     import rand
 
@@ -625,22 +625,49 @@ Some helper macros.
 
 ### C extensions
 
-One of the primary goals of Rain is to be easily extendable with C.
+One of the primary goals of Rain is to be easily extensible with C. By exposing
+the runtime as a public API and allowing Rain modules to explicitly "import"
+foreign libraries, writing C extensions becomes a trivial task.
+
+*Note: the exposed API / extension system is subject to change.*
 
 #### `link` statement
 
-Instructs the Rain compiler to link with a file. The search paths are the same
-as the `import` statement.
+Adds a file that the Rain compiler should link into the final executable. The
+search paths are the same as the `import` statement.
 
     link "myfile.c"
 
 #### `library` statement
 
-Instructs the Rain compiler to link with a shared library. The search paths are
-defined by your system configuration.
+Add a library that the compiler should link into the final executable.  The
+search paths are defined by your system configuration; libraries are passed to
+`clang` via the `-l` flag.
 
     library "m"    # link with libm
     library "pcre" # link with libpcre
+
+#### `foreign` functions
+
+Return a function reference to an external function. The parameter names are
+currently ignored, but the number of them is significant. The function name can
+be a name or a string literal.
+
+    # get a reference to `void rain_add(box *ret, box *lhs, box *rhs)`
+    let add = foreign "rain_add"(lhs, rhs)
+
+#### `export..as foreign` statement
+
+Exposes a global value that can be shared between Rain and extensions.
+
+    // core/except/except.h
+    box *rain_exc_arg_mismatch;
+
+And:
+
+    # core/except/_pkg.rn
+    export arg_mismatch = table :: error
+    export arg_mismatch as foreign "rain_exc_arg_mismatch"
 
 #### C API
 
@@ -656,7 +683,7 @@ length (if applicable), and a pointer to their metatable. Formally:
       box* meta;
     }
 
-Where `cast` is simply an untagged union that provides access to the various
+Where `cast` is an untagged union that provides access to the various
 value types without conversion:
 
     union {
@@ -668,17 +695,10 @@ value types without conversion:
       void *vp;
     }
 
-##### `BOX_IS` / `BOX_ISNT` macros
-
-Use the included macros to easily check a box's runtime type:
-
-    if(BOX_IS(my_box, FLOAT)) { ... }
-    if(BOX_ISNT(my_box, STR)) { ... }
-
 ##### "set" helpers
 
-Rain provides several helper functions to automatically set the appropriate
-values inside a box:
+Rain provides several helper functions to set the type, metatable, and value of
+a box:
 
     void rain_set_box(box *dest, box *src);
     void rain_set_null(box *);
@@ -692,53 +712,28 @@ values inside a box:
     void rain_set_cdata(box *, void *);
     void rain_set_env(box *, box *);
 
-#### `foreign` functions
-
-Return a function reference to an external C function. The parameter names are
-currently ignored, but the number of them is significant. The function name
-can be a name or a string literal.
-
-    # get a reference to `void rain_add(box *ret, box *lhs, box *rhs)`
-    let add = foreign "rain_add"(lhs, rhs)
-
-#### `export..as foreign` statement
-
-Sometimes a global value needs to be shared between Rain and the C API.
-
-    // core/except/except.h
-    box *rain_exc_arg_mismatch;
-
-And:
-
-    # core/except/_pkg.rn
-    export arg_mismatch = table :: error
-    export arg_mismatch as foreign "rain_exc_arg_mismatch"
-
 The exported name can be a name or a string literal.
 
 #### Putting it together
 
 Define your own function:
 
-    // ext.c
+    // mod.c
     #include "rain.h"
-    void rain_ext_is_float(box *ret, box *val) {
-      if(BOX_IS(val, FLOAT)) {
-        printf("Your box is a float.\n");
-        rain_set_bool(ret, 1);
+    void rain_ext_mod(box *ret, box *lhs, box *rhs) {
+      if(BOX_IS(lhs, INT) && BOX_IS(rhs, INT)) {
+        rain_set_int(ret, lhs->data.si % rhs->data.si);
       }
-      else {
-        printf("Your box is not a float.\n");
-        rain_set_bool(ret, 0);
-      }
+
+      rain_throw(rain_exc_arg_mismatch);
     }
 
 Link with the extension file in your Rain code and declare a `foreign`:
 
-    # ext.rn
-    link "ext.c"
-    export is_float = foreign "rain_ext_is_float"(val)
+    # mod.rn
+    link "mod.c"
+    export mod = foreign "rain_ext_mod"(lhs, rhs)
 
     let main = func()
-      is_float(3.0)
-      is_float(3)
+      print(mod(5, 3))
+      print(mod(13, 3))
