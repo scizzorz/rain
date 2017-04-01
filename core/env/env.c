@@ -7,8 +7,6 @@ void rain_init_args(int argc, char **argv) {
   box key;
   box val;
 
-  rain_gc_init();
-
   for(int i = 0; i < argc; ++i) {
     rain_set_int(&key, i);
     rain_set_strcpy(&val, argv[i], strlen(argv[i]));

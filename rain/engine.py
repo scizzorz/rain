@@ -71,9 +71,9 @@ class Engine:
 
     return main(argc, ct.byref(argv_0))
 
-  def gc_init(self):
-    gc_init = self.get_func('rain_gc_init', ct.c_int)
-    gc_init()
+  def init_gc(self):
+    init_gc = self.get_func('rain_init_gc', ct.c_int)
+    init_gc()
 
 
   # rain_get

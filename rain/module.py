@@ -85,6 +85,7 @@ externs = {
   'rain_box_to_exit': T.func(T.i32, [T.arg]),
   'rain_catch': T.vfunc(T.arg),
   'rain_check_callable': T.vfunc(T.arg, T.i32),
+  'rain_init_gc': T.func(T.i32, []),
   'rain_init_args': T.vfunc(T.i32, T.ptr(T.ptr(T.i8))),
   'rain_main': T.vfunc(T.arg, T.arg),
   'rain_personality_v0': T.func(T.i32, [], var_arg=True),

@@ -7,7 +7,7 @@
 
 // system helpers
 
-int rain_gc_init() {
+int rain_init_gc() {
   GC_init();
   return 0;
 }
