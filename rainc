@@ -1,2 +1,1 @@
-#!/bin/sh
-/usr/bin/env python3 -m rain $@
+bin/rainc
