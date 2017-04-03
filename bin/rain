@@ -1,7 +1,14 @@
 #!/bin/sh
-subc="$1"
-shift
+if [ $# -gt 0 ]; then
+  subc="$1"
+  shift
+else
+  subc="help"
+fi
+
 path=$(which rain-"$subc");
 if [ -x "$path" ]; then
   "$path" "$@"
+else
+  echo "Command not found: rain-$subc"
 fi
