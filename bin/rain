@@ -1,0 +1,7 @@
+#!/bin/sh
+subc="$1"
+shift
+path=$(which rain-"$subc");
+if [ -x "$path" ]; then
+  "$path" "$@"
+fi
