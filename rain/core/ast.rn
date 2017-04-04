@@ -240,7 +240,10 @@ _while.tag = "while"
 
 # expressions
 
-export _index = table :: node
+export expression_node = table :: node
+
+
+export _index = table :: expression_node
 
 _index.tag = "index"
 _index.slots = ["lhs", "rhs"]
@@ -250,43 +253,55 @@ _index.new = func(self, lhs, rhs)
   ret.lhs = lhs
   ret.rhs = rhs
 
+_index._assn = func(self, value)
+  return _assn:new(self, value)
 
-export _name = table :: value_node
+
+export _name = table :: expression_node :: value_node
 
 _name.tag = "name"
 
+_name._assn = func(self, value)
+  return _assn:new(self, value)
 
-export _null = table :: node
+_name._let = func(self, value)
+  return _let:new(self, value)
+
+_name._export = func(self, value)
+  return _export:new(self, value)
+
+
+export _null = table :: expression_node
 
 _null.tag = "null"
 
 
-export _int = table :: value_node
+export _int = table :: expression_node :: value_node
 
 _int.tag = "int"
 
 
-export _float = table :: value_node
+export _float = table :: expression_node :: value_node
 
 _float.tag = "float"
 
 
-export _bool = table :: value_node
+export _bool = table :: expression_node :: value_node
 
 _bool.tag = "bool"
 
 
-export _str = table :: value_node
+export _str = table :: expression_node :: value_node
 
 _str.tag = "str"
 
 
-export _table = table :: node
+export _table = table :: expression_node
 
 _table.tag = "table"
 
 
-export _array = table :: node
+export _array = table :: expression_node
 
 _array.tag = "array"
 _array.slots = ["items"]
@@ -296,7 +311,7 @@ _array.new = func(self, items)
   self.items = items
 
 
-export _dict = table :: node
+export _dict = table :: expression_node
 
 _dict.tag = "dict"
 _dict.slots = ["items"]
@@ -306,7 +321,7 @@ _dict.new = func(self, items)
   self.items = items
 
 
-export _func = table :: node
+export _func = table :: expression_node
 
 _func.tag = "func"
 _func.slots = ["params", "body", "rename"]
@@ -318,7 +333,7 @@ _func.new = func(self, params, body, rename)
   ret.rename = rename
 
 
-export _foreign = table :: node
+export _foreign = table :: expression_node
 
 _foreign.tag = "foreign"
 _foreign.slots = ["name", "params"]
@@ -329,7 +344,7 @@ _foreign.new = func(self, name, params)
   ret.params = params
 
 
-export _call = table :: node
+export _call = table :: expression_node
 
 _call.tag = "call"
 _call._catch = false
@@ -346,7 +361,7 @@ export _catch_call = table :: _call
 _catch_call._catch = true
 
 
-export _meth = table :: node
+export _meth = table :: expression_node
 
 _meth.tag = "method"
 _meth.slots = ["lhs", "rhs", "args", "catch"]
@@ -359,7 +374,7 @@ _meth.new = func(self, lhs, rhs, args, _catch)
   ret._catch = _catch
 
 
-export _binary = table :: node
+export _binary = table :: expression_node
 
 _binary.tag = "binary"
 _binary.slots = ["op", "lhs", "rhs"]
@@ -371,7 +386,7 @@ _binary.new = func(self, lhs, rhs, op)
   ret.op = op
 
 
-export _unary = table :: node
+export _unary = table :: expression_node
 
 _unary.tag = "unary"
 _unary.slots = ["op", "val"]
@@ -380,6 +395,33 @@ _unary.new = func(self, op, val)
   save ret
   ret.op = op
   ret.val = val
+
+
+# expression overloads
+
+expression_node.add = func(self, other)
+  return _binary:new(self, other, "+")
+
+expression_node.sub = func(self, other)
+  return _binary:new(self, other, "-")
+
+expression_node.mul = func(self, other)
+  return _binary:new(self, other, "*")
+
+expression_node.div = func(self, other)
+  return _binary:new(self, other, "/")
+
+expression_node.concat = func(self, other)
+  return _binary:new(self, other, "$")
+
+expression_node.idx = func(self, rhs)
+  return _index:new(self, rhs)
+
+expression_node.call = func(self, args)
+  return _call:new(self, args)
+
+expression_node._if = func(self, body, els)
+  return _if:new(self, body, els)
 
 
 # message nodes
