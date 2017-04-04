@@ -6,6 +6,7 @@ dist
 
 # Python virtualenv
 env
+!rain/core/env
 
 # intermediate files
 *.bc
