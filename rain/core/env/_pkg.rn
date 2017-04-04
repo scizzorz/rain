@@ -1,0 +1,6 @@
+link "env.c"
+
+export args = table
+export args as foreign "rain_args"
+
+export get = foreign "rain_ext_get_env"(name)

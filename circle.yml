@@ -19,8 +19,8 @@ stages:
         name: "Run tests"
         pwd: ~/rain
         environment:
-          - RAINLIB: ./rain/core
-          - RAINBASE: ./rain/base
+          - RAINLIB: ./core
+          - RAINBASE: ./base
           - PYTHONPATH: .
         command: |
           tests/fix.sh
