@@ -34,9 +34,17 @@ parser.add_argument('links', metavar='LINK', type=str, nargs='*',
 
 args = parser.parse_args()
 
-os.environ['RAINHOME'] = os.path.normpath(os.path.join(sys.argv[0], '../../'))
-os.environ['RAINLIB'] = os.path.join(os.environ['RAINHOME'], 'core')
-os.environ['RAINBASE'] = os.path.join(os.environ['RAINHOME'], 'base')
+
+if 'RAINHOME' not in os.environ:
+  os.environ['RAINHOME'] = os.path.normpath(os.path.join(sys.argv[0], '../'))
+
+if 'RAINLIB' not in os.environ:
+  os.environ['RAINLIB'] = os.path.join(os.environ['RAINHOME'], 'core')
+
+if 'RAINBASE' not in os.environ:
+  os.environ['RAINBASE'] = os.path.join(os.environ['RAINHOME'], 'base')
+
+
 src = M.find_rain(args.file, paths=['.'], extras=False)
 if not src:
   Q.abort("Can't find module {!r}".format(args.file))

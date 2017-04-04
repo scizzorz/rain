@@ -1,9 +1,12 @@
 # Python cache
 __pycache__
 *.pyc
+dist
+*.egg-info
 
 # Python virtualenv
 env
+!rain/core/env
 
 # intermediate files
 *.bc
