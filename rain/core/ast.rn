@@ -253,10 +253,22 @@ _index.new = func(self, lhs, rhs)
   ret.lhs = lhs
   ret.rhs = rhs
 
+_index._assn = func(self, value)
+  return _assn:new(self, value)
+
 
 export _name = table :: expression_node :: value_node
 
 _name.tag = "name"
+
+_name._assn = func(self, value)
+  return _assn:new(self, value)
+
+_name._let = func(self, value)
+  return _let:new(self, value)
+
+_name._export = func(self, value)
+  return _export:new(self, value)
 
 
 export _null = table :: expression_node
@@ -402,8 +414,14 @@ expression_node.div = func(self, other)
 expression_node.concat = func(self, other)
   return _binary:new(self, other, "$")
 
-expression_node.idx = func(self, other)
-  return _index:new(self, other)
+expression_node.idx = func(self, rhs)
+  return _index:new(self, rhs)
+
+expression_node.call = func(self, args)
+  return _call:new(self, args)
+
+expression_node._if = func(self, body, els)
+  return _if:new(self, body, els)
 
 
 # message nodes
