@@ -37,7 +37,7 @@ args = parser.parse_args()
 os.environ['RAINHOME'] = os.path.normpath(os.path.join(sys.argv[0], '../../'))
 os.environ['RAINLIB'] = os.path.join(os.environ['RAINHOME'], 'core')
 os.environ['RAINBASE'] = os.path.join(os.environ['RAINHOME'], 'base')
-src = M.find_rain(args.file, extras=False)
+src = M.find_rain(args.file, paths=['.'], extras=False)
 if not src:
   Q.abort("Can't find module {!r}".format(args.file))
 
