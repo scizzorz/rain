@@ -2,10 +2,10 @@ macro print_all(args) as (args)
   let node = ast.block:empty()
   save node
 
+  let print_name = ast.name:new("print")
+
   for arg in args:items()
-    let call = ast.call:new(ast.name:new("print"), table)
-    call.args[0] = arg
-    node:add(call)
+    node:add(print_name:call([arg]))
 
 macro call(expr, argblock) as (fn, args)
   return ast.call:new(fn, args)
