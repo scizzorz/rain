@@ -66,6 +66,7 @@ class macro:
     node.expand(mod, self.name)
 
     ctx.eng.add_ir(mod.ir)
+    ctx.eng.finalize()
 
   def parse(self, ctx):
     return [fn(ctx) for fn in self.parses]
