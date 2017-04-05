@@ -58,7 +58,7 @@ class macro:
 
     A.assn_node(symcount, A.int_node(0), let=True).emit(mod)
     A.assn_node(gensym, A.func_node([], A.block_node([
-      A.save_node(A.binary_node(A.str_node(':{}:'.format(ctx.qname)),
+      A.save_node(A.binary_node(A.str_node(':{}:'.format(self.name)),
                                 A.call_node(tostr, [symcount]), '$')),
       A.assn_node(symcount, A.binary_node(symcount, A.int_node(1), '+'))
     ])), let=True).emit(mod)
