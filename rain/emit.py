@@ -315,13 +315,13 @@ def emit(self, module):
 
 
 @macro_node.method
-def expand(self, module):
+def expand(self, module, name):
   typ = T.vfunc(T.arg, *[T.arg for x in self.params])
 
-  func_node(self.params, self.body, 'macro.func.real').emit(module)
-  real_func = module.find_func(typ, 'macro.func.real')
+  func_node(self.params, self.body, 'macro.func.real:' + name).emit(module)
+  real_func = module.find_func(typ, 'macro.func.real:' + name)
 
-  main_func = module.add_func(typ, name='macro.func.main')
+  main_func = module.add_func(typ, name='macro.func.main:' + name)
   main_func.attributes.personality = module.extern('rain_personality_v0')
   main_func.args[0].add_attribute('sret')
   with module.add_func_body(main_func):

@@ -41,47 +41,19 @@ rassoc = {
 }
 
 class macro:
-  def __init__(self, name, node, parses):
+  def __init__(self, ctx, name, node, parses):
     self.name = name
     self.parses = parses
-    mod = M.Module(name=name)
+    self.ctx = ctx # save this as our "source" context
 
-    # compile builtins
-    builtin = C.get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
-    builtin.build()
-
-    # compile lib.ast and use its links/libs
-    ast = C.get_compiler(join(ENV['RAINLIB'], 'ast.rn'))
-    ast.build()
-    so = ast.compile_links()
-
-    # import builtins
-    mod.import_scope(builtin.mod)
-    mod.import_llvm(builtin.mod)
-
-    # emit the macro code
-    A.import_node('ast').emit(mod)  # auto-import lib/ast.rn
-
-    # define gensym
-    symcount = A.name_node(':symcount')
-    gensym = A.name_node('gensym')
-    tostr = A.name_node('tostr')
-
-    A.assn_node(symcount, A.int_node(0), let=True).emit(mod)
-    A.assn_node(gensym, A.func_node([], A.block_node([
-      A.save_node(A.binary_node(A.str_node(':{}:'.format(self.name)),
-                                A.call_node(tostr, [symcount]), '$')),
-      A.assn_node(symcount, A.binary_node(symcount, A.int_node(1), '+'))
-    ])), let=True).emit(mod)
-
-    node.expand(mod)
+    node.expand(ctx.mod, self.name)
 
     # create the execution engine and link everthing
-    self.eng = E.Engine(llvm_ir=mod.ir)
-    self.eng.link_file(ast.ll, *ast.links)
-    self.eng.add_lib(so)
-    self.eng.finalize()
-    self.eng.init_gc()
+    ctx.eng = E.Engine(llvm_ir=ctx.mod.ir)
+    ctx.eng.link_file(ctx._ast.ll, *ctx._ast.links)
+    ctx.eng.add_lib(ctx._so)
+    ctx.eng.finalize()
+    ctx.eng.init_gc()
 
   def parse(self, ctx):
     return [fn(ctx) for fn in self.parses]
@@ -89,12 +61,12 @@ class macro:
   def expand(self, ctx):
     args = self.parse(ctx)
 
-    arg_boxes = [self.eng.to_rain(arg) for arg in args]
+    arg_boxes = [self.ctx.eng.to_rain(arg) for arg in args]
 
     ret_box = T.cbox(0, 0, 0)
-    func = self.eng.get_func('macro.func.main', T.carg, *[T.carg] * len(self.parses))
+    func = self.ctx.eng.get_func('macro.func.main:' + self.name, T.carg, *[T.carg] * len(self.parses))
     func(byref(ret_box), *[byref(arg) for arg in arg_boxes])
-    new_node = self.eng.to_py(ret_box)
+    new_node = self.ctx.eng.to_py(ret_box)
 
     return new_node
 
@@ -103,6 +75,7 @@ class context:
   def __init__(self, stream, *, file=None):
     self.file = file
     self.qname, self.mname = M.find_name(file)
+    self._mod = None
 
     self.stream = stream
     self.peek = next(stream)
@@ -117,8 +90,45 @@ class context:
     except StopIteration:
       self.peek = K.end_token()
 
+  @property
+  def mod(self):
+    if not self._mod:
+      self._mod = M.Module('macros')
+
+      # compile builtins
+      builtin = C.get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
+      builtin.build()
+
+      # compile lib.ast and use its links/libs
+      self._ast = C.get_compiler(join(ENV['RAINLIB'], 'ast.rn'))
+      self._ast.build()
+      self._so = self._ast.compile_links()
+
+      # import builtins
+      self._mod.import_scope(builtin.mod)
+      self._mod.import_llvm(builtin.mod)
+
+      # emit the macro code
+      A.import_node('ast').emit(self._mod)  # auto-import lib/ast.rn
+
+      # define gensym
+      symcount = A.name_node(':symcount')
+      gs = A.name_node('gs')
+      gensym = A.name_node('gensym')
+      tostr = A.name_node('tostr')
+
+      A.assn_node(gs, A.table_node(), let=True).emit(self._mod)
+      A.assn_node(symcount, A.int_node(0), let=True).emit(self._mod)
+      A.assn_node(gensym, A.func_node([], A.block_node([
+        A.save_node(A.binary_node(A.str_node(':{}:'.format(self.qname)),
+                                  A.call_node(tostr, [symcount]), '$')),
+        A.assn_node(symcount, A.binary_node(symcount, A.int_node(1), '+'))
+      ])), let=True).emit(self._mod)
+
+    return self._mod
+
   def register_macro(self, name, node, parses):
-    self.macros[name] = macro(self.qname + ':' + name, node, parses)
+    self.macros[name] = macro(self, self.qname + ':' + name, node, parses)
 
   def expand_macro(self, name):
     return self.macros[name].expand(self)
