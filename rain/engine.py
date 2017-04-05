@@ -50,6 +50,9 @@ class Engine:
     self.main_mod = mod
     self.engine.add_module(mod)
 
+  def add_ir(self, llvm_ir):
+    self.engine.add_module(self.compile_ir(llvm_ir))
+
   def finalize(self):
     self.engine.finalize_object()
 
@@ -74,6 +77,11 @@ class Engine:
   def init_gc(self):
     init_gc = self.get_func('rain_init_gc', ct.c_int)
     init_gc()
+
+  def init_ast(self):
+    init_ast = self.get_func('rain.ast.init', T.carg)
+    ret_box = T.cbox.to_rain(None)
+    init_ast(ct.byref(ret_box))
 
 
   # rain_get
