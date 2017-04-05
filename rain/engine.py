@@ -78,6 +78,11 @@ class Engine:
     init_gc = self.get_func('rain_init_gc', ct.c_int)
     init_gc()
 
+  def init_ast(self):
+    init_ast = self.get_func('rain.ast.init', T.carg)
+    ret_box = T.cbox.to_rain(None)
+    init_ast(ct.byref(ret_box))
+
 
   # rain_get
 

@@ -448,3 +448,6 @@ _warning.tag = "warning"
 export _hint = table :: _message
 
 _hint.tag = "hint"
+
+let init = func "rain.ast.init"()
+  pass
