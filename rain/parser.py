@@ -46,14 +46,28 @@ class macro:
     self.parses = parses
     self.ctx = ctx # save this as our "source" context
 
-    node.expand(ctx.mod, self.name)
+    mod = M.Module(self.name)
+    mod.import_scope(ctx.builtin_mod.mod)
+    mod.import_llvm(ctx.builtin_mod.mod)
+    A.import_node('ast').emit(mod)
 
-    # create the execution engine and link everthing
-    ctx.eng = E.Engine(llvm_ir=ctx.mod.ir)
-    ctx.eng.link_file(ctx._ast.ll, *ctx._ast.links)
-    ctx.eng.add_lib(ctx._so)
-    ctx.eng.finalize()
-    ctx.eng.init_gc()
+    # define gensym
+    symcount = A.name_node(':symcount')
+    gs = A.name_node('gs')
+    gensym = A.name_node('gensym')
+    tostr = A.name_node('tostr')
+
+    A.assn_node(gs, A.table_node(), let=True).emit(mod)
+    A.assn_node(symcount, A.int_node(0), let=True).emit(mod)
+    A.assn_node(gensym, A.func_node([], A.block_node([
+      A.save_node(A.binary_node(A.str_node(':{}:'.format(ctx.qname)),
+                                A.call_node(tostr, [symcount]), '$')),
+      A.assn_node(symcount, A.binary_node(symcount, A.int_node(1), '+'))
+    ])), let=True).emit(mod)
+
+    node.expand(mod, self.name)
+
+    ctx.eng.add_ir(mod.ir)
 
   def parse(self, ctx):
     return [fn(ctx) for fn in self.parses]
@@ -76,6 +90,10 @@ class context:
     self.file = file
     self.qname, self.mname = M.find_name(file)
     self._mod = None
+    self._eng = None
+    self._builtin = None
+    self._ast = None
+    self._so = None
 
     self.stream = stream
     self.peek = next(stream)
@@ -91,22 +109,39 @@ class context:
       self.peek = K.end_token()
 
   @property
+  def ast_mod(self):
+    if self._ast is None:
+      # compile lib.ast and use its links/libs
+      self._ast = C.get_compiler(join(ENV['RAINLIB'], 'ast.rn'))
+      self._ast.build()
+
+    return self._ast
+
+  @property
+  def builtin_mod(self):
+    if self._builtin is None:
+      # compile builtins
+      self._builtin = C.get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
+      self._builtin.build()
+
+    return self._builtin
+
+  @property
+  def libs(self):
+    if self._so is None:
+      self._so = self.ast_mod.compile_links()
+
+    return self._so
+
+  @property
   def mod(self):
     if not self._mod:
       self._mod = M.Module('macros')
-
-      # compile builtins
-      builtin = C.get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
-      builtin.build()
 
       # compile lib.ast and use its links/libs
       self._ast = C.get_compiler(join(ENV['RAINLIB'], 'ast.rn'))
       self._ast.build()
       self._so = self._ast.compile_links()
-
-      # import builtins
-      self._mod.import_scope(builtin.mod)
-      self._mod.import_llvm(builtin.mod)
 
       # emit the macro code
       A.import_node('ast').emit(self._mod)  # auto-import lib/ast.rn
@@ -126,6 +161,17 @@ class context:
       ])), let=True).emit(self._mod)
 
     return self._mod
+
+  @property
+  def eng(self):
+    if not self._eng:
+      self._eng = E.Engine(llvm_ir='')
+      self._eng.add_lib(self.libs)
+      self._eng.link_file(self.ast_mod.ll, *self.ast_mod.links)
+      self._eng.finalize()
+      self._eng.init_gc()
+
+    return self._eng
 
   def register_macro(self, name, node, parses):
     self.macros[name] = macro(self, self.qname + ':' + name, node, parses)

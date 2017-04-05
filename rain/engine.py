@@ -50,6 +50,9 @@ class Engine:
     self.main_mod = mod
     self.engine.add_module(mod)
 
+  def add_ir(self, llvm_ir):
+    self.engine.add_module(self.compile_ir(llvm_ir))
+
   def finalize(self):
     self.engine.finalize_object()
 
