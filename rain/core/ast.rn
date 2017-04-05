@@ -449,5 +449,15 @@ export _hint = table :: _message
 
 _hint.tag = "hint"
 
+export rain = {
+  exit   = {value="exit"}   :: _name,
+  length = {value="length"} :: _name,
+  meta   = {value="meta"}   :: _name,
+  panic  = {value="panic"}  :: _name,
+  print  = {value="print"}  :: _name,
+  tostr  = {value="tostr"}  :: _name,
+  type   = {value="type"}   :: _name,
+}
+
 let init = func "rain.ast.init"()
   pass
