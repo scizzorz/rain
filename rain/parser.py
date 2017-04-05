@@ -53,11 +53,9 @@ class macro:
 
     # define gensym
     symcount = A.name_node(':symcount')
-    gs = A.name_node('gs')
     gensym = A.name_node('gensym')
     tostr = A.name_node('tostr')
 
-    A.assn_node(gs, A.table_node(), let=True).emit(mod)
     A.assn_node(symcount, A.int_node(0), let=True).emit(mod)
     A.assn_node(gensym, A.func_node([], A.block_node([
       A.save_node(A.binary_node(A.str_node(':{}:'.format(ctx.qname)),
