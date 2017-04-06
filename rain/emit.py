@@ -189,6 +189,8 @@ def load_global(module, name: str):
 def emit(self, module):
   if isinstance(self.lhs, list): # unpack
     if module.is_global:
+      # to avoid making this code hideous for the time being
+      # theoretically, there's no reason for this
       Q.abort("Unable to unpack at global scope")
 
     # evalute the RHS before storing anything
@@ -201,6 +203,11 @@ def emit(self, module):
     # store everything
     for lhs, piece in zip(self.lhs, pieces):
       if isinstance(lhs, name_node):
+        if self.let:
+          with module.goto_entry():
+            module[lhs] = module.alloc(T.box)
+            module[lhs].bound = False
+
         if lhs not in module:
           Q.abort("Undeclared name {!r}", lhs.value)
 
