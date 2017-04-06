@@ -183,26 +183,15 @@ def load_global(module, name: str):
   return module[name].initializer
 
 
-# Simple statements ###########################################################
-
-# call rain_get from 0..n and return a list of LLVM values
-def extract(module, src, names):
-  values = []
-  for i, name in enumerate(names):
-    ptr = module.exfncall('rain_get', T.null, src, int_node(i).emit(module))
-    value = module.load(ptr)
-    if isinstance(name, list):
-      value = extract(module, value, name)
-    values.append(value)
-
-  return values
-
 # flatten arbitrarily nested lists
 def flatten(items):
   for i, x in enumerate(items):
     while i < len(items) and isinstance(items[i], list):
       items[i:i+1] = items[i]
   return items
+
+
+# Simple statements ###########################################################
 
 @assn_node.method
 def emit(self, module):
@@ -214,7 +203,7 @@ def emit(self, module):
 
     # evalute the RHS before storing anything
     deep_rhs = module.emit(self.rhs)
-    flat_rhs = flatten(extract(module, deep_rhs, self.lhs))
+    flat_rhs = flatten(module.unpack(deep_rhs, self.lhs))
     flat_lhs = flatten(self.lhs)
 
     # store everything
@@ -515,7 +504,7 @@ def emit(self, module):
     with module.goto(module.loop):
       if isinstance(self.name, list):
         flat_lhs = flatten(self.name)
-        flat_rhs = flatten(extract(module, module.load(ret_ptr), self.name))
+        flat_rhs = flatten(module.unpack(module.load(ret_ptr), self.name))
 
         for lhs, rhs in zip(flat_lhs, flat_rhs):
           module.store(rhs, module[lhs])

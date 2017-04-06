@@ -478,3 +478,14 @@ class Module(S.Scope):
 
   def extract(self, container, idx):
     return self.builder.extract_value(container, idx)
+
+  def unpack(self, source, structure):
+    values = []
+    for i, sub in enumerate(structure):
+      ptr = self.exfncall('rain_get', T.null, source, A.int_node(i).emit(self))
+      value = self.load(ptr)
+      if isinstance(sub, list):
+        value = self.unpack(value, sub)
+      values.append(value)
+
+    return values
