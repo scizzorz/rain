@@ -1,5 +1,6 @@
 from . import ast as A
 from . import emit
+from . import error as Q
 from . import lexer as L
 from . import module as M
 from . import parser as P
@@ -277,6 +278,11 @@ class Compiler:
 
     with self.okay('compiling'):
       target = self.target or self.mname
+      if os.path.isdir(target):
+        if self.target:
+          Q.warn('Target {!r} is a directory; appending .out suffix', target)
+        target = target + '.out'
+
       clang = os.getenv('CLANG', 'clang')
       flags = ['-O2']
       libs = ['-l' + lib for lib in self.libs]
@@ -319,4 +325,7 @@ class Compiler:
     '''Execute a generated executable.'''
     with self.okay('running'):
       target = self.target or self.mname
+      if os.path.isdir(target):
+        target = target + '.out'
+
       subprocess.check_call([os.path.abspath(target)])

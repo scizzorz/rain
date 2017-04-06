@@ -1,4 +1,4 @@
-link "int.c"
+link "./int.c"
 
 export bool = foreign "rain_ext_truthy"(self)
 export float = foreign "rain_ext_int_float"(self)

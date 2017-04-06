@@ -1,5 +1,5 @@
 library "m"
-link "float.c"
+link "./float.c"
 
 export bool = foreign "rain_ext_truthy"(self)
 export float = func(self) -> self

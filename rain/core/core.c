@@ -7,8 +7,19 @@
 
 // system helpers
 
+// these GC functions are used by ctypes
 int rain_init_gc() {
   GC_init();
+  return 0;
+}
+
+int rain_disable_gc() {
+  GC_disable();
+  return 0;
+}
+
+int rain_enable_gc() {
+  GC_enable();
   return 0;
 }
 

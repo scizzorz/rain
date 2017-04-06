@@ -169,6 +169,7 @@ class context:
       self._eng.link_file(self.ast_mod.ll, *self.ast_mod.links)
       self._eng.finalize()
       self._eng.init_gc()
+      self._eng.disable_gc() # this is a problem when sharing code between macros
       self._eng.init_ast()
 
     return self._eng

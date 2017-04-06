@@ -1,4 +1,4 @@
-link "str.c"
+link "./str.c"
 
 export bool = foreign "rain_ext_truthy"(self)
 export float = foreign "rain_ext_str_float"(self)
