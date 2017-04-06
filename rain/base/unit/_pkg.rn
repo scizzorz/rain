@@ -1,0 +1,87 @@
+macro init() as ()
+  let block = ast.block:empty()
+
+  AST.passed = ast.name:new(gensym())
+  AST.total = ast.name:new(gensym())
+  AST.collected = 0
+
+  let int0 = ast.int:new(0)
+  block:add(AST.passed:_let(int0))
+  block:add(AST.total:_let(int0))
+
+  return block
+
+macro report() as ()
+  if AST.passed == null
+    return ast.error:new("Failed to initialize testing framework")
+
+  let block = ast.block:empty()
+
+  let pass_count = ast.rain.tostr:call([AST.passed])
+  let pass_label = ast.str:new(" passed, ")
+
+  let total_count = ast.rain.tostr:call([AST.total])
+  let total_label = ast.str:new(" executed, ")
+
+  let collect_str = ast.str:new(tostr(AST.collected) $ " collected")
+
+  let print_str = pass_count $ pass_label $ total_count $ total_label $ collect_str
+
+  block:add(ast.rain.print:call([print_str]))
+
+  return block
+
+macro test(expr) as (expr)
+  if AST.passed == null
+    return ast.error:new("Failed to initialize testing framework")
+
+  AST.collected = AST.collected + 1
+
+  #let pass_str = ast.str:new("pass!")
+  #let fail_str = ast.str:new("fail!")
+  let int1 = ast.int:new(1)
+
+  let pass_block = ast.block:empty()
+  #pass_block:add(ast.rain.print:call([pass_str]))
+  pass_block:add(AST.passed:assn(AST.passed + int1))
+  pass_block:add(AST.total:assn(AST.total + int1))
+
+  let fail_block = ast.block:empty()
+  #fail_block:add(ast.rain.print:call([fail_str]))
+  fail_block:add(AST.total:assn(AST.total + int1))
+
+  return expr:_if(pass_block, fail_block)
+
+macro group(namestr, argblock) as (label, exprs)
+  if AST.passed == null
+    return ast.error:new("Failed to initialize testing framework")
+
+  let ret = ast.block:empty()
+  save ret
+
+  let int1 = ast.int:new(1)
+
+  let passed = ast.name:new(gensym())
+  let total = ast.name:new(gensym())
+
+  ret:add(passed:_let(ast.int:new(0)))
+  ret:add(total:_let(ast.int:new(0)))
+
+  let fail_block = ast.block:empty()
+
+  let pass_block = ast.block:empty()
+  pass_block:add(passed:assn(passed + int1))
+  let sum = AST.passed:add(int1)
+  let assn = AST.passed:assn(sum)
+  pass_block:add(assn)
+
+  for expr in exprs:items()
+    AST.collected = AST.collected + 1
+    ret:add(expr:_if(pass_block, fail_block))
+    ret:add(total:assn(total + int1))
+    ret:add(AST.total:assn(AST.total + int1))
+
+  let report_label = ast.str:new(label $ ": ")
+  let report_amt = ast.rain.tostr:call([passed]) $ ast.str:new(" / ") $ ast.rain.tostr:call([total])
+
+  ret:add(ast.rain.print:call([report_label $ report_amt]))

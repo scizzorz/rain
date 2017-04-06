@@ -1,0 +1,69 @@
+import unit
+
+export main = func()
+  @unit.init
+
+  @unit.group int
+    false:int() == 0
+    true:int() == 1
+
+    0:int() == 0
+    13:int() == 13
+    (-3):int() == -3
+
+    "0":int() == 0
+    "13":int() == 13
+    "-3":int() == -3
+    "0.0":int() == null
+    "int":int() == null
+
+    0.3:int() == 0
+    13.5:int() == 13
+    (-3.3):int() == -3
+
+  @unit.group float
+    false:float() == 0.0
+    true:float() == 1.0
+
+    0:float() == 0.0
+    13:float() == 13.0
+    (-3):float() == -3.0
+
+    "0.0":float() == 0.0
+    "13.5":float() == 13.5
+    "-3.3":float() == -3.3
+    "float":float() == null
+
+    0.0:float() == 0.0
+    13.5:float() == 13.5
+    (-3.3):float() == -3.3
+
+  @unit.group bool
+    false:bool() == false
+    true:bool() == true
+
+    0:bool() == false
+    13:bool() == true
+    (-3):bool() == true
+
+    "":bool() == true
+    "true":bool() == true
+    "false":bool() == true
+
+    0.0:bool() == false
+    13.5:bool() == true
+    (-3.3):bool() == true
+
+  @unit.group str
+    false:str() == "false"
+    true:str() == "true"
+
+    0:str() == "0"
+    13:str() == "13"
+    (-3):str() == "-3"
+
+    "str":str() == "str"
+
+    0.0:str() == "0.000000"
+    13.5:str() == "13.500000"
+    (-3.3):str() == "-3.300000"

@@ -1,0 +1,6 @@
+import "./rain/arithmetic"
+import "./rain/conversions"
+
+let main = func()
+  arithmetic.main()
+  conversions.main()
