@@ -7,7 +7,6 @@ link "set/set.c"
 link "table/table.c"
 
 library "gc"
-library "gcc_s"
 library "unwind"
 
 import env
