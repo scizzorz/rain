@@ -185,10 +185,11 @@ def load_global(module, name: str):
 
 # flatten arbitrarily nested lists
 def flatten(items):
-  for i, x in enumerate(items):
-    while i < len(items) and isinstance(items[i], list):
-      items[i:i+1] = items[i]
-  return items
+  for x in items:
+    if isinstance(x, list):
+      yield from flatten(x)
+    else:
+      yield x
 
 
 # Simple statements ###########################################################
@@ -482,8 +483,7 @@ def emit(self, module):
     if isinstance(self.name, name_node):
       module[self.name.value] = ret_ptr
     elif isinstance(self.name, list):
-      flat_names = flatten(self.name)
-      for name in flat_names:
+      for name in flatten(self.name):
         module[name.value] = module.alloc(T.box)
 
   with module.add_loop():
@@ -507,7 +507,7 @@ def emit(self, module):
         flat_rhs = flatten(module.unpack(module.load(ret_ptr), self.name))
 
         for lhs, rhs in zip(flat_lhs, flat_rhs):
-          module.store(rhs, module[lhs])
+          module.store(rhs, module[lhs.value])
 
       module.emit(self.body)
       module.builder.branch(module.before)

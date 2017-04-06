@@ -1,0 +1,10 @@
+import iter
+
+let main = func()
+  let r1 = iter.range(10)
+  let r2 = iter.srange(10, 20)
+  let r3 = iter.srange(20, 30)
+  let r4 = iter.srange(30, 60) # CRAZY
+
+  for [[a, b], [c, d]] in iter.zip(iter.zip(r1, r2), iter.zip(r3, r4))
+    print("[[" $ tostr(a) $ ", " $ tostr(b) $ "], [" $ tostr(c) $ ", " $ tostr(d) $ "]]")
