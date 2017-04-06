@@ -185,6 +185,25 @@ def load_global(module, name: str):
 
 # Simple statements ###########################################################
 
+# call rain_get from 0..n and return a list of LLVM values
+def extract(module, src, names):
+  values = []
+  for i, name in enumerate(names):
+    ptr = module.exfncall('rain_get', T.null, src, int_node(i).emit(module))
+    value = module.load(ptr)
+    if isinstance(name, list):
+      value = extract(module, value, name)
+    values.append(value)
+
+  return values
+
+# flatten arbitrarily nested lists
+def flatten(items):
+  for i, x in enumerate(items):
+    while i < len(items) and isinstance(items[i], list):
+      items[i:i+1] = items[i]
+  return items
+
 @assn_node.method
 def emit(self, module):
   if isinstance(self.lhs, list): # unpack
@@ -193,28 +212,9 @@ def emit(self, module):
       # theoretically, there's no reason for this
       Q.abort("Unable to unpack at global scope")
 
-    # call rain_get from 0..n and return a list of LLVM values
-    def extract(src, names):
-      values = []
-      for i, name in enumerate(names):
-        ptr = module.exfncall('rain_get', T.null, src, int_node(i).emit(module))
-        value = module.load(ptr)
-        if isinstance(name, list):
-          value = extract(value, name)
-        values.append(value)
-
-      return values
-
-    # flatten arbitrarily nested lists
-    def flatten(items):
-      for i, x in enumerate(items):
-        while i < len(items) and isinstance(items[i], list):
-          items[i:i+1] = items[i]
-      return items
-
     # evalute the RHS before storing anything
     deep_rhs = module.emit(self.rhs)
-    flat_rhs = flatten(extract(deep_rhs, self.lhs))
+    flat_rhs = flatten(extract(module, deep_rhs, self.lhs))
     flat_lhs = flatten(self.lhs)
 
     # store everything
@@ -492,8 +492,10 @@ def emit(self, module):
     ret_ptr = module.alloc(T.box)
     if isinstance(self.name, name_node):
       module[self.name.value] = ret_ptr
-    else:
-      Q.abort("Can't unpack for loops yet")
+    elif isinstance(self.name, list):
+      flat_names = flatten(self.name)
+      for name in flat_names:
+        module[name.value] = module.alloc(T.box)
 
   with module.add_loop() as (before, loop):
     with before:
@@ -511,6 +513,13 @@ def emit(self, module):
       module.builder.cbranch(not_null, module.loop, module.after)
 
     with loop:
+      if isinstance(self.name, list):
+        flat_lhs = flatten(self.name)
+        flat_rhs = flatten(extract(module, module.load(ret_ptr), self.name))
+
+        for lhs, rhs in zip(flat_lhs, flat_rhs):
+          module.store(rhs, module[lhs])
+
       module.emit(self.body)
       module.builder.branch(module.before)
 
