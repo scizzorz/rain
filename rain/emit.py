@@ -446,33 +446,33 @@ def emit(self, module):
 
 @loop_node.method
 def emit(self, module):
-  with module.add_loop() as (before, loop):
-    with before:
+  with module.add_loop():
+    with module.goto(module.before):
       module.builder.branch(module.loop)
 
-    with loop:
+    with module.goto(module.loop):
       module.emit(self.body)
       module.builder.branch(module.loop)
 
 
 @until_node.method
 def emit(self, module):
-  with module.add_loop() as (before, loop):
-    with before:
+  with module.add_loop():
+    with module.goto(module.before):
       module.builder.cbranch(module.truthy(self.pred), module.after, module.loop)
 
-    with loop:
+    with module.goto(module.loop):
       module.emit(self.body)
       module.builder.branch(module.before)
 
 
 @while_node.method
 def emit(self, module):
-  with module.add_loop() as (before, loop):
-    with before:
+  with module.add_loop():
+    with module.goto(module.before):
       module.builder.cbranch(module.truthy(self.pred), module.loop, module.after)
 
-    with loop:
+    with module.goto(module.loop):
       module.emit(self.body)
       module.builder.branch(module.before)
 
@@ -497,8 +497,8 @@ def emit(self, module):
       for name in flat_names:
         module[name.value] = module.alloc(T.box)
 
-  with module.add_loop() as (before, loop):
-    with before:
+  with module.add_loop():
+    with module.goto(module.before):
       module.store(T.null, ret_ptr)
 
       with module.builder.if_then(has_env):
@@ -512,7 +512,7 @@ def emit(self, module):
       not_null = module.builder.icmp_unsigned('!=', typ, T.ityp.null)
       module.builder.cbranch(not_null, module.loop, module.after)
 
-    with loop:
+    with module.goto(module.loop):
       if isinstance(self.name, list):
         flat_lhs = flatten(self.name)
         flat_rhs = flatten(extract(module, module.load(ret_ptr), self.name))

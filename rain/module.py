@@ -79,13 +79,6 @@ def find_name(src):
   return (qname, mname)
 
 
-# partially apply a context manager
-@contextmanager
-def ctx_partial(func, *args, **kwargs):
-  with func(*args, **kwargs) as val:
-    yield val
-
-
 externs = {
   'GC_malloc': T.func(T.ptr(T.i8), [T.i32]),
 
@@ -327,8 +320,7 @@ class Module(S.Scope):
 
       self.builder.branch(self.before)
 
-      yield (ctx_partial(self.goto, self.before),
-             ctx_partial(self.goto, self.loop))
+      yield
 
       self.builder.position_at_end(self.after)
 
