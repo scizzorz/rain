@@ -16,6 +16,15 @@ export keys = func(self)
     save i
     i = i + 1
 
+export items = func(self)
+  let i = 0
+  return func()
+    if self[i] == null
+      return null
+
+    save [i, self[i]]
+    i = i + 1
+
 export map = func(self, fn)
   let ret = table :: meta(self)
   save ret
