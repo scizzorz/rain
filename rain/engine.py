@@ -74,6 +74,14 @@ class Engine:
 
     return main(argc, ct.byref(argv_0))
 
+  def enable_gc(self):
+    enable_gc = self.get_func('rain_enable_gc', ct.c_int)
+    enable_gc()
+
+  def disable_gc(self):
+    disable_gc = self.get_func('rain_disable_gc', ct.c_int)
+    disable_gc()
+
   def init_gc(self):
     init_gc = self.get_func('rain_init_gc', ct.c_int)
     init_gc()
