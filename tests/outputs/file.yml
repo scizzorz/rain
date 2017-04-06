@@ -29,7 +29,7 @@ stmts:
               value: file
             rhs: !str;1
               value: open
-      - !for;2
+      - !for;3
         body: !block;2
           expr: null
           stmts:
@@ -40,16 +40,15 @@ stmts:
             catch: false
             func: !name;1
               value: print
-        funcs:
-        - !method;1
+        func: !method;1
           args: []
           catch: false
           lhs: !name;1
             value: f
           rhs: !str;1
             value: lines
-        names:
-        - x
+        name: !name;1
+          value: x
       - !method;1
         args: []
         catch: false

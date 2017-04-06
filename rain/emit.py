@@ -490,7 +490,7 @@ def emit(self, module):
   # set up the return pointers
   with module.goto_entry():
     ret_ptr = module.alloc(T.box)
-    if isinstance(self, name_node):
+    if isinstance(self.name, name_node):
       module[self.name.value] = ret_ptr
     else:
       Q.abort("Can't unpack for loops yet")

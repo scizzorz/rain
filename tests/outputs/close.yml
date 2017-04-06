@@ -46,7 +46,7 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !for;2
+      - !for;3
         body: !block;2
           expr: null
           stmts:
@@ -78,11 +78,10 @@ stmts:
             catch: false
             func: !name;1
               value: print
-        funcs:
-        - !name;1
+        func: !name;1
           value: r
-        names:
-        - i
+        name: !name;1
+          value: i
       - !assn;2
         export: false
         let: false
@@ -119,7 +118,7 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !for;2
+      - !for;3
         body: !block;2
           expr: null
           stmts:
@@ -151,10 +150,9 @@ stmts:
             catch: false
             func: !name;1
               value: print
-        funcs:
-        - !name;1
+        func: !name;1
           value: r
-        names:
-        - i
+        name: !name;1
+          value: i
     params: []
     rename: null
