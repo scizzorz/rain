@@ -1,17 +1,17 @@
-link "builtins.c"
-link "core.c"
-link "util.c"
+link "./builtins.c"
+link "./core.c"
+link "./util.c"
 
-link "ops/ops.c"
-link "set/set.c"
-link "table/table.c"
+link "./ops/ops.c"
+link "./set/set.c"
+link "./table/table.c"
 
 library "gc"
 library "unwind"
 
-import env
-import except
-import types
+import "./env"
+import "./except"
+import "./types"
 
 let exit    = foreign "rain_ext_exit"(val)
 let length  = foreign "rain_ext_length"(val)

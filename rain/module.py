@@ -25,8 +25,10 @@ def normalize_name(name):
 
 
 # find a rain file from a module identifier
-def find_rain(src, paths=[], extras=True):
-  if extras:
+def find_rain(src, paths=[]):
+  if src[0] == '/':
+    paths = ['']
+  elif src[0] != '.':
     paths = paths + get_paths()
 
   for path in paths:
@@ -39,8 +41,10 @@ def find_rain(src, paths=[], extras=True):
 
 
 # find any file from a string
-def find_file(src, paths=[], extras=True):
-  if extras:
+def find_file(src, paths=[]):
+  if src[0] == '/':
+    paths = ['']
+  elif src[0] != '.':
     paths = paths + get_paths()
 
   for path in paths:
