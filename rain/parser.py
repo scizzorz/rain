@@ -344,19 +344,12 @@ def stmt(ctx):
     return A.catch_node(name, body)
 
   if ctx.consume(K.keyword_token('for')):
-    names = [ctx.require(K.name_token).value]
-    while ctx.consume(K.symbol_token(',')):
-      names.append(ctx.require(K.name_token).value)
-
+    name = let_prefix(ctx)
     ctx.require(K.keyword_token('in'))
-
-    funcs = [binexpr(ctx)]
-    while ctx.consume(K.symbol_token(',')):
-      funcs.append(binexpr(ctx))
-
+    func = binexpr(ctx)
     body = block(ctx)
 
-    return A.for_node(names, funcs, body)
+    return A.for_node(name, func, body)
 
   if ctx.consume(K.keyword_token('with')):
     func = binexpr(ctx)

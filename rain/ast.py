@@ -224,12 +224,12 @@ class while_node(node):
 
 class for_node(node):
   __tag__ = 'for'
-  __version__ = 2
-  __slots__ = ['names', 'funcs', 'body']
+  __version__ = 3
+  __slots__ = ['name', 'func', 'body']
 
-  def __init__(self, names, funcs, body):
-    self.names = names
-    self.funcs = funcs
+  def __init__(self, name, func, body):
+    self.name = name
+    self.func = func
     self.body = body
 
 
