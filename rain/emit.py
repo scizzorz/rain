@@ -187,7 +187,35 @@ def load_global(module, name: str):
 
 @assn_node.method
 def emit(self, module):
-  if isinstance(self.lhs, name_node):
+  if isinstance(self.lhs, list): # unpack
+    if module.is_global:
+      Q.abort("Unable to unpack at global scope")
+
+    # evalute the RHS before storing anything
+    src = module.emit(self.rhs)
+    pieces = []
+    for i, lhs in enumerate(self.lhs):
+      piece = module.exfncall('rain_get', T.null, src, int_node(i).emit(module))
+      pieces.append(module.load(piece))
+
+    # store everything
+    for lhs, piece in zip(self.lhs, pieces):
+      if isinstance(lhs, name_node):
+        if lhs not in module:
+          Q.abort("Undeclared name {!r}", lhs.value)
+
+        module[lhs].bound = True
+        module.store(piece, module[lhs])
+
+      elif isinstance(lhs, idx_node):
+        table = module.emit(lhs.lhs)
+        key = module.emit(lhs.rhs)
+        module.exfncall('rain_put', table, key, piece)
+
+      elif isinstance(lhs, list):
+        pass # TODO
+
+  elif isinstance(self.lhs, name_node):
     if module.is_global:
       if self.export:
         table_box = module.exports.initializer
