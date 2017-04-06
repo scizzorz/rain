@@ -1,9 +1,14 @@
 export range = func(end)
-  let i = 0
+  let next = 0
   return func()
-    if i < end
-      save i
-    i = i + 1
+    if next < end
+      save next
+    next = next + 1
+
+export srange = func(start, end)
+  let iter = range(end)
+  iter.next = start
+  return iter
 
 export map = func(iter, fn)
   return func()
@@ -16,3 +21,22 @@ export foldl = func(iter, fn, z)
   for v in iter
     a = fn(a, v)
   return a
+
+export enumerate = func(iter)
+  let i = 0
+  return func()
+    let next = iter()
+    if next == null
+      return
+
+    save [i, next]
+    i = i + 1
+
+export zip = func(one, two)
+  return func()
+    let n1 = one()
+    let n2 = two()
+    if n1 == null | n2 == null
+      return
+
+    return [n1, n2]
