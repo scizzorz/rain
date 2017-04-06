@@ -460,13 +460,22 @@ def macro_exp(ctx):
   return res
 
 
-# assn_prefix :: prefix ('.' NAME | '[' binexpr ']')*
+# assn_prefix :: '[' assn_prefix (',' assn_prefix)* ']'
+#              | prefix ('.' NAME | '[' binexpr ']')*
 def assn_prefix(ctx):
+  if ctx.consume(K.symbol_token('[')):
+    lst = []
+    lst.append(assn_prefix(ctx))
+    while not ctx.consume(K.symbol_token(']')):
+      ctx.require(K.symbol_token(','))
+      lst.append(assn_prefix(ctx))
+
+    return lst
+
   lhs = prefix(ctx)
   rhs = None
 
   while True:
-
     if ctx.consume(K.symbol_token('.')):
       name = ctx.require(K.name_token).value
       rhs = A.str_node(name)
