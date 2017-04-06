@@ -16,7 +16,10 @@ name_chars = re.compile('[^a-z0-9]')
 
 # get default paths
 def get_paths():
-  return ['.'] + os.getenv('RAINPATH', '').split(':') + [os.environ['RAINBASE'], os.environ['RAINLIB']]
+  cur = ['.']
+  path = os.environ['RAINPATH'].split(':') if 'RAINPATH' in os.environ else []
+  core = [os.environ['RAINBASE'], os.environ['RAINLIB']]
+  return cur + path + core
 
 
 # normalize a name - remove all special characters and cases
@@ -29,7 +32,7 @@ def find_rain(src, paths=[]):
   if src[0] == '/':
     paths = ['']
   elif src[0] != '.':
-    paths = paths + get_paths()
+    paths = get_paths() + paths
 
   for path in paths:
     if isfile(join(path, src) + '.rn'):
