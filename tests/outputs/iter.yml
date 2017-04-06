@@ -1,0 +1,186 @@
+!program;1
+stmts:
+- !import;1
+  name: iter
+  rename: null
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: main
+  rhs: !func;2
+    body: !block;2
+      expr: null
+      stmts:
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: r1
+        rhs: !call;1
+          args:
+          - !int;1
+            value: 10
+          catch: false
+          func: !index;1
+            lhs: !name;1
+              value: iter
+            rhs: !str;1
+              value: range
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: r2
+        rhs: !call;1
+          args:
+          - !int;1
+            value: 10
+          - !int;1
+            value: 20
+          catch: false
+          func: !index;1
+            lhs: !name;1
+              value: iter
+            rhs: !str;1
+              value: srange
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: r3
+        rhs: !call;1
+          args:
+          - !int;1
+            value: 20
+          - !int;1
+            value: 30
+          catch: false
+          func: !index;1
+            lhs: !name;1
+              value: iter
+            rhs: !str;1
+              value: srange
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: r4
+        rhs: !call;1
+          args:
+          - !int;1
+            value: 30
+          - !int;1
+            value: 60
+          catch: false
+          func: !index;1
+            lhs: !name;1
+              value: iter
+            rhs: !str;1
+              value: srange
+      - !for;3
+        body: !block;2
+          expr: null
+          stmts:
+          - !call;1
+            args:
+            - !binary;1
+              lhs: !binary;1
+                lhs: !binary;1
+                  lhs: !binary;1
+                    lhs: !binary;1
+                      lhs: !binary;1
+                        lhs: !binary;1
+                          lhs: !binary;1
+                            lhs: !str;1
+                              value: '[['
+                            op: $
+                            rhs: !call;1
+                              args:
+                              - !name;1
+                                value: a
+                              catch: false
+                              func: !name;1
+                                value: tostr
+                          op: $
+                          rhs: !str;1
+                            value: ', '
+                        op: $
+                        rhs: !call;1
+                          args:
+                          - !name;1
+                            value: b
+                          catch: false
+                          func: !name;1
+                            value: tostr
+                      op: $
+                      rhs: !str;1
+                        value: '], ['
+                    op: $
+                    rhs: !call;1
+                      args:
+                      - !name;1
+                        value: c
+                      catch: false
+                      func: !name;1
+                        value: tostr
+                  op: $
+                  rhs: !str;1
+                    value: ', '
+                op: $
+                rhs: !call;1
+                  args:
+                  - !name;1
+                    value: d
+                  catch: false
+                  func: !name;1
+                    value: tostr
+              op: $
+              rhs: !str;1
+                value: ']]'
+            catch: false
+            func: !name;1
+              value: print
+        func: !call;1
+          args:
+          - !call;1
+            args:
+            - !name;1
+              value: r1
+            - !name;1
+              value: r2
+            catch: false
+            func: !index;1
+              lhs: !name;1
+                value: iter
+              rhs: !str;1
+                value: zip
+          - !call;1
+            args:
+            - !name;1
+              value: r3
+            - !name;1
+              value: r4
+            catch: false
+            func: !index;1
+              lhs: !name;1
+                value: iter
+              rhs: !str;1
+                value: zip
+          catch: false
+          func: !index;1
+            lhs: !name;1
+              value: iter
+            rhs: !str;1
+              value: zip
+        name:
+        - - !name;1
+            value: a
+          - !name;1
+            value: b
+        - - !name;1
+            value: c
+          - !name;1
+            value: d
+    params: []
+    rename: null
