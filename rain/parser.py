@@ -229,7 +229,7 @@ def block(ctx):
   return A.block_node(stmts)
 
 
-# stmt :: 'let' NAME '=' compound
+# stmt :: 'let' let_prefix '=' compound
 #       | 'export' NAME '=' compound
 #       | 'export' NAME 'as' 'foreign' (NAME | STRING)
 #       | 'import' (NAME | STRING) ('as' NAME)?
@@ -252,7 +252,7 @@ def block(ctx):
 #       | assn_prefix ('=' compound | fnargs | ':' NAME  fnargs)
 def stmt(ctx):
   if ctx.consume(K.keyword_token('let')):
-    lhs = A.name_node(ctx.require(K.name_token).value)
+    lhs = let_prefix(ctx)
     ctx.require(K.symbol_token('='))
     rhs = compound(ctx)
     return A.assn_node(lhs, rhs, let=True)
@@ -458,6 +458,20 @@ def macro_exp(ctx):
 
   res = ctx.expand_macro(name)
   return res
+
+# let_prefix :: '[' let_prefix (',' let_prefix)* ']'
+#             | NAME
+def let_prefix(ctx):
+  if ctx.consume(K.symbol_token('[')):
+    lst = []
+    lst.append(let_prefix(ctx))
+    while not ctx.consume(K.symbol_token(']')):
+      ctx.require(K.symbol_token(','))
+      lst.append(let_prefix(ctx))
+
+    return lst
+
+  return A.name_node(ctx.require(K.name_token).value)
 
 
 # assn_prefix :: '[' assn_prefix (',' assn_prefix)* ']'
