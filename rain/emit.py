@@ -193,15 +193,32 @@ def emit(self, module):
       # theoretically, there's no reason for this
       Q.abort("Unable to unpack at global scope")
 
+    # call rain_get from 0..n and return a list of LLVM values
+    def extract(src, names):
+      values = []
+      for i, name in enumerate(names):
+        ptr = module.exfncall('rain_get', T.null, src, int_node(i).emit(module))
+        value = module.load(ptr)
+        if isinstance(name, list):
+          value = extract(value, name)
+        values.append(value)
+
+      return values
+
+    # flatten arbitrarily nested lists
+    def flatten(items):
+      for i, x in enumerate(items):
+        while i < len(items) and isinstance(items[i], list):
+          items[i:i+1] = items[i]
+      return items
+
     # evalute the RHS before storing anything
-    src = module.emit(self.rhs)
-    pieces = []
-    for i, lhs in enumerate(self.lhs):
-      piece = module.exfncall('rain_get', T.null, src, int_node(i).emit(module))
-      pieces.append(module.load(piece))
+    deep_rhs = module.emit(self.rhs)
+    flat_rhs = flatten(extract(deep_rhs, self.lhs))
+    flat_lhs = flatten(self.lhs)
 
     # store everything
-    for lhs, piece in zip(self.lhs, pieces):
+    for lhs, rhs in zip(flat_lhs, flat_rhs):
       if isinstance(lhs, name_node):
         if self.let:
           with module.goto_entry():
@@ -212,15 +229,12 @@ def emit(self, module):
           Q.abort("Undeclared name {!r}", lhs.value)
 
         module[lhs].bound = True
-        module.store(piece, module[lhs])
+        module.store(rhs, module[lhs])
 
       elif isinstance(lhs, idx_node):
         table = module.emit(lhs.lhs)
         key = module.emit(lhs.rhs)
-        module.exfncall('rain_put', table, key, piece)
-
-      elif isinstance(lhs, list):
-        pass # TODO
+        module.exfncall('rain_put', table, key, rhs)
 
   elif isinstance(self.lhs, name_node):
     if module.is_global:
