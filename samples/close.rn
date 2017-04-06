@@ -2,12 +2,12 @@ import iter
 
 let main = func()
   let r = iter.range(10)
-  print("start = " $ tostr(r.i))
+  print("start = " $ tostr(r.next))
   for i in r
-    print(tostr(i) $ " -> " $ tostr(r.i))
+    print(tostr(i) $ " -> " $ tostr(r.next))
 
-  r.i = 5
+  r.next = 5
   print("---")
-  print("start = " $ tostr(r.i))
+  print("start = " $ tostr(r.next))
   for i in r
-    print(tostr(i) $ " -> " $ tostr(r.i))
+    print(tostr(i) $ " -> " $ tostr(r.next))

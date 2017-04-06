@@ -39,7 +39,7 @@ stmts:
               lhs: !name;1
                 value: r
               rhs: !str;1
-                value: i
+                value: next
             catch: false
             func: !name;1
               value: tostr
@@ -71,7 +71,7 @@ stmts:
                   lhs: !name;1
                     value: r
                   rhs: !str;1
-                    value: i
+                    value: next
                 catch: false
                 func: !name;1
                   value: tostr
@@ -89,7 +89,7 @@ stmts:
           lhs: !name;1
             value: r
           rhs: !str;1
-            value: i
+            value: next
         rhs: !int;1
           value: 5
       - !call;1
@@ -111,7 +111,7 @@ stmts:
               lhs: !name;1
                 value: r
               rhs: !str;1
-                value: i
+                value: next
             catch: false
             func: !name;1
               value: tostr
@@ -143,7 +143,7 @@ stmts:
                   lhs: !name;1
                     value: r
                   rhs: !str;1
-                    value: i
+                    value: next
                 catch: false
                 func: !name;1
                   value: tostr
