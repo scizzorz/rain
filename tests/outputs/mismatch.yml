@@ -132,7 +132,7 @@ stmts:
         body: !block;2
           expr: null
           stmts:
-          - !for;2
+          - !for;3
             body: !block;2
               expr: null
               stmts:
@@ -143,10 +143,9 @@ stmts:
                 catch: false
                 func: !name;1
                   value: print
-            funcs:
-            - !null;1 {}
-            names:
-            - x
+            func: !null;1 {}
+            name: !name;1
+              value: x
         name: r
       - !if;1
         body: !block;2

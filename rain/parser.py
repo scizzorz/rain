@@ -229,7 +229,7 @@ def block(ctx):
   return A.block_node(stmts)
 
 
-# stmt :: 'let' NAME '=' compound
+# stmt :: 'let' let_prefix '=' compound
 #       | 'export' NAME '=' compound
 #       | 'export' NAME 'as' 'foreign' (NAME | STRING)
 #       | 'import' (NAME | STRING) ('as' NAME)?
@@ -252,7 +252,7 @@ def block(ctx):
 #       | assn_prefix ('=' compound | fnargs | ':' NAME  fnargs)
 def stmt(ctx):
   if ctx.consume(K.keyword_token('let')):
-    lhs = A.name_node(ctx.require(K.name_token).value)
+    lhs = let_prefix(ctx)
     ctx.require(K.symbol_token('='))
     rhs = compound(ctx)
     return A.assn_node(lhs, rhs, let=True)
@@ -344,19 +344,12 @@ def stmt(ctx):
     return A.catch_node(name, body)
 
   if ctx.consume(K.keyword_token('for')):
-    names = [ctx.require(K.name_token).value]
-    while ctx.consume(K.symbol_token(',')):
-      names.append(ctx.require(K.name_token).value)
-
+    name = let_prefix(ctx)
     ctx.require(K.keyword_token('in'))
-
-    funcs = [binexpr(ctx)]
-    while ctx.consume(K.symbol_token(',')):
-      funcs.append(binexpr(ctx))
-
+    func = binexpr(ctx)
     body = block(ctx)
 
-    return A.for_node(names, funcs, body)
+    return A.for_node(name, func, body)
 
   if ctx.consume(K.keyword_token('with')):
     func = binexpr(ctx)
@@ -459,14 +452,37 @@ def macro_exp(ctx):
   res = ctx.expand_macro(name)
   return res
 
+# let_prefix :: '[' let_prefix (',' let_prefix)* ']'
+#             | NAME
+def let_prefix(ctx):
+  if ctx.consume(K.symbol_token('[')):
+    lst = []
+    lst.append(let_prefix(ctx))
+    while not ctx.consume(K.symbol_token(']')):
+      ctx.require(K.symbol_token(','))
+      lst.append(let_prefix(ctx))
 
-# assn_prefix :: prefix ('.' NAME | '[' binexpr ']')*
+    return lst
+
+  return A.name_node(ctx.require(K.name_token).value)
+
+
+# assn_prefix :: '[' assn_prefix (',' assn_prefix)* ']'
+#              | prefix ('.' NAME | '[' binexpr ']')*
 def assn_prefix(ctx):
+  if ctx.consume(K.symbol_token('[')):
+    lst = []
+    lst.append(assn_prefix(ctx))
+    while not ctx.consume(K.symbol_token(']')):
+      ctx.require(K.symbol_token(','))
+      lst.append(assn_prefix(ctx))
+
+    return lst
+
   lhs = prefix(ctx)
   rhs = None
 
   while True:
-
     if ctx.consume(K.symbol_token('.')):
       name = ctx.require(K.name_token).value
       rhs = A.str_node(name)

@@ -1,0 +1,49 @@
+let main = func()
+  print("LHS < RHS")
+  let [a] = [1, 2, 3]
+  print(a)
+
+  print("LHS == RHS")
+  let [b, c] = [1, 2]
+  print(b)
+  print(c)
+
+  print("LHS > RHS")
+  let [d, e, f] = [1]
+  print(d)
+  print(e)
+  print(f)
+
+  print("Nested LHS == Nested RHS")
+  let [g, [h, i], j] = [1, [2, 3], 4]
+  print(g)
+  print(h)
+  print(i)
+  print(j)
+
+  print("Nested LHS != Nested RHS")
+  let [[k, l], m, n] = [1, [2, 3], 4]
+  print(k)
+  print(l)
+  print(m[0])
+  print(m[1])
+  print(n)
+
+  print("LHS == Nested RHS")
+  let [o, p, q] = [1, [2, 3], [4, [5]]]
+  print(o)
+  print(p[0])
+  print(p[1])
+  print(q[0])
+  print(q[1][0])
+
+  print("Swap 1")
+  [b, c] = [c, b]
+  print(b)
+  print(c)
+
+  print("Swap 2")
+  let x = [1, 2]
+  [x[1], x[0]] = x
+  print(x[0])
+  print(x[1])

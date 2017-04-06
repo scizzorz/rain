@@ -1,0 +1,32 @@
+LHS < RHS
+1
+LHS == RHS
+1
+2
+LHS > RHS
+1
+null
+null
+Nested LHS == Nested RHS
+1
+2
+3
+4
+Nested LHS != Nested RHS
+null
+null
+2
+3
+4
+LHS == Nested RHS
+1
+2
+3
+4
+5
+Swap 1
+2
+1
+Swap 2
+2
+1

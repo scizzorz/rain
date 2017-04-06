@@ -183,11 +183,49 @@ def load_global(module, name: str):
   return module[name].initializer
 
 
+# flatten arbitrarily nested lists
+def flatten(items):
+  for i, x in enumerate(items):
+    while i < len(items) and isinstance(items[i], list):
+      items[i:i+1] = items[i]
+  return items
+
+
 # Simple statements ###########################################################
 
 @assn_node.method
 def emit(self, module):
-  if isinstance(self.lhs, name_node):
+  if isinstance(self.lhs, list): # unpack
+    if module.is_global:
+      # to avoid making this code hideous for the time being
+      # theoretically, there's no reason for this
+      Q.abort("Unable to unpack at global scope")
+
+    # evalute the RHS before storing anything
+    deep_rhs = module.emit(self.rhs)
+    flat_rhs = flatten(module.unpack(deep_rhs, self.lhs))
+    flat_lhs = flatten(self.lhs)
+
+    # store everything
+    for lhs, rhs in zip(flat_lhs, flat_rhs):
+      if isinstance(lhs, name_node):
+        if self.let:
+          with module.goto_entry():
+            module[lhs] = module.alloc(T.box)
+            module[lhs].bound = False
+
+        if lhs not in module:
+          Q.abort("Undeclared name {!r}", lhs.value)
+
+        module[lhs].bound = True
+        module.store(rhs, module[lhs])
+
+      elif isinstance(lhs, idx_node):
+        table = module.emit(lhs.lhs)
+        key = module.emit(lhs.rhs)
+        module.exfncall('rain_put', table, key, rhs)
+
+  elif isinstance(self.lhs, name_node):
     if module.is_global:
       if self.export:
         table_box = module.exports.initializer
@@ -397,83 +435,80 @@ def emit(self, module):
 
 @loop_node.method
 def emit(self, module):
-  with module.add_loop() as (before, loop):
-    with before:
+  with module.add_loop():
+    with module.goto(module.before):
       module.builder.branch(module.loop)
 
-    with loop:
+    with module.goto(module.loop):
       module.emit(self.body)
       module.builder.branch(module.loop)
 
 
 @until_node.method
 def emit(self, module):
-  with module.add_loop() as (before, loop):
-    with before:
+  with module.add_loop():
+    with module.goto(module.before):
       module.builder.cbranch(module.truthy(self.pred), module.after, module.loop)
 
-    with loop:
+    with module.goto(module.loop):
       module.emit(self.body)
       module.builder.branch(module.before)
 
 
 @while_node.method
 def emit(self, module):
-  with module.add_loop() as (before, loop):
-    with before:
+  with module.add_loop():
+    with module.goto(module.before):
       module.builder.cbranch(module.truthy(self.pred), module.loop, module.after)
 
-    with loop:
+    with module.goto(module.loop):
       module.emit(self.body)
       module.builder.branch(module.before)
 
 
 @for_node.method
 def emit(self, module):
-  if len(self.funcs) != len(self.names):
-    Q.abort("Name and function count mismatch; found {} functions, expected {}", len(self.funcs), len(self.names))
-
   # evaluate the expressions and pull out the function pointers
-  func_boxes = [module.emit(func) for func in self.funcs]
-  for box in func_boxes:
-    module.check_callable(box, 0)
+  func_box = module.emit(self.func)
+  module.check_callable(func_box, 0)
 
-  func_ptrs = [module.get_value(box, T.vfunc(T.arg)) for box in func_boxes]
-  func_envs = [module.get_env(box) for box in func_boxes]
-  has_envs = [module.builder.icmp_unsigned('!=', env, T.arg(None)) for env in func_envs]
-
+  func_ptr = module.get_value(func_box, T.vfunc(T.arg))
+  func_env = module.get_env(func_box)
+  has_env = module.builder.icmp_unsigned('!=', func_env, T.arg(None))
 
   # set up the return pointers
-  ret_ptrs = []
-
   with module.goto_entry():
-    for name in self.names:
-      module[name] = module.alloc(T.box, name='for:' + name)
-      ret_ptrs.append(module[name])
+    ret_ptr = module.alloc(T.box)
+    if isinstance(self.name, name_node):
+      module[self.name.value] = ret_ptr
+    elif isinstance(self.name, list):
+      flat_names = flatten(self.name)
+      for name in flat_names:
+        module[name.value] = module.alloc(T.box)
 
-  with module.add_loop() as (before, loop):
-    with before:
-      # call our function and break if it returns null
-      for ret_ptr, has_env, env in zip(ret_ptrs, has_envs, func_envs):
-        module.store(T.null, ret_ptr)
+  with module.add_loop():
+    with module.goto(module.before):
+      module.store(T.null, ret_ptr)
 
-        with module.builder.if_then(has_env):
-          env_box = module.load(env)
-          module.store(env_box, ret_ptr)
+      with module.builder.if_then(has_env):
+        env_box = module.load(func_env)
+        module.store(env_box, ret_ptr)
 
-      for ret_ptr, func_ptr in zip(ret_ptrs, func_ptrs):
-        module.call(func_ptr, ret_ptr)
-        box = module.load(ret_ptr)
-        typ = module.get_type(box)
+      module.call(func_ptr, ret_ptr)
+      box = module.load(ret_ptr)
+      typ = module.get_type(box)
 
-        next = module.builder.append_basic_block()
-        not_null = module.builder.icmp_unsigned('!=', typ, T.ityp.null)
-        module.builder.cbranch(not_null, next, module.after)
-        module.builder.position_at_end(next)
+      not_null = module.builder.icmp_unsigned('!=', typ, T.ityp.null)
+      module.builder.cbranch(not_null, module.loop, module.after)
 
-      module.builder.branch(module.loop)
+    with module.goto(module.loop):
+      if isinstance(self.name, list):
+        flat_lhs = flatten(self.name)
+        flat_rhs = flatten(module.unpack(module.load(ret_ptr), self.name))
 
-    with loop:
+        for lhs, rhs in zip(flat_lhs, flat_rhs):
+          module.store(rhs, module[lhs])
+
       module.emit(self.body)
       module.builder.branch(module.before)
 
