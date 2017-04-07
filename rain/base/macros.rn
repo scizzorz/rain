@@ -4,7 +4,7 @@ macro print_all(args) as (args)
 
   let print_name = ast.name:new("print")
 
-  for arg in args:items()
+  for arg in args:values()
     node:add(print_name:call([arg]))
 
 macro call(expr, argblock) as (fn, args)
