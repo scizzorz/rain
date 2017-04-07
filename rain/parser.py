@@ -530,7 +530,7 @@ def dict_item(ctx):
   ctx.require(K.symbol_token('='))
   val = binexpr(ctx)
 
-  return key, val
+  return [key, val]
 
 
 # dict_expr :: '{' (dict_item (',' dict_item)*)? ','? '}'
