@@ -22,7 +22,7 @@ export foldl = func(iter, fn, z)
     a = fn(a, v)
   return a
 
-export enumerate = func(iter)
+export enum = func(iter)
   let i = 0
   return func()
     let next = iter()
@@ -40,3 +40,22 @@ export zip = func(one, two)
       return
 
     return [n1, n2]
+
+export take = func(iter, end)
+  let next = 0
+  return func()
+    if next < end
+      save iter()
+    next = next + 1
+
+export drop = func(iter, num)
+  let i = 0
+  while i < num
+    iter()
+    i = i + 1
+
+  return iter
+
+export repeat = func(val)
+  return func()
+    return val
