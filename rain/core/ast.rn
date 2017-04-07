@@ -30,7 +30,7 @@ pred_block.new = func(self, pred, body)
 
 export _list = table :: node
 
-_list.items = func(self)
+_list.values = func(self)
   let i = 0
   return func()
     save self[i]
@@ -62,7 +62,7 @@ _block.add = func(self, stmt)
   let idx = length(self.stmts)
   self.stmts[idx] = stmt
 
-_block.items = func(self)
+_block.values = func(self)
   let i = 0
   return func()
     save self.stmts[i]
