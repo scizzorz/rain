@@ -31,8 +31,15 @@ def get_compiler(src, target=None, main=False):
   return compilers[abspath]
 
 
-def compile_c(src):
+def compile_link(src):
+  if src.endswith('.ll') or src.endswith('.so'):
+    return src
+
   if src not in c_files:
+    if not src.endswith('.c'):
+      Q.warn('unknown file type: {}', src)
+      Q.warn('passing through clang anyway')
+
     clang = os.getenv('CLANG', 'clang')
 
     src_mtime = os.path.getmtime(src)
@@ -272,17 +279,11 @@ class Compiler:
     add = set()
 
     for link in self.links:
-      if link.endswith('.ll') or link.endswith('.so'):
-        continue
+      target = compile_link(link)
 
-      if not link.endswith('.c'):
-        Q.warn('unknown file type: {}', link)
-        Q.warn('passing through clang anyway')
-
-      target = compile_c(link)
-
-      drop.add(link)
-      add.add(target)
+      if target != link:
+        drop.add(link)
+        add.add(target)
 
     self.links = (self.links | add) - drop
 
