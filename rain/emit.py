@@ -297,9 +297,6 @@ def emit(self, module):
 
 @import_node.method
 def emit(self, module):
-  if module.is_local:
-    Q.abort("Can't import module {!r} at non-global scope", self.name)
-
   # add the module's directory to the lookup path
   if getattr(module, 'file', None):
     base, name = os.path.split(module.file)
