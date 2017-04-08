@@ -415,11 +415,6 @@ class Module(S.Scope):
     with self.builder.if_then(arg_match):
       self.excall('rain_throw', self.get_exception('arg_mismatch'))
 
-    '''
-    self.store(box, self.callable_ptr)
-    self.excall('rain_check_callable', self.callable_ptr, T.i32(num_args), unwind=unwind)
-    '''
-
   # allocate stack space for function arguments
   def fnalloc(self, *args):
     with self.builder.goto_entry_block():
