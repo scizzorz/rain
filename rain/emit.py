@@ -326,9 +326,6 @@ def emit(self, module):
 
 @link_node.method
 def emit(self, module):
-  if module.is_local:
-    Q.abort("Can't link file {!r} at non-global scope", self.name)
-
   base, name = os.path.split(module.file)
   file = M.find_file(self.name, paths=[base])
   module.links.add(file)
@@ -336,9 +333,6 @@ def emit(self, module):
 
 @lib_node.method
 def emit(self, module):
-  if module.is_local:
-    Q.abort("Can't link library {!r} at non-global scope", self.name)
-
   module.libs.add(self.name)
 
 
