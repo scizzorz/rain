@@ -69,7 +69,7 @@ class macro:
       comp = C.get_compiler(m)
       comp.build()
       comp.compile_links()
-      ctx.eng.add_ir(open(comp.ll).read())
+      ctx.eng.add_file(comp.ll)
 
     ctx.eng.add_ir(mod.ir)
     ctx.eng.finalize()
@@ -97,7 +97,6 @@ class context:
     self._mod = None
     self._eng = None
     self._builtin = None
-    self._ast = None
     self._so = None
 
     self.stream = stream
@@ -114,28 +113,19 @@ class context:
       self.peek = K.end_token()
 
   @property
-  def ast_mod(self):
-    if self._ast is None:
-      # compile lib.ast and use its links/libs
-      self._ast = C.get_compiler(join(ENV['RAINLIB'], 'ast.rn'))
-      self._ast.build()
-      self._ast.compile_links()
-
-    return self._ast
-
-  @property
   def builtin_mod(self):
     if self._builtin is None:
       # compile builtins
       self._builtin = C.get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
       self._builtin.build()
+      self._builtin.compile_links()
 
     return self._builtin
 
   @property
   def libs(self):
     if self._so is None:
-      self._so = self.ast_mod.compile_libs()
+      self._so = self.builtin_mod.compile_libs()
 
     return self._so
 
@@ -143,10 +133,6 @@ class context:
   def mod(self):
     if not self._mod:
       self._mod = M.Module('macros')
-
-      # compile lib.ast and use its links/libs
-      self._ast = C.get_compiler(join(ENV['RAINLIB'], 'ast.rn'))
-      self._ast.build()
 
       # emit the macro code
       A.import_node('ast').emit(self._mod)  # auto-import lib/ast.rn
@@ -172,11 +158,11 @@ class context:
     if not self._eng:
       self._eng = E.Engine()
       self._eng.add_lib(self.libs)
-      self._eng.add_file(self.ast_mod.ll, *self.ast_mod.links)
+
+      self._eng.add_file(self.builtin_mod.ll, *self.builtin_mod.links)
       self._eng.finalize()
       self._eng.init_gc()
       self._eng.disable_gc() # this is a problem when sharing code between macros
-      self._eng.init_ast()
 
     return self._eng
 
