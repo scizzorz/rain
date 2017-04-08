@@ -260,6 +260,9 @@ def emit(self, module):
 
     module.exfncall('rain_put', table, key, val)
 
+  else:
+    Q.abort("Unable to assign to {}", self.lhs)
+
 
 @break_node.method
 def emit(self, module):
