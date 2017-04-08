@@ -47,6 +47,8 @@ class macro:
     self.ctx = ctx # save this as our "source" context
 
     mod = M.Module(self.name)
+    mod.file = ctx.file
+
     mod.import_scope(ctx.builtin_mod.mod)
     mod.import_llvm(ctx.builtin_mod.mod)
     A.import_node('ast').emit(mod)
