@@ -136,7 +136,7 @@ class Engine:
   # converting between Rain and Python AST
 
   def to_rain(self, val):
-    if isinstance(val, list):
+    if isinstance(val, (list, tuple)):
       table_box = T.cbox.to_rain(None)
       self.rain_set_table(table_box)
 
