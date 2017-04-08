@@ -246,15 +246,15 @@ class Compiler:
       self.ll = name
 
     elif self.emitted:
-      with open(self.target or self.mname + '.ll', 'w') as tmp:
+      with open(self.target or self.qname + '.ll', 'w') as tmp:
         tmp.write(self.mod.ir)
 
     elif self.parsed:
-      with open(self.target or self.mname + '.yml', 'w') as tmp:
+      with open(self.target or self.qname + '.yml', 'w') as tmp:
         tmp.write(A.machine.dump(self.ast))
 
     elif self.lexed:
-      with open(self.target or self.mname + '.lex', 'w') as tmp:
+      with open(self.target or self.qname + '.lex', 'w') as tmp:
         for token in self.stream:
           tmp.write(str(token))
           tmp.write('\n')
@@ -302,7 +302,7 @@ class Compiler:
     self.compile_links()
 
     with self.okay('compiling'):
-      target = self.target or self.mname
+      target = self.target or self.qname
       if os.path.isdir(target):
         if self.target:
           Q.warn('Target {!r} is a directory; appending .out suffix', target)
@@ -335,7 +335,7 @@ class Compiler:
     self.compile_links()
 
     with self.okay('sharing'):
-      target = self.target or self.mname + '.so'
+      target = self.target or self.qname + '.so'
       clang = os.getenv('CLANG', 'clang')
       flags = ['-O2', '-shared', '-fPIC']
       cmd = [clang, '-o', target, self.ll] + flags
@@ -349,7 +349,7 @@ class Compiler:
   def run(self):
     '''Execute a generated executable.'''
     with self.okay('running'):
-      target = self.target or self.mname
+      target = self.target or self.qname
       if os.path.isdir(target):
         target = target + '.out'
 
