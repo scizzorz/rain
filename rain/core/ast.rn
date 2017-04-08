@@ -28,23 +28,6 @@ pred_block.new = func(self, pred, body)
 
 # structure
 
-export _list = table :: node
-
-_list.values = func(self)
-  let i = 0
-  return func()
-    save self[i]
-    i = i + 1
-
-_list.keys = func(self)
-  let i = 0
-  return func()
-    if self[i] == null
-      return
-
-    save i
-    i = i + 1
-
 export _block = table :: node
 
 _block.tag = "block"

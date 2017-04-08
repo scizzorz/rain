@@ -140,8 +140,7 @@ class Engine:
       table_box = T.cbox.to_rain(None)
       self.rain_set_table(table_box)
 
-      ast_ptr = self.get_global('core.ast.exports', T.carg)
-      meta_ptr = self.rain_get_ptr_py(ast_ptr, 'list')
+      meta_ptr = self.get_global('core.types.array.exports', T.carg)
       self.rain_set_env(table_box, meta_ptr)
 
       for i, n in enumerate(val):
