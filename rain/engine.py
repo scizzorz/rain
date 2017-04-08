@@ -66,6 +66,8 @@ class Engine:
     ptr = ct.cast(ct.c_void_p(addr), typ)
     return ptr
 
+  # runtime calls
+
   def main(self):
     main = self.get_func('main', ct.c_int, ct.c_int, ct.POINTER(ct.c_char_p))
 

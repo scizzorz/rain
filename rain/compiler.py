@@ -121,7 +121,7 @@ class Compiler:
 
       sys.exit(1)
 
-  def link(self, other):
+  def link_with(self, other):
     '''Copy all of the links, libraries, and modules from another module.'''
     if other.ll:
       self.links.add(other.ll)
@@ -176,32 +176,32 @@ class Compiler:
     if self is not builtin:  # unless we ARE lib/_pkg.rn
       builtin.build()
 
-      self.link(builtin)
+      self.link_with(builtin)
 
       # import globals
       self.mod.import_scope(builtin.mod)
       self.mod.import_llvm(builtin.mod)
 
     # compile the imports
-    imports, links, libs = self.ast.emit(self.mod)
+    self.ast.emit(self.mod)
 
-    for mod in imports:
+    for mod in self.mod.imports:
       comp = get_compiler(mod)
       self.vprint('           {} imports {}', X(self.qname, 'green'), X(comp.qname, 'blue'))
       comp.build()  # should be done during import but might as well be safe
 
       # add the module's IR as well as all of its imports' IR
-      self.link(comp)
+      self.link_with(comp)
       self.mods.add(comp.mod)
 
-    for link in links:
+    for link in self.mod.links:
       self.vprint('           {} links {}', X(self.qname, 'green'), X(link, 'blue'))
 
-    for lib in libs:
+    for lib in self.mod.libs:
       self.vprint('           {} shares {}', X(self.qname, 'green'), X(lib, 'blue'))
 
-    self.links |= set(links)
-    self.libs |= set(libs)
+    self.links |= self.mod.links
+    self.libs |= self.mod.libs
 
     # only spit out the main if this is the main file
     if self.main:

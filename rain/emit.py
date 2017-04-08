@@ -15,19 +15,8 @@ def emit(self, module):
   module.exports = module.add_global(T.box, name=module.mangle('exports'))
   module.exports.initializer = static_table_alloc(module, name=module.mangle('exports.table'))
 
-  imports = []
-  links = []
-  libs = []
   for stmt in self.stmts:
-    ret = module.emit(stmt)
-    if isinstance(stmt, import_node):
-      imports.append(ret)
-    elif isinstance(stmt, link_node):
-      links.append(ret)
-    elif isinstance(stmt, lib_node):
-      libs.append(ret)
-
-  return imports, links, libs
+    module.emit(stmt)
 
 
 @program_node.method
@@ -335,7 +324,7 @@ def emit(self, module):
 
   module[rename].initializer = static_table_from_ptr(module, glob)
   module[rename].mod = comp.mod
-  return file
+  module.imports.add(file)
 
 
 @link_node.method
@@ -345,7 +334,15 @@ def emit(self, module):
 
   base, name = os.path.split(module.file)
   file = M.find_file(self.name, paths=[base])
-  return file
+  module.links.add(file)
+
+
+@lib_node.method
+def emit(self, module):
+  if module.is_local:
+    Q.abort("Can't link library {!r} at non-global scope", self.name)
+
+  module.libs.add(self.name)
 
 
 @macro_node.method
@@ -369,14 +366,6 @@ def expand(self, module, name):
       abort(module.builder.block)
 
     module.builder.ret_void()
-
-
-@lib_node.method
-def emit(self, module):
-  if module.is_local:
-    Q.abort("Can't link library {!r} at non-global scope", self.name)
-
-  return self.name
 
 
 @pass_node.method

@@ -142,6 +142,9 @@ class Module(S.Scope):
 
     self.llvm = ir.Module(name=self.qname)
     self.llvm.triple = binding.get_default_triple()
+    self.imports = set()
+    self.links = set()
+    self.libs = set()
 
     typ = T.arr(T.i8, len(self.qname) + 1)
     ptr = self.add_global(typ, name=self.mangle('_name'))
