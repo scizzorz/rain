@@ -1,0 +1,19 @@
+link "./platform.c"
+
+export get_platform = foreign "rain_ext_get_platform"()
+
+macro linux(block) as (body)
+  link "./platform.c"
+  let get_platform = foreign "rain_ext_get_platform"()
+  if get_platform() == "linux"
+    return body
+
+  return ast._null
+
+macro mac(block) as (body)
+  link "./platform.c"
+  let get_platform = foreign "rain_ext_get_platform"()
+  if get_platform() == "mac"
+    return body
+
+  return ast._null
