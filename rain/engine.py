@@ -158,9 +158,6 @@ class Engine:
 
       slots = [self.to_rain(getattr(val, key, None)) for key in val.__slots__]
 
-      tag_in = T.cbox.to_rain(val.__tag__)
-      self.rain_put_py(table_box, 'tag', tag_in)
-
       for key, box in zip(val.__slots__, slots):
         self.rain_put_py(table_box, key, box)
 
