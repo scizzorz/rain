@@ -141,7 +141,6 @@ class context:
       # compile lib.ast and use its links/libs
       self._ast = C.get_compiler(join(ENV['RAINLIB'], 'ast.rn'))
       self._ast.build()
-      self._so = self._ast.compile_links()
 
       # emit the macro code
       A.import_node('ast').emit(self._mod)  # auto-import lib/ast.rn

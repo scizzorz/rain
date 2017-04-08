@@ -64,12 +64,17 @@ def compile_so(libs):
 
   clang = os.getenv('CLANG', 'clang')
 
-  handle, target = tempfile.mkstemp(prefix='slibs', suffix='.so')
-  libs = ['-l' + lib for lib in libs]
-  flags = ['-shared']
+  tempdir = tempfile.gettempdir()
+  libname = '.'.join(sorted(libs))
+  target = join(tempdir, 'lib' + libname + '.so')
+  make = True
 
-  cmd = [clang, '-o', target] + flags + libs
-  subprocess.check_call(cmd)
+  if not os.path.exists(target):
+    libs = ['-l' + lib for lib in libs]
+    flags = ['-shared']
+
+    cmd = [clang, '-o', target] + flags + libs
+    subprocess.check_call(cmd)
 
   return target
 
