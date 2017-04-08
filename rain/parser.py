@@ -128,7 +128,8 @@ class context:
   @property
   def libs(self):
     if self._so is None:
-      self._so = self.ast_mod.compile_links()
+      self.ast_mod.compile_links()
+      self._so = self.ast_mod.compile_libs()
 
     return self._so
 

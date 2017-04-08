@@ -276,6 +276,8 @@ class Compiler:
 
     self.links = (self.links | add) - drop
 
+  def compile_libs(self):
+    '''Compile all shared libraries into a .so file.'''
     return compile_so(self.libs)
 
   def compile(self):
