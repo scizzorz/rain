@@ -37,7 +37,8 @@ def compile_c(src):
 
     src_mtime = os.path.getmtime(src)
     tempdir = tempfile.gettempdir()
-    target = join(tempdir, os.path.basename(src) + '.ll')
+    rn_mod, _ = M.find_name(src)
+    target = join(tempdir, rn_mod + '.c.ll')
     make = True
 
     # if the target exists and is newer than the source, don't remake
