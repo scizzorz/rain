@@ -35,6 +35,129 @@ stmts:
   export: false
   let: true
   lhs: !name;1
+    value: person
+  rhs: !dict;1
+    items:
+    - - !str;1
+        value: name
+      - !str;1
+        value: Phil
+    - - !str;1
+        value: age
+      - !int;1
+        value: 47
+    - - !str;1
+        value: kids
+      - !int;1
+        value: 4
+    - - !str;1
+        value: married
+      - !bool;1
+        value: true
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: square
+  rhs: !func;2
+    body: !block;2
+      expr: null
+      stmts:
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: ret
+        rhs: !block;2
+          expr: !name;1
+            value: :base.macros:case:1
+          stmts:
+          - !assn;2
+            export: false
+            let: true
+            lhs: !name;1
+              value: :base.macros:case:0
+            rhs: !name;1
+              value: n
+          - !assn;2
+            export: false
+            let: true
+            lhs: !name;1
+              value: :base.macros:case:1
+            rhs: !null;1 {}
+          - !if;1
+            body: !assn;2
+              export: false
+              let: false
+              lhs: !name;1
+                value: :base.macros:case:1
+              rhs: !int;1
+                value: 1
+            els: !if;1
+              body: !assn;2
+                export: false
+                let: false
+                lhs: !name;1
+                  value: :base.macros:case:1
+                rhs: !int;1
+                  value: 4
+              els: !if;1
+                body: !assn;2
+                  export: false
+                  let: false
+                  lhs: !name;1
+                    value: :base.macros:case:1
+                  rhs: !int;1
+                    value: 9
+                els: !if;1
+                  body: !assn;2
+                    export: false
+                    let: false
+                    lhs: !name;1
+                      value: :base.macros:case:1
+                    rhs: !int;1
+                      value: 16
+                  els: !assn;2
+                    export: false
+                    let: false
+                    lhs: !name;1
+                      value: :base.macros:case:1
+                    rhs: !int;1
+                      value: 0
+                  pred: !binary;1
+                    lhs: !name;1
+                      value: :base.macros:case:0
+                    op: ==
+                    rhs: !int;1
+                      value: 4
+                pred: !binary;1
+                  lhs: !name;1
+                    value: :base.macros:case:0
+                  op: ==
+                  rhs: !int;1
+                    value: 3
+              pred: !binary;1
+                lhs: !name;1
+                  value: :base.macros:case:0
+                op: ==
+                rhs: !int;1
+                  value: 2
+            pred: !binary;1
+              lhs: !name;1
+                value: :base.macros:case:0
+              op: ==
+              rhs: !int;1
+                value: 1
+      - !return;1
+        value: !name;1
+          value: ret
+    params:
+    - n
+    rename: null
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
@@ -103,5 +226,104 @@ stmts:
           catch: false
           func: !name;1
             value: print
+      - !call;1
+        args:
+        - !str;1
+          value: Hello!
+        catch: false
+        func: !name;1
+          value: print
+      - !block;2
+        expr: null
+        stmts:
+        - !assn;2
+          export: false
+          let: true
+          lhs: !name;1
+            value: :base.macros:match:0
+          rhs: !name;1
+            value: person
+        - !assn;2
+          export: false
+          let: true
+          lhs: !name;1
+            value: string
+          rhs: !index;1
+            lhs: !name;1
+              value: :base.macros:match:0
+            rhs: !str;1
+              value: name
+        - !assn;2
+          export: false
+          let: true
+          lhs: !name;1
+            value: number
+          rhs: !index;1
+            lhs: !name;1
+              value: :base.macros:match:0
+            rhs: !str;1
+              value: age
+      - !call;1
+        args:
+        - !name;1
+          value: string
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !name;1
+          value: number
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !call;1
+          args:
+          - !int;1
+            value: 3
+          catch: false
+          func: !name;1
+            value: square
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !call;1
+          args:
+          - !int;1
+            value: 4
+          catch: false
+          func: !name;1
+            value: square
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !call;1
+          args:
+          - !int;1
+            value: 5
+          catch: false
+          func: !name;1
+            value: square
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !call;1
+          args:
+          - !int;1
+            value: 6
+          catch: false
+          func: !name;1
+            value: square
+        catch: false
+        func: !name;1
+          value: print
     params: []
     rename: null
