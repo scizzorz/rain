@@ -65,11 +65,15 @@ class macro:
 
     node.expand(mod, self.name)
 
-    for m in mod.imports:
-      comp = C.get_compiler(m)
+    for src in mod.imports:
+      comp = C.get_compiler(src)
       comp.build()
       comp.compile_links()
-      ctx.eng.add_file(comp.ll)
+      ctx.eng.add_file(comp.ll, *comp.links)
+
+    for src in mod.links:
+      target = C.compile_link(src)
+      ctx.eng.add_file(target)
 
     ctx.eng.add_ir(mod.ir)
     ctx.eng.finalize()
