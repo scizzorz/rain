@@ -1,14 +1,62 @@
+# Create separate print statements for each expression
 macro print_all(args) as (args)
-  let node = ast.block:empty()
-  save node
-
-  let print_name = ast.name:new("print")
+  let block = ast.block:empty()
+  save block
 
   for arg in args:values()
-    node:add(print_name:call([arg]))
+    block:add(ast.rain.print:call([arg]))
 
+
+# Allow a multiline function call
 macro call(expr, argblock) as (fn, args)
   return ast.call:new(fn, args)
 
+
+# Allow a multiline catching call
 macro catchcall(expr, argblock) as (fn, args)
   return ast.catchcall:new(fn, args)
+
+
+# Destructures a dictionary
+macro match(expr, expr) as (lhs, rhs)
+  let block = ast.block:empty()
+  save block
+
+  let value = ast.name:new(gensym())
+  block:add(value:_let(rhs))
+
+  for item in lhs.items:values()
+    let name = item[0] :: ast.name
+    let index = item[1] :: ast.str
+    let val = value:idx(index)
+    block:add(name:_let(val))
+
+
+# Creates a switch/case-like control flow
+macro case(expr, block) as (var, cases)
+  let block = ast.block:empty()
+  save block
+
+  let caseval = ast.name:new(gensym())
+  let retval = ast.name:new(gensym())
+  block.expr = retval
+  block:add(caseval:_let(var))
+  block:add(retval:_let(ast._null))
+
+  let cur = null
+
+  for stmt in cases:values()
+    let cmp = ast._binary:new(caseval, stmt.lhs, "==")
+    let ifs = cmp:_if(retval:assn(stmt.rhs), null)
+
+    if stmt.lhs.tag == "name" & stmt.lhs.value == ""
+      ifs = ifs.body
+
+    if cur == null
+      cur = ifs
+      block:add(cur)
+    else
+      cur.els = ifs
+      cur = ifs
+
+  return block
