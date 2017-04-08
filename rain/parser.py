@@ -113,6 +113,7 @@ class context:
       # compile lib.ast and use its links/libs
       self._ast = C.get_compiler(join(ENV['RAINLIB'], 'ast.rn'))
       self._ast.build()
+      self._ast.compile_links()
 
     return self._ast
 
@@ -128,7 +129,6 @@ class context:
   @property
   def libs(self):
     if self._so is None:
-      self.ast_mod.compile_links()
       self._so = self.ast_mod.compile_libs()
 
     return self._so
@@ -164,9 +164,9 @@ class context:
   @property
   def eng(self):
     if not self._eng:
-      self._eng = E.Engine(llvm_ir='')
+      self._eng = E.Engine()
       self._eng.add_lib(self.libs)
-      self._eng.link_file(self.ast_mod.ll, *self.ast_mod.links)
+      self._eng.add_file(self.ast_mod.ll, *self.ast_mod.links)
       self._eng.finalize()
       self._eng.init_gc()
       self._eng.disable_gc() # this is a problem when sharing code between macros
