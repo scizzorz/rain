@@ -275,6 +275,10 @@ class Compiler:
       if link.endswith('.ll') or link.endswith('.so'):
         continue
 
+      if not link.endswith('.c'):
+        Q.warn('unknown file type: {}', link)
+        Q.warn('passing through clang anyway')
+
       target = compile_c(link)
 
       drop.add(link)
