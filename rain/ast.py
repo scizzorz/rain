@@ -36,7 +36,7 @@ class metanode(type):
 class node(metaclass=metanode):
   __tag__ = 'node'
   __version__ = 1
-  __slots__ = []
+  __slots__ = ['coords']
 
 
 class value_node(node):
@@ -55,7 +55,7 @@ class value_node(node):
 
 
 class expr_node(node):
-  pass
+  __slots__ = []
 
 
 # structure
@@ -192,6 +192,7 @@ class macro_node(node):
 
 class pass_node(node):
   __tag__ = 'pass'
+  __slots__ = []
 
 
 class return_node(value_node):
