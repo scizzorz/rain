@@ -105,13 +105,18 @@ class context:
     self._builtin = None
     self._so = None
 
+    self.token = None
     self.stream = stream
     self.peek = next(stream)
     self.next()
+    self.past = []
 
     self.macros = {}
 
   def next(self):
+    if self.token:
+      self.past.append(self.token.pos(file=self.file))
+
     self.token = self.peek
     try:
       self.peek = next(self.stream)
