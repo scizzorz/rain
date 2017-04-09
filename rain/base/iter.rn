@@ -1,14 +1,21 @@
-export range = func(end)
+export count_by = func(step)
   let next = 0
+  return func()
+    save next
+    next = next + step
+
+export count = func() -> count_by(1)
+
+export srange_by = func(start, end, step)
+  let next = start
   return func()
     if next < end
       save next
-    next = next + 1
+    next = next + step
 
-export srange = func(start, end)
-  let iter = range(end)
-  iter.next = start
-  return iter
+export srange = func(start, end) -> srange_by(start, end, 1)
+
+export range = func(end) -> srange_by(0, end, 1)
 
 export map = func(iter, fn)
   return func()
@@ -40,6 +47,15 @@ export zip = func(one, two)
       return
 
     return [n1, n2]
+
+export zip_with = func(one, two, fn)
+  return func()
+    let n1 = one()
+    let n2 = two()
+    if n1 == null | n2 == null
+      return
+
+    return fn(n1, n2)
 
 export take = func(iter, end)
   let next = 0
