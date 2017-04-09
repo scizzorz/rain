@@ -429,6 +429,7 @@ def macro_exp(ctx):
     Q.abort('Unknown macro {!r}', name, pos=pos)
 
   res = ctx.expand_macro(name)
+  res.coords = pos
   return res
 
 # let_prefix :: '[' let_prefix (',' let_prefix)* ']'
@@ -443,7 +444,9 @@ def let_prefix(ctx):
 
     return lst
 
-  return A.name_node(ctx.require(K.name_token).value)
+  node = A.name_node(ctx.require(K.name_token).value)
+  node.coords = ctx.past[-1]
+  return node
 
 
 # assn_prefix :: '[' assn_prefix (',' assn_prefix)* ']'
@@ -605,7 +608,8 @@ def binexpr(ctx):
 
   while ctx.expect(K.operator_token):
     op = ctx.require(K.operator_token)
-    pairs.append((op.value, unexpr(ctx)))
+    op.pos = op.pos(file=ctx.file)
+    pairs.append((op, unexpr(ctx)))
 
   if pairs:
     lhs = bin_merge(lhs, pairs)
@@ -617,26 +621,33 @@ def bin_merge(lhs, pairs):
   op, rhs = pairs[0]
   pairs = pairs[1:]
   for nop, next in pairs:
-    if binary_ops[nop] > binary_ops[op]:
+    if binary_ops[nop.value] > binary_ops[op.value]:
       rhs = bin_merge(rhs, pairs)
       break
-    elif nop in rassoc and binary_ops[nop] == binary_ops[op]:
+    elif nop.value in rassoc and binary_ops[nop.value] == binary_ops[op.value]:
       rhs = bin_merge(rhs, pairs)
       break
     else:
-      lhs = A.binary_node(lhs, rhs, op)
+      lhs = A.binary_node(lhs, rhs, op.value)
+      lhs.coords = op.pos
       op = nop
       rhs = next
       pairs = pairs[1:]
 
-  return A.binary_node(lhs, rhs, op)
+  node = A.binary_node(lhs, rhs, op.value)
+  node.coords = op.pos
+  return node
 
 
 # unexpr :: ('-' | '!') simple
 #         | simple
 def unexpr(ctx):
   if ctx.expect(K.operator_token('-'), K.operator_token('!')):
-    return A.unary_node(ctx.require(K.operator_token).value, simple(ctx))
+    op = ctx.require(K.operator_token).value
+    pos = ctx.past[-1]
+    node = A.unary_node(op, simple(ctx))
+    node.coords = pos
+    return node
 
   return simple(ctx)
 
@@ -719,21 +730,25 @@ def prefix(ctx):
     return node
 
   if ctx.expect(K.int_token):
-    return A.int_node(ctx.require(K.int_token).value)
+    node = A.int_node(ctx.require(K.int_token).value)
 
-  if ctx.expect(K.float_token):
-    return A.float_node(ctx.require(K.float_token).value)
+  elif ctx.expect(K.float_token):
+    node = A.float_node(ctx.require(K.float_token).value)
 
-  if ctx.expect(K.bool_token):
-    return A.bool_node(ctx.require(K.bool_token).value)
+  elif ctx.expect(K.bool_token):
+    node = A.bool_node(ctx.require(K.bool_token).value)
 
-  if ctx.expect(K.string_token):
-    return A.str_node(ctx.require(K.string_token).value)
+  elif ctx.expect(K.string_token):
+    node = A.str_node(ctx.require(K.string_token).value)
 
-  if ctx.consume(K.null_token):
-    return A.null_node()
+  elif ctx.consume(K.null_token):
+    node = A.null_node()
 
-  if ctx.consume(K.table_token):
-    return A.table_node()
+  elif ctx.consume(K.table_token):
+    node = A.table_node()
 
-  return A.name_node(ctx.require(K.name_token).value)
+  else:
+    node = A.name_node(ctx.require(K.name_token).value)
+
+  node.coords = ctx.past[-1]
+  return node

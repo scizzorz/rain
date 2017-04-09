@@ -205,7 +205,7 @@ def emit(self, module):
             module[lhs].bound = False
 
         if lhs not in module:
-          Q.abort("Undeclared name {!r}", lhs.value)
+          Q.abort("Undeclared name {!r}", lhs.value, pos=lhs.coords)
 
         module[lhs].bound = True
         module.store(rhs, module[lhs])
@@ -516,7 +516,7 @@ def emit(self, module):
 @name_node.method
 def emit(self, module):
   if self.value not in module:
-    Q.abort("Unknown name {!r}", self.value)
+    Q.abort("Unknown name {!r}", self.value, pos=self.coords)
 
   if module.is_global:
     return load_global(module, self.value)
@@ -772,7 +772,7 @@ def emit(self, module):
 @unary_node.method
 def emit(self, module):
   if module.is_global:
-    Q.abort("Can't use unary operators at global scope")
+    Q.abort("Can't use unary operators at global scope", pos=self.coords)
 
   arith = {
     '-': 'rain_neg',
@@ -805,7 +805,7 @@ def emit(self, module):
     return module.insert(lhs, ptr, T.ENV)
 
   if module.is_global:
-    Q.abort("Can't use binary operators at global scope")
+    Q.abort("Can't use binary operators at global scope", pos=self.coords)
 
   if self.op in ('|', '&'):
     with module.goto_entry():
@@ -839,7 +839,7 @@ def emit(self, module):
   }
 
   if self.op not in arith:
-    Q.abort("Invalid binary operator {!r}", self.op)
+    Q.abort("Invalid binary operator {!r}", self.op, pos=self.coords)
 
   lhs = module.emit(self.lhs)
   rhs = module.emit(self.rhs)
