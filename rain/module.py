@@ -142,6 +142,9 @@ class Module(S.Scope):
 
     self.llvm = ir.Module(name=self.qname)
     self.llvm.triple = binding.get_default_triple()
+    self.imports = set()
+    self.links = set()
+    self.libs = set()
 
     typ = T.arr(T.i8, len(self.qname) + 1)
     ptr = self.add_global(typ, name=self.mangle('_name'))
@@ -411,11 +414,6 @@ class Module(S.Scope):
     arg_match = self.builder.icmp_unsigned('!=', exp_args, T.i32(num_args))
     with self.builder.if_then(arg_match):
       self.excall('rain_throw', self.get_exception('arg_mismatch'))
-
-    '''
-    self.store(box, self.callable_ptr)
-    self.excall('rain_check_callable', self.callable_ptr, T.i32(num_args), unwind=unwind)
-    '''
 
   # allocate stack space for function arguments
   def fnalloc(self, *args):

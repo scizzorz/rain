@@ -5,7 +5,38 @@ let node = {
   tag = "node",
   body = "body",
 }
+let person = {
+  name = "Phil",
+  age = 47,
+  kids = 4,
+  married = true,
+}
+
+let square = func(n)
+  let ret = @macros.case n
+    1 = 1
+    2 = 4
+    3 = 9
+    4 = 16
+    _ = 0
+    5 = 25
+
+  return ret
+
 
 let main = func()
   @macros.print_all(fudge[0], fudge[1], fudge[2])
   @macros.print_all("----", node.tag, node.body)
+
+  @macros.call print
+    "Hello!"
+
+  @macros.match {string=name, number=age} person
+  print(string)
+  print(number)
+
+
+  print(square(3))
+  print(square(4))
+  print(square(5))
+  print(square(6))

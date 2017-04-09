@@ -1,0 +1,23 @@
+macro linux(block) as (body)
+  import "./internal"
+  if internal.is_linux()
+    return body
+
+  return ast._null
+
+macro mac(block) as (body)
+  import "./internal"
+  if internal.is_mac()
+    return body
+
+  return ast._null
+
+@linux
+  export name = "linux"
+  export is_linux = true
+  export is_mac = false
+
+@mac
+  export name = "mac"
+  export is_linux = false
+  export is_mac = true

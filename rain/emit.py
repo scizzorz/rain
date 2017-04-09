@@ -15,19 +15,8 @@ def emit(self, module):
   module.exports = module.add_global(T.box, name=module.mangle('exports'))
   module.exports.initializer = static_table_alloc(module, name=module.mangle('exports.table'))
 
-  imports = []
-  links = []
-  libs = []
   for stmt in self.stmts:
-    ret = module.emit(stmt)
-    if isinstance(stmt, import_node):
-      imports.append(ret)
-    elif isinstance(stmt, link_node):
-      links.append(ret)
-    elif isinstance(stmt, lib_node):
-      libs.append(ret)
-
-  return imports, links, libs
+    module.emit(stmt)
 
 
 @program_node.method
@@ -97,7 +86,7 @@ def static_table_put(module, table_box, key_node, val):
   lpt_ptr = table_box.lpt_ptr
 
   if getattr(lpt_ptr, 'arr_ptr', None) is None:
-    Q.abort('Global value is opaque.')
+    Q.abort('Global value is opaque')
 
   arr_ptr = lpt_ptr.arr_ptr
   item = T.item([T.i32(1), key, val])
@@ -216,7 +205,7 @@ def emit(self, module):
             module[lhs].bound = False
 
         if lhs not in module:
-          Q.abort("Undeclared name {!r}", lhs.value)
+          Q.abort("Undeclared name {!r}", lhs.value, pos=lhs.coords)
 
         module[lhs].bound = True
         module.store(rhs, module[lhs])
@@ -238,7 +227,7 @@ def emit(self, module):
         module[self.lhs].linkage = '' # make sure we know it's visible here
 
       if self.lhs not in module:
-        Q.abort("Undeclared global {!r}", self.lhs.value)
+        Q.abort("Undeclared global {!r}", self.lhs.value, pos=self.lhs.coords)
 
       store_global(module, self.lhs.value, module.emit(self.rhs))
       return
@@ -251,7 +240,7 @@ def emit(self, module):
     rhs = module.emit(self.rhs)
 
     if self.lhs not in module:
-      Q.abort("Undeclared name {!r}", self.lhs.value)
+      Q.abort("Undeclared name {!r}", self.lhs.value, pos=self.lhs.coords)
 
     module[self.lhs].bound = True
     module.store(rhs, module[self.lhs])
@@ -270,6 +259,9 @@ def emit(self, module):
     val = module.emit(self.rhs)
 
     module.exfncall('rain_put', table, key, val)
+
+  else:
+    Q.abort("Unable to assign to {}", self.lhs, pos=self.lhs.coords)
 
 
 @break_node.method
@@ -297,10 +289,10 @@ def emit(self, module):
 @export_foreign_node.method
 def emit(self, module):
   if module.is_local:
-    Q.abort("Can't export value {!r} as foreign at non-global scope", self.name)
+    Q.abort("Can't export value {!r} as foreign at non-global scope", self.name, pos=self.coords)
 
   if self.name not in module:
-    Q.abort("Can't export unknown value {!r} as foreign {!r}", self.name, self.rename)
+    Q.abort("Can't export unknown name {!r}", self.name, self.rename, pos=self.coords)
 
   glob = module.add_global(T.ptr(T.box), name=self.rename)
   glob.initializer = module[self.name]
@@ -308,9 +300,6 @@ def emit(self, module):
 
 @import_node.method
 def emit(self, module):
-  if module.is_local:
-    Q.abort("Can't import module {!r} at non-global scope", self.name)
-
   # add the module's directory to the lookup path
   if getattr(module, 'file', None):
     base, name = os.path.split(module.file)
@@ -319,7 +308,7 @@ def emit(self, module):
     file = M.find_rain(self.name)
 
   if not file:
-    Q.abort("Can't find module {!r}", self.name)
+    Q.abort("Can't find module {!r}", self.name, pos=self.coords)
 
   comp = C.get_compiler(file)
   comp.build()
@@ -335,17 +324,19 @@ def emit(self, module):
 
   module[rename].initializer = static_table_from_ptr(module, glob)
   module[rename].mod = comp.mod
-  return file
+  module.imports.add(file)
 
 
 @link_node.method
 def emit(self, module):
-  if module.is_local:
-    Q.abort("Can't link file {!r} at non-global scope", self.name)
-
   base, name = os.path.split(module.file)
   file = M.find_file(self.name, paths=[base])
-  return file
+  module.links.add(file)
+
+
+@lib_node.method
+def emit(self, module):
+  module.libs.add(self.name)
 
 
 @macro_node.method
@@ -369,14 +360,6 @@ def expand(self, module, name):
       abort(module.builder.block)
 
     module.builder.ret_void()
-
-
-@lib_node.method
-def emit(self, module):
-  if module.is_local:
-    Q.abort("Can't link library {!r} at non-global scope", self.name)
-
-  return self.name
 
 
 @pass_node.method
@@ -533,7 +516,7 @@ def emit(self, module):
 @name_node.method
 def emit(self, module):
   if self.value not in module:
-    Q.abort("Unknown name {!r}", self.value)
+    Q.abort("Unknown name {!r}", self.value, pos=self.coords)
 
   if module.is_global:
     return load_global(module, self.value)
@@ -740,7 +723,7 @@ def do_call(module, func_box, arg_boxes, catch=False):
 @call_node.method
 def emit(self, module):
   if module.is_global:
-    Q.abort("Can't call functions at global scope")
+    Q.abort("Can't call functions at global scope", pos=self.coords)
 
   func_box = module.emit(self.func)
   arg_boxes = [module.emit(arg) for arg in self.args]
@@ -751,7 +734,7 @@ def emit(self, module):
 @meth_node.method
 def emit(self, module):
   if module.is_global:
-    Q.abort("Can't call methods at global scope")
+    Q.abort("Can't call methods at global scope", pos=self.coords)
 
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
@@ -789,7 +772,7 @@ def emit(self, module):
 @unary_node.method
 def emit(self, module):
   if module.is_global:
-    Q.abort("Can't use unary operators at global scope")
+    Q.abort("Can't use unary operators at global scope", pos=self.coords)
 
   arith = {
     '-': 'rain_neg',
@@ -822,7 +805,7 @@ def emit(self, module):
     return module.insert(lhs, ptr, T.ENV)
 
   if module.is_global:
-    Q.abort("Can't use binary operators at global scope")
+    Q.abort("Can't use binary operators at global scope", pos=self.coords)
 
   if self.op in ('|', '&'):
     with module.goto_entry():
@@ -856,7 +839,7 @@ def emit(self, module):
   }
 
   if self.op not in arith:
-    Q.abort("Invalid binary operator {!r}", self.op)
+    Q.abort("Invalid binary operator {!r}", self.op, pos=self.coords)
 
   lhs = module.emit(self.lhs)
   rhs = module.emit(self.rhs)

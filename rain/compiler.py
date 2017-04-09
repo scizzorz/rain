@@ -31,15 +31,34 @@ def get_compiler(src, target=None, main=False):
   return compilers[abspath]
 
 
-def compile_c(src):
+def compile_link(src):
+  if src.endswith('.ll') or src.endswith('.so'):
+    return src
+
   if src not in c_files:
+    if not src.endswith('.c'):
+      Q.warn('unknown file type: {}', src)
+      Q.warn('passing through clang anyway')
+
     clang = os.getenv('CLANG', 'clang')
 
-    handle, target = tempfile.mkstemp(prefix=os.path.basename(src), suffix='.ll')
-    flags = ['-O2', '-S', '-emit-llvm', '-I' + os.environ['RAINLIB']]
+    src_mtime = os.path.getmtime(src)
+    tempdir = tempfile.gettempdir()
+    rn_mod, _ = M.find_name(src)
+    target = join(tempdir, rn_mod + '.c.ll')
+    make = True
 
-    cmd = [clang, '-o', target, src] + flags
-    subprocess.check_call(cmd)
+    # if the target exists and is newer than the source, don't remake
+    if os.path.exists(target):
+      target_mtime = os.path.getmtime(target)
+      if target_mtime > src_mtime:
+        make = False
+
+    if make:
+      flags = ['-O2', '-S', '-emit-llvm', '-I' + os.environ['RAINLIB']]
+
+      cmd = [clang, '-o', target, src] + flags
+      subprocess.check_call(cmd)
 
     c_files[src] = target
 
@@ -52,12 +71,17 @@ def compile_so(libs):
 
   clang = os.getenv('CLANG', 'clang')
 
-  handle, target = tempfile.mkstemp(prefix='slibs', suffix='.so')
-  libs = ['-l' + lib for lib in libs]
-  flags = ['-shared']
+  tempdir = tempfile.gettempdir()
+  libname = '.'.join(sorted(libs))
+  target = join(tempdir, 'lib' + libname + '.so')
+  make = True
 
-  cmd = [clang, '-o', target] + flags + libs
-  subprocess.check_call(cmd)
+  if not os.path.exists(target):
+    libs = ['-l' + lib for lib in libs]
+    flags = ['-shared']
+
+    cmd = [clang, '-o', target] + flags + libs
+    subprocess.check_call(cmd)
 
   return target
 
@@ -121,7 +145,7 @@ class Compiler:
 
       sys.exit(1)
 
-  def link(self, other):
+  def link_with(self, other):
     '''Copy all of the links, libraries, and modules from another module.'''
     if other.ll:
       self.links.add(other.ll)
@@ -176,32 +200,32 @@ class Compiler:
     if self is not builtin:  # unless we ARE lib/_pkg.rn
       builtin.build()
 
-      self.link(builtin)
+      self.link_with(builtin)
 
       # import globals
       self.mod.import_scope(builtin.mod)
       self.mod.import_llvm(builtin.mod)
 
     # compile the imports
-    imports, links, libs = self.ast.emit(self.mod)
+    self.ast.emit(self.mod)
 
-    for mod in imports:
+    for mod in self.mod.imports:
       comp = get_compiler(mod)
       self.vprint('           {} imports {}', X(self.qname, 'green'), X(comp.qname, 'blue'))
       comp.build()  # should be done during import but might as well be safe
 
       # add the module's IR as well as all of its imports' IR
-      self.link(comp)
+      self.link_with(comp)
       self.mods.add(comp.mod)
 
-    for link in links:
+    for link in self.mod.links:
       self.vprint('           {} links {}', X(self.qname, 'green'), X(link, 'blue'))
 
-    for lib in libs:
+    for lib in self.mod.libs:
       self.vprint('           {} shares {}', X(self.qname, 'green'), X(lib, 'blue'))
 
-    self.links |= set(links)
-    self.libs |= set(libs)
+    self.links |= self.mod.links
+    self.libs |= self.mod.libs
 
     # only spit out the main if this is the main file
     if self.main:
@@ -214,22 +238,23 @@ class Compiler:
     self.written = True
 
     if self.built:
-      handle, name = tempfile.mkstemp(prefix=self.qname + '.', suffix='.ll')
-      with os.fdopen(handle, 'w') as tmp:
+      tempdir = tempfile.gettempdir()
+      name = join(tempdir, self.qname + '.ll')
+      with open(name, 'w') as tmp:
         tmp.write(self.mod.ir)
 
       self.ll = name
 
     elif self.emitted:
-      with open(self.target or self.mname + '.ll', 'w') as tmp:
+      with open(self.target or self.qname + '.ll', 'w') as tmp:
         tmp.write(self.mod.ir)
 
     elif self.parsed:
-      with open(self.target or self.mname + '.yml', 'w') as tmp:
+      with open(self.target or self.qname + '.yml', 'w') as tmp:
         tmp.write(A.machine.dump(self.ast))
 
     elif self.lexed:
-      with open(self.target or self.mname + '.lex', 'w') as tmp:
+      with open(self.target or self.qname + '.lex', 'w') as tmp:
         for token in self.stream:
           tmp.write(str(token))
           tmp.write('\n')
@@ -254,16 +279,16 @@ class Compiler:
     add = set()
 
     for link in self.links:
-      if link.endswith('.ll') or link.endswith('.so'):
-        continue
+      target = compile_link(link)
 
-      target = compile_c(link)
-
-      drop.add(link)
-      add.add(target)
+      if target != link:
+        drop.add(link)
+        add.add(target)
 
     self.links = (self.links | add) - drop
 
+  def compile_libs(self):
+    '''Compile all shared libraries into a .so file.'''
     return compile_so(self.libs)
 
   def compile(self):
@@ -277,7 +302,7 @@ class Compiler:
     self.compile_links()
 
     with self.okay('compiling'):
-      target = self.target or self.mname
+      target = self.target or self.qname
       if os.path.isdir(target):
         if self.target:
           Q.warn('Target {!r} is a directory; appending .out suffix', target)
@@ -310,7 +335,7 @@ class Compiler:
     self.compile_links()
 
     with self.okay('sharing'):
-      target = self.target or self.mname + '.so'
+      target = self.target or self.qname + '.so'
       clang = os.getenv('CLANG', 'clang')
       flags = ['-O2', '-shared', '-fPIC']
       cmd = [clang, '-o', target, self.ll] + flags
@@ -324,7 +349,7 @@ class Compiler:
   def run(self):
     '''Execute a generated executable.'''
     with self.okay('running'):
-      target = self.target or self.mname
+      target = self.target or self.qname
       if os.path.isdir(target):
         target = target + '.out'
 

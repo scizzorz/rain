@@ -1,0 +1,5 @@
+link "./platform.c"
+
+export get_platform = foreign "rain_ext_get_platform"()
+export is_linux = foreign "rain_ext_is_linux"()
+export is_mac = foreign "rain_ext_is_mac"()

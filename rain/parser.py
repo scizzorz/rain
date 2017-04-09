@@ -47,6 +47,8 @@ class macro:
     self.ctx = ctx # save this as our "source" context
 
     mod = M.Module(self.name)
+    mod.file = ctx.file
+
     mod.import_scope(ctx.builtin_mod.mod)
     mod.import_llvm(ctx.builtin_mod.mod)
     A.import_node('ast').emit(mod)
@@ -64,6 +66,16 @@ class macro:
     ])), let=True).emit(mod)
 
     node.expand(mod, self.name)
+
+    for src in mod.imports:
+      comp = C.get_compiler(src)
+      comp.build()
+      comp.compile_links()
+      ctx.eng.add_file(comp.ll, *comp.links)
+
+    for src in mod.links:
+      target = C.compile_link(src)
+      ctx.eng.add_file(target)
 
     ctx.eng.add_ir(mod.ir)
     ctx.eng.finalize()
@@ -91,16 +103,20 @@ class context:
     self._mod = None
     self._eng = None
     self._builtin = None
-    self._ast = None
     self._so = None
 
+    self.token = None
     self.stream = stream
     self.peek = next(stream)
     self.next()
+    self.past = []
 
     self.macros = {}
 
   def next(self):
+    if self.token:
+      self.past.append(self.token.pos(file=self.file))
+
     self.token = self.peek
     try:
       self.peek = next(self.stream)
@@ -108,69 +124,32 @@ class context:
       self.peek = K.end_token()
 
   @property
-  def ast_mod(self):
-    if self._ast is None:
-      # compile lib.ast and use its links/libs
-      self._ast = C.get_compiler(join(ENV['RAINLIB'], 'ast.rn'))
-      self._ast.build()
-
-    return self._ast
-
-  @property
   def builtin_mod(self):
     if self._builtin is None:
       # compile builtins
       self._builtin = C.get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
       self._builtin.build()
+      self._builtin.compile_links()
 
     return self._builtin
 
   @property
   def libs(self):
     if self._so is None:
-      self._so = self.ast_mod.compile_links()
+      self._so = self.builtin_mod.compile_libs()
 
     return self._so
 
   @property
-  def mod(self):
-    if not self._mod:
-      self._mod = M.Module('macros')
-
-      # compile lib.ast and use its links/libs
-      self._ast = C.get_compiler(join(ENV['RAINLIB'], 'ast.rn'))
-      self._ast.build()
-      self._so = self._ast.compile_links()
-
-      # emit the macro code
-      A.import_node('ast').emit(self._mod)  # auto-import lib/ast.rn
-
-      # define gensym
-      symcount = A.name_node(':symcount')
-      gs = A.name_node('gs')
-      gensym = A.name_node('gensym')
-      tostr = A.name_node('tostr')
-
-      A.assn_node(gs, A.table_node(), let=True).emit(self._mod)
-      A.assn_node(symcount, A.int_node(0), let=True).emit(self._mod)
-      A.assn_node(gensym, A.func_node([], A.block_node([
-        A.save_node(A.binary_node(A.str_node(':{}:'.format(self.qname)),
-                                  A.call_node(tostr, [symcount]), '$')),
-        A.assn_node(symcount, A.binary_node(symcount, A.int_node(1), '+'))
-      ])), let=True).emit(self._mod)
-
-    return self._mod
-
-  @property
   def eng(self):
     if not self._eng:
-      self._eng = E.Engine(llvm_ir='')
+      self._eng = E.Engine()
       self._eng.add_lib(self.libs)
-      self._eng.link_file(self.ast_mod.ll, *self.ast_mod.links)
+
+      self._eng.add_file(self.builtin_mod.ll, *self.builtin_mod.links)
       self._eng.finalize()
       self._eng.init_gc()
       self._eng.disable_gc() # this is a problem when sharing code between macros
-      self._eng.init_ast()
 
     return self._eng
 
@@ -259,6 +238,7 @@ def stmt(ctx):
 
   if ctx.consume(K.keyword_token('export')):
     name = ctx.require(K.name_token).value
+    pos = ctx.past[-1]
 
     if ctx.consume(K.symbol_token('=')):
       rhs = compound(ctx)
@@ -267,10 +247,14 @@ def stmt(ctx):
     if ctx.consume(K.keyword_token('as')):
       ctx.require(K.keyword_token('foreign'))
       rename = ctx.require(K.string_token, K.name_token).value
-      return A.export_foreign_node(name, rename)
+      node = A.export_foreign_node(name, rename)
+      node.coords = pos
+      return node
 
   if ctx.consume(K.keyword_token('import')):
     name = ctx.require(K.name_token, K.string_token)
+    pos = ctx.past[-1]
+
     base, fname = os.path.split(ctx.file)
     file = M.find_rain(name.value, paths=[base])
 
@@ -291,7 +275,9 @@ def stmt(ctx):
     for key, val in comp.parser.macros.items():
       ctx.macros[prefix + '.' + key] = val
 
-    return A.import_node(name, rename)
+    node = A.import_node(name, rename)
+    node.coords = pos
+    return node
 
   if ctx.consume(K.keyword_token('macro')):
     type_options = {
@@ -450,6 +436,7 @@ def macro_exp(ctx):
     Q.abort('Unknown macro {!r}', name, pos=pos)
 
   res = ctx.expand_macro(name)
+  res.coords = pos
   return res
 
 # let_prefix :: '[' let_prefix (',' let_prefix)* ']'
@@ -464,7 +451,9 @@ def let_prefix(ctx):
 
     return lst
 
-  return A.name_node(ctx.require(K.name_token).value)
+  node = A.name_node(ctx.require(K.name_token).value)
+  node.coords = ctx.past[-1]
+  return node
 
 
 # assn_prefix :: '[' assn_prefix (',' assn_prefix)* ']'
@@ -626,7 +615,8 @@ def binexpr(ctx):
 
   while ctx.expect(K.operator_token):
     op = ctx.require(K.operator_token)
-    pairs.append((op.value, unexpr(ctx)))
+    op.pos = op.pos(file=ctx.file)
+    pairs.append((op, unexpr(ctx)))
 
   if pairs:
     lhs = bin_merge(lhs, pairs)
@@ -638,26 +628,33 @@ def bin_merge(lhs, pairs):
   op, rhs = pairs[0]
   pairs = pairs[1:]
   for nop, next in pairs:
-    if binary_ops[nop] > binary_ops[op]:
+    if binary_ops[nop.value] > binary_ops[op.value]:
       rhs = bin_merge(rhs, pairs)
       break
-    elif nop in rassoc and binary_ops[nop] == binary_ops[op]:
+    elif nop.value in rassoc and binary_ops[nop.value] == binary_ops[op.value]:
       rhs = bin_merge(rhs, pairs)
       break
     else:
-      lhs = A.binary_node(lhs, rhs, op)
+      lhs = A.binary_node(lhs, rhs, op.value)
+      lhs.coords = op.pos
       op = nop
       rhs = next
       pairs = pairs[1:]
 
-  return A.binary_node(lhs, rhs, op)
+  node = A.binary_node(lhs, rhs, op.value)
+  node.coords = op.pos
+  return node
 
 
 # unexpr :: ('-' | '!') simple
 #         | simple
 def unexpr(ctx):
   if ctx.expect(K.operator_token('-'), K.operator_token('!')):
-    return A.unary_node(ctx.require(K.operator_token).value, simple(ctx))
+    op = ctx.require(K.operator_token).value
+    pos = ctx.past[-1]
+    node = A.unary_node(op, simple(ctx))
+    node.coords = pos
+    return node
 
   return simple(ctx)
 
@@ -694,23 +691,29 @@ def primary(ctx):
 
   while True:
     if ctx.consume(K.symbol_token('?')):
+      pos = ctx.token.pos(file=ctx.file)
       args = fnargs(ctx)
       node = A.call_node(node, args, catch=True)
+      node.coords = pos
       continue
 
     if ctx.expect(K.symbol_token('(')):
+      pos = ctx.token.pos(file=ctx.file)
       args = fnargs(ctx)
       node = A.call_node(node, args)
+      node.coords = pos
       continue
 
     if ctx.consume(K.symbol_token(':')):
       name = ctx.require(K.name_token).value
+      pos = ctx.past[-1]
       rhs = A.str_node(name)
 
       catch = bool(ctx.consume(K.symbol_token('?')))
 
       args = fnargs(ctx)
       node = A.meth_node(node, rhs, args, catch=catch)
+      node.coords = pos
 
       continue
 
@@ -740,21 +743,25 @@ def prefix(ctx):
     return node
 
   if ctx.expect(K.int_token):
-    return A.int_node(ctx.require(K.int_token).value)
+    node = A.int_node(ctx.require(K.int_token).value)
 
-  if ctx.expect(K.float_token):
-    return A.float_node(ctx.require(K.float_token).value)
+  elif ctx.expect(K.float_token):
+    node = A.float_node(ctx.require(K.float_token).value)
 
-  if ctx.expect(K.bool_token):
-    return A.bool_node(ctx.require(K.bool_token).value)
+  elif ctx.expect(K.bool_token):
+    node = A.bool_node(ctx.require(K.bool_token).value)
 
-  if ctx.expect(K.string_token):
-    return A.str_node(ctx.require(K.string_token).value)
+  elif ctx.expect(K.string_token):
+    node = A.str_node(ctx.require(K.string_token).value)
 
-  if ctx.consume(K.null_token):
-    return A.null_node()
+  elif ctx.consume(K.null_token):
+    node = A.null_node()
 
-  if ctx.consume(K.table_token):
-    return A.table_node()
+  elif ctx.consume(K.table_token):
+    node = A.table_node()
 
-  return A.name_node(ctx.require(K.name_token).value)
+  else:
+    node = A.name_node(ctx.require(K.name_token).value)
+
+  node.coords = ctx.past[-1]
+  return node

@@ -1,12 +1,13 @@
 from . import ast as A
-from . import types as T
 from . import error as Q
+from . import token as K
+from . import types as T
 import ctypes as ct
 import llvmlite.binding as llvm
 
 
 class Engine:
-  def __init__(self, ll_file=None, llvm_ir=None):
+  def __init__(self):
     llvm.initialize()
     llvm.initialize_native_target()
     llvm.initialize_native_asmprinter()  # yes, even this one
@@ -16,55 +17,54 @@ class Engine:
     target_machine = target.create_target_machine()
 
     # And an execution engine with a backing module
-    if ll_file:
-      self.main_mod = self.compile_file(ll_file)
-    elif llvm_ir:
-      self.main_mod = self.compile_ir(llvm_ir)
-    else:
-      self.main_mod = self.compile_ir('')
+    self.main_mod = self.compile_ir('')
 
     self.engine = llvm.create_mcjit_compiler(self.main_mod, target_machine)
-
-  def add_lib(self, *libs):
-    for lib in libs:
-      llvm.load_library_permanently(lib)
-
-  def compile_file(self, ll_file):
-    with open(ll_file) as tmp:
-      return self.compile_ir(tmp.read())
+    self.files = set()
 
   def compile_ir(self, llvm_ir):
-    # Create a LLVM module object from the IR
+    '''Create an LLVM module from IR'''
     mod = llvm.parse_assembly(llvm_ir)
     mod.verify()
     return mod
 
-  def link_file(self, *additions):
-    self.link_ir(*(self.compile_file(add) for add in additions))
+  def compile_file(self, ll_file):
+    '''Create an LLVM module from a file'''
+    with open(ll_file) as tmp:
+      return self.compile_ir(tmp.read())
 
-  def link_ir(self, *additions):
-    for add in additions:
-      self.main_mod.link_in(add)
-
-  def set_main_mod(self, mod):
-    self.main_mod = mod
-    self.engine.add_module(mod)
+  def add_lib(self, *libs):
+    '''Load shared libraries into the engine'''
+    for lib in libs:
+      llvm.load_library_permanently(lib)
 
   def add_ir(self, llvm_ir):
+    '''Add an LLVM module to the engine from IR'''
     self.engine.add_module(self.compile_ir(llvm_ir))
 
+  def add_file(self, *files):
+    '''Add an LLVM module to the engine from a file'''
+    for file in set(files) - self.files:
+      self.engine.add_module(self.compile_file(file))
+      self.files.add(file)
+
   def finalize(self):
+    '''Ensure that modules are ready for execution'''
     self.engine.finalize_object()
 
   def get_func(self, name, *types):
+    '''Return a function address'''
     func_typ = ct.CFUNCTYPE(*types)
     func_ptr = self.engine.get_function_address(name)
     return func_typ(func_ptr)
 
   def get_global(self, name, typ):
+    '''Return a global address'''
     addr = self.engine.get_global_value_address(name)
     ptr = ct.cast(ct.c_void_p(addr), typ)
     return ptr
+
+  # runtime calls
 
   def main(self):
     main = self.get_func('main', ct.c_int, ct.c_int, ct.POINTER(ct.c_char_p))
@@ -162,6 +162,9 @@ class Engine:
         self.rain_put_py(table_box, key, box)
 
       return table_box
+
+    elif isinstance(val, K.value_token):
+      return T.cbox.to_rain(val.value)
 
     return T.cbox.to_rain(val)
 
