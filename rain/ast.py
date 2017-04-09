@@ -36,7 +36,15 @@ class metanode(type):
 class node(metaclass=metanode):
   __tag__ = 'node'
   __version__ = 1
-  __slots__ = ['coords']
+  __slots__ = ['_coords']
+
+  @property
+  def coords(self):
+    return getattr(self, '_coords', None)
+
+  @coords.setter
+  def coords(self, value):
+    self._coords = value
 
 
 class value_node(node):
