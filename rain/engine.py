@@ -1,6 +1,7 @@
 from . import ast as A
-from . import types as T
 from . import error as Q
+from . import token as K
+from . import types as T
 import ctypes as ct
 import llvmlite.binding as llvm
 
@@ -161,6 +162,9 @@ class Engine:
         self.rain_put_py(table_box, key, box)
 
       return table_box
+
+    elif isinstance(val, K.value_token):
+      return T.cbox.to_rain(val.value)
 
     return T.cbox.to_rain(val)
 
