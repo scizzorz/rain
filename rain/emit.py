@@ -86,7 +86,7 @@ def static_table_put(module, table_box, key_node, val):
   lpt_ptr = table_box.lpt_ptr
 
   if getattr(lpt_ptr, 'arr_ptr', None) is None:
-    Q.abort('Global value is opaque.')
+    Q.abort('Global value is opaque')
 
   arr_ptr = lpt_ptr.arr_ptr
   item = T.item([T.i32(1), key, val])
@@ -227,7 +227,7 @@ def emit(self, module):
         module[self.lhs].linkage = '' # make sure we know it's visible here
 
       if self.lhs not in module:
-        Q.abort("Undeclared global {!r}", self.lhs.value)
+        Q.abort("Undeclared global {!r}", self.lhs.value, pos=self.lhs.coords)
 
       store_global(module, self.lhs.value, module.emit(self.rhs))
       return
@@ -240,7 +240,7 @@ def emit(self, module):
     rhs = module.emit(self.rhs)
 
     if self.lhs not in module:
-      Q.abort("Undeclared name {!r}", self.lhs.value)
+      Q.abort("Undeclared name {!r}", self.lhs.value, pos=self.lhs.coords)
 
     module[self.lhs].bound = True
     module.store(rhs, module[self.lhs])
@@ -261,7 +261,7 @@ def emit(self, module):
     module.exfncall('rain_put', table, key, val)
 
   else:
-    Q.abort("Unable to assign to {}", self.lhs)
+    Q.abort("Unable to assign to {}", self.lhs, pos=self.lhs.coords)
 
 
 @break_node.method
@@ -289,10 +289,10 @@ def emit(self, module):
 @export_foreign_node.method
 def emit(self, module):
   if module.is_local:
-    Q.abort("Can't export value {!r} as foreign at non-global scope", self.name)
+    Q.abort("Can't export value {!r} as foreign at non-global scope", self.name, pos=self.coords)
 
   if self.name not in module:
-    Q.abort("Can't export unknown value {!r} as foreign {!r}", self.name, self.rename)
+    Q.abort("Can't export unknown name {!r}", self.name, self.rename, pos=self.coords)
 
   glob = module.add_global(T.ptr(T.box), name=self.rename)
   glob.initializer = module[self.name]
@@ -308,7 +308,7 @@ def emit(self, module):
     file = M.find_rain(self.name)
 
   if not file:
-    Q.abort("Can't find module {!r}", self.name)
+    Q.abort("Can't find module {!r}", self.name, pos=self.coords)
 
   comp = C.get_compiler(file)
   comp.build()
@@ -723,7 +723,7 @@ def do_call(module, func_box, arg_boxes, catch=False):
 @call_node.method
 def emit(self, module):
   if module.is_global:
-    Q.abort("Can't call functions at global scope")
+    Q.abort("Can't call functions at global scope", pos=self.coords)
 
   func_box = module.emit(self.func)
   arg_boxes = [module.emit(arg) for arg in self.args]
@@ -734,7 +734,7 @@ def emit(self, module):
 @meth_node.method
 def emit(self, module):
   if module.is_global:
-    Q.abort("Can't call methods at global scope")
+    Q.abort("Can't call methods at global scope", pos=self.coords)
 
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)

@@ -238,6 +238,7 @@ def stmt(ctx):
 
   if ctx.consume(K.keyword_token('export')):
     name = ctx.require(K.name_token).value
+    pos = ctx.past[-1]
 
     if ctx.consume(K.symbol_token('=')):
       rhs = compound(ctx)
@@ -246,10 +247,14 @@ def stmt(ctx):
     if ctx.consume(K.keyword_token('as')):
       ctx.require(K.keyword_token('foreign'))
       rename = ctx.require(K.string_token, K.name_token).value
-      return A.export_foreign_node(name, rename)
+      node = A.export_foreign_node(name, rename)
+      node.coords = pos
+      return node
 
   if ctx.consume(K.keyword_token('import')):
     name = ctx.require(K.name_token, K.string_token)
+    pos = ctx.past[-1]
+
     base, fname = os.path.split(ctx.file)
     file = M.find_rain(name.value, paths=[base])
 
@@ -270,7 +275,9 @@ def stmt(ctx):
     for key, val in comp.parser.macros.items():
       ctx.macros[prefix + '.' + key] = val
 
-    return A.import_node(name, rename)
+    node = A.import_node(name, rename)
+    node.coords = pos
+    return node
 
   if ctx.consume(K.keyword_token('macro')):
     type_options = {
@@ -684,23 +691,29 @@ def primary(ctx):
 
   while True:
     if ctx.consume(K.symbol_token('?')):
+      pos = ctx.token.pos(file=ctx.file)
       args = fnargs(ctx)
       node = A.call_node(node, args, catch=True)
+      node.coords = pos
       continue
 
     if ctx.expect(K.symbol_token('(')):
+      pos = ctx.token.pos(file=ctx.file)
       args = fnargs(ctx)
       node = A.call_node(node, args)
+      node.coords = pos
       continue
 
     if ctx.consume(K.symbol_token(':')):
       name = ctx.require(K.name_token).value
+      pos = ctx.past[-1]
       rhs = A.str_node(name)
 
       catch = bool(ctx.consume(K.symbol_token('?')))
 
       args = fnargs(ctx)
       node = A.meth_node(node, rhs, args, catch=catch)
+      node.coords = pos
 
       continue
 
