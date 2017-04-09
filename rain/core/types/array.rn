@@ -1,3 +1,4 @@
+let to_str = foreign "rain_ext_to_str"(val)
 let meta = foreign "rain_ext_meta"(val)
 let length = foreign "rain_ext_length"(val)
 
@@ -73,3 +74,25 @@ export slice = func(self, start, end)
     ret[to_idx] = self[from_idx]
     from_idx = from_idx + 1
     to_idx = to_idx + 1
+
+export str = func(self)
+  let ret = "["
+  let i = 0
+  while self[i] != null
+    ret = ret $ tostr(self[i])
+    i = i + 1
+    if self[i] != null
+      ret = ret $ ", "
+
+  ret = ret $ "]"
+  return ret
+
+export from_iter = func(iter)
+  let i = 0
+  let ret = []
+  save ret
+
+  loop
+    ret[i] = iter()
+    break if ret[i] == null
+    i = i + 1
