@@ -19,7 +19,7 @@ def get_paths():
   cur = ['.']
   path = os.environ['RAINPATH'].split(':') if 'RAINPATH' in os.environ else []
   core = [os.environ['RAINBASE'], os.environ['RAINLIB']]
-  return cur + path + core
+  return path + core
 
 
 # normalize a name - remove all special characters and cases
