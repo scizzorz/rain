@@ -24,7 +24,7 @@ def emit_main(self, module, mods=[]):
   with module.add_main():
     ret_ptr = module.alloc(T.box, T.null, name='ret_ptr')
 
-    with module.add_abort() as abort:
+    with module.add_abort():
       module.excall('rain_init_gc')
       module.excall('rain_init_args', *module.main.args)
 
@@ -38,7 +38,7 @@ def emit_main(self, module, mods=[]):
 
       module.excall('rain_main', ret_ptr, module['main'], unwind=module.catch)
 
-      abort(module.builder.block)
+      module.catch_and_abort(module.builder.block)
 
       ret_code = module.excall('rain_box_to_exit', ret_ptr)
       module.builder.ret(ret_code)
@@ -352,9 +352,9 @@ def expand(self, module, name):
   main_func.attributes.personality = module.extern('rain_personality_v0')
   main_func.args[0].add_attribute('sret')
   with module.add_func_body(main_func):
-    with module.add_abort() as abort:
+    with module.add_abort():
       module.call(real_func, *main_func.args, unwind=module.catch)
-      abort(module.builder.block)
+      module.catch_and_abort(module.builder.block)
 
     module.builder.ret_void()
 
@@ -500,9 +500,9 @@ def emit(self, module):
 
   end = module.builder.append_basic_block('end_catch')
 
-  with module.add_catch(True) as catch:
+  with module.add_catch(True):
     module.emit(self.body)
-    catch(ret_ptr, end)
+    module.catch_into(ret_ptr, end)
 
   module.builder.branch(end)
   module.builder.position_at_end(end)
@@ -706,10 +706,10 @@ def do_call(module, func_box, arg_boxes, catch=False):
     module.store(env_box, ptrs[0])
 
   if catch:
-    with module.add_catch() as catch:
+    with module.add_catch():
       module.call(func_ptr, *ptrs, unwind=module.catch)
 
-      catch(ptrs[0], module.builder.block)
+      module.catch_into(ptrs[0], module.builder.block)
 
       return module.load(ptrs[0])
 

@@ -331,30 +331,28 @@ class Module(S.Scope):
   def add_catch(self, catchall=False):
     with self.stack('catch', 'catchall'):
       self.catchall = catchall
-      catch = self.catch = self.builder.append_basic_block('catch')
-
-      def catcher(ptr, branch):
-        with self.goto(catch):
-          lp = self.builder.landingpad(T.lp)
-          lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-          self.excall('rain_catch', ptr)
-          self.builder.branch(branch)
-
-      yield catcher
+      self.catch = self.builder.append_basic_block('catch')
+      yield
 
   @contextmanager
   def add_abort(self):
     with self.stack('catch'):
-      catch = self.catch = self.builder.append_basic_block('catch')
+      self.catch = self.builder.append_basic_block('catch')
+      yield
 
-      def aborter(branch):
-        with self.goto(catch):
-          lp = self.builder.landingpad(T.lp)
-          lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-          self.excall('rain_abort')
-          self.builder.branch(branch)
+  def catch_into(self, ptr, branch):
+    with self.goto(self.catch):
+      lp = self.builder.landingpad(T.lp)
+      lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
+      self.excall('rain_catch', ptr)
+      self.builder.branch(branch)
 
-      yield aborter
+  def catch_and_abort(self, branch):
+    with self.goto(self.catch):
+      lp = self.builder.landingpad(T.lp)
+      lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
+      self.excall('rain_abort')
+      self.builder.branch(branch)
 
   @contextmanager
   def goto(self, block):
