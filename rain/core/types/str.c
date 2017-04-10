@@ -59,18 +59,19 @@ void rain_ext_str_float(box *ret, box *val) {
   rain_set_float(ret, res);
 }
 
-void rain_ext_str_fmt(box *ret, box *val, box *args) {
+void rain_ext_str_fmt(box *ret, box *fmt, box *args) {
   int start = 0;
   int in = 0;
   int out = 0;
-  int ins = val->size;
+  int ins = fmt->size;
   int outs = ins * 2; // start with twice the size
 
-  char *str = val->data.s;
+  char *str = fmt->data.s;
   char *new = GC_malloc(outs);
   char *write = NULL;
 
   box key;
+  box val;
 
   while(1) {
     write = NULL;
@@ -91,7 +92,11 @@ void rain_ext_str_fmt(box *ret, box *val, box *args) {
       }
       else {
         rain_set_strcpy(&key, str + start, in - start);
-        rain_get(ret, args, &key);
+        rain_set_null(&val);
+        rain_set_null(ret);
+
+        rain_get(&val, args, &key);
+        rain_ext_to_str(ret, &val);
 
         if(out + ret->size >= outs) {
           outs *= 2;
