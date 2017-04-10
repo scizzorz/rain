@@ -5,7 +5,7 @@ block :: INDENT (stmt NEWLINE)+ DEDENT
 stmt :: 'let' let_prefix '=' compound
       | 'export' NAME '=' compound
       | 'export' NAME 'as' 'foreign' (NAME | STRING)
-      | 'import' (NAME | STRING) ('as' NAME)?
+      | 'import' import_mod ('as' NAME)?
       | 'macro' NAME fnparams 'as' fnparams block
       | macro_exp
       | 'link' STRING
@@ -23,6 +23,8 @@ stmt :: 'let' let_prefix '=' compound
       | 'return' compound?
       | 'save' compound
       | assn_prefix ('=' compound | fnargs | ':' NAME  fnargs)
+
+import_mod :: '.'? (NAME | STRING) ('.' (NAME | STRING))*
 
 if_stmt :: 'if' binexpr block (NEWLINE 'else' (if_stmt | block))?
 
