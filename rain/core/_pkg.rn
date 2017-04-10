@@ -9,9 +9,9 @@ link "./table/table.c"
 library "gc"
 library "unwind"
 
-import "./env"
-import "./except"
-import "./types"
+import .env
+import .except
+import .types
 
 let exit    = foreign "rain_ext_exit"(val)
 let length  = foreign "rain_ext_length"(val)

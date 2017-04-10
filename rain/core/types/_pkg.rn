@@ -7,12 +7,12 @@ export i_table = 5
 export i_func = 6
 export i_cdata = 7
 
-import "./int"
-import "./float"
-import "./bool"
-import "./str"
-import "./array"
-import "./dict"
+import .int
+import .float
+import .bool
+import .str
+import .array
+import .dict
 
 let meta = foreign "rain_ext_meta"(val)
 
