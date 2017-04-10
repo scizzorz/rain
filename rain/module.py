@@ -8,6 +8,7 @@ from llvmlite import binding
 from llvmlite import ir
 from os.path import isdir, isfile
 from os.path import join
+import functools
 import os.path
 import re
 
@@ -115,11 +116,19 @@ externs = {
   'rain_string_concat': T.bin,
 
   'rain_new_table': T.func(T.arg, []),
-  'rain_new_pair': T.vfunc(T.arg, T.arg),
   'rain_get_ptr': T.func(T.arg, [T.arg, T.arg]),
   'rain_put': T.bin,
   'rain_get': T.bin,
 }
+
+class API:
+  def __init__(self, module, method):
+    self.module = module
+    self.method = method
+
+  def __getattr__(self, key):
+    if key in externs:
+      return functools.partial(getattr(self.module, self.method), key)
 
 
 class Module(S.Scope):
@@ -145,6 +154,9 @@ class Module(S.Scope):
     self.imports = set()
     self.links = set()
     self.libs = set()
+
+    self.exfn = API(self, 'exfncall')
+    self.ex = API(self, 'excall')
 
     typ = T.arr(T.i8, len(self.qname) + 1)
     ptr = self.add_global(typ, name=self.mangle('_name'))
@@ -336,14 +348,14 @@ class Module(S.Scope):
     with self.goto(self.catch):
       lp = self.builder.landingpad(T.lp)
       lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-      self.excall('rain_catch', ptr)
+      self.ex.rain_catch(ptr)
       self.builder.branch(branch)
 
   def catch_and_abort(self, branch):
     with self.goto(self.catch):
       lp = self.builder.landingpad(T.lp)
       lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-      self.excall('rain_abort')
+      self.ex.rain_abort()
       self.builder.branch(branch)
 
   @contextmanager
@@ -398,12 +410,12 @@ class Module(S.Scope):
     func_typ = self.get_type(box)
     is_func = self.builder.icmp_unsigned('!=', T.ityp.func, func_typ)
     with self.builder.if_then(is_func):
-      self.excall('rain_throw', self.get_exception('uncallable'))
+      self.ex.rain_throw(self.get_exception('uncallable'))
 
     exp_args = self.get_size(box)
     arg_match = self.builder.icmp_unsigned('!=', exp_args, T.i32(num_args))
     with self.builder.if_then(arg_match):
-      self.excall('rain_throw', self.get_exception('arg_mismatch'))
+      self.ex.rain_throw(self.get_exception('arg_mismatch'))
 
   # allocate stack space for function arguments
   def fnalloc(self, *args):
@@ -470,7 +482,7 @@ class Module(S.Scope):
   def unpack(self, source, structure):
     values = []
     for i, sub in enumerate(structure):
-      ptr = self.exfncall('rain_get', T.null, source, A.int_node(i).emit(self))
+      ptr = self.exfn.rain_get(T.null, source, A.int_node(i).emit(self))
       value = self.load(ptr)
       if isinstance(sub, list):
         value = self.unpack(value, sub)

@@ -25,8 +25,8 @@ def emit_main(self, module, mods=[]):
     ret_ptr = module.alloc(T.null, name='ret_ptr')
 
     with module.add_abort():
-      module.excall('rain_init_gc')
-      module.excall('rain_init_args', *module.main.args)
+      module.ex.rain_init_gc()
+      module.ex.rain_init_args(*module.main.args)
 
       for tmp in mods:
         if 'init' in tmp:
@@ -36,11 +36,11 @@ def emit_main(self, module, mods=[]):
             module.check_callable(init_box, 0, unwind=module.catch)
             module.fncall(init_ptr, T.null, unwind=module.catch)
 
-      module.excall('rain_main', ret_ptr, module['main'], unwind=module.catch)
+      module.ex.rain_main(ret_ptr, module['main'], unwind=module.catch)
 
       module.catch_and_abort(module.builder.block)
 
-      ret_code = module.excall('rain_box_to_exit', ret_ptr)
+      ret_code = module.ex.rain_box_to_exit(ret_ptr)
       module.builder.ret(ret_code)
 
 
@@ -213,7 +213,7 @@ def emit(self, module):
       elif isinstance(lhs, idx_node):
         table = module.emit(lhs.lhs)
         key = module.emit(lhs.rhs)
-        module.exfncall('rain_put', table, key, rhs)
+        module.exfn.rain_put(table, key, rhs)
 
   elif isinstance(self.lhs, name_node):
     if module.is_global:
@@ -258,7 +258,7 @@ def emit(self, module):
     key = module.emit(self.lhs.rhs)
     val = module.emit(self.rhs)
 
-    module.exfncall('rain_put', table, key, val)
+    module.exfn.rain_put(table, key, val)
 
 
 @break_node.method
@@ -556,7 +556,7 @@ def emit(self, module):
   if module.is_global:
     return static_table_alloc(module, module.uniq('table'))
 
-  ptr = module.excall('rain_new_table')
+  ptr = module.ex.rain_new_table()
   return module.load(ptr)
 
 
@@ -577,10 +577,10 @@ def emit(self, module):
 
     return table_box
 
-  ptr = module.excall('rain_new_table')
+  ptr = module.ex.rain_new_table()
   for i, item in enumerate(self.items):
     args = module.fnalloc(int_node(i).emit(module), module.emit(item))
-    module.excall('rain_put', ptr, *args)
+    module.ex.rain_put(ptr, *args)
 
   ret = module.load(ptr)
   ret = module.insert(ret, module.get_vt('array'), T.ENV)
@@ -605,10 +605,10 @@ def emit(self, module):
 
     return table_box
 
-  ptr = module.excall('rain_new_table')
+  ptr = module.ex.rain_new_table()
   for key, item in self.items:
     args = module.fnalloc(module.emit(key), module.emit(item))
-    module.excall('rain_put', ptr, *args)
+    module.ex.rain_put(ptr, *args)
 
   ret = module.load(ptr)
   ret = module.insert(ret, module.get_vt('dict'), T.ENV)
@@ -641,7 +641,7 @@ def emit(self, module):
 
         for i, (name, ptr) in enumerate(env.items()):
           module.store(str_node(name).emit(module), key_ptr)
-          module[name] = module.excall('rain_get_ptr', env_ptr, key_ptr)
+          module[name] = module.ex.rain_get_ptr(env_ptr, key_ptr)
 
         module.store(T.null, func.args[0])
 
@@ -656,7 +656,7 @@ def emit(self, module):
   func_box = T._func(func, len(self.params))
 
   if env:
-    env_ptr = module.excall('rain_new_table')
+    env_ptr = module.ex.rain_new_table()
 
     func_box = module.insert(func_box, env_ptr, T.ENV)
 
@@ -672,9 +672,9 @@ def emit(self, module):
       # currently being bound, ie, it's this function
       module.store(str_node(name).emit(module), key_ptr)
       if getattr(ptr, 'bound', None) is False:
-        module.excall('rain_put', env_ptr, key_ptr, self_ptr)
+        module.ex.rain_put(env_ptr, key_ptr, self_ptr)
       else:
-        module.excall('rain_put', env_ptr, key_ptr, ptr)
+        module.ex.rain_put(env_ptr, key_ptr, ptr)
 
   return func_box
 
@@ -736,7 +736,7 @@ def emit(self, module):
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
 
-  ret_ptr = module.exfncall('rain_get', T.null, table, key)
+  ret_ptr = module.exfn.rain_get(T.null, table, key)
 
   func_box = module.load(ret_ptr)
   arg_boxes = [table] + [module.emit(arg) for arg in self.args]
@@ -760,7 +760,7 @@ def emit(self, module):
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
 
-  ret_ptr = module.exfncall('rain_get', T.null, table, key)
+  ret_ptr = module.exfn.rain_get(T.null, table, key)
   return module.load(ret_ptr)
 
 
@@ -772,13 +772,13 @@ def emit(self, module):
     Q.abort("Can't use unary operators at global scope", pos=self.coords)
 
   arith = {
-    '-': 'rain_neg',
-    '!': 'rain_not',
+    '-': module.exfn.rain_neg,
+    '!': module.exfn.rain_not,
   }
 
   val = module.emit(self.val)
 
-  ret_ptr = module.exfncall(arith[self.op], T.null, val)
+  ret_ptr = arith[self.op](T.null, val)
   return module.load(ret_ptr)
 
 
@@ -797,7 +797,7 @@ def emit(self, module):
 
       return new_lhs
 
-    ptr = module.excall('rain_box_malloc')
+    ptr = module.ex.rain_box_malloc()
     module.store(rhs, ptr)
     return module.insert(lhs, ptr, T.ENV)
 
@@ -822,17 +822,17 @@ def emit(self, module):
     return module.load(res)
 
   arith = {
-    '+': 'rain_add',
-    '-': 'rain_sub',
-    '*': 'rain_mul',
-    '/': 'rain_div',
-    '==': 'rain_eq',
-    '!=': 'rain_ne',
-    '>': 'rain_gt',
-    '>=': 'rain_ge',
-    '<': 'rain_lt',
-    '<=': 'rain_le',
-    '$': 'rain_string_concat',
+    '+': module.exfn.rain_add,
+    '-': module.exfn.rain_sub,
+    '*': module.exfn.rain_mul,
+    '/': module.exfn.rain_div,
+    '==': module.exfn.rain_eq,
+    '!=': module.exfn.rain_ne,
+    '>': module.exfn.rain_gt,
+    '>=': module.exfn.rain_ge,
+    '<': module.exfn.rain_lt,
+    '<=': module.exfn.rain_le,
+    '$': module.exfn.rain_string_concat,
   }
 
   if self.op not in arith:
@@ -841,7 +841,7 @@ def emit(self, module):
   lhs = module.emit(self.lhs)
   rhs = module.emit(self.rhs)
 
-  ret_ptr = module.exfncall(arith[self.op], T.null, lhs, rhs)
+  ret_ptr = arith[self.op](T.null, lhs, rhs)
   return module.load(ret_ptr)
 
 
