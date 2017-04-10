@@ -1,0 +1,15 @@
+let main = func()
+  let a = -3
+  let b = 3
+
+  let args = table
+  args[0] = "zero"
+  args[1] = "one"
+  args.name = "John"
+  args.exc = except.arg_mismatch
+
+  print("String substitution: {name}":fmt(args))
+  print("String coercion: {exc}":fmt(args))
+  print("Implicit counting: {} {}":fmt(args))
+  print("Explicit counting: {1} {0}":fmt(args))
+  print("Mixed counting: {} {name} {} {1} {0}":fmt(args))
