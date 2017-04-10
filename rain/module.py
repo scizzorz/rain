@@ -80,6 +80,7 @@ def find_name(src):
 
 
 externs = {
+  'main': T.func(T.i32, (T.i32, (T.ptr(T.ptr(T.i8))))),
   'GC_malloc': T.func(T.ptr(T.i8), [T.i32]),
 
   'rain_abort': T.vfunc(),
@@ -91,7 +92,6 @@ externs = {
   'rain_init_gc': T.func(T.i32, []),
   'rain_main': T.vfunc(T.arg, T.arg),
   'rain_personality_v0': T.func(T.i32, [], var_arg=True),
-  'rain_print': T.vfunc(T.arg),
   'rain_throw': T.vfunc(T.arg),
 
   'rain_neg': T.vfunc(T.arg, T.arg),
@@ -219,8 +219,7 @@ class Module(S.Scope):
   # main function
   @property
   def main(self):
-    typ = T.func(T.i32, (T.i32, T.ptr(T.ptr(T.i8))))
-    func = self.find_func(typ, name='main')
+    func = self.extern('main')
     func.attributes.personality = self.personality
     return func
 
