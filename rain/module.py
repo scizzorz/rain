@@ -87,8 +87,8 @@ externs = {
   'rain_box_to_exit': T.func(T.i32, [T.arg]),
   'rain_catch': T.vfunc(T.arg),
   'rain_check_callable': T.vfunc(T.arg, T.i32),
-  'rain_init_gc': T.func(T.i32, []),
   'rain_init_args': T.vfunc(T.i32, T.ptr(T.ptr(T.i8))),
+  'rain_init_gc': T.func(T.i32, []),
   'rain_main': T.vfunc(T.arg, T.arg),
   'rain_personality_v0': T.func(T.i32, [], var_arg=True),
   'rain_print': T.vfunc(T.arg),
@@ -299,7 +299,7 @@ class Module(S.Scope):
       self.arg_ptrs = []
       self.catchall = False
       with self.add_builder(entry):
-        self.callable_ptr = self.alloc(T.box)
+        self.callable_ptr = self.alloc()
         self.builder.branch(body)
 
       with self.add_builder(body):
@@ -311,7 +311,7 @@ class Module(S.Scope):
       self.arg_ptrs = []
       block = self.main.append_basic_block(name='entry')
       with self.add_builder(block):
-        self.callable_ptr = self.alloc(T.box)
+        self.callable_ptr = self.alloc()
         yield self.main
 
   @contextmanager
@@ -418,7 +418,7 @@ class Module(S.Scope):
     with self.builder.goto_entry_block():
       if len(args) + 1 > len(self.arg_ptrs):
         for i in range(len(self.arg_ptrs), len(args) + 1):
-          self.arg_ptrs.append(self.alloc(T.box, name='arg' + str(i)))
+          self.arg_ptrs.append(self.alloc(name='arg' + str(i)))
 
     for arg, ptr in zip(args, self.arg_ptrs):
       self.store(arg, ptr)
@@ -456,7 +456,7 @@ class Module(S.Scope):
 
   # llvmlite shortcuts ########################################################
 
-  def alloc(self, typ, init=None, name=''):
+  def alloc(self, init=None, name='', typ=T.box):
     ptr = self.builder.alloca(typ, name=name)
     if init:
       self.store(init, ptr)

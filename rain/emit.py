@@ -22,7 +22,7 @@ def emit(self, module):
 @program_node.method
 def emit_main(self, module, mods=[]):
   with module.add_main():
-    ret_ptr = module.alloc(T.box, T.null, name='ret_ptr')
+    ret_ptr = module.alloc(T.null, name='ret_ptr')
 
     with module.add_abort():
       module.excall('rain_init_gc')
@@ -201,7 +201,7 @@ def emit(self, module):
       if isinstance(lhs, name_node):
         if self.let:
           with module.goto_entry():
-            module[lhs] = module.alloc(T.box)
+            module[lhs] = module.alloc()
             module[lhs].bound = False
 
         if lhs not in module:
@@ -234,7 +234,7 @@ def emit(self, module):
 
     if self.let:
       with module.goto_entry():
-        module[self.lhs] = module.alloc(T.box)
+        module[self.lhs] = module.alloc()
         module[self.lhs].bound = False  # cheesy hack - see @func_node
 
     rhs = module.emit(self.rhs)
@@ -459,12 +459,12 @@ def emit(self, module):
 
   # set up the return pointers
   with module.goto_entry():
-    ret_ptr = module.alloc(T.box)
+    ret_ptr = module.alloc()
     if isinstance(self.name, name_node):
       module[self.name.value] = ret_ptr
     elif isinstance(self.name, list):
       for name in flatten(self.name):
-        module[name.value] = module.alloc(T.box)
+        module[name.value] = module.alloc()
 
   with module.add_loop():
     with module.goto(module.before):
@@ -496,7 +496,7 @@ def emit(self, module):
 @catch_node.method
 def emit(self, module):
   with module.goto_entry():
-    ret_ptr = module[self.name] = module.alloc(T.box, T.null, name='exc_var')
+    ret_ptr = module[self.name] = module.alloc(T.null, name='exc_var')
 
   end = module.builder.append_basic_block('end_catch')
 
@@ -634,7 +634,7 @@ def emit(self, module):
     with module.add_func_body(func):
       if env:
         with module.goto_entry():
-          key_ptr = module.alloc(T.box)
+          key_ptr = module.alloc()
 
         #env_box = module.load(func.args[0])
         env_ptr = func.args[0]
@@ -661,8 +661,8 @@ def emit(self, module):
     func_box = module.insert(func_box, env_ptr, T.ENV)
 
     with module.goto_entry():
-      key_ptr = module.alloc(T.box)
-      self_ptr = module.alloc(T.box)
+      key_ptr = module.alloc()
+      self_ptr = module.alloc()
 
     module.store(func_box, self_ptr)
 
@@ -806,7 +806,7 @@ def emit(self, module):
 
   if self.op in ('|', '&'):
     with module.goto_entry():
-      res = module.alloc(T.box)
+      res = module.alloc()
 
     lhs = module.emit(self.lhs)
     module.store(lhs, res)
