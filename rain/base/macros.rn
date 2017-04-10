@@ -33,7 +33,7 @@ macro match(expr, expr) as (lhs, rhs)
 
 
 # Creates a switch/case-like control flow
-macro case(expr, block) as (var, cases)
+macro case(expr, argblock) as (var, cases)
   let block = ast.block:empty()
   save block
 
@@ -46,6 +46,7 @@ macro case(expr, block) as (var, cases)
   let cur = null
 
   for stmt in cases:values()
+    continue if stmt.op != "->"
     let cmp = ast._binary:new(caseval, stmt.lhs, "==")
     let ifs = cmp:_if(retval:assn(stmt.rhs), null)
 

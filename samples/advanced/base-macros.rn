@@ -14,12 +14,12 @@ let person = {
 
 let square = func(n)
   let ret = @macros.case n
-    1 = 1
-    2 = 4
-    3 = 9
-    4 = 16
-    _ = 0
-    5 = 25
+    1 -> 1
+    2 -> 4
+    3 -> 9
+    4 -> 16
+    _ -> 0
+    5 -> 25
 
   return ret
 
