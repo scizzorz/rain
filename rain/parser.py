@@ -218,7 +218,7 @@ def block(ctx):
 #       | 'library' STRING
 #       | if_stmt
 #       | 'catch' NAME block
-#       | 'for' NAME 'in' binexpr block
+#       | 'for' let_prefix 'in' binexpr block
 #       | 'with' binexpr ('as' NAME (',' NAME)*)
 #       | 'while' binexpr block
 #       | 'until' binexpr block
