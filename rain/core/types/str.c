@@ -65,49 +65,71 @@ void rain_ext_str_fmt(box *ret, box *fmt, box *args) {
   int out = 0;
   int ins = fmt->size;
   int outs = ins * 2; // start with twice the size
+  int counter = 0;
 
   char *str = fmt->data.s;
   char *new = GC_malloc(outs);
-  char *write = NULL;
 
   box key;
   box val;
 
   while(1) {
-    write = NULL;
+    // reached end of input
     if(in >= ins) {
       break;
     }
 
+    // found a starting {
     if(str[in] == '{') {
       in++;
 
+      // find a matching }
       start = in;
       while(in < ins && str[in] != '}') {
         in++;
       }
 
+      // reached EOS without finding a matching }
       if(in == ins) {
         rain_throw(rain_exc_str_fmt_error);
       }
+
       else {
-        rain_set_strcpy(&key, str + start, in - start);
+        // check for empty key
+        if(in == start) {
+          rain_set_int(&key, counter);
+          counter++;
+        }
+        else {
+          // read the key as a string
+          rain_set_strcpy(&key, str + start, in - start);
+
+          // convert the string to an int if possible
+          // by passing in &key as the ret value as well, it will
+          // remain unchanged unless the conversion is successful
+          rain_ext_str_int(&key, &key);
+        }
         rain_set_null(&val);
         rain_set_null(ret);
 
+        // read the key out of the arg table and coerce it
         rain_get(&val, args, &key);
         rain_ext_to_str(ret, &val);
 
+        // resize if needed
         if(out + ret->size >= outs) {
           outs *= 2;
           new = GC_realloc(new, outs);
         }
 
+        // copy output string
         strcpy(new + out, ret->data.s);
         out += ret->size;
         in++;
       }
     }
+
+    // just copy one character
     else {
       if(out >= outs) {
         outs *= 2;
