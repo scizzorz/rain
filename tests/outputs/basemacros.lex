@@ -66,27 +66,27 @@ name 'case'
 name 'n'
 indent
 int 1
-symbol '='
+operator '->'
 int 1
 newline
 int 2
-symbol '='
+operator '->'
 int 4
 newline
 int 3
-symbol '='
+operator '->'
 int 9
 newline
 int 4
-symbol '='
+operator '->'
 int 16
 newline
 name ''
-symbol '='
+operator '->'
 int 0
 newline
 int 5
-symbol '='
+operator '->'
 int 25
 newline
 dedent

@@ -194,10 +194,8 @@ stmts:
         - !method;1
           args: []
           catch: false
-          lhs: !unary;1
-            op: '-'
-            val: !int;1
-              value: 3
+          lhs: !int;1
+            value: -3
           rhs: !str;1
             value: abs
         catch: false
@@ -220,10 +218,8 @@ stmts:
         - !method;1
           args: []
           catch: false
-          lhs: !unary;1
-            op: '-'
-            val: !float;1
-              value: 3.5
+          lhs: !float;1
+            value: -3.5
           rhs: !str;1
             value: abs
         catch: false

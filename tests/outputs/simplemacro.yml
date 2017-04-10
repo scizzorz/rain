@@ -93,10 +93,8 @@ stmts:
           value: test
       - !call;1
         args:
-        - !unary;1
-          op: '-'
-          val: !int;1
-            value: 10
+        - !int;1
+          value: -10
         catch: false
         func: !name;1
           value: test
