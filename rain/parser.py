@@ -211,14 +211,14 @@ def block(ctx):
 # stmt :: 'let' let_prefix '=' compound
 #       | 'export' NAME '=' compound
 #       | 'export' NAME 'as' 'foreign' (NAME | STRING)
-#       | 'import' (NAME | STRING) ('as' NAME)?
+#       | 'import' import_mod ('as' NAME)?
 #       | 'macro' NAME fnparams 'as' fnparams block
 #       | macro_exp
 #       | 'link' STRING
 #       | 'library' STRING
 #       | if_stmt
 #       | 'catch' NAME block
-#       | 'for' NAME 'in' binexpr block
+#       | 'for' let_prefix 'in' binexpr block
 #       | 'with' binexpr ('as' NAME (',' NAME)*)
 #       | 'while' binexpr block
 #       | 'until' binexpr block
@@ -252,16 +252,15 @@ def stmt(ctx):
       return node
 
   if ctx.consume(K.keyword_token('import')):
-    name = ctx.require(K.name_token, K.string_token)
+    name = import_mod(ctx)
     pos = ctx.past[-1]
 
     base, fname = os.path.split(ctx.file)
-    file = M.find_rain(name.value, paths=[base])
+    file = M.find_rain(name, paths=[base])
 
     if not file:
-      Q.abort("Can't find module {!r}", name.value, pos=name.pos(file=ctx.file))
+      Q.abort("Can't find module {!r}", name, pos=pos(file=ctx.file))
 
-    name = name.value
     rename = None
     if ctx.consume(K.keyword_token('as')):
       rename = ctx.require(K.name_token).value
@@ -402,6 +401,20 @@ def stmt(ctx):
     args = fnargs(ctx)
     return A.meth_node(lhs, rhs, args)
 
+
+# import_mod :: '.'? (NAME | STRING) ('.' (NAME | STRING))*
+def import_mod(ctx):
+  lst = []
+
+  if ctx.consume(K.symbol_token('.')):
+    lst.append('.')
+
+  lst.append(ctx.require(K.name_token, K.string_token).value)
+
+  while ctx.consume(K.symbol_token('.')):
+    lst.append(ctx.require(K.name_token, K.string_token).value)
+
+  return os.path.join(*lst)
 
 # if_stmt :: 'if' binexpr block (NEWLINE 'else' (if_stmt | block))?
 def if_stmt(ctx):

@@ -1,3 +1,4 @@
+from . import error as Q
 from . import module as M
 from .token import bool_token
 from .token import coord
@@ -135,7 +136,10 @@ def stream(source):
           if last in (symbol_token('['), symbol_token('{'), symbol_token('(')):
             ignore_whitespace.append(True)
           elif last in (symbol_token(']'), symbol_token('}'), symbol_token(')')):
-            ignore_whitespace.pop()
+            if ignore_whitespace:
+              ignore_whitespace.pop()
+            else:
+              Q.abort('unmatched brace', pos=coord(line, col))
 
           yield last
         skip(len(value))
