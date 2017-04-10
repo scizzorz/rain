@@ -387,9 +387,10 @@ def stmt(ctx):
 
   lhs = assn_prefix(ctx)
 
-  if ctx.consume(K.symbol_token('=')):
-    rhs = compound(ctx)
-    return A.assn_node(lhs, rhs, let=False)
+  if isinstance(lhs, (A.name_node, A.idx_node, list)):
+    if ctx.consume(K.symbol_token('=')):
+      rhs = compound(ctx)
+      return A.assn_node(lhs, rhs, let=False)
 
   if ctx.expect(K.symbol_token('(')):
     args = fnargs(ctx)
@@ -400,6 +401,8 @@ def stmt(ctx):
     rhs = A.str_node(name)
     args = fnargs(ctx)
     return A.meth_node(lhs, rhs, args)
+
+  ctx.require(K.symbol_token('('), K.symbol_token(':'))
 
 
 # import_mod :: '.'? (NAME | STRING) ('.' (NAME | STRING))*
