@@ -162,7 +162,6 @@ class Module(S.Scope):
     self.loop = None
     self.after = None
     self.ret_ptr = None
-    self.callable_ptr = None
 
     self.name_counter = 0
 
@@ -222,8 +221,12 @@ class Module(S.Scope):
   def main(self):
     typ = T.func(T.i32, (T.i32, T.ptr(T.ptr(T.i8))))
     func = self.find_func(typ, name='main')
-    func.attributes.personality = self.extern('rain_personality_v0')
+    func.attributes.personality = self.personality
     return func
+
+  @property
+  def personality(self):
+    return self.extern('rain_personality_v0')
 
   # add a new function
   def add_func(self, typ, name=None):
@@ -282,7 +285,7 @@ class Module(S.Scope):
   def add_builder(self, block):
     with self.stack('builder'):
       self.builder = ir.IRBuilder(block)
-      yield self.builder
+      yield
 
   @contextmanager
   def borrow_builder(self, other):
@@ -292,27 +295,17 @@ class Module(S.Scope):
 
   @contextmanager
   def add_func_body(self, func):
-    with self.stack('ret_ptr', 'callable_ptr', 'catchall', 'arg_ptrs'):
+    with self.stack('ret_ptr', 'arg_ptrs', 'catchall'):
       entry = func.append_basic_block('entry')
       body = func.append_basic_block('body')
       self.ret_ptr = func.args[0]
       self.arg_ptrs = []
       self.catchall = False
       with self.add_builder(entry):
-        self.callable_ptr = self.alloc()
         self.builder.branch(body)
 
       with self.add_builder(body):
         yield
-
-  @contextmanager
-  def add_main(self):
-    with self.stack('callable_ptr', 'arg_ptrs'):
-      self.arg_ptrs = []
-      block = self.main.append_basic_block(name='entry')
-      with self.add_builder(block):
-        self.callable_ptr = self.alloc()
-        yield self.main
 
   @contextmanager
   def add_loop(self):
