@@ -145,8 +145,7 @@ newline
 name 'print'
 symbol '('
 symbol '('
-operator '-'
-int 3
+int -3
 symbol ')'
 symbol ':'
 name 'abs'
@@ -168,8 +167,7 @@ newline
 name 'print'
 symbol '('
 symbol '('
-operator '-'
-float 3.5
+float -3.5
 symbol ')'
 symbol ':'
 name 'abs'

@@ -78,8 +78,7 @@ symbol ')'
 newline
 name 'test'
 symbol '('
-operator '-'
-int 10
+int -10
 symbol ')'
 newline
 name 'print'
