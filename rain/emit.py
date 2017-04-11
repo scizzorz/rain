@@ -692,30 +692,6 @@ def emit(self, module):
 
 # Compound expressions ########################################################
 
-def do_call(module, func_box, arg_boxes, catch=False):
-  func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
-
-  module.check_callable(func_box, len(arg_boxes))
-  ptrs = module.fnalloc(T.null, *arg_boxes)
-
-  env = module.get_env(func_box)
-  has_env = module.builder.icmp_unsigned('!=', env, T.arg(None))
-  with module.builder.if_then(has_env):
-    env_box = module.load(env)
-    module.store(env_box, ptrs[0])
-
-  if catch:
-    with module.add_catch():
-      module.call(func_ptr, *ptrs, unwind=module.catch)
-
-      module.catch_into(ptrs[0], module.builder.block)
-
-      return module.load(ptrs[0])
-
-  module.call(func_ptr, *ptrs)
-  return module.load(ptrs[0])
-
-
 @call_node.method
 def emit(self, module):
   if module.is_global:
@@ -724,7 +700,7 @@ def emit(self, module):
   func_box = module.emit(self.func)
   arg_boxes = [module.emit(arg) for arg in self.args]
 
-  return do_call(module, func_box, arg_boxes, catch=self.catch)
+  return module.box_call(func_box, arg_boxes, catch=self.catch)
 
 
 @meth_node.method
@@ -741,7 +717,7 @@ def emit(self, module):
   func_box = module.load(ret_ptr)
   arg_boxes = [table] + [module.emit(arg) for arg in self.args]
 
-  return do_call(module, func_box, arg_boxes, catch=self.catch)
+  return module.box_call(func_box, arg_boxes, catch=self.catch)
 
 
 @idx_node.method

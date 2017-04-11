@@ -445,6 +445,36 @@ class Module(S.Scope):
   def excall(self, fn, *args, unwind=None):
     return self.call(self.extern(fn), *args, unwind=unwind)
 
+  # call a function from a box
+  def box_call(self, func_box, arg_boxes, catch=False):
+    # load the pointer
+    func_ptr = self.get_value(func_box, typ=T.vfunc(var_arg=True))
+
+    # ensure it's callable - panic otherwise
+    self.check_callable(func_box, len(arg_boxes))
+
+    # allocate argument pointers
+    ptrs = self.fnalloc(T.null, *arg_boxes)
+
+    # load the function's closure environment
+    env = self.get_env(func_box)
+    has_env = self.builder.icmp_unsigned('!=', env, T.arg(None))
+    with self.builder.if_then(has_env):
+      env_box = self.load(env)
+      self.store(env_box, ptrs[0])
+
+    # catch call
+    if catch:
+      with self.add_catch():
+        self.call(func_ptr, *ptrs, unwind=self.catch)
+        self.catch_into(ptrs[0], self.builder.block)
+
+        return self.load(ptrs[0])
+
+    # regular call
+    self.call(func_ptr, *ptrs)
+    return self.load(ptrs[0])
+
   # llvmlite shortcuts ########################################################
 
   def alloc(self, init=None, name='', typ=T.box):
