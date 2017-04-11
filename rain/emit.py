@@ -692,11 +692,6 @@ def emit(self, module):
 
 # Compound expressions ########################################################
 
-def get_exception(module, name):
-  glob = module.find_global(T.ptr(T.box), name)
-  return module.load(glob)
-
-
 def do_call(module, func_box, arg_boxes, catch=False):
   func_ptr = module.get_value(func_box, typ=T.vfunc(T.arg, *[T.arg] * len(arg_boxes)))
 
