@@ -6,7 +6,7 @@
 void rain_binary_magic(box *, box *, box *, char *);
 
 void rain_neg(box *, box *);
-void rain_not(box *, box *);
+void rain_lnot(box *, box *);
 
 void rain_add(box *, box *, box *);
 void rain_sub(box *, box *, box *);

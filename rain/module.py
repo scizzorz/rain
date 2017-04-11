@@ -1,6 +1,8 @@
 from . import ast as A
 from . import error as Q
+from . import runtime
 from . import scope as S
+from . import static
 from . import token as K
 from . import types as T
 from contextlib import contextmanager
@@ -79,49 +81,6 @@ def find_name(src):
   return (qname, mname)
 
 
-externs = {
-  'GC_malloc': T.func(T.ptr(T.i8), [T.i32]),
-
-  'rain_abort': T.vfunc(),
-  'rain_box_malloc': T.func(T.arg, []),
-  'rain_box_to_exit': T.func(T.i32, [T.arg]),
-  'rain_catch': T.vfunc(T.arg),
-  'rain_check_callable': T.vfunc(T.arg, T.i32),
-  'rain_init_gc': T.func(T.i32, []),
-  'rain_init_args': T.vfunc(T.i32, T.ptr(T.ptr(T.i8))),
-  'rain_main': T.vfunc(T.arg, T.arg),
-  'rain_personality_v0': T.func(T.i32, [], var_arg=True),
-  'rain_print': T.vfunc(T.arg),
-  'rain_throw': T.vfunc(T.arg),
-
-  'rain_neg': T.vfunc(T.arg, T.arg),
-  'rain_not': T.vfunc(T.arg, T.arg),
-
-  'rain_add': T.bin,
-  'rain_sub': T.bin,
-  'rain_mul': T.bin,
-  'rain_div': T.bin,
-
-  'rain_and': T.bin,
-  'rain_or': T.bin,
-
-  'rain_eq': T.bin,
-  'rain_ne': T.bin,
-  'rain_gt': T.bin,
-  'rain_ge': T.bin,
-  'rain_lt': T.bin,
-  'rain_le': T.bin,
-
-  'rain_string_concat': T.bin,
-
-  'rain_new_table': T.func(T.arg, []),
-  'rain_new_pair': T.vfunc(T.arg, T.arg),
-  'rain_get_ptr': T.func(T.arg, [T.arg, T.arg]),
-  'rain_put': T.bin,
-  'rain_get': T.bin,
-}
-
-
 class Module(S.Scope):
   @staticmethod
   def dekey(key):
@@ -146,13 +105,15 @@ class Module(S.Scope):
     self.links = set()
     self.libs = set()
 
+    self.runtime = runtime.Runtime(self)
+    self.static = static.Static(self)
+
+    self.runtime.declare()
+
     typ = T.arr(T.i8, len(self.qname) + 1)
     ptr = self.add_global(typ, name=self.mangle('_name'))
     ptr.initializer = typ(bytearray(self.qname + '\0', 'utf-8'))
     self.name_ptr = ptr.gep([T.i32(0), T.i32(0)])
-
-    for name in externs:
-      self.extern(name)
 
     self.builder = None
     self.arg_ptrs = None
@@ -162,7 +123,6 @@ class Module(S.Scope):
     self.loop = None
     self.after = None
     self.ret_ptr = None
-    self.callable_ptr = None
 
     self.name_counter = 0
 
@@ -217,14 +177,6 @@ class Module(S.Scope):
 
   # Global helpers ############################################################
 
-  # main function
-  @property
-  def main(self):
-    typ = T.func(T.i32, (T.i32, T.ptr(T.ptr(T.i8))))
-    func = self.find_func(typ, name='main')
-    func.attributes.personality = self.extern('rain_personality_v0')
-    return func
-
   # add a new function
   def add_func(self, typ, name=None):
     if not name:
@@ -254,10 +206,6 @@ class Module(S.Scope):
 
     return self.add_global(typ, name=name)
 
-  # add or find an external function
-  def extern(self, name):
-    return self.find_func(externs[name], name=name)
-
   # import globals from another module
   def import_llvm(self, other):
     for val in other.llvm.global_values:
@@ -282,37 +230,21 @@ class Module(S.Scope):
   def add_builder(self, block):
     with self.stack('builder'):
       self.builder = ir.IRBuilder(block)
-      yield self.builder
-
-  @contextmanager
-  def borrow_builder(self, other):
-    with self.stack('builder'):
-      self.builder = other.builder
-      yield self.builder
+      yield
 
   @contextmanager
   def add_func_body(self, func):
-    with self.stack('ret_ptr', 'callable_ptr', 'catchall', 'arg_ptrs'):
+    with self.stack('ret_ptr', 'arg_ptrs', 'catchall'):
       entry = func.append_basic_block('entry')
       body = func.append_basic_block('body')
       self.ret_ptr = func.args[0]
       self.arg_ptrs = []
       self.catchall = False
       with self.add_builder(entry):
-        self.callable_ptr = self.alloc(T.box)
         self.builder.branch(body)
 
       with self.add_builder(body):
         yield
-
-  @contextmanager
-  def add_main(self):
-    with self.stack('callable_ptr', 'arg_ptrs'):
-      self.arg_ptrs = []
-      block = self.main.append_basic_block(name='entry')
-      with self.add_builder(block):
-        self.callable_ptr = self.alloc(T.box)
-        yield self.main
 
   @contextmanager
   def add_loop(self):
@@ -331,30 +263,28 @@ class Module(S.Scope):
   def add_catch(self, catchall=False):
     with self.stack('catch', 'catchall'):
       self.catchall = catchall
-      catch = self.catch = self.builder.append_basic_block('catch')
-
-      def catcher(ptr, branch):
-        with self.goto(catch):
-          lp = self.builder.landingpad(T.lp)
-          lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-          self.excall('rain_catch', ptr)
-          self.builder.branch(branch)
-
-      yield catcher
+      self.catch = self.builder.append_basic_block('catch')
+      yield
 
   @contextmanager
   def add_abort(self):
     with self.stack('catch'):
-      catch = self.catch = self.builder.append_basic_block('catch')
+      self.catch = self.builder.append_basic_block('catch')
+      yield
 
-      def aborter(branch):
-        with self.goto(catch):
-          lp = self.builder.landingpad(T.lp)
-          lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-          self.excall('rain_abort')
-          self.builder.branch(branch)
+  def catch_into(self, ptr, branch):
+    with self.goto(self.catch):
+      lp = self.builder.landingpad(T.lp)
+      lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
+      self.runtime.catch(ptr)
+      self.builder.branch(branch)
 
-      yield aborter
+  def catch_and_abort(self, branch):
+    with self.goto(self.catch):
+      lp = self.builder.landingpad(T.lp)
+      lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
+      self.runtime.abort()
+      self.builder.branch(branch)
 
   @contextmanager
   def goto(self, block):
@@ -387,6 +317,10 @@ class Module(S.Scope):
   def get_vt(self, name):
     return self.find_global(T.box, 'core.types.' + name)
 
+  def load_exception(self, name):
+    glob = self.find_global(T.ptr(T.box), 'rain_exc_' + name)
+    return self.load(glob)
+
   def truthy(self, node):
     box = self.emit(node)
     return self.truthy_val(box)
@@ -400,39 +334,28 @@ class Module(S.Scope):
 
   # Function helpers ##########################################################
 
-  def get_exception(self, name):
-    glob = self.find_global(T.ptr(T.box), 'rain_exc_' + name)
-    return self.load(glob)
-
   def check_callable(self, box, num_args, unwind=None):
     func_typ = self.get_type(box)
     is_func = self.builder.icmp_unsigned('!=', T.ityp.func, func_typ)
     with self.builder.if_then(is_func):
-      self.excall('rain_throw', self.get_exception('uncallable'))
+      self.runtime.throw(self.load_exception('uncallable'))
 
     exp_args = self.get_size(box)
     arg_match = self.builder.icmp_unsigned('!=', exp_args, T.i32(num_args))
     with self.builder.if_then(arg_match):
-      self.excall('rain_throw', self.get_exception('arg_mismatch'))
+      self.runtime.throw(self.load_exception('arg_mismatch'))
 
   # allocate stack space for function arguments
   def fnalloc(self, *args):
     with self.builder.goto_entry_block():
       if len(args) + 1 > len(self.arg_ptrs):
         for i in range(len(self.arg_ptrs), len(args) + 1):
-          self.arg_ptrs.append(self.alloc(T.box, name='arg' + str(i)))
+          self.arg_ptrs.append(self.alloc(name='arg' + str(i)))
 
     for arg, ptr in zip(args, self.arg_ptrs):
       self.store(arg, ptr)
 
     return self.arg_ptrs[:len(args)]
-
-  # allocate stack space for a function arguments, then call it
-  # only used for Rain functions! (eg they only take box *)
-  def fncall(self, fn, *args, unwind=None):
-    ptrs = self.fnalloc(*args)
-    self.call(fn, *ptrs, unwind=unwind)
-    return ptrs[0]
 
   # call a function based on unwind
   def call(self, fn, *args, unwind=None):
@@ -448,17 +371,47 @@ class Module(S.Scope):
 
     return val
 
-  # call an extern function
-  def excall(self, fn, *args, unwind=None):
-    return self.call(self.extern(fn), *args, unwind=unwind)
+  # call a main/init (no environment, no args, implied unwind without catch_into)
+  def main_call(self, box_ptr):
+    box = self.load(box_ptr)
+    ptr = self.get_value(box, typ=T.vfunc(T.arg))
+    args = self.fnalloc(T.null)
+    self.check_callable(box, 0, unwind=self.catch)
+    self.call(ptr, *args, unwind=self.catch)
 
-  # allocate stack space and call an extern function
-  def exfncall(self, fn, *args, unwind=None):
-    return self.fncall(self.extern(fn), *args, unwind=unwind)
+  # call a function from a box
+  def box_call(self, func_box, arg_boxes, catch=False):
+    # load the pointer
+    func_ptr = self.get_value(func_box, typ=T.vfunc(var_arg=True))
+
+    # ensure it's callable - panic otherwise
+    self.check_callable(func_box, len(arg_boxes))
+
+    # allocate argument pointers
+    ptrs = self.fnalloc(T.null, *arg_boxes)
+
+    # load the function's closure environment
+    env = self.get_env(func_box)
+    has_env = self.builder.icmp_unsigned('!=', env, T.arg(None))
+    with self.builder.if_then(has_env):
+      env_box = self.load(env)
+      self.store(env_box, ptrs[0])
+
+    # catch call
+    if catch:
+      with self.add_catch():
+        self.call(func_ptr, *ptrs, unwind=self.catch)
+        self.catch_into(ptrs[0], self.builder.block)
+
+        return self.load(ptrs[0])
+
+    # regular call
+    self.call(func_ptr, *ptrs)
+    return self.load(ptrs[0])
 
   # llvmlite shortcuts ########################################################
 
-  def alloc(self, typ, init=None, name=''):
+  def alloc(self, init=None, name='', typ=T.box):
     ptr = self.builder.alloca(typ, name=name)
     if init:
       self.store(init, ptr)
@@ -471,6 +424,17 @@ class Module(S.Scope):
   def load(self, ptr):
     return self.builder.load(ptr)
 
+  def store_global(self, value, name):
+    if not isinstance(self[name], ir.GlobalVariable):
+      table_box = self.exports.initializer
+      key_node = A.str_node(name)
+      self.static.put(table_box, key_node, value)
+
+    self[name].initializer = value
+
+  def load_global(self, name):
+    return self[name].initializer
+
   def insert(self, container, value, idx):
     return self.builder.insert_value(container, value, idx)
 
@@ -480,7 +444,8 @@ class Module(S.Scope):
   def unpack(self, source, structure):
     values = []
     for i, sub in enumerate(structure):
-      ptr = self.exfncall('rain_get', T.null, source, A.int_node(i).emit(self))
+      ptr, *args = self.fnalloc(T.null, source, A.int_node(i).emit(self))
+      self.runtime.get(ptr, *args)
       value = self.load(ptr)
       if isinstance(sub, list):
         value = self.unpack(value, sub)

@@ -1,7 +1,7 @@
 from .token import coord
 from termcolor import colored as X
-import sys
 import os.path
+import sys
 
 
 def show_line(pos, hi=lambda x: X(x, 'red', attrs=['bold'])):

@@ -23,11 +23,6 @@ int rain_enable_gc() {
   return 0;
 }
 
-void rain_main(box *ret, box *func) {
-  void (*func_ptr)(box *) = (void (*)(box *))(func->data.vp);
-  func_ptr(ret);
-}
-
 int rain_box_to_exit(box* val) {
   if(BOX_IS(val, NULL)) {
     return val->data.ui;
