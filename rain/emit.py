@@ -215,7 +215,8 @@ def emit(self, module):
       elif isinstance(lhs, idx_node):
         table = module.emit(lhs.lhs)
         key = module.emit(lhs.rhs)
-        module.exfn.rain_put(table, key, rhs)
+        args = module.fnalloc(table, key, rhs)
+        module.ex.rain_put(*args)
 
   elif isinstance(self.lhs, name_node):
     if module.is_global:
@@ -260,7 +261,8 @@ def emit(self, module):
     key = module.emit(self.lhs.rhs)
     val = module.emit(self.rhs)
 
-    module.exfn.rain_put(table, key, val)
+    args = module.fnalloc(table, key, val)
+    module.ex.rain_put(*args)
 
 
 @break_node.method
@@ -738,7 +740,8 @@ def emit(self, module):
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
 
-  ret_ptr = module.exfn.rain_get(T.null, table, key)
+  ret_ptr, *args = module.fnalloc(T.null, table, key)
+  module.ex.rain_get(ret_ptr, *args)
 
   func_box = module.load(ret_ptr)
   arg_boxes = [table] + [module.emit(arg) for arg in self.args]
@@ -762,7 +765,8 @@ def emit(self, module):
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
 
-  ret_ptr = module.exfn.rain_get(T.null, table, key)
+  ret_ptr, *args = module.fnalloc(T.null, table, key)
+  module.ex.rain_get(ret_ptr, *args)
   return module.load(ret_ptr)
 
 
@@ -774,13 +778,15 @@ def emit(self, module):
     Q.abort("Can't use unary operators at global scope", pos=self.coords)
 
   arith = {
-    '-': module.exfn.rain_neg,
-    '!': module.exfn.rain_not,
+    '-': module.ex.rain_neg,
+    '!': module.ex.rain_not,
   }
 
   val = module.emit(self.val)
 
-  ret_ptr = arith[self.op](T.null, val)
+  ret_ptr, arg = module.fnalloc(T.null, val)
+  arith[self.op](ret_ptr, arg)
+
   return module.load(ret_ptr)
 
 
@@ -824,17 +830,17 @@ def emit(self, module):
     return module.load(res)
 
   arith = {
-    '+': module.exfn.rain_add,
-    '-': module.exfn.rain_sub,
-    '*': module.exfn.rain_mul,
-    '/': module.exfn.rain_div,
-    '==': module.exfn.rain_eq,
-    '!=': module.exfn.rain_ne,
-    '>': module.exfn.rain_gt,
-    '>=': module.exfn.rain_ge,
-    '<': module.exfn.rain_lt,
-    '<=': module.exfn.rain_le,
-    '$': module.exfn.rain_string_concat,
+    '+': module.ex.rain_add,
+    '-': module.ex.rain_sub,
+    '*': module.ex.rain_mul,
+    '/': module.ex.rain_div,
+    '==': module.ex.rain_eq,
+    '!=': module.ex.rain_ne,
+    '>': module.ex.rain_gt,
+    '>=': module.ex.rain_ge,
+    '<': module.ex.rain_lt,
+    '<=': module.ex.rain_le,
+    '$': module.ex.rain_string_concat,
   }
 
   if self.op not in arith:
@@ -843,7 +849,9 @@ def emit(self, module):
   lhs = module.emit(self.lhs)
   rhs = module.emit(self.rhs)
 
-  ret_ptr = arith[self.op](T.null, lhs, rhs)
+  ret_ptr, *args = module.fnalloc(T.null, lhs, rhs)
+  arith[self.op](ret_ptr, *args)
+
   return module.load(ret_ptr)
 
 

@@ -122,13 +122,12 @@ externs = {
 }
 
 class API:
-  def __init__(self, module, method):
+  def __init__(self, module):
     self.module = module
-    self.method = method
 
   def __getattr__(self, key):
     if key in externs:
-      return functools.partial(getattr(self.module, self.method), key)
+      return functools.partial(self.module.excall, key)
 
 
 class Module(S.Scope):
@@ -155,8 +154,7 @@ class Module(S.Scope):
     self.links = set()
     self.libs = set()
 
-    self.exfn = API(self, 'exfncall')
-    self.ex = API(self, 'excall')
+    self.ex = API(self)
 
     typ = T.arr(T.i8, len(self.qname) + 1)
     ptr = self.add_global(typ, name=self.mangle('_name'))
@@ -429,13 +427,6 @@ class Module(S.Scope):
 
     return self.arg_ptrs[:len(args)]
 
-  # allocate stack space for a function arguments, then call it
-  # only used for Rain functions! (eg they only take box *)
-  def fncall(self, fn, *args, unwind=None):
-    ptrs = self.fnalloc(*args)
-    self.call(fn, *ptrs, unwind=unwind)
-    return ptrs[0]
-
   # call a function based on unwind
   def call(self, fn, *args, unwind=None):
     if self.catchall:
@@ -453,10 +444,6 @@ class Module(S.Scope):
   # call an extern function
   def excall(self, fn, *args, unwind=None):
     return self.call(self.extern(fn), *args, unwind=unwind)
-
-  # allocate stack space and call an extern function
-  def exfncall(self, fn, *args, unwind=None):
-    return self.fncall(self.extern(fn), *args, unwind=unwind)
 
   # llvmlite shortcuts ########################################################
 
@@ -482,7 +469,8 @@ class Module(S.Scope):
   def unpack(self, source, structure):
     values = []
     for i, sub in enumerate(structure):
-      ptr = self.exfn.rain_get(T.null, source, A.int_node(i).emit(self))
+      ptr, *args = self.fnalloc(T.null, source, A.int_node(i).emit(self))
+      self.ex.rain_get(ptr, *args)
       value = self.load(ptr)
       if isinstance(sub, list):
         value = self.unpack(value, sub)
