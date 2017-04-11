@@ -1,3 +1,4 @@
+from . import error as Q
 import camel
 import fixedint
 import struct
@@ -30,7 +31,7 @@ class metanode(type):
     return self.__name__
 
   def __repr__(self):
-    return '<{}>'.format(self.__name__)
+    return '<{!s}>'.format(self)
 
 
 class node(metaclass=metanode):
@@ -45,6 +46,24 @@ class node(metaclass=metanode):
   @coords.setter
   def coords(self, value):
     self._coords = value
+
+  def emit(self, module):
+    if module.is_local:
+      return self.emit_local(module)
+    elif module.is_global:
+      return self.emit_global(module)
+
+  def emit_local(self, module):
+    Q.abort("Can't emit code in non-global scope for {!r}", self, pos=self.coords)
+
+  def emit_global(self, module):
+    Q.abort("Can't emit code in global scope for {!r}", self, pos=self.coords)
+
+  def __str__(self):
+    return (type(self).__name__) + '()'
+
+  def __repr__(self):
+    return '<{!s}>'.format(self)
 
 
 class value_node(node):
