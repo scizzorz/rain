@@ -248,6 +248,7 @@ void rain_catch(box *ret) {
 void rain_abort() {
   printf("\x1b[31mpanic\x1b[0m: ");
   rain_print(&exception.val);
+  rain_dump();
   exit(1);
 }
 

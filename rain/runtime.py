@@ -16,6 +16,10 @@ externs = {
   'rain_personality_v0': T.func(T.i32, [], var_arg=True),
   'rain_throw': T.vfunc(T.arg),
 
+  'rain_push': T.func(T.i32, [T.ptr(T.i8), T.i32, T.i32]),
+  'rain_pop': T.func(T.i32, []),
+  'rain_dump': T.func(T.void, []),
+
   'rain_neg': T.vfunc(T.arg, T.arg),
   'rain_lnot': T.vfunc(T.arg, T.arg),
 
@@ -69,3 +73,7 @@ class Runtime:
     if key in externs:
       return functools.partial(self.module.call, self._getfunc(key))
 
+  def __getitem__(self, key):
+    key = 'rain_' + key
+    if key in externs:
+      return self._getfunc(key)

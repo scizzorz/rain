@@ -286,6 +286,18 @@ class Module(S.Scope):
     with self.builder.goto_entry_block():
       yield
 
+  @contextmanager
+  def trace(self, pos):
+    if pos:
+      args = (self.name_ptr, T.i32(pos.line), T.i32(pos.col))
+    else:
+      args = (self.name_ptr, T.i32(0), T.i32(0))
+
+    self.builder.call(self.runtime['push'], args)
+    yield
+    self.builder.call(self.runtime['pop'], ())
+
+
   # Box helpers ###############################################################
 
   def get_type(self, box):

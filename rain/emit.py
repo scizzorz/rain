@@ -593,7 +593,8 @@ def emit_local(self, module):
   func_box = module.emit(self.func)
   arg_boxes = [module.emit(arg) for arg in self.args]
 
-  return module.box_call(func_box, arg_boxes, catch=self.catch)
+  with module.trace(self.coords):
+    return module.box_call(func_box, arg_boxes, catch=self.catch)
 
 
 @meth_node.method

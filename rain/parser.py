@@ -393,14 +393,20 @@ def stmt(ctx):
       return A.assn_node(lhs, rhs, let=False)
 
   if ctx.expect(K.symbol_token('(')):
+    pos = ctx.token.pos(file=ctx.file)
     args = fnargs(ctx)
-    return A.call_node(lhs, args)
+    node = A.call_node(lhs, args)
+    node.coords = pos
+    return node
 
   if ctx.consume(K.symbol_token(':')):
     name = ctx.require(K.name_token).value
+    pos = ctx.past[-1]
     rhs = A.str_node(name)
     args = fnargs(ctx)
-    return A.meth_node(lhs, rhs, args)
+    node = A.meth_node(lhs, rhs, args)
+    node.coords = pos
+    return node
 
   ctx.require(K.symbol_token('('), K.symbol_token(':'))
 
