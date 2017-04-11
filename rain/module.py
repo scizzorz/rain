@@ -128,7 +128,7 @@ class Runtime:
 
   def __getattr__(self, key):
     if key in externs:
-      return functools.partial(self.module.excall, key)
+      return functools.partial(self.module.call, self.module.extern(key))
 
 
 class Module(S.Scope):
@@ -442,10 +442,6 @@ class Module(S.Scope):
       val = self.builder.call(fn, args)
 
     return val
-
-  # call an extern function
-  def excall(self, fn, *args, unwind=None):
-    return self.call(self.extern(fn), *args, unwind=unwind)
 
   # call a function from a box
   def box_call(self, func_box, arg_boxes, catch=False):
