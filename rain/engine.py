@@ -1,4 +1,5 @@
 from . import ast as A
+from . import error as Q
 from . import token as K
 from . import types as T
 import ctypes as ct
@@ -151,6 +152,10 @@ class Engine:
 
       ast_ptr = self.get_global('core.ast.exports', T.carg)
       meta_ptr = self.rain_get_ptr_py(ast_ptr, val.__tag__)
+      ptr = ct.cast(meta_ptr, ct.c_void_p).value
+      if not meta_ptr:
+        Q.abort('Unable to look up core.ast.{}'.format(val.__tag__))
+
       self.rain_set_env(table_box, meta_ptr)
 
       slots = [self.to_rain(getattr(val, key, None)) for key in val.__slots__]
