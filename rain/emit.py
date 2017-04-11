@@ -38,9 +38,9 @@ def emit_main(self, module, mods=[]):
 
       for tmp in mods:
         if 'init' in tmp:
-          module.main_call(tmp['init'])
+          module.box_call(module.load(tmp['init']))
 
-      module.main_call(module['main'])
+      module.box_call(module.load(module['main']))
       module.catch(module.builder.block)
 
       ret_code = module.runtime.box_to_exit(module.arg_ptrs[0])
@@ -177,7 +177,7 @@ def emit_global(self, module):
 
 @export_foreign_node.method
 def emit_local(self, module):
-  Q.abort("Can't export value {!r} as foreign in non-global scope", self.name, pos=self.coords)
+  Q.abort("Can't export as foreign in non-global scope", pos=self.coords)
 
 
 @import_node.method

@@ -359,16 +359,8 @@ class Module(S.Scope):
 
     return val
 
-  # call a main/init (no environment, no args)
-  def main_call(self, box_ptr):
-    box = self.load(box_ptr)
-    ptr = self.get_value(box, typ=T.vfunc(T.arg))
-    args = self.fnalloc(T.null)
-    self.check_callable(box, 0)
-    self.call(ptr, *args)
-
   # call a function from a box
-  def box_call(self, func_box, arg_boxes, catch=False):
+  def box_call(self, func_box, arg_boxes=(), catch=False, check_env=True):
     # load the pointer
     func_ptr = self.get_value(func_box, typ=T.vfunc(var_arg=True))
 
@@ -379,11 +371,12 @@ class Module(S.Scope):
     ptrs = self.fnalloc(T.null, *arg_boxes)
 
     # load the function's closure environment
-    env = self.get_env(func_box)
-    has_env = self.builder.icmp_unsigned('!=', env, T.arg(None))
-    with self.builder.if_then(has_env):
-      env_box = self.load(env)
-      self.store(env_box, ptrs[0])
+    if check_env:
+      env = self.get_env(func_box)
+      has_env = self.builder.icmp_unsigned('!=', env, T.arg(None))
+      with self.builder.if_then(has_env):
+        env_box = self.load(env)
+        self.store(env_box, ptrs[0])
 
     # catch call
     if catch:
