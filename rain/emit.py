@@ -32,7 +32,7 @@ def emit(self, module):
 @program_node.method
 def emit_main(self, module, mods=[]):
   with module.add_func_body(module.runtime.main):
-    with module.add_catch(catchall=True):
+    with module.add_catch():
       module.runtime.init_gc()
       module.runtime.init_args(*module.runtime.main.args)
 
@@ -238,7 +238,7 @@ def expand(self, module, name):
   main_func.attributes.personality = module.runtime.personality
   main_func.args[0].add_attribute('sret')
   with module.add_func_body(main_func):
-    with module.add_catch(catchall=True):
+    with module.add_catch():
       module.call(real_func, *main_func.args)
       module.catch(module.builder.block)
 
@@ -387,7 +387,7 @@ def emit(self, module):
 
   end = module.builder.append_basic_block('end_catch')
 
-  with module.add_catch(catchall=True):
+  with module.add_catch():
     module.emit(self.body)
     module.catch(end, into=ret_ptr)
 
