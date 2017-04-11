@@ -39,9 +39,10 @@ def emit_main(self, module, mods=[]):
 
       for tmp in mods:
         if 'init' in tmp:
-          module.box_call(module.load(tmp['init']))
+          with module.trace(K.coord(M.TRACE_INIT), mod=tmp.name_ptr):
+            module.box_call(module.load(tmp['init']))
 
-      with module.trace(K.coord(M.TRACE_ENTRY)):
+      with module.trace(K.coord(M.TRACE_MAIN)):
         module.box_call(module.load(module['main']))
 
       module.catch(module.builder.block)

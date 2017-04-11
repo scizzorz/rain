@@ -15,8 +15,9 @@ import re
 
 name_chars = re.compile('[^a-z0-9]')
 
-TRACE_ENTRY = -1
-TRACE_UNKNOWN = -2
+TRACE_MAIN = -1
+TRACE_INIT = -2
+TRACE_UNKNOWN = -3
 
 
 # get default paths
@@ -290,13 +291,14 @@ class Module(S.Scope):
       yield
 
   @contextmanager
-  def trace(self, pos):
-    if pos:
-      args = (self.name_ptr, T.i32(pos.line), T.i32(pos.col))
-    else:
-      args = (self.name_ptr, T.i32(TRACE_UNKNOWN), T.i32(TRACE_UNKNOWN))
+  def trace(self, pos, mod=None):
+    label = mod or self.name_ptr
+    line, col = TRACE_UNKNOWN, TRACE_UNKNOWN
 
-    self.builder.call(self.runtime['push'], args)
+    if pos:
+      line, col = pos.line, pos.col
+
+    self.builder.call(self.runtime['push'], (label, T.i32(line), T.i32(col)))
     yield
     self.builder.call(self.runtime['pop'], ())
 
