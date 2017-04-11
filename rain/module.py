@@ -97,7 +97,7 @@ externs = {
   'rain_throw': T.vfunc(T.arg),
 
   'rain_neg': T.vfunc(T.arg, T.arg),
-  'rain_not': T.vfunc(T.arg, T.arg),
+  'rain_lnot': T.vfunc(T.arg, T.arg),
 
   'rain_add': T.bin,
   'rain_sub': T.bin,
@@ -126,9 +126,28 @@ class Runtime:
   def __init__(self, module):
     self.module = module
 
+  def declare(self):
+    for name, typ in externs.items():
+      self.module.add_func(typ, name=name)
+
+  def _getfunc(self, name):
+    return self.module.get_global(name)
+
+  @property
+  def real_main(self):
+    typ = T._getfunc(T.i32, (T.i32, (T.ptr(T.ptr(T.i8)))))
+    func = self.module.find_func(typ, name='main')
+    func.attributes.personality = self.personality
+    return func
+
+  @property
+  def personality(self):
+    return self._getfunc('rain_personality_v0')
+
   def __getattr__(self, key):
+    key = 'rain_' + key
     if key in externs:
-      return functools.partial(self.module.call, self.module.extern(key))
+      return functools.partial(self.module.call, self._getfunc(key))
 
 
 class Module(S.Scope):
@@ -158,13 +177,12 @@ class Module(S.Scope):
     self.runtime = Runtime(self)
     self.static = static.StaticTable(self)
 
+    self.runtime.declare()
+
     typ = T.arr(T.i8, len(self.qname) + 1)
     ptr = self.add_global(typ, name=self.mangle('_name'))
     ptr.initializer = typ(bytearray(self.qname + '\0', 'utf-8'))
     self.name_ptr = ptr.gep([T.i32(0), T.i32(0)])
-
-    for name in externs:
-      self.extern(name)
 
     self.builder = None
     self.arg_ptrs = None
@@ -348,14 +366,14 @@ class Module(S.Scope):
     with self.goto(self.catch):
       lp = self.builder.landingpad(T.lp)
       lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-      self.runtime.rain_catch(ptr)
+      self.runtime.catch(ptr)
       self.builder.branch(branch)
 
   def catch_and_abort(self, branch):
     with self.goto(self.catch):
       lp = self.builder.landingpad(T.lp)
       lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-      self.runtime.rain_abort()
+      self.runtime.abort()
       self.builder.branch(branch)
 
   @contextmanager
@@ -410,12 +428,12 @@ class Module(S.Scope):
     func_typ = self.get_type(box)
     is_func = self.builder.icmp_unsigned('!=', T.ityp.func, func_typ)
     with self.builder.if_then(is_func):
-      self.runtime.rain_throw(self.load_exception('uncallable'))
+      self.runtime.throw(self.load_exception('uncallable'))
 
     exp_args = self.get_size(box)
     arg_match = self.builder.icmp_unsigned('!=', exp_args, T.i32(num_args))
     with self.builder.if_then(arg_match):
-      self.runtime.rain_throw(self.load_exception('arg_mismatch'))
+      self.runtime.throw(self.load_exception('arg_mismatch'))
 
   # allocate stack space for function arguments
   def fnalloc(self, *args):
@@ -509,7 +527,7 @@ class Module(S.Scope):
     values = []
     for i, sub in enumerate(structure):
       ptr, *args = self.fnalloc(T.null, source, A.int_node(i).emit(self))
-      self.runtime.rain_get(ptr, *args)
+      self.runtime.get(ptr, *args)
       value = self.load(ptr)
       if isinstance(sub, list):
         value = self.unpack(value, sub)

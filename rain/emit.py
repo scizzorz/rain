@@ -25,8 +25,8 @@ def emit_main(self, module, mods=[]):
     ret_ptr = module.alloc(T.null, name='ret_ptr')
 
     with module.add_abort():
-      module.runtime.rain_init_gc()
-      module.runtime.rain_init_args(*module.main.args)
+      module.runtime.init_gc()
+      module.runtime.init_args(*module.main.args)
 
       for tmp in mods:
         if 'init' in tmp:
@@ -38,11 +38,11 @@ def emit_main(self, module, mods=[]):
           module.store(T.null, ret_ptr) # necessary?
           module.call(init_ptr, ret_ptr, unwind=module.catch)
 
-      module.runtime.rain_main(ret_ptr, module['main'], unwind=module.catch)
+      module.runtime.main(ret_ptr, module['main'], unwind=module.catch)
 
       module.catch_and_abort(module.builder.block)
 
-      ret_code = module.runtime.rain_box_to_exit(ret_ptr)
+      ret_code = module.runtime.box_to_exit(ret_ptr)
       module.builder.ret(ret_code)
 
 
@@ -100,7 +100,7 @@ def emit(self, module):
         table = module.emit(lhs.lhs)
         key = module.emit(lhs.rhs)
         args = module.fnalloc(table, key, rhs)
-        module.runtime.rain_put(*args)
+        module.runtime.put(*args)
 
   elif isinstance(self.lhs, name_node):
     if module.is_global:
@@ -146,7 +146,7 @@ def emit(self, module):
     val = module.emit(self.rhs)
 
     args = module.fnalloc(table, key, val)
-    module.runtime.rain_put(*args)
+    module.runtime.put(*args)
 
 
 @break_node.method
@@ -444,7 +444,7 @@ def emit(self, module):
   if module.is_global:
     return module.static.alloc(module.uniq('table'))
 
-  ptr = module.runtime.rain_new_table()
+  ptr = module.runtime.new_table()
   return module.load(ptr)
 
 
@@ -465,10 +465,10 @@ def emit(self, module):
 
     return table_box
 
-  ptr = module.runtime.rain_new_table()
+  ptr = module.runtime.new_table()
   for i, item in enumerate(self.items):
     args = module.fnalloc(int_node(i).emit(module), module.emit(item))
-    module.runtime.rain_put(ptr, *args)
+    module.runtime.put(ptr, *args)
 
   ret = module.load(ptr)
   ret = module.insert(ret, module.get_vt('array'), T.ENV)
@@ -493,10 +493,10 @@ def emit(self, module):
 
     return table_box
 
-  ptr = module.runtime.rain_new_table()
+  ptr = module.runtime.new_table()
   for key, item in self.items:
     args = module.fnalloc(module.emit(key), module.emit(item))
-    module.runtime.rain_put(ptr, *args)
+    module.runtime.put(ptr, *args)
 
   ret = module.load(ptr)
   ret = module.insert(ret, module.get_vt('dict'), T.ENV)
@@ -529,7 +529,7 @@ def emit(self, module):
 
         for i, (name, ptr) in enumerate(env.items()):
           module.store(str_node(name).emit(module), key_ptr)
-          module[name] = module.runtime.rain_get_ptr(env_ptr, key_ptr)
+          module[name] = module.runtime.get_ptr(env_ptr, key_ptr)
 
         module.store(T.null, func.args[0])
 
@@ -544,7 +544,7 @@ def emit(self, module):
   func_box = T._func(func, len(self.params))
 
   if env:
-    env_ptr = module.runtime.rain_new_table()
+    env_ptr = module.runtime.new_table()
 
     func_box = module.insert(func_box, env_ptr, T.ENV)
 
@@ -560,9 +560,9 @@ def emit(self, module):
       # currently being bound, ie, it's this function
       module.store(str_node(name).emit(module), key_ptr)
       if getattr(ptr, 'bound', None) is False:
-        module.runtime.rain_put(env_ptr, key_ptr, self_ptr)
+        module.runtime.put(env_ptr, key_ptr, self_ptr)
       else:
-        module.runtime.rain_put(env_ptr, key_ptr, ptr)
+        module.runtime.put(env_ptr, key_ptr, ptr)
 
   return func_box
 
@@ -596,7 +596,7 @@ def emit(self, module):
   key = module.emit(self.rhs)
 
   ret_ptr, *args = module.fnalloc(T.null, table, key)
-  module.runtime.rain_get(ret_ptr, *args)
+  module.runtime.get(ret_ptr, *args)
 
   func_box = module.load(ret_ptr)
   arg_boxes = [table] + [module.emit(arg) for arg in self.args]
@@ -621,7 +621,7 @@ def emit(self, module):
   key = module.emit(self.rhs)
 
   ret_ptr, *args = module.fnalloc(T.null, table, key)
-  module.runtime.rain_get(ret_ptr, *args)
+  module.runtime.get(ret_ptr, *args)
   return module.load(ret_ptr)
 
 
@@ -633,8 +633,8 @@ def emit(self, module):
     Q.abort("Can't use unary operators at global scope", pos=self.coords)
 
   arith = {
-    '-': module.runtime.rain_neg,
-    '!': module.runtime.rain_not,
+    '-': module.runtime.neg,
+    '!': module.runtime.lnot,
   }
 
   val = module.emit(self.val)
@@ -660,7 +660,7 @@ def emit(self, module):
 
       return new_lhs
 
-    ptr = module.runtime.rain_box_malloc()
+    ptr = module.runtime.box_malloc()
     module.store(rhs, ptr)
     return module.insert(lhs, ptr, T.ENV)
 
@@ -685,17 +685,17 @@ def emit(self, module):
     return module.load(res)
 
   arith = {
-    '+': module.runtime.rain_add,
-    '-': module.runtime.rain_sub,
-    '*': module.runtime.rain_mul,
-    '/': module.runtime.rain_div,
-    '==': module.runtime.rain_eq,
-    '!=': module.runtime.rain_ne,
-    '>': module.runtime.rain_gt,
-    '>=': module.runtime.rain_ge,
-    '<': module.runtime.rain_lt,
-    '<=': module.runtime.rain_le,
-    '$': module.runtime.rain_string_concat,
+    '+': module.runtime.add,
+    '-': module.runtime.sub,
+    '*': module.runtime.mul,
+    '/': module.runtime.div,
+    '==': module.runtime.eq,
+    '!=': module.runtime.ne,
+    '>': module.runtime.gt,
+    '>=': module.runtime.ge,
+    '<': module.runtime.lt,
+    '<=': module.runtime.le,
+    '$': module.runtime.string_concat,
   }
 
   if self.op not in arith:

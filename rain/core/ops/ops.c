@@ -33,7 +33,7 @@ void rain_neg(box *ret, box *val) {
   }
 }
 
-void rain_not(box *ret, box *val) {
+void rain_lnot(box *ret, box *val) {
   rain_set_bool(ret, !rain_truthy(val));
 }
 
