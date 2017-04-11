@@ -92,7 +92,6 @@ externs = {
   'rain_check_callable': T.vfunc(T.arg, T.i32),
   'rain_init_args': T.vfunc(T.i32, T.ptr(T.ptr(T.i8))),
   'rain_init_gc': T.func(T.i32, []),
-  'rain_main': T.vfunc(T.arg, T.arg),
   'rain_personality_v0': T.func(T.i32, [], var_arg=True),
   'rain_throw': T.vfunc(T.arg),
 
@@ -134,7 +133,7 @@ class Runtime:
     return self.module.get_global(name)
 
   @property
-  def real_main(self):
+  def main(self):
     func = self._getfunc('main')
     func.attributes.personality = self.personality
     return func

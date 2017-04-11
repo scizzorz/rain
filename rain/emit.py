@@ -21,12 +21,12 @@ def emit(self, module):
 
 @program_node.method
 def emit_main(self, module, mods=[]):
-  with module.add_func_body(module.runtime.real_main):
+  with module.add_func_body(module.runtime.main):
     ret_ptr = module.alloc(T.null, name='ret_ptr')
 
     with module.add_abort():
       module.runtime.init_gc()
-      module.runtime.init_args(*module.runtime.real_main.args)
+      module.runtime.init_args(*module.runtime.main.args)
 
       for tmp in mods:
         if 'init' in tmp:
@@ -36,7 +36,11 @@ def emit_main(self, module, mods=[]):
           module.store(T.null, ret_ptr) # necessary?
           module.call(init_ptr, ret_ptr, unwind=module.catch)
 
-      module.runtime.main(ret_ptr, module['main'], unwind=module.catch)
+      main_box = module.load(module['main'])
+      main_ptr = module.get_value(main_box, typ=T.vfunc(T.arg))
+      module.check_callable(main_box, 0, unwind=module.catch)
+      module.store(T.null, ret_ptr) # necessary ?
+      module.call(main_ptr, ret_ptr, unwind=module.catch)
 
       module.catch_and_abort(module.builder.block)
 
