@@ -32,7 +32,7 @@ def emit(self, module):
 @program_node.method
 def emit_main(self, module, mods=[]):
   with module.add_func_body(module.runtime.main):
-    with module.add_abort():
+    with module.add_catch(catchall=True):
       module.runtime.init_gc()
       module.runtime.init_args(*module.runtime.main.args)
 
@@ -41,7 +41,7 @@ def emit_main(self, module, mods=[]):
           module.main_call(tmp['init'])
 
       module.main_call(module['main'])
-      module.catch_and_abort(module.builder.block)
+      module.catch(module.builder.block)
 
       ret_code = module.runtime.box_to_exit(module.arg_ptrs[0])
       module.builder.ret(ret_code)
@@ -238,9 +238,9 @@ def expand(self, module, name):
   main_func.attributes.personality = module.runtime.personality
   main_func.args[0].add_attribute('sret')
   with module.add_func_body(main_func):
-    with module.add_abort():
-      module.call(real_func, *main_func.args, unwind=module.catch)
-      module.catch_and_abort(module.builder.block)
+    with module.add_catch(catchall=True):
+      module.call(real_func, *main_func.args)
+      module.catch(module.builder.block)
 
     module.builder.ret_void()
 
@@ -387,9 +387,9 @@ def emit(self, module):
 
   end = module.builder.append_basic_block('end_catch')
 
-  with module.add_catch(True):
+  with module.add_catch(catchall=True):
     module.emit(self.body)
-    module.catch_into(ret_ptr, end)
+    module.catch(end, into=ret_ptr)
 
   module.builder.branch(end)
   module.builder.position_at_end(end)

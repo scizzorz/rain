@@ -117,7 +117,7 @@ class Module(S.Scope):
 
     self.builder = None
     self.arg_ptrs = None
-    self.catch = None
+    self.landingpad = None
     self.catchall = None
     self.before = None
     self.loop = None
@@ -261,29 +261,21 @@ class Module(S.Scope):
 
   @contextmanager
   def add_catch(self, catchall=False):
-    with self.stack('catch', 'catchall'):
+    with self.stack('landingpad', 'catchall'):
       self.catchall = catchall
-      self.catch = self.builder.append_basic_block('catch')
+      self.landingpad = self.builder.append_basic_block('catch')
       yield
 
-  @contextmanager
-  def add_abort(self):
-    with self.stack('catch'):
-      self.catch = self.builder.append_basic_block('catch')
-      yield
-
-  def catch_into(self, ptr, branch):
-    with self.goto(self.catch):
+  def catch(self, branch, into=None):
+    with self.goto(self.landingpad):
       lp = self.builder.landingpad(T.lp)
       lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-      self.runtime.catch(ptr)
-      self.builder.branch(branch)
 
-  def catch_and_abort(self, branch):
-    with self.goto(self.catch):
-      lp = self.builder.landingpad(T.lp)
-      lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-      self.runtime.abort()
+      if into:
+        self.runtime.catch(into)
+      else:
+        self.runtime.abort()
+
       self.builder.branch(branch)
 
   @contextmanager
@@ -360,7 +352,7 @@ class Module(S.Scope):
   # call a function based on unwind
   def call(self, fn, *args, unwind=None):
     if self.catchall:
-      unwind = self.catch
+      unwind = self.landingpad
 
     if unwind:
       resume = self.builder.append_basic_block('resume')
@@ -376,8 +368,8 @@ class Module(S.Scope):
     box = self.load(box_ptr)
     ptr = self.get_value(box, typ=T.vfunc(T.arg))
     args = self.fnalloc(T.null)
-    self.check_callable(box, 0, unwind=self.catch)
-    self.call(ptr, *args, unwind=self.catch)
+    self.check_callable(box, 0, unwind=self.landingpad)
+    self.call(ptr, *args, unwind=self.landingpad)
 
   # call a function from a box
   def box_call(self, func_box, arg_boxes, catch=False):
@@ -400,8 +392,8 @@ class Module(S.Scope):
     # catch call
     if catch:
       with self.add_catch():
-        self.call(func_ptr, *ptrs, unwind=self.catch)
-        self.catch_into(ptrs[0], self.builder.block)
+        self.call(func_ptr, *ptrs, unwind=self.landingpad)
+        self.catch(self.builder.block, into=ptrs[0])
 
         return self.load(ptrs[0])
 
