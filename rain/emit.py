@@ -32,9 +32,11 @@ def emit_main(self, module, mods=[]):
         if 'init' in tmp:
           with tmp.borrow_builder(module):
             init_box = load_global(tmp, 'init')
-            init_ptr = module.get_value(init_box, typ=T.vfunc(T.arg))
-            module.check_callable(init_box, 0, unwind=module.catch)
-            module.fncall(init_ptr, T.null, unwind=module.catch)
+
+          init_ptr = module.get_value(init_box, typ=T.vfunc(T.arg))
+          module.check_callable(init_box, 0, unwind=module.catch)
+          module.store(T.null, ret_ptr) # necessary?
+          module.call(init_ptr, ret_ptr, unwind=module.catch)
 
       module.ex.rain_main(ret_ptr, module['main'], unwind=module.catch)
 
