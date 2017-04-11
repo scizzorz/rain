@@ -122,7 +122,7 @@ externs = {
   'rain_get': T.bin,
 }
 
-class API:
+class Runtime:
   def __init__(self, module):
     self.module = module
 
@@ -155,7 +155,7 @@ class Module(S.Scope):
     self.links = set()
     self.libs = set()
 
-    self.ex = API(self)
+    self.runtime = Runtime(self)
     self.static = static.StaticTable(self)
 
     typ = T.arr(T.i8, len(self.qname) + 1)
@@ -348,14 +348,14 @@ class Module(S.Scope):
     with self.goto(self.catch):
       lp = self.builder.landingpad(T.lp)
       lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-      self.ex.rain_catch(ptr)
+      self.runtime.rain_catch(ptr)
       self.builder.branch(branch)
 
   def catch_and_abort(self, branch):
     with self.goto(self.catch):
       lp = self.builder.landingpad(T.lp)
       lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-      self.ex.rain_abort()
+      self.runtime.rain_abort()
       self.builder.branch(branch)
 
   @contextmanager
@@ -410,12 +410,12 @@ class Module(S.Scope):
     func_typ = self.get_type(box)
     is_func = self.builder.icmp_unsigned('!=', T.ityp.func, func_typ)
     with self.builder.if_then(is_func):
-      self.ex.rain_throw(self.load_exception('uncallable'))
+      self.runtime.rain_throw(self.load_exception('uncallable'))
 
     exp_args = self.get_size(box)
     arg_match = self.builder.icmp_unsigned('!=', exp_args, T.i32(num_args))
     with self.builder.if_then(arg_match):
-      self.ex.rain_throw(self.load_exception('arg_mismatch'))
+      self.runtime.rain_throw(self.load_exception('arg_mismatch'))
 
   # allocate stack space for function arguments
   def fnalloc(self, *args):
@@ -513,7 +513,7 @@ class Module(S.Scope):
     values = []
     for i, sub in enumerate(structure):
       ptr, *args = self.fnalloc(T.null, source, A.int_node(i).emit(self))
-      self.ex.rain_get(ptr, *args)
+      self.runtime.rain_get(ptr, *args)
       value = self.load(ptr)
       if isinstance(sub, list):
         value = self.unpack(value, sub)
