@@ -438,6 +438,14 @@ class Module(S.Scope):
 
     return val
 
+  # call a main/init (no environment, no args, implied unwind without catch_into)
+  def main_call(self, box_ptr):
+    box = self.load(box_ptr)
+    ptr = self.get_value(box, typ=T.vfunc(T.arg))
+    args = self.fnalloc(T.null)
+    self.check_callable(box, 0, unwind=self.catch)
+    self.call(ptr, *args, unwind=self.catch)
+
   # call a function from a box
   def box_call(self, func_box, arg_boxes, catch=False):
     # load the pointer
