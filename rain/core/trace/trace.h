@@ -1,6 +1,9 @@
 #ifndef TRACE_H
 #define TRACE_H
 
+#define LINE_ENTRY -1
+#define LINE_UNKNOWN -2
+
 typedef struct trace_record {
   char *module;
   int line;

@@ -15,6 +15,9 @@ import re
 
 name_chars = re.compile('[^a-z0-9]')
 
+TRACE_ENTRY = -1
+TRACE_UNKNOWN = -2
+
 
 # get default paths
 def get_paths():
@@ -291,7 +294,7 @@ class Module(S.Scope):
     if pos:
       args = (self.name_ptr, T.i32(pos.line), T.i32(pos.col))
     else:
-      args = (self.name_ptr, T.i32(0), T.i32(0))
+      args = (self.name_ptr, T.i32(TRACE_UNKNOWN), T.i32(TRACE_UNKNOWN))
 
     self.builder.call(self.runtime['push'], args)
     yield

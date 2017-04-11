@@ -18,7 +18,15 @@ int rain_pop() {
 }
 
 void rain_print_trace(trace_record *trace) {
-  printf("%10s:%3d:%2d\n", trace->module, trace->line, trace->column);
+  if(trace->line == LINE_ENTRY) {
+    printf("%s: entry\n", trace->module);
+  }
+  else if(trace->line == LINE_UNKNOWN) {
+    printf("%s: unknown\n", trace->module);
+  }
+  else {
+    printf("%s: %d:%d\n", trace->module, trace->line, trace->column);
+  }
 }
 
 void rain_dump() {

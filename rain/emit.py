@@ -1,6 +1,7 @@
 from . import compiler as C
 from . import error as Q
 from . import module as M
+from . import token as K
 from . import types as T
 from .ast import *
 from collections import OrderedDict
@@ -40,7 +41,9 @@ def emit_main(self, module, mods=[]):
         if 'init' in tmp:
           module.box_call(module.load(tmp['init']))
 
-      module.box_call(module.load(module['main']))
+      with module.trace(K.coord(M.TRACE_ENTRY)):
+        module.box_call(module.load(module['main']))
+
       module.catch(module.builder.block)
 
       ret_code = module.runtime.box_to_exit(module.arg_ptrs[0])
