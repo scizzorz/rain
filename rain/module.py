@@ -3,6 +3,7 @@ from . import error as Q
 from . import scope as S
 from . import token as K
 from . import types as T
+from . import static
 from contextlib import contextmanager
 from llvmlite import binding
 from llvmlite import ir
@@ -155,6 +156,7 @@ class Module(S.Scope):
     self.libs = set()
 
     self.ex = API(self)
+    self.static = static.StaticTable(self)
 
     typ = T.arr(T.i8, len(self.qname) + 1)
     ptr = self.add_global(typ, name=self.mangle('_name'))

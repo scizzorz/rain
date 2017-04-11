@@ -2,7 +2,6 @@ from . import compiler as C
 from . import module as M
 from . import types as T
 from . import error as Q
-from .static import StaticTable
 from .ast import *
 from collections import OrderedDict
 from llvmlite import ir
@@ -14,7 +13,7 @@ import os.path
 @program_node.method
 def emit(self, module):
   module.exports = module.add_global(T.box, name=module.mangle('exports'))
-  module.exports.initializer = StaticTable.alloc(module, name=module.mangle('exports.table'))
+  module.exports.initializer = module.static.alloc(name=module.mangle('exports.table'))
 
   for stmt in self.stmts:
     module.emit(stmt)
@@ -64,7 +63,7 @@ def store_global(self, value, name):
   if not isinstance(self[name], ir.GlobalVariable):
     table_box = self.exports.initializer
     key_node = str_node(name)
-    StaticTable.put(self, table_box, key_node, value)
+    self.static.put(table_box, key_node, value)
 
   self[name].initializer = value
 
@@ -120,7 +119,7 @@ def emit(self, module):
       if self.export:
         table_box = module.exports.initializer
         key_node = str_node(self.lhs.value)
-        module[self.lhs.value] = StaticTable.get_box_ptr(module, table_box, key_node)
+        module[self.lhs.value] = module.static.get_box_ptr(table_box, key_node)
 
       if self.let:
         module[self.lhs] = module.find_global(T.box, name=module.mangle(self.lhs.value))
@@ -151,7 +150,7 @@ def emit(self, module):
       key_node = self.lhs.rhs
       val = module.emit(self.rhs)
 
-      StaticTable.put(module, table_box, key_node, val)
+      module.static.put(table_box, key_node, val)
       return
 
     table = module.emit(self.lhs.lhs)
@@ -220,7 +219,7 @@ def emit(self, module):
   module[rename] = module.find_global(T.box, module.mangle(rename))
   module[rename].linkage = '' # make sure we know it's visible here
 
-  module[rename].initializer = StaticTable.from_ptr(module, glob)
+  module[rename].initializer = module.static.from_ptr(glob)
   module[rename].mod = comp.mod
   module.imports.add(file)
 
@@ -455,7 +454,7 @@ def emit(self, module):
 @table_node.method
 def emit(self, module):
   if module.is_global:
-    return StaticTable.alloc(module, module.uniq('table'))
+    return module.static.alloc(module.uniq('table'))
 
   ptr = module.ex.rain_new_table()
   return module.load(ptr)
@@ -464,17 +463,17 @@ def emit(self, module):
 @array_node.method
 def emit(self, module):
   if module.is_global:
-    table_box = StaticTable.alloc(module, module.uniq('array'))
+    table_box = module.static.alloc(module.uniq('array'))
 
     for i, item in enumerate(self.items):
       key_node = int_node(i)
       val = module.emit(item)
 
-      StaticTable.put(module, table_box, key_node, val)
+      module.static.put(table_box, key_node, val)
 
     old_box = table_box
     table_box = T.insertvalue(table_box, module.get_vt('array'), T.ENV)
-    StaticTable.repair(table_box, old_box)
+    module.static.repair(table_box, old_box)
 
     return table_box
 
@@ -492,17 +491,17 @@ def emit(self, module):
 @dict_node.method
 def emit(self, module):
   if module.is_global:
-    table_box = StaticTable.alloc(module, module.uniq('array'))
+    table_box = module.static.alloc(module.uniq('array'))
 
     for key, item in self.items:
       key_node = key
       val = module.emit(item)
 
-      StaticTable.put(module, table_box, key_node, val)
+      module.static.put(table_box, key_node, val)
 
     old_box = table_box
     table_box = T.insertvalue(table_box, module.get_vt('dict'), T.ENV)
-    StaticTable.repair(table_box, old_box)
+    module.static.repair(table_box, old_box)
 
     return table_box
 
@@ -628,7 +627,7 @@ def emit(self, module):
     table_box = module.emit(self.lhs)
     key_node = self.rhs
 
-    return StaticTable.get(module, table_box, key_node)
+    return module.static.get(table_box, key_node)
 
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
@@ -669,7 +668,7 @@ def emit(self, module):
       ptr.initializer = rhs
 
       new_lhs = T.insertvalue(lhs, ptr, T.ENV)
-      StaticTable.repair(new_lhs, lhs)
+      module.static.repair(new_lhs, lhs)
 
       return new_lhs
 
