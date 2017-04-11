@@ -8,6 +8,16 @@ from llvmlite import ir
 import os.path
 
 
+# flatten arbitrarily nested lists
+# oh come on what is this doing here go find a new home
+def flatten(items):
+  for x in items:
+    if isinstance(x, list):
+      yield from flatten(x)
+    else:
+      yield x
+
+
 # Program structure ###########################################################
 
 @program_node.method
@@ -47,16 +57,6 @@ def emit(self, module):
 
   return T.null
 
-
-# Helpers #####################################################################
-
-# flatten arbitrarily nested lists
-def flatten(items):
-  for x in items:
-    if isinstance(x, list):
-      yield from flatten(x)
-    else:
-      yield x
 
 # Simple statements ###########################################################
 
