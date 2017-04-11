@@ -1,0 +1,5 @@
+String substitution: John
+String coercion: argument mismatch
+Implicit counting: zero one
+Explicit counting: one zero
+Mixed counting: zero John one one zero

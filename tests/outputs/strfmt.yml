@@ -1,0 +1,146 @@
+!program;1
+stmts:
+- !assn;2
+  export: false
+  let: true
+  lhs: !name;1
+    value: main
+  rhs: !func;2
+    body: !block;2
+      expr: null
+      stmts:
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: a
+        rhs: !int;1
+          value: -3
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: b
+        rhs: !int;1
+          value: 3
+      - !assn;2
+        export: false
+        let: true
+        lhs: !name;1
+          value: args
+        rhs: !table;2 {}
+      - !assn;2
+        export: false
+        let: false
+        lhs: !index;1
+          lhs: !name;1
+            value: args
+          rhs: !int;1
+            value: 0
+        rhs: !str;1
+          value: zero
+      - !assn;2
+        export: false
+        let: false
+        lhs: !index;1
+          lhs: !name;1
+            value: args
+          rhs: !int;1
+            value: 1
+        rhs: !str;1
+          value: one
+      - !assn;2
+        export: false
+        let: false
+        lhs: !index;1
+          lhs: !name;1
+            value: args
+          rhs: !str;1
+            value: name
+        rhs: !str;1
+          value: John
+      - !assn;2
+        export: false
+        let: false
+        lhs: !index;1
+          lhs: !name;1
+            value: args
+          rhs: !str;1
+            value: exc
+        rhs: !index;1
+          lhs: !name;1
+            value: except
+          rhs: !str;1
+            value: argmismatch
+      - !call;1
+        args:
+        - !method;1
+          args:
+          - !name;1
+            value: args
+          catch: false
+          lhs: !str;1
+            value: 'String substitution: {name}'
+          rhs: !str;1
+            value: fmt
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !method;1
+          args:
+          - !name;1
+            value: args
+          catch: false
+          lhs: !str;1
+            value: 'String coercion: {exc}'
+          rhs: !str;1
+            value: fmt
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !method;1
+          args:
+          - !name;1
+            value: args
+          catch: false
+          lhs: !str;1
+            value: 'Implicit counting: {} {}'
+          rhs: !str;1
+            value: fmt
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !method;1
+          args:
+          - !name;1
+            value: args
+          catch: false
+          lhs: !str;1
+            value: 'Explicit counting: {1} {0}'
+          rhs: !str;1
+            value: fmt
+        catch: false
+        func: !name;1
+          value: print
+      - !call;1
+        args:
+        - !method;1
+          args:
+          - !name;1
+            value: args
+          catch: false
+          lhs: !str;1
+            value: 'Mixed counting: {} {name} {} {1} {0}'
+          rhs: !str;1
+            value: fmt
+        catch: false
+        func: !name;1
+          value: print
+    params: []
+    rename: null
