@@ -50,7 +50,9 @@ def ptrtoint(ptr):
 
 def insertvalue(container, value, idx):
   # same as ptrtoint
-  raw_ir = 'insertvalue ({0} {1}, {2} {3}, {4})'.format(container.type, container.get_reference(), value.type, value.get_reference(), idx)
+  raw_fmt = 'insertvalue ({0} {1}, {2} {3}, {4})'
+  raw_ir = raw_fmt.format(container.type, container.get_reference(),
+                          value.type, value.get_reference(), idx)
   return ir.FormattedConstant(container.type, raw_ir)
 
 
@@ -118,7 +120,8 @@ class cbox(ct.Structure):
   _saves_ = []
 
   def __str__(self):
-    return 'cbox({}, {}, {}, {})'.format(self.type, self.size, self.data, self.env)
+    env_p = ct.cast(self.env, ct.c_void_p).value
+    return 'cbox({}, {}, {}, {})'.format(self.type, self.size, self.data, env_p)
 
   def __repr__(self):
     return '<{!s}>'.format(self)

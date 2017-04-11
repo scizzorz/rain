@@ -27,6 +27,7 @@ class coord:
   def __repr__(self):
     return '<{!s}>'.format(self)
 
+
 class metatoken(type):
   def __str__(self):
     if getattr(self, 'name', None):

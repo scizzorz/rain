@@ -18,16 +18,19 @@ macro report() as ()
   let block = ast.block:empty()
 
   let pass_count = ast.rain.tostr:call([AST.passed])
-  let pass_label = ast.str:new(" passed, ")
+  let pass_label = ast.str:new("  passed:    ")
+  let pass_str = pass_label $ pass_count
 
   let total_count = ast.rain.tostr:call([AST.total])
-  let total_label = ast.str:new(" executed, ")
+  let total_label = ast.str:new("  executed:  ")
+  let total_str = total_label $ total_count
 
-  let collect_str = ast.str:new(tostr(AST.collected) $ " collected")
+  let collect_str = ast.str:new("  collected: " $ tostr(AST.collected))
 
-  let print_str = pass_count $ pass_label $ total_count $ total_label $ collect_str
-
-  block:add(ast.rain.print:call([print_str]))
+  block:add(ast.rain.print:call([ast.str:new("total:")]))
+  block:add(ast.rain.print:call([pass_str]))
+  block:add(ast.rain.print:call([total_str]))
+  block:add(ast.rain.print:call([collect_str]))
 
   return block
 
@@ -75,13 +78,22 @@ macro group(namestr, argblock) as (label, exprs)
   let assn = AST.passed:assn(sum)
   pass_block:add(assn)
 
-  for expr in exprs:items()
+  for expr in exprs:values()
     AST.collected = AST.collected + 1
     ret:add(expr:_if(pass_block, fail_block))
     ret:add(total:assn(total + int1))
     ret:add(AST.total:assn(AST.total + int1))
 
-  let report_label = ast.str:new(label $ ": ")
-  let report_amt = ast.rain.tostr:call([passed]) $ ast.str:new(" / ") $ ast.rain.tostr:call([total])
+  let report_label = ast.str:new(label $ ":")
 
-  ret:add(ast.rain.print:call([report_label $ report_amt]))
+  let pass_count = ast.rain.tostr:call([passed])
+  let pass_label = ast.str:new("  passed:    ")
+  let pass_str = pass_label $ pass_count
+
+  let total_count = ast.rain.tostr:call([total])
+  let total_label = ast.str:new("  executed:  ")
+  let total_str = total_label $ total_count
+
+  ret:add(ast.rain.print:call([report_label]))
+  ret:add(ast.rain.print:call([pass_str]))
+  ret:add(ast.rain.print:call([total_str]))

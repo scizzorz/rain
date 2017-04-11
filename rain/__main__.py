@@ -1,7 +1,6 @@
 from . import compiler as C
 from . import error as Q
 from . import module as M
-from termcolor import colored as X
 import argparse
 import os.path
 import sys

@@ -1,5 +1,4 @@
 from . import ast as A
-from . import error as Q
 from . import runtime
 from . import scope as S
 from . import static
@@ -15,10 +14,13 @@ import re
 
 name_chars = re.compile('[^a-z0-9]')
 
+TRACE_MAIN = -1
+TRACE_INIT = -2
+TRACE_UNKNOWN = -3
+
 
 # get default paths
 def get_paths():
-  cur = ['.']
   path = os.environ['RAINPATH'].split(':') if 'RAINPATH' in os.environ else []
   core = [os.environ['RAINBASE'], os.environ['RAINLIB']]
   return path + core
@@ -117,8 +119,7 @@ class Module(S.Scope):
 
     self.builder = None
     self.arg_ptrs = None
-    self.catch = None
-    self.catchall = None
+    self.landingpad = None
     self.before = None
     self.loop = None
     self.after = None
@@ -234,12 +235,12 @@ class Module(S.Scope):
 
   @contextmanager
   def add_func_body(self, func):
-    with self.stack('ret_ptr', 'arg_ptrs', 'catchall'):
+    with self.stack('ret_ptr', 'arg_ptrs', 'landingpad'):
       entry = func.append_basic_block('entry')
       body = func.append_basic_block('body')
       self.ret_ptr = func.args[0]
       self.arg_ptrs = []
-      self.catchall = False
+      self.landingpad = None
       with self.add_builder(entry):
         self.builder.branch(body)
 
@@ -260,30 +261,21 @@ class Module(S.Scope):
       self.builder.position_at_end(self.after)
 
   @contextmanager
-  def add_catch(self, catchall=False):
-    with self.stack('catch', 'catchall'):
-      self.catchall = catchall
-      self.catch = self.builder.append_basic_block('catch')
+  def add_catch(self):
+    with self.stack('landingpad'):
+      self.landingpad = self.builder.append_basic_block('catch')
       yield
 
-  @contextmanager
-  def add_abort(self):
-    with self.stack('catch'):
-      self.catch = self.builder.append_basic_block('catch')
-      yield
-
-  def catch_into(self, ptr, branch):
-    with self.goto(self.catch):
+  def catch(self, branch, into=None):
+    with self.goto(self.landingpad):
       lp = self.builder.landingpad(T.lp)
       lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-      self.runtime.catch(ptr)
-      self.builder.branch(branch)
 
-  def catch_and_abort(self, branch):
-    with self.goto(self.catch):
-      lp = self.builder.landingpad(T.lp)
-      lp.add_clause(ir.CatchClause(T.ptr(T.i8)(None)))
-      self.runtime.abort()
+      if into:
+        self.runtime.catch(into)
+      else:
+        self.runtime.abort()
+
       self.builder.branch(branch)
 
   @contextmanager
@@ -295,6 +287,18 @@ class Module(S.Scope):
   def goto_entry(self):
     with self.builder.goto_entry_block():
       yield
+
+  @contextmanager
+  def trace(self, pos, mod=None):
+    label = mod or self.name_ptr
+    line, col = TRACE_UNKNOWN, TRACE_UNKNOWN
+
+    if pos:
+      line, col = pos.line, pos.col
+
+    self.builder.call(self.runtime['push'], (label, T.i32(line), T.i32(col)))
+    yield
+    self.builder.call(self.runtime['pop'], ())
 
   # Box helpers ###############################################################
 
@@ -334,7 +338,7 @@ class Module(S.Scope):
 
   # Function helpers ##########################################################
 
-  def check_callable(self, box, num_args, unwind=None):
+  def check_callable(self, box, num_args):
     func_typ = self.get_type(box)
     is_func = self.builder.icmp_unsigned('!=', T.ityp.func, func_typ)
     with self.builder.if_then(is_func):
@@ -357,30 +361,20 @@ class Module(S.Scope):
 
     return self.arg_ptrs[:len(args)]
 
-  # call a function based on unwind
-  def call(self, fn, *args, unwind=None):
-    if self.catchall:
-      unwind = self.catch
-
-    if unwind:
+  # call a function based on whether there's a landingpad or not
+  def call(self, fn, *args):
+    if self.landingpad:
       resume = self.builder.append_basic_block('resume')
-      val = self.builder.invoke(fn, args, resume, unwind)
+      val = self.builder.invoke(fn, args, resume, self.landingpad)
       self.builder.position_at_end(resume)
+
     else:
       val = self.builder.call(fn, args)
 
     return val
 
-  # call a main/init (no environment, no args, implied unwind without catch_into)
-  def main_call(self, box_ptr):
-    box = self.load(box_ptr)
-    ptr = self.get_value(box, typ=T.vfunc(T.arg))
-    args = self.fnalloc(T.null)
-    self.check_callable(box, 0, unwind=self.catch)
-    self.call(ptr, *args, unwind=self.catch)
-
   # call a function from a box
-  def box_call(self, func_box, arg_boxes, catch=False):
+  def box_call(self, func_box, arg_boxes=(), catch=False, check_env=True):
     # load the pointer
     func_ptr = self.get_value(func_box, typ=T.vfunc(var_arg=True))
 
@@ -391,23 +385,25 @@ class Module(S.Scope):
     ptrs = self.fnalloc(T.null, *arg_boxes)
 
     # load the function's closure environment
-    env = self.get_env(func_box)
-    has_env = self.builder.icmp_unsigned('!=', env, T.arg(None))
-    with self.builder.if_then(has_env):
-      env_box = self.load(env)
-      self.store(env_box, ptrs[0])
+    if check_env:
+      env = self.get_env(func_box)
+      has_env = self.builder.icmp_unsigned('!=', env, T.arg(None))
+      with self.builder.if_then(has_env):
+        env_box = self.load(env)
+        self.store(env_box, ptrs[0])
 
     # catch call
     if catch:
       with self.add_catch():
-        self.call(func_ptr, *ptrs, unwind=self.catch)
-        self.catch_into(ptrs[0], self.builder.block)
+        self.call(func_ptr, *ptrs)
+        self.catch(self.builder.block, into=ptrs[0])
 
         return self.load(ptrs[0])
 
     # regular call
-    self.call(func_ptr, *ptrs)
-    return self.load(ptrs[0])
+    else:
+      self.call(func_ptr, *ptrs)
+      return self.load(ptrs[0])
 
   # llvmlite shortcuts ########################################################
 

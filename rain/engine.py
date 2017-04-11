@@ -22,6 +22,8 @@ class Engine:
     self.engine = llvm.create_mcjit_compiler(self.main_mod, target_machine)
     self.files = set()
 
+  # Compilation ###############################################################
+
   def compile_ir(self, llvm_ir):
     '''Create an LLVM module from IR'''
     mod = llvm.parse_assembly(llvm_ir)
@@ -32,6 +34,8 @@ class Engine:
     '''Create an LLVM module from a file'''
     with open(ll_file) as tmp:
       return self.compile_ir(tmp.read())
+
+  # Linking ###################################################################
 
   def add_lib(self, *libs):
     '''Load shared libraries into the engine'''
@@ -52,6 +56,8 @@ class Engine:
     '''Ensure that modules are ready for execution'''
     self.engine.finalize_object()
 
+  # Lookups ###################################################################
+
   def get_func(self, name, *types):
     '''Return a function address'''
     func_typ = ct.CFUNCTYPE(*types)
@@ -64,7 +70,7 @@ class Engine:
     ptr = ct.cast(ct.c_void_p(addr), typ)
     return ptr
 
-  # runtime calls
+  # Runtime configuration #####################################################
 
   def main(self):
     main = self.get_func('main', ct.c_int, ct.c_int, ct.POINTER(ct.c_char_p))
@@ -87,15 +93,14 @@ class Engine:
     init_gc()
 
   def init_ast(self):
-    init_ast = self.get_func('rain.ast.init', T.carg)
+    init_ast = self.get_func('rain.ast.init', None, T.carg)
     ret_box = T.cbox.to_rain(None)
     init_ast(ct.byref(ret_box))
 
-
-  # rain_get
+  # Runtime table management ##################################################
 
   def rain_get(self, table_box, key_box):
-    get = self.get_func('rain_get', T.carg, T.carg, T.carg)  # ret, table, key
+    get = self.get_func('rain_get', None, T.carg, T.carg, T.carg)  # ret, table, key
     ret_box = T.cbox.to_rain(None)
     get(ct.byref(ret_box), ct.byref(table_box), ct.byref(key_box))
     return ret_box
@@ -110,11 +115,8 @@ class Engine:
   def rain_get_ptr_py(self, table_ptr, key):
     return self.rain_get_ptr(table_ptr, T.cbox.to_rain(key))
 
-
-  # rain_put
-
   def rain_put(self, table_box, key_box, value_box):
-    put = self.get_func('rain_put', T.carg, T.carg, T.carg)  # table, key, val
+    put = self.get_func('rain_put', None, T.carg, T.carg, T.carg)  # table, key, val
     put(ct.byref(table_box), ct.byref(key_box), ct.byref(value_box))
 
   def rain_put_py(self, table_box, key, value_box):
@@ -122,18 +124,14 @@ class Engine:
     self.rain_put(table_box, key_box, value_box)
 
   def rain_set_table(self, table_box):
-    set_table = self.get_func('rain_set_table', T.carg)
+    set_table = self.get_func('rain_set_table', None, T.carg)
     set_table(ct.byref(table_box))
 
-
-  # set environment
-
   def rain_set_env(self, table_box, meta_ptr):
-    set_meta = self.get_func('rain_set_env', T.carg, T.carg)
+    set_meta = self.get_func('rain_set_env', None, T.carg, T.carg)
     set_meta(ct.byref(table_box), meta_ptr)
 
-
-  # converting between Rain and Python AST
+  # Rain <-> Python conversions ###############################################
 
   def to_rain(self, val):
     if isinstance(val, (list, tuple)):
@@ -154,6 +152,9 @@ class Engine:
 
       ast_ptr = self.get_global('core.ast.exports', T.carg)
       meta_ptr = self.rain_get_ptr_py(ast_ptr, val.__tag__)
+      if not ct.cast(meta_ptr, ct.c_void_p).value:
+        Q.abort('Unable to look up core.ast.{}'.format(val.__tag__))
+
       self.rain_set_env(table_box, meta_ptr)
 
       slots = [self.to_rain(getattr(val, key, None)) for key in val.__slots__]

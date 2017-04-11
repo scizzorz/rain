@@ -1,0 +1,3 @@
+#!/bin/sh
+ignore=E111,E114,E121
+flake8 rain --max-line-length=100 --ignore=$ignore | grep -v "F811 redefinition of unused 'emit"

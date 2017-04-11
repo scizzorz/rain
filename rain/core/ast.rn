@@ -344,11 +344,11 @@ export _catch_call = table :: _call
 _catch_call._catch = true
 
 
-export _meth = table :: expression_node
+export _method = table :: expression_node
 
-_meth.tag = "method"
-_meth.slots = ["lhs", "rhs", "args", "catch"]
-_meth.new = func(self, lhs, rhs, args, _catch)
+_method.tag = "method"
+_method.slots = ["lhs", "rhs", "args", "catch"]
+_method.new = func(self, lhs, rhs, args, _catch)
   let ret = table :: self
   save ret
   ret.lhs = lhs

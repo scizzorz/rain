@@ -16,7 +16,6 @@ from .token import string_token
 from .token import symbol_token
 from .token import table_token
 from collections import OrderedDict
-from termcolor import colored as X
 import re
 
 OPERATORS = (

@@ -63,6 +63,9 @@ item *rain_has(box *tab, box *key) {
 
 box *rain_get_ptr(box *tab, box *key) {
   item *ptr = rain_has(tab, key);
+  if(ptr == NULL) {
+    return NULL;
+  }
   return &ptr->val;
 }
 

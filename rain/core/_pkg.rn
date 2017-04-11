@@ -4,6 +4,7 @@ link "./util.c"
 
 link "./ops/ops.c"
 link "./set/set.c"
+link "./trace/trace.c"
 link "./table/table.c"
 
 library "gc"
