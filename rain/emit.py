@@ -13,7 +13,7 @@ import os.path
 @program_node.method
 def emit(self, module):
   module.exports = module.add_global(T.box, name=module.mangle('exports'))
-  module.exports.initializer = static_table_alloc(module, name=module.mangle('exports.table'))
+  module.exports.initializer = StaticTable.alloc(module, name=module.mangle('exports.table'))
 
   for stmt in self.stmts:
     module.emit(stmt)
@@ -59,120 +59,124 @@ def emit(self, module):
 
 # Helpers #####################################################################
 
-# Return the index to insert / fetch from a static table
-# Note: if the key isn't found, the returned index points to a None constant
-def static_table_idx(module, table_box, key_node):
-  lpt_ptr = table_box.lpt_ptr
-  arr_ptr = lpt_ptr.arr_ptr
+class StaticTable:
+  # Return the index to insert / fetch from a static table
+  # Note: if the key isn't found, the returned index points to a None constant
+  @staticmethod
+  def idx(module, table_box, key_node):
+    lpt_ptr = table_box.lpt_ptr
+    arr_ptr = lpt_ptr.arr_ptr
 
-  max = lpt_ptr.initializer.constant[1].constant
-  items = arr_ptr.initializer.constant
-  key_hash = key_node.hash()
+    max = lpt_ptr.initializer.constant[1].constant
+    items = arr_ptr.initializer.constant
+    key_hash = key_node.hash()
 
-  while True:
-    if items[key_hash % max].constant is None:
-      break
+    while True:
+      if items[key_hash % max].constant is None:
+        break
 
-    if items[key_hash % max].key == key_node:
-      break
+      if items[key_hash % max].key == key_node:
+        break
 
-    key_hash += 1
+      key_hash += 1
 
-  return key_hash % max
-
-
-# Insert a box into a static table
-def static_table_put(module, table_box, key_node, val):
-  key = module.emit(key_node)
-
-  lpt_ptr = table_box.lpt_ptr
-
-  if getattr(lpt_ptr, 'arr_ptr', None) is None:
-    Q.abort('Global value is opaque')
-
-  arr_ptr = lpt_ptr.arr_ptr
-  item = T.item([T.i32(1), key, val])
-  item.key = key_node
-
-  cur = lpt_ptr.initializer.constant[0].constant
-  max = lpt_ptr.initializer.constant[1].constant
-  items = arr_ptr.initializer.constant
-
-  idx = static_table_idx(module, table_box, key_node)
-  if items[idx].constant is None:
-    cur += 1
-
-  # TODO resize if cur > max / 2! currently, it infinite loops.
-
-  items[idx] = item
-  arr_ptr.initializer = arr_ptr.value_type(items)
-  arr_gep = arr_ptr.gep([T.i32(0), T.i32(0)])
-
-  lpt_ptr.initializer = lpt_ptr.value_type([T.i32(cur), T.i32(max), arr_gep])
-  lpt_ptr.arr_ptr = arr_ptr
+    return key_hash % max
 
 
-# Return a box from a static table
-def static_table_get(module, table_box, key_node):
-  lpt_ptr = table_box.lpt_ptr
-  arr_ptr = lpt_ptr.arr_ptr
-  items = arr_ptr.initializer.constant
+  # Insert a box into a static table
+  @staticmethod
+  def put(module, table_box, key_node, val):
+    key = module.emit(key_node)
 
-  idx = static_table_idx(module, table_box, key_node)
-  if items[idx].constant is None:
-    return T.null
+    lpt_ptr = table_box.lpt_ptr
 
-  return items[idx].constant[2]
+    if getattr(lpt_ptr, 'arr_ptr', None) is None:
+      Q.abort('Global value is opaque')
 
+    arr_ptr = lpt_ptr.arr_ptr
+    item = T.item([T.i32(1), key, val])
+    item.key = key_node
 
-# Allocate a static table
-def static_table_alloc(module, name):
-  arr_typ = T.arr(T.item, T.HASH_SIZE)
-  arr_ptr = module.add_global(arr_typ, name=name + '.array')
-  arr_ptr.initializer = arr_typ([None] * T.HASH_SIZE)
-  arr_gep = arr_ptr.gep([T.i32(0), T.i32(0)])
+    cur = lpt_ptr.initializer.constant[0].constant
+    max = lpt_ptr.initializer.constant[1].constant
+    items = arr_ptr.initializer.constant
 
-  lpt_typ = T.lpt
-  lpt_ptr = module.add_global(lpt_typ, name=name)
-  lpt_ptr.initializer = lpt_typ([T.i32(0), T.i32(T.HASH_SIZE), arr_gep])
-  lpt_ptr.arr_ptr = arr_ptr
+    idx = StaticTable.idx(module, table_box, key_node)
+    if items[idx].constant is None:
+      cur += 1
 
-  return static_table_from_ptr(module, lpt_ptr)
+    # TODO resize if cur > max / 2! currently, it infinite loops.
 
+    items[idx] = item
+    arr_ptr.initializer = arr_ptr.value_type(items)
+    arr_gep = arr_ptr.gep([T.i32(0), T.i32(0)])
 
-# Return a box from a static table
-def static_table_from_ptr(module, ptr):
-  box = T._table(ptr)
-  box.lpt_ptr = ptr  # save this for later!
-  return box
+    lpt_ptr.initializer = lpt_ptr.value_type([T.i32(cur), T.i32(max), arr_gep])
+    lpt_ptr.arr_ptr = arr_ptr
 
 
-# Return a pointer to a static table's value box
-def static_table_get_box_ptr(module, table_box, key_node):
-  idx = static_table_idx(module, table_box, key_node)
-  return table_box.lpt_ptr.arr_ptr.gep([T.i32(0), T.i32(idx), T.i32(2)])
+  # Return a box from a static table
+  @staticmethod
+  def get(module, table_box, key_node):
+    lpt_ptr = table_box.lpt_ptr
+    arr_ptr = lpt_ptr.arr_ptr
+    items = arr_ptr.initializer.constant
+
+    idx = StaticTable.idx(module, table_box, key_node)
+    if items[idx].constant is None:
+      return T.null
+
+    return items[idx].constant[2]
 
 
-# Repair a static table box from another one
-def static_table_repair(new_box, old_box):
-  if getattr(old_box, 'lpt_ptr', None):
-    new_box.lpt_ptr = old_box.lpt_ptr
+  # Allocate a static table
+  @staticmethod
+  def alloc(module, name):
+    arr_typ = T.arr(T.item, T.HASH_SIZE)
+    arr_ptr = module.add_global(arr_typ, name=name + '.array')
+    arr_ptr.initializer = arr_typ([None] * T.HASH_SIZE)
+    arr_gep = arr_ptr.gep([T.i32(0), T.i32(0)])
+
+    lpt_typ = T.lpt
+    lpt_ptr = module.add_global(lpt_typ, name=name)
+    lpt_ptr.initializer = lpt_typ([T.i32(0), T.i32(T.HASH_SIZE), arr_gep])
+    lpt_ptr.arr_ptr = arr_ptr
+
+    return StaticTable.from_ptr(module, lpt_ptr)
 
 
-# Store a value into a global (respecting whether it's exported or not)
-def store_global(module, name: str, value: "LLVM value"):
-  if not isinstance(module[name], ir.GlobalVariable):
-    table_box = module.exports.initializer
+  # Return a box from a static table
+  @staticmethod
+  def from_ptr(module, ptr):
+    box = T._table(ptr)
+    box.lpt_ptr = ptr  # save this for later!
+    return box
+
+
+  # Return a pointer to a static table's value box
+  @staticmethod
+  def get_box_ptr(module, table_box, key_node):
+    idx = StaticTable.idx(module, table_box, key_node)
+    return table_box.lpt_ptr.arr_ptr.gep([T.i32(0), T.i32(idx), T.i32(2)])
+
+
+  # Repair a static table box from another one
+  @staticmethod
+  def repair(new_box, old_box):
+    if getattr(old_box, 'lpt_ptr', None):
+      new_box.lpt_ptr = old_box.lpt_ptr
+
+
+def store_global(self, value, name):
+  if not isinstance(self[name], ir.GlobalVariable):
+    table_box = self.exports.initializer
     key_node = str_node(name)
-    static_table_put(module, table_box, key_node, value)
+    StaticTable.put(self, table_box, key_node, value)
 
-  module[name].initializer = value
+  self[name].initializer = value
 
-
-# Load a value from a global (respecting whether it's exported or not)
-def load_global(module, name: str):
-  return module[name].initializer
-
+def load_global(self, name):
+  return self[name].initializer
 
 # flatten arbitrarily nested lists
 def flatten(items):
@@ -223,7 +227,7 @@ def emit(self, module):
       if self.export:
         table_box = module.exports.initializer
         key_node = str_node(self.lhs.value)
-        module[self.lhs.value] = static_table_get_box_ptr(module, table_box, key_node)
+        module[self.lhs.value] = StaticTable.get_box_ptr(module, table_box, key_node)
 
       if self.let:
         module[self.lhs] = module.find_global(T.box, name=module.mangle(self.lhs.value))
@@ -232,7 +236,7 @@ def emit(self, module):
       if self.lhs not in module:
         Q.abort("Undeclared global {!r}", self.lhs.value, pos=self.lhs.coords)
 
-      store_global(module, self.lhs.value, module.emit(self.rhs))
+      store_global(module, module.emit(self.rhs), self.lhs.value)
       return
 
     if self.let:
@@ -254,7 +258,7 @@ def emit(self, module):
       key_node = self.lhs.rhs
       val = module.emit(self.rhs)
 
-      static_table_put(module, table_box, key_node, val)
+      StaticTable.put(module, table_box, key_node, val)
       return
 
     table = module.emit(self.lhs.lhs)
@@ -323,7 +327,7 @@ def emit(self, module):
   module[rename] = module.find_global(T.box, module.mangle(rename))
   module[rename].linkage = '' # make sure we know it's visible here
 
-  module[rename].initializer = static_table_from_ptr(module, glob)
+  module[rename].initializer = StaticTable.from_ptr(module, glob)
   module[rename].mod = comp.mod
   module.imports.add(file)
 
@@ -558,7 +562,7 @@ def emit(self, module):
 @table_node.method
 def emit(self, module):
   if module.is_global:
-    return static_table_alloc(module, module.uniq('table'))
+    return StaticTable.alloc(module, module.uniq('table'))
 
   ptr = module.ex.rain_new_table()
   return module.load(ptr)
@@ -567,17 +571,17 @@ def emit(self, module):
 @array_node.method
 def emit(self, module):
   if module.is_global:
-    table_box = static_table_alloc(module, module.uniq('array'))
+    table_box = StaticTable.alloc(module, module.uniq('array'))
 
     for i, item in enumerate(self.items):
       key_node = int_node(i)
       val = module.emit(item)
 
-      static_table_put(module, table_box, key_node, val)
+      StaticTable.put(module, table_box, key_node, val)
 
     old_box = table_box
     table_box = T.insertvalue(table_box, module.get_vt('array'), T.ENV)
-    static_table_repair(table_box, old_box)
+    StaticTable.repair(table_box, old_box)
 
     return table_box
 
@@ -595,17 +599,17 @@ def emit(self, module):
 @dict_node.method
 def emit(self, module):
   if module.is_global:
-    table_box = static_table_alloc(module, module.uniq('array'))
+    table_box = StaticTable.alloc(module, module.uniq('array'))
 
     for key, item in self.items:
       key_node = key
       val = module.emit(item)
 
-      static_table_put(module, table_box, key_node, val)
+      StaticTable.put(module, table_box, key_node, val)
 
     old_box = table_box
     table_box = T.insertvalue(table_box, module.get_vt('dict'), T.ENV)
-    static_table_repair(table_box, old_box)
+    StaticTable.repair(table_box, old_box)
 
     return table_box
 
@@ -731,7 +735,7 @@ def emit(self, module):
     table_box = module.emit(self.lhs)
     key_node = self.rhs
 
-    return static_table_get(module, table_box, key_node)
+    return StaticTable.get(module, table_box, key_node)
 
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
@@ -772,7 +776,7 @@ def emit(self, module):
       ptr.initializer = rhs
 
       new_lhs = T.insertvalue(lhs, ptr, T.ENV)
-      static_table_repair(new_lhs, lhs)
+      StaticTable.repair(new_lhs, lhs)
 
       return new_lhs
 
