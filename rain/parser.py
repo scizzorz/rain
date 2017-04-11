@@ -91,8 +91,10 @@ class macro:
 
     ret_box = T.cbox(0, 0, 0)
     args = [T.carg] * (len(self.parses) + 1)
-    func = self.ctx.eng.get_func('macro.func.main:' + self.name, *args)
+
+    func = self.ctx.eng.get_func('macro.func.main:' + self.name, None, *args)
     func(byref(ret_box), *[byref(arg) for arg in arg_boxes])
+
     new_node = self.ctx.eng.to_py(ret_box)
 
     return new_node

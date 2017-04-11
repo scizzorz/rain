@@ -120,7 +120,8 @@ class cbox(ct.Structure):
   _saves_ = []
 
   def __str__(self):
-    return 'cbox({}, {}, {}, {})'.format(self.type, self.size, self.data, self.env)
+    env_p = ct.cast(self.env, ct.c_void_p).value
+    return 'cbox({}, {}, {}, {})'.format(self.type, self.size, self.data, env_p)
 
   def __repr__(self):
     return '<{!s}>'.format(self)

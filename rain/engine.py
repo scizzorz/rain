@@ -93,16 +93,16 @@ class Engine:
     init_gc()
 
   def init_ast(self):
-    init_ast = self.get_func('rain.ast.init', T.carg)
+    init_ast = self.get_func('rain.ast.init', None, T.carg)
     ret_box = T.cbox.to_rain(None)
     init_ast(ct.byref(ret_box))
 
   # Runtime table management ##################################################
 
   def rain_get(self, table_box, key_box):
-    get = self.get_func('rain_get', T.carg, T.carg, T.carg)  # ret, table, key
+    get = self.get_func('rain_get', None, T.carg, T.carg, T.carg)  # ret, table, key
     ret_box = T.cbox.to_rain(None)
-    get(ct.byref(ret_box), ct.byref(table_box), ct.byref(key_box))
+    res = get(ct.byref(ret_box), ct.byref(table_box), ct.byref(key_box))
     return ret_box
 
   def rain_get_py(self, table_box, key):
@@ -116,7 +116,7 @@ class Engine:
     return self.rain_get_ptr(table_ptr, T.cbox.to_rain(key))
 
   def rain_put(self, table_box, key_box, value_box):
-    put = self.get_func('rain_put', T.carg, T.carg, T.carg)  # table, key, val
+    put = self.get_func('rain_put', None, T.carg, T.carg, T.carg)  # table, key, val
     put(ct.byref(table_box), ct.byref(key_box), ct.byref(value_box))
 
   def rain_put_py(self, table_box, key, value_box):
@@ -124,11 +124,11 @@ class Engine:
     self.rain_put(table_box, key_box, value_box)
 
   def rain_set_table(self, table_box):
-    set_table = self.get_func('rain_set_table', T.carg)
+    set_table = self.get_func('rain_set_table', None, T.carg)
     set_table(ct.byref(table_box))
 
   def rain_set_env(self, table_box, meta_ptr):
-    set_meta = self.get_func('rain_set_env', T.carg, T.carg)
+    set_meta = self.get_func('rain_set_env', None, T.carg, T.carg)
     set_meta(ct.byref(table_box), meta_ptr)
 
   # Rain <-> Python conversions ###############################################
