@@ -27,6 +27,16 @@ stages:
           mkdir -p /tmp/results
           py.test -rap -v --tb=long --cov=rain --junit-xml=/tmp/results/py.test.xml
 
+      - type: shell
+        name: "Run linter"
+        pwd: ~/rain
+        environment:
+          - RAINLIB: ./core
+          - RAINBASE: ./base
+          - PYTHONPATH: .
+        command: |
+          ./flake
+
       - type: test-results-store
         path: /tmp/results
 
