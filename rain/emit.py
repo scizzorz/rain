@@ -1,7 +1,7 @@
 from . import compiler as C
+from . import error as Q
 from . import module as M
 from . import types as T
-from . import error as Q
 from .ast import *
 from collections import OrderedDict
 from llvmlite import ir

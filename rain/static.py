@@ -1,5 +1,6 @@
-from . import types as T
 from . import error as Q
+from . import types as T
+
 
 class Static:
   def __init__(self, module):

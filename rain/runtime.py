@@ -1,6 +1,7 @@
 from . import types as T
 import functools
 
+
 externs = {
   'main': T.func(T.i32, (T.i32, (T.ptr(T.ptr(T.i8))))),
   'GC_malloc': T.func(T.ptr(T.i8), [T.i32]),
@@ -40,6 +41,7 @@ externs = {
   'rain_put': T.bin,
   'rain_get': T.bin,
 }
+
 
 class Runtime:
   def __init__(self, module):
