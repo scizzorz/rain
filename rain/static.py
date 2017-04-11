@@ -1,7 +1,7 @@
 from . import types as T
 from . import error as Q
 
-class StaticTable:
+class Static:
   def __init__(self, module):
     self.module = module
 
