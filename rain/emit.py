@@ -21,12 +21,12 @@ def emit(self, module):
 
 @program_node.method
 def emit_main(self, module, mods=[]):
-  with module.add_func_body(module.main):
+  with module.add_func_body(module.runtime.real_main):
     ret_ptr = module.alloc(T.null, name='ret_ptr')
 
     with module.add_abort():
       module.runtime.init_gc()
-      module.runtime.init_args(*module.main.args)
+      module.runtime.init_args(*module.runtime.real_main.args)
 
       for tmp in mods:
         if 'init' in tmp:
@@ -237,7 +237,7 @@ def expand(self, module, name):
   real_func = module.find_func(typ, 'macro.func.real:' + name)
 
   main_func = module.add_func(typ, name='macro.func.main:' + name)
-  main_func.attributes.personality = module.personality
+  main_func.attributes.personality = module.runtime.personality
   main_func.args[0].add_attribute('sret')
   with module.add_func_body(main_func):
     with module.add_abort():
@@ -515,7 +515,7 @@ def emit(self, module):
   typ = T.vfunc(T.arg, *[T.arg for x in self.params])
 
   func = module.add_func(typ, name=self.rename)
-  func.attributes.personality = module.personality
+  func.attributes.personality = module.runtime.personality
   func.args[0].add_attribute('sret')
 
   with module:

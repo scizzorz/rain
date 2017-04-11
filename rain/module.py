@@ -135,8 +135,7 @@ class Runtime:
 
   @property
   def real_main(self):
-    typ = T._getfunc(T.i32, (T.i32, (T.ptr(T.ptr(T.i8)))))
-    func = self.module.find_func(typ, name='main')
+    func = self._getfunc('main')
     func.attributes.personality = self.personality
     return func
 
@@ -246,17 +245,6 @@ class Module(S.Scope):
 
   # Global helpers ############################################################
 
-  # main function
-  @property
-  def main(self):
-    func = self.extern('main')
-    func.attributes.personality = self.personality
-    return func
-
-  @property
-  def personality(self):
-    return self.extern('rain_personality_v0')
-
   # add a new function
   def add_func(self, typ, name=None):
     if not name:
@@ -285,10 +273,6 @@ class Module(S.Scope):
       return self.llvm.get_global(name)
 
     return self.add_global(typ, name=name)
-
-  # add or find an external function
-  def extern(self, name):
-    return self.find_func(externs[name], name=name)
 
   # import globals from another module
   def import_llvm(self, other):
