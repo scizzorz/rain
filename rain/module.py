@@ -301,12 +301,6 @@ class Module(S.Scope):
       yield
 
   @contextmanager
-  def borrow_builder(self, other):
-    with self.stack('builder'):
-      self.builder = other.builder
-      yield self.builder
-
-  @contextmanager
   def add_func_body(self, func):
     with self.stack('ret_ptr', 'arg_ptrs', 'catchall'):
       entry = func.append_basic_block('entry')
