@@ -492,6 +492,17 @@ class Module(S.Scope):
   def load(self, ptr):
     return self.builder.load(ptr)
 
+  def store_global(self, value, name):
+    if not isinstance(self[name], ir.GlobalVariable):
+      table_box = self.exports.initializer
+      key_node = A.str_node(name)
+      self.static.put(table_box, key_node, value)
+
+    self[name].initializer = value
+
+  def load_global(self, name):
+    return self[name].initializer
+
   def insert(self, container, value, idx):
     return self.builder.insert_value(container, value, idx)
 

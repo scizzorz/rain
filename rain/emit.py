@@ -31,7 +31,7 @@ def emit_main(self, module, mods=[]):
       for tmp in mods:
         if 'init' in tmp:
           with tmp.borrow_builder(module):
-            init_box = load_global(tmp, 'init')
+            init_box = tmp.load_global('init')
 
           init_ptr = module.get_value(init_box, typ=T.vfunc(T.arg))
           module.check_callable(init_box, 0, unwind=module.catch)
@@ -59,17 +59,6 @@ def emit(self, module):
 
 # Helpers #####################################################################
 
-def store_global(self, value, name):
-  if not isinstance(self[name], ir.GlobalVariable):
-    table_box = self.exports.initializer
-    key_node = str_node(name)
-    self.static.put(table_box, key_node, value)
-
-  self[name].initializer = value
-
-def load_global(self, name):
-  return self[name].initializer
-
 # flatten arbitrarily nested lists
 def flatten(items):
   for x in items:
@@ -77,7 +66,6 @@ def flatten(items):
       yield from flatten(x)
     else:
       yield x
-
 
 # Simple statements ###########################################################
 
@@ -128,7 +116,7 @@ def emit(self, module):
       if self.lhs not in module:
         Q.abort("Undeclared global {!r}", self.lhs.value, pos=self.lhs.coords)
 
-      store_global(module, module.emit(self.rhs), self.lhs.value)
+      module.store_global(module.emit(self.rhs), self.lhs.value)
       return
 
     if self.let:
@@ -416,7 +404,7 @@ def emit(self, module):
     Q.abort("Unknown name {!r}", self.value, pos=self.coords)
 
   if module.is_global:
-    return load_global(module, self.value)
+    return module.load_global(self.value)
 
   return module.load(module[self.value])
 
@@ -621,7 +609,7 @@ def emit(self, module):
   if module.is_global:
     # check if LHS is a module
     if getattr(module[self.lhs], 'mod', None):
-      return load_global(module[self.lhs].mod, self.rhs)
+      return module[self.lhs].mod.load_global(self.rhs)
 
     # otherwise, do normal lookups
     table_box = module.emit(self.lhs)
