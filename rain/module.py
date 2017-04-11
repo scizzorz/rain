@@ -1,5 +1,4 @@
 from . import ast as A
-from . import error as Q
 from . import runtime
 from . import scope as S
 from . import static
@@ -22,7 +21,6 @@ TRACE_UNKNOWN = -3
 
 # get default paths
 def get_paths():
-  cur = ['.']
   path = os.environ['RAINPATH'].split(':') if 'RAINPATH' in os.environ else []
   core = [os.environ['RAINBASE'], os.environ['RAINLIB']]
   return path + core
@@ -301,7 +299,6 @@ class Module(S.Scope):
     self.builder.call(self.runtime['push'], (label, T.i32(line), T.i32(col)))
     yield
     self.builder.call(self.runtime['pop'], ())
-
 
   # Box helpers ###############################################################
 

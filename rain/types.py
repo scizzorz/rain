@@ -50,7 +50,9 @@ def ptrtoint(ptr):
 
 def insertvalue(container, value, idx):
   # same as ptrtoint
-  raw_ir = 'insertvalue ({0} {1}, {2} {3}, {4})'.format(container.type, container.get_reference(), value.type, value.get_reference(), idx)
+  raw_fmt = 'insertvalue ({0} {1}, {2} {3}, {4})'
+  raw_ir = raw_fmt.format(container.type, container.get_reference(),
+                          value.type, value.get_reference(), idx)
   return ir.FormattedConstant(container.type, raw_ir)
 
 

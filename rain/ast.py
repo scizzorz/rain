@@ -217,6 +217,7 @@ class macro_node(node):
     self.params = params
     self.body = body
 
+
 class pass_node(node):
   __tag__ = 'pass'
   __slots__ = []

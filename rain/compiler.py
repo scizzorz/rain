@@ -1,11 +1,10 @@
 from . import ast as A
-from . import emit
+from . import emit  # imported to apply decorations
 from . import error as Q
 from . import lexer as L
 from . import module as M
 from . import parser as P
 from contextlib import contextmanager
-from enum import Enum
 from orderedset import OrderedSet
 from os import environ as ENV
 from os.path import join
@@ -74,7 +73,6 @@ def compile_so(libs):
   tempdir = tempfile.gettempdir()
   libname = '.'.join(sorted(libs))
   target = join(tempdir, 'lib' + libname + '.so')
-  make = True
 
   if not os.path.exists(target):
     libs = ['-l' + lib for lib in libs]
@@ -113,7 +111,7 @@ class Compiler:
     self.mod = None     # set before emitting
     self.ll = None      # set after writing
 
-    self.readen = False # read is the past tense of read, which is a method
+    self.readen = False  # read is the past tense of read, which is a method...
     self.lexed = False
     self.parsed = False
     self.emitted = False

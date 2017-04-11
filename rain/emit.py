@@ -1,11 +1,10 @@
+from . import ast as A
 from . import compiler as C
 from . import error as Q
 from . import module as M
 from . import token as K
 from . import types as T
-from .ast import *
 from collections import OrderedDict
-from llvmlite import ir
 import os.path
 
 
@@ -21,7 +20,7 @@ def flatten(items):
 
 # Program structure ###########################################################
 
-@program_node.method
+@A.program_node.method
 def emit(self, module):
   module.exports = module.add_global(T.box, name=module.mangle('exports'))
   module.exports.initializer = module.static.alloc(name=module.mangle('exports.table'))
@@ -30,7 +29,7 @@ def emit(self, module):
     module.emit(stmt)
 
 
-@program_node.method
+@A.program_node.method
 def emit_main(self, module, mods=[]):
   with module.add_func_body(module.runtime.main):
     with module.add_catch():
@@ -51,7 +50,7 @@ def emit_main(self, module, mods=[]):
       module.builder.ret(ret_code)
 
 
-@block_node.method
+@A.block_node.method
 def emit(self, module):
   for stmt in self.stmts:
     module.emit(stmt)
@@ -65,29 +64,29 @@ def emit(self, module):
 
 # Simple statements ###########################################################
 
-@assn_node.method
+@A.assn_node.method
 def emit_global(self, module):
-  if isinstance(self.lhs, list): # unpack
+  if isinstance(self.lhs, list):  # unpack
     # to avoid making this code hideous for the time being
     # theoretically, there's no reason for this
     Q.abort("Unable to unpack at global scope")
 
-  elif isinstance(self.lhs, name_node):
+  elif isinstance(self.lhs, A.name_node):
     if self.export:
       table_box = module.exports.initializer
-      key_node = str_node(self.lhs.value)
+      key_node = A.str_node(self.lhs.value)
       module[self.lhs.value] = module.static.get_box_ptr(table_box, key_node)
 
     if self.let:
       module[self.lhs] = module.find_global(T.box, name=module.mangle(self.lhs.value))
-      module[self.lhs].linkage = '' # make sure we know it's visible here
+      module[self.lhs].linkage = ''  # make sure we know it's visible here
 
     if self.lhs not in module:
       Q.abort("Undeclared global {!r}", self.lhs.value, pos=self.lhs.coords)
 
     module.store_global(module.emit(self.rhs), self.lhs.value)
 
-  elif isinstance(self.lhs, idx_node):
+  elif isinstance(self.lhs, A.idx_node):
     table_box = module.emit(self.lhs.lhs)
     key_node = self.lhs.rhs
     val = module.emit(self.rhs)
@@ -95,9 +94,9 @@ def emit_global(self, module):
     module.static.put(table_box, key_node, val)
 
 
-@assn_node.method
+@A.assn_node.method
 def emit_local(self, module):
-  if isinstance(self.lhs, list): # unpack
+  if isinstance(self.lhs, list):  # unpack
     # evalute the RHS before storing anything
     deep_rhs = module.emit(self.rhs)
     flat_rhs = flatten(module.unpack(deep_rhs, self.lhs))
@@ -105,7 +104,7 @@ def emit_local(self, module):
 
     # store everything
     for lhs, rhs in zip(flat_lhs, flat_rhs):
-      if isinstance(lhs, name_node):
+      if isinstance(lhs, A.name_node):
         if self.let:
           with module.goto_entry():
             module[lhs] = module.alloc()
@@ -117,13 +116,13 @@ def emit_local(self, module):
         module[lhs].bound = True
         module.store(rhs, module[lhs])
 
-      elif isinstance(lhs, idx_node):
+      elif isinstance(lhs, A.idx_node):
         table = module.emit(lhs.lhs)
         key = module.emit(lhs.rhs)
         args = module.fnalloc(table, key, rhs)
         module.runtime.put(*args)
 
-  elif isinstance(self.lhs, name_node):
+  elif isinstance(self.lhs, A.name_node):
     if self.let:
       with module.goto_entry():
         module[self.lhs] = module.alloc()
@@ -137,7 +136,7 @@ def emit_local(self, module):
     module[self.lhs].bound = True
     module.store(rhs, module[self.lhs])
 
-  elif isinstance(self.lhs, idx_node):
+  elif isinstance(self.lhs, A.idx_node):
     table = module.emit(self.lhs.lhs)
     key = module.emit(self.lhs.rhs)
     val = module.emit(self.rhs)
@@ -146,7 +145,7 @@ def emit_local(self, module):
     module.runtime.put(*args)
 
 
-@break_node.method
+@A.break_node.method
 def emit(self, module):
   if not self.cond:
     module.builder.branch(module.after)
@@ -158,7 +157,7 @@ def emit(self, module):
     module.builder.position_at_end(nobreak)
 
 
-@cont_node.method
+@A.cont_node.method
 def emit(self, module):
   if not self.cond:
     module.builder.branch(module.before)
@@ -170,7 +169,7 @@ def emit(self, module):
     module.builder.position_at_end(nocont)
 
 
-@export_foreign_node.method
+@A.export_foreign_node.method
 def emit_global(self, module):
   if self.name not in module:
     Q.abort("Can't export unknown name {!r}", self.name, self.rename, pos=self.coords)
@@ -179,12 +178,12 @@ def emit_global(self, module):
   glob.initializer = module[self.name]
 
 
-@export_foreign_node.method
+@A.export_foreign_node.method
 def emit_local(self, module):
   Q.abort("Can't export as foreign in non-global scope", pos=self.coords)
 
 
-@import_node.method
+@A.import_node.method
 def emit(self, module):
   # add the module's directory to the lookup path
   if getattr(module, 'file', None):
@@ -202,40 +201,39 @@ def emit(self, module):
 
   module.import_llvm(comp.mod)
   glob = module.get_global(comp.mod.mangle('exports.table'))
-  #glob.arr_ptr = module.get_global(comp.mod.mangle('exports.table.array'))
 
   rename = self.rename or comp.mname
 
   module[rename] = module.find_global(T.box, module.mangle(rename))
-  module[rename].linkage = '' # make sure we know it's visible here
+  module[rename].linkage = ''  # make sure we know it's visible here
 
   module[rename].initializer = module.static.from_ptr(glob)
   module[rename].mod = comp.mod
   module.imports.add(file)
 
 
-@link_node.method
+@A.link_node.method
 def emit(self, module):
   base, name = os.path.split(module.file)
   file = M.find_file(self.name, paths=[base])
   module.links.add(file)
 
 
-@lib_node.method
+@A.lib_node.method
 def emit(self, module):
   module.libs.add(self.name)
 
 
-@macro_node.method
+@A.macro_node.method
 def emit(self, module):
   pass
 
 
-@macro_node.method
+@A.macro_node.method
 def expand(self, module, name):
   typ = T.vfunc(T.arg, *[T.arg for x in self.params])
 
-  func_node(self.params, self.body, 'macro.func.real:' + name).emit(module)
+  A.func_node(self.params, self.body, 'macro.func.real:' + name).emit(module)
   real_func = module.find_func(typ, 'macro.func.real:' + name)
 
   main_func = module.add_func(typ, name='macro.func.main:' + name)
@@ -249,28 +247,31 @@ def expand(self, module, name):
     module.builder.ret_void()
 
 
-@pass_node.method
+@A.pass_node.method
 def emit(self, module):
   pass
 
 
-@return_node.method
-def emit(self, module):
+@A.return_node.method
+def emit_local(self, module):
+  if module.is_global:
+    Q.warn('wtf')
+
   if self.value:
     module.store(module.emit(self.value), module.ret_ptr)
 
   module.builder.ret_void()
 
 
-@save_node.method
-def emit(self, module):
+@A.save_node.method
+def emit_local(self, module):
   module.store(module.emit(self.value), module.ret_ptr)
 
 
 # Block statements ############################################################
 
 
-@if_node.method
+@A.if_node.method
 def emit(self, module):
   pred = module.truthy(self.pred)
 
@@ -286,13 +287,13 @@ def emit(self, module):
       module.emit(self.body)
 
 
-@with_node.method
+@A.with_node.method
 def emit(self, module):
   user_box = module.emit(self.expr)
   user_ptr = module.get_value(user_box, typ=T.vfunc(T.arg, T.arg))
   module.check_callable(user_box, 1)
 
-  func_box = module.emit(func_node(self.params, self.body))
+  func_box = module.emit(A.func_node(self.params, self.body))
 
   ptrs = module.fnalloc(T.null, func_box)
 
@@ -305,7 +306,7 @@ def emit(self, module):
   module.call(user_ptr, *ptrs)
 
 
-@loop_node.method
+@A.loop_node.method
 def emit(self, module):
   with module.add_loop():
     with module.goto(module.before):
@@ -316,7 +317,7 @@ def emit(self, module):
       module.builder.branch(module.loop)
 
 
-@until_node.method
+@A.until_node.method
 def emit(self, module):
   with module.add_loop():
     with module.goto(module.before):
@@ -327,7 +328,7 @@ def emit(self, module):
       module.builder.branch(module.before)
 
 
-@while_node.method
+@A.while_node.method
 def emit(self, module):
   with module.add_loop():
     with module.goto(module.before):
@@ -338,7 +339,7 @@ def emit(self, module):
       module.builder.branch(module.before)
 
 
-@for_node.method
+@A.for_node.method
 def emit(self, module):
   # evaluate the expressions and pull out the function pointers
   func_box = module.emit(self.func)
@@ -351,7 +352,7 @@ def emit(self, module):
   # set up the return pointers
   with module.goto_entry():
     ret_ptr = module.alloc()
-    if isinstance(self.name, name_node):
+    if isinstance(self.name, A.name_node):
       module[self.name.value] = ret_ptr
     elif isinstance(self.name, list):
       for name in flatten(self.name):
@@ -384,7 +385,7 @@ def emit(self, module):
       module.builder.branch(module.before)
 
 
-@catch_node.method
+@A.catch_node.method
 def emit(self, module):
   with module.goto_entry():
     ret_ptr = module[self.name] = module.alloc(T.null, name='exc_var')
@@ -401,7 +402,7 @@ def emit(self, module):
 
 # Simple expressions ##########################################################
 
-@name_node.method
+@A.name_node.method
 def emit(self, module):
   if self.value not in module:
     Q.abort("Unknown name {!r}", self.value, pos=self.coords)
@@ -413,27 +414,27 @@ def emit(self, module):
     return module.load(module[self.value])
 
 
-@null_node.method
+@A.null_node.method
 def emit(self, module):
   return T.null
 
 
-@int_node.method
+@A.int_node.method
 def emit(self, module):
   return T._int(self.value, module.get_vt('int'))
 
 
-@float_node.method
+@A.float_node.method
 def emit(self, module):
   return T._float(self.value, module.get_vt('float'))
 
 
-@bool_node.method
+@A.bool_node.method
 def emit(self, module):
   return T._bool(self.value, module.get_vt('bool'))
 
 
-@str_node.method
+@A.str_node.method
 def emit(self, module):
   typ = T.arr(T.i8, len(self.value) + 1)
   ptr = module.add_global(typ, name=module.uniq('string'))
@@ -443,23 +444,23 @@ def emit(self, module):
   return T._str(gep, len(self.value), module.get_vt('str'))
 
 
-@table_node.method
+@A.table_node.method
 def emit_global(self, module):
   return module.static.alloc(module.uniq('table'))
 
 
-@table_node.method
+@A.table_node.method
 def emit_local(self, module):
   ptr = module.runtime.new_table()
   return module.load(ptr)
 
 
-@array_node.method
+@A.array_node.method
 def emit_global(self, module):
   table_box = module.static.alloc(module.uniq('array'))
 
   for i, item in enumerate(self.items):
-    key_node = int_node(i)
+    key_node = A.int_node(i)
     val = module.emit(item)
 
     module.static.put(table_box, key_node, val)
@@ -471,11 +472,11 @@ def emit_global(self, module):
   return table_box
 
 
-@array_node.method
+@A.array_node.method
 def emit_local(self, module):
   ptr = module.runtime.new_table()
   for i, item in enumerate(self.items):
-    args = module.fnalloc(int_node(i).emit(module), module.emit(item))
+    args = module.fnalloc(A.int_node(i).emit(module), module.emit(item))
     module.runtime.put(ptr, *args)
 
   ret = module.load(ptr)
@@ -484,7 +485,7 @@ def emit_local(self, module):
   return ret
 
 
-@dict_node.method
+@A.dict_node.method
 def emit_global(self, module):
   table_box = module.static.alloc(module.uniq('array'))
 
@@ -501,7 +502,7 @@ def emit_global(self, module):
   return table_box
 
 
-@dict_node.method
+@A.dict_node.method
 def emit_local(self, module):
   ptr = module.runtime.new_table()
 
@@ -515,14 +516,13 @@ def emit_local(self, module):
   return ret
 
 
-@func_node.method
+@A.func_node.method
 def emit(self, module):
   env = OrderedDict()
   for scope in module.scopes[1:]:
     for nm, ptr in scope.items():
       env[nm] = ptr
 
-  env_typ = T.arr(T.box, len(env))
   typ = T.vfunc(T.arg, *[T.arg for x in self.params])
 
   func = module.add_func(typ, name=self.rename)
@@ -535,11 +535,10 @@ def emit(self, module):
         with module.goto_entry():
           key_ptr = module.alloc()
 
-        #env_box = module.load(func.args[0])
         env_ptr = func.args[0]
 
         for i, (name, ptr) in enumerate(env.items()):
-          module.store(str_node(name).emit(module), key_ptr)
+          module.store(A.str_node(name).emit(module), key_ptr)
           module[name] = module.runtime.get_ptr(env_ptr, key_ptr)
 
         module.store(T.null, func.args[0])
@@ -569,7 +568,7 @@ def emit(self, module):
       # cheesy hack - the only time any of these values will ever
       # have a bound value of False will be when it's the item
       # currently being bound, ie, it's this function
-      module.store(str_node(name).emit(module), key_ptr)
+      module.store(A.str_node(name).emit(module), key_ptr)
       if getattr(ptr, 'bound', None) is False:
         module.runtime.put(env_ptr, key_ptr, self_ptr)
       else:
@@ -578,7 +577,7 @@ def emit(self, module):
   return func_box
 
 
-@foreign_node.method
+@A.foreign_node.method
 def emit(self, module):
   typ = T.vfunc(*[T.arg for param in self.params])
   func = module.find_func(typ, name=self.name)
@@ -587,12 +586,12 @@ def emit(self, module):
 
 # Compound expressions ########################################################
 
-@call_node.method
+@A.call_node.method
 def emit_glboal(self, module):
   Q.abort("Can't call functions at global scope", pos=self.coords)
 
 
-@call_node.method
+@A.call_node.method
 def emit_local(self, module):
   func_box = module.emit(self.func)
   arg_boxes = [module.emit(arg) for arg in self.args]
@@ -601,12 +600,12 @@ def emit_local(self, module):
     return module.box_call(func_box, arg_boxes, catch=self.catch)
 
 
-@meth_node.method
+@A.meth_node.method
 def emit_global(self, module):
   Q.abort("Can't call methods at global scope", pos=self.coords)
 
 
-@meth_node.method
+@A.meth_node.method
 def emit_local(self, module):
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
@@ -621,7 +620,7 @@ def emit_local(self, module):
     return module.box_call(func_box, arg_boxes, catch=self.catch)
 
 
-@idx_node.method
+@A.idx_node.method
 def emit_global(self, module):
   # check if LHS is a module
   if getattr(module[self.lhs], 'mod', None):
@@ -635,7 +634,7 @@ def emit_global(self, module):
     return module.static.get(table_box, key_node)
 
 
-@idx_node.method
+@A.idx_node.method
 def emit_local(self, module):
   table = module.emit(self.lhs)
   key = module.emit(self.rhs)
@@ -647,12 +646,12 @@ def emit_local(self, module):
 
 # Operator expressions ########################################################
 
-@unary_node.method
+@A.unary_node.method
 def emit_global(self, module):
   Q.abort("Can't use unary operators at global scope", pos=self.coords)
 
 
-@unary_node.method
+@A.unary_node.method
 def emit_local(self, module):
   arith = {
     '-': module.runtime.neg,
@@ -667,7 +666,7 @@ def emit_local(self, module):
   return module.load(ret_ptr)
 
 
-@binary_node.method
+@A.binary_node.method
 def emit_global(self, module):
   if self.op == '::':
     lhs = module.emit(self.lhs)
@@ -685,7 +684,7 @@ def emit_global(self, module):
     Q.abort("Can't use binary operators at global scope", pos=self.coords)
 
 
-@binary_node.method
+@A.binary_node.method
 def emit_local(self, module):
   arith = {
     '+': module.runtime.add,
@@ -741,16 +740,16 @@ def emit_local(self, module):
 
 # Warning statements ##########################################################
 
-@error_node.method
+@A.error_node.method
 def emit(self, module):
   Q.abort(self.msg)
 
 
-@warning_node.method
+@A.warning_node.method
 def emit(self, module):
   Q.warn(self.msg)
 
 
-@hint_node.method
+@A.hint_node.method
 def emit(self, module):
   Q.hint(self.msg)

@@ -13,7 +13,7 @@ def show_line(pos, hi=lambda x: X(x, 'red', attrs=['bold'])):
 
   with open(pos.file) as tmp:
     for num, line in enumerate(tmp):
-      if num+1 == pos.line:
+      if num + 1 == pos.line:
         print(line, end='')
         print(' ' * (pos.col - 1), hi('^'), hi('~' * (pos.len - 1)), sep='')
         break

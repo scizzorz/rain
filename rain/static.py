@@ -27,7 +27,6 @@ class Static:
 
     return key_hash % max
 
-
   # Insert a box into a static table
   def put(self, table_box, key_node, val):
     key = self.module.emit(key_node)
@@ -58,7 +57,6 @@ class Static:
     lpt_ptr.initializer = lpt_ptr.value_type([T.i32(cur), T.i32(max), arr_gep])
     lpt_ptr.arr_ptr = arr_ptr
 
-
   # Return a box from a static table
   def get(self, table_box, key_node):
     lpt_ptr = table_box.lpt_ptr
@@ -70,7 +68,6 @@ class Static:
       return T.null
 
     return items[idx].constant[2]
-
 
   # Allocate a static table
   def alloc(self, name):
@@ -86,19 +83,16 @@ class Static:
 
     return self.from_ptr(lpt_ptr)
 
-
   # Return a box from a static table
   def from_ptr(self, ptr):
     box = T._table(ptr)
     box.lpt_ptr = ptr  # save this for later!
     return box
 
-
   # Return a pointer to a static table's value box
   def get_box_ptr(self, table_box, key_node):
     idx = self.idx(table_box, key_node)
     return table_box.lpt_ptr.arr_ptr.gep([T.i32(0), T.i32(idx), T.i32(2)])
-
 
   # Repair a static table box from another one
   def repair(self, new_box, old_box):

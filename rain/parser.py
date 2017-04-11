@@ -40,11 +40,12 @@ rassoc = {
   '::',
 }
 
+
 class macro:
   def __init__(self, ctx, name, node, parses):
     self.name = name
     self.parses = parses
-    self.ctx = ctx # save this as our "source" context
+    self.ctx = ctx  # save this as our "source" context
 
     mod = M.Module(self.name)
     mod.file = ctx.file
@@ -89,7 +90,8 @@ class macro:
     arg_boxes = [self.ctx.eng.to_rain(arg) for arg in args]
 
     ret_box = T.cbox(0, 0, 0)
-    func = self.ctx.eng.get_func('macro.func.main:' + self.name, T.carg, *[T.carg] * len(self.parses))
+    args = [T.carg] * (len(self.parses) + 1)
+    func = self.ctx.eng.get_func('macro.func.main:' + self.name, *args)
     func(byref(ret_box), *[byref(arg) for arg in arg_boxes])
     new_node = self.ctx.eng.to_py(ret_box)
 
@@ -149,7 +151,10 @@ class context:
       self._eng.add_file(self.builtin_mod.ll, *self.builtin_mod.links)
       self._eng.finalize()
       self._eng.init_gc()
-      self._eng.disable_gc() # this is a problem when sharing code between macros
+
+      # the GC needs to be disabled for some reason, otherwise it will
+      # sometimes collect things from inside other modules
+      self._eng.disable_gc()
 
     return self._eng
 
@@ -175,7 +180,8 @@ class context:
       return token
 
     if len(tokens) > 1:
-      msg = 'Unexpected {!s}; expected one of {}'.format(self.token, ' | '.join(str(x) for x in tokens))
+      choices = ', '.join(str(x) for x in tokens)
+      msg = 'Unexpected {!s}; expected one of {}'.format(self.token, choices)
     else:
       msg = 'Unexpected {!s}; expected {!s}'.format(self.token, tokens[0])
 
@@ -425,6 +431,7 @@ def import_mod(ctx):
 
   return os.path.join(*lst)
 
+
 # if_stmt :: 'if' binexpr block (NEWLINE 'else' (if_stmt | block))?
 def if_stmt(ctx):
   ctx.require(K.keyword_token('if'))
@@ -460,6 +467,7 @@ def macro_exp(ctx):
   res = ctx.expand_macro(name)
   res.coords = pos
   return res
+
 
 # let_prefix :: '[' let_prefix (',' let_prefix)* ']'
 #             | NAME
