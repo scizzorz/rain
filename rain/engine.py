@@ -102,7 +102,7 @@ class Engine:
   def rain_get(self, table_box, key_box):
     get = self.get_func('rain_get', None, T.carg, T.carg, T.carg)  # ret, table, key
     ret_box = T.cbox.to_rain(None)
-    res = get(ct.byref(ret_box), ct.byref(table_box), ct.byref(key_box))
+    get(ct.byref(ret_box), ct.byref(table_box), ct.byref(key_box))
     return ret_box
 
   def rain_get_py(self, table_box, key):
@@ -152,8 +152,7 @@ class Engine:
 
       ast_ptr = self.get_global('core.ast.exports', T.carg)
       meta_ptr = self.rain_get_ptr_py(ast_ptr, val.__tag__)
-      ptr = ct.cast(meta_ptr, ct.c_void_p).value
-      if not meta_ptr:
+      if not ct.cast(meta_ptr, ct.c_void_p).value:
         Q.abort('Unable to look up core.ast.{}'.format(val.__tag__))
 
       self.rain_set_env(table_box, meta_ptr)
