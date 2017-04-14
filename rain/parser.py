@@ -322,7 +322,9 @@ def stmt(ctx):
 
   if ctx.consume(K.keyword_token('link')):
     name = ctx.require(K.string_token).value
-    return A.link_node(name)
+    node = A.link_node(name)
+    node.coords = ctx.past[-1]
+    return node
 
   if ctx.consume(K.keyword_token('library')):
     name = ctx.require(K.string_token).value

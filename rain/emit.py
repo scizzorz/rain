@@ -216,6 +216,8 @@ def emit(self, module):
 def emit(self, module):
   base, name = os.path.split(module.file)
   file = M.find_file(self.name, paths=[base])
+  if not file:
+    Q.abort("Can't find link {!r}", self.name, pos=self.coords)
   module.links.add(file)
 
 
