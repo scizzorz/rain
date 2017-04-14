@@ -1,6 +1,5 @@
 link "./builtins.c"
 link "./core.c"
-link "./util.c"
 
 link "./ops/ops.c"
 link "./set/set.c"
