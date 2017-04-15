@@ -77,7 +77,7 @@ def emit_global(self, module):
       key_node = A.str_node(self.lhs.value)
       module[self.lhs.value] = module.static.get_box_ptr(table_box, key_node)
 
-    if self.let:
+    if self.var:
       module[self.lhs] = module.find_global(T.box, name=module.mangle(self.lhs.value))
       module[self.lhs].linkage = ''  # make sure we know it's visible here
 
@@ -105,7 +105,7 @@ def emit_local(self, module):
     # store everything
     for lhs, rhs in zip(flat_lhs, flat_rhs):
       if isinstance(lhs, A.name_node):
-        if self.let:
+        if self.var:
           with module.goto_entry():
             module[lhs] = module.alloc()
             module[lhs].bound = False
@@ -123,7 +123,7 @@ def emit_local(self, module):
         module.runtime.put(*args)
 
   elif isinstance(self.lhs, A.name_node):
-    if self.let:
+    if self.var:
       with module.goto_entry():
         module[self.lhs] = module.alloc()
         module[self.lhs].bound = False  # cheesy hack - see @func_node

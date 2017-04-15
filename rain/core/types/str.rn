@@ -8,24 +8,24 @@ export str = func(self) -> self
 export length = foreign "rain_ext_str_length"(val)
 
 export substring = func(s, start, end)
-  let len = length(s)
+  var len = length(s)
   if start >= end | end > len
     return ""
   return s[start] $ substring(s, start+1, end)
 
 export index_of = func(s, of)
-  let i = 0
-  let len = length(s)
+  var i = 0
+  var len = length(s)
   while i < len
     if s[i] == of
       return i
     i = i + 1
 
 export stripl = func(s)
-  let start = 0
+  var start = 0
 
-  let i = 0
-  let len = length(s)
+  var i = 0
+  var len = length(s)
   while i < len
     break if !(s[i] == " " | s[i] == "\n" | s[i] == "\t")
     start = start + 1
@@ -33,15 +33,15 @@ export stripl = func(s)
   return substring(s, start, length(s))
 
 export split = func(s, at)
-  let arr = table
-  let arr_idx = 0
-  let recurse = func(s)
+  var arr = table
+  var arr_idx = 0
+  var recurse = func(s)
     if s == null | s == ""
       return
-    let i = index_of(s, at)
+    var i = index_of(s, at)
     if i != null
-      let cur = substring(s, 0, i)
-      let rest = substring(s, i+1, length(s))
+      var cur = substring(s, 0, i)
+      var rest = substring(s, i+1, length(s))
       arr[arr_idx] = cur
       arr_idx = arr_idx + 1
       recurse(rest)

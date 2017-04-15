@@ -1,13 +1,13 @@
 # base
 
-let node = table
+var node = table
 
 node.slots = []
 node.new = func(self)
   save ret = table :: self
 
 
-let value_node = table :: node
+var value_node = table :: node
 
 value_node.slots = ["value"]
 value_node.new = func(self, value)
@@ -15,7 +15,7 @@ value_node.new = func(self, value)
   ret.value = value
 
 
-let pred_block = table :: node
+var pred_block = table :: node
 
 pred_block.slots = ["pred", "body"]
 pred_block.new = func(self, pred, body)
@@ -38,11 +38,11 @@ _block.empty = func(self)
   return self:new([], null)
 
 _block.add = func(self, stmt)
-  let idx = self.stmts:length()
+  var idx = self.stmts:length()
   self.stmts[idx] = stmt
 
 _block.values = func(self)
-  let i = 0
+  var i = 0
   return func()
     save self.stmts[i]
     i = i + 1
@@ -53,8 +53,8 @@ _block.values = func(self)
 export _assn = table :: node
 
 _assn.tag = "assn"
-_assn.slots = ["let", "export", "lhs", "rhs"]
-_assn._let = false
+_assn.slots = ["var", "export", "lhs", "rhs"]
+_assn._var = false
 _assn._export = false
 _assn.new = func(self, lhs, rhs)
   save ret = table :: self
@@ -62,9 +62,9 @@ _assn.new = func(self, lhs, rhs)
   ret.rhs = rhs
 
 
-export _let = table :: _assn
+export _var = table :: _assn
 
-_let._let = true
+_var._var = true
 
 
 export _export = table :: _assn
@@ -231,8 +231,8 @@ _name.tag = "name"
 _name._assn = func(self, value)
   return _assn:new(self, value)
 
-_name._let = func(self, value)
-  return _let:new(self, value)
+_name._var = func(self, value)
+  return _var:new(self, value)
 
 _name._export = func(self, value)
   return _export:new(self, value)
@@ -417,5 +417,5 @@ export rain = {
   type   = {value="type"}   :: _name,
 }
 
-let init = func "rain.ast.init"()
+var init = func "rain.ast.init"()
   pass

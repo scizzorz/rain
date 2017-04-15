@@ -1,13 +1,13 @@
 macro init() as ()
-  let block = ast.block:empty()
+  var block = ast.block:empty()
 
   AST.passed = ast.name:new(gensym())
   AST.total = ast.name:new(gensym())
   AST.collected = 0
 
-  let int0 = ast.int:new(0)
-  block:add(AST.passed:_let(int0))
-  block:add(AST.total:_let(int0))
+  var int0 = ast.int:new(0)
+  block:add(AST.passed:_var(int0))
+  block:add(AST.total:_var(int0))
 
   return block
 
@@ -15,17 +15,17 @@ macro report() as ()
   if AST.passed == null
     return ast.error:new("Failed to initialize testing framework")
 
-  let block = ast.block:empty()
+  var block = ast.block:empty()
 
-  let pass_count = ast.rain.tostr:call([AST.passed])
-  let pass_label = ast.str:new("  passed:    ")
-  let pass_str = pass_label $ pass_count
+  var pass_count = ast.rain.tostr:call([AST.passed])
+  var pass_label = ast.str:new("  passed:    ")
+  var pass_str = pass_label $ pass_count
 
-  let total_count = ast.rain.tostr:call([AST.total])
-  let total_label = ast.str:new("  executed:  ")
-  let total_str = total_label $ total_count
+  var total_count = ast.rain.tostr:call([AST.total])
+  var total_label = ast.str:new("  executed:  ")
+  var total_str = total_label $ total_count
 
-  let collect_str = ast.str:new("  collected: " $ tostr(AST.collected))
+  var collect_str = ast.str:new("  collected: " $ tostr(AST.collected))
 
   block:add(ast.rain.print:call([ast.str:new("total:")]))
   block:add(ast.rain.print:call([pass_str]))
@@ -40,16 +40,16 @@ macro test(expr) as (expr)
 
   AST.collected = AST.collected + 1
 
-  #let pass_str = ast.str:new("pass!")
-  #let fail_str = ast.str:new("fail!")
-  let int1 = ast.int:new(1)
+  #var pass_str = ast.str:new("pass!")
+  #var fail_str = ast.str:new("fail!")
+  var int1 = ast.int:new(1)
 
-  let pass_block = ast.block:empty()
+  var pass_block = ast.block:empty()
   #pass_block:add(ast.rain.print:call([pass_str]))
   pass_block:add(AST.passed:assn(AST.passed + int1))
   pass_block:add(AST.total:assn(AST.total + int1))
 
-  let fail_block = ast.block:empty()
+  var fail_block = ast.block:empty()
   #fail_block:add(ast.rain.print:call([fail_str]))
   fail_block:add(AST.total:assn(AST.total + int1))
 
@@ -61,20 +61,20 @@ macro group(namestr, argblock) as (label, exprs)
 
   save ret = ast.block:empty()
 
-  let int1 = ast.int:new(1)
+  var int1 = ast.int:new(1)
 
-  let passed = ast.name:new(gensym())
-  let total = ast.name:new(gensym())
+  var passed = ast.name:new(gensym())
+  var total = ast.name:new(gensym())
 
-  ret:add(passed:_let(ast.int:new(0)))
-  ret:add(total:_let(ast.int:new(0)))
+  ret:add(passed:_var(ast.int:new(0)))
+  ret:add(total:_var(ast.int:new(0)))
 
-  let fail_block = ast.block:empty()
+  var fail_block = ast.block:empty()
 
-  let pass_block = ast.block:empty()
+  var pass_block = ast.block:empty()
   pass_block:add(passed:assn(passed + int1))
-  let sum = AST.passed:add(int1)
-  let assn = AST.passed:assn(sum)
+  var sum = AST.passed:add(int1)
+  var assn = AST.passed:assn(sum)
   pass_block:add(assn)
 
   for expr in exprs:values()
@@ -83,15 +83,15 @@ macro group(namestr, argblock) as (label, exprs)
     ret:add(total:assn(total + int1))
     ret:add(AST.total:assn(AST.total + int1))
 
-  let report_label = ast.str:new(label $ ":")
+  var report_label = ast.str:new(label $ ":")
 
-  let pass_count = ast.rain.tostr:call([passed])
-  let pass_label = ast.str:new("  passed:    ")
-  let pass_str = pass_label $ pass_count
+  var pass_count = ast.rain.tostr:call([passed])
+  var pass_label = ast.str:new("  passed:    ")
+  var pass_str = pass_label $ pass_count
 
-  let total_count = ast.rain.tostr:call([total])
-  let total_label = ast.str:new("  executed:  ")
-  let total_str = total_label $ total_count
+  var total_count = ast.rain.tostr:call([total])
+  var total_label = ast.str:new("  executed:  ")
+  var total_str = total_label $ total_count
 
   ret:add(ast.rain.print:call([report_label]))
   ret:add(ast.rain.print:call([pass_str]))

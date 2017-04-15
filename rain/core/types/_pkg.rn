@@ -14,7 +14,7 @@ import .str
 import .array
 import .dict
 
-let meta = foreign "rain_ext_meta"(val)
+var meta = foreign "rain_ext_meta"(val)
 
 export is = func(child, parent)
   while meta(child) != null
