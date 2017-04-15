@@ -1,21 +1,20 @@
 !program;1
 stmts:
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: n
         rhs: !int;1
           value: 0
+        var: true
       - !while;1
         body: !block;2
           expr: null
@@ -27,9 +26,8 @@ stmts:
             catch: false
             func: !name;1
               value: print
-          - !assn;2
+          - !assn;3
             export: false
-            let: false
             lhs: !name;1
               value: n
             rhs: !binary;1
@@ -38,6 +36,7 @@ stmts:
               op: +
               rhs: !int;1
                 value: 1
+            var: false
         pred: !binary;1
           lhs: !name;1
             value: n
@@ -62,9 +61,8 @@ stmts:
             catch: false
             func: !name;1
               value: print
-          - !assn;2
+          - !assn;3
             export: false
-            let: false
             lhs: !name;1
               value: n
             rhs: !binary;1
@@ -73,6 +71,7 @@ stmts:
               op: '-'
               rhs: !int;1
                 value: 1
+            var: false
         pred: !binary;1
           lhs: !name;1
             value: n
@@ -90,9 +89,8 @@ stmts:
         body: !block;2
           expr: null
           stmts:
-          - !assn;2
+          - !assn;3
             export: false
-            let: false
             lhs: !name;1
               value: n
             rhs: !binary;1
@@ -101,6 +99,7 @@ stmts:
               op: +
               rhs: !int;1
                 value: 1
+            var: false
           - !continue;1
             cond: !binary;1
               lhs: !binary;1
@@ -132,3 +131,4 @@ stmts:
                 value: 10
     params: []
     rename: null
+  var: true

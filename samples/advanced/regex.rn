@@ -2,16 +2,16 @@ import regex
 import "types/array"
 
 export main = func()
-  let match = regex.match("ab*ab*", "abbbab")
+  var match = regex.match("ab*ab*", "abbbab")
   print(match.count)
   for m in array.values(match)
     print(m)
 
-  let my_compiled_regex = regex.compile("a(a*)")
-  let match = my_compiled_regex:match("aaaa")
+  var my_compiled_regex = regex.compile("a(a*)")
+  var match = my_compiled_regex:match("aaaa")
   print(match.count)
 
   for m in array.values(match)
     print(m)
-  let match = regex.match?("[", "")
+  var match = regex.match?("[", "")
   print(match.msg)

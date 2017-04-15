@@ -1,14 +1,14 @@
 keyword 'import'
 name 'process'
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'
 symbol '('
 symbol ')'
 indent
-keyword 'let'
+keyword 'var'
 name 'out'
 symbol '='
 name 'process'

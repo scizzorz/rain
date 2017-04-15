@@ -6,9 +6,8 @@ stmts:
 - !import;1
   name: except
   rename: null
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: none
   rhs: !func;2
@@ -24,9 +23,9 @@ stmts:
           value: print
     params: []
     rename: null
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: one
   rhs: !func;2
@@ -43,9 +42,9 @@ stmts:
     params:
     - a
     rename: null
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: two
   rhs: !func;2
@@ -63,29 +62,29 @@ stmts:
     - a
     - b
     rename: null
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: a
         rhs: !int;1
           value: 1
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: b
         rhs: !str;1
           value: str
+        var: true
       - !catch;1
         body: !block;2
           expr: null
@@ -328,3 +327,4 @@ stmts:
               value: is
     params: []
     rename: null
+  var: true

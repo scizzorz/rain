@@ -1,78 +1,76 @@
 !program;1
 stmts:
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: x
   rhs: !int;1
     value: 0
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: false
   lhs: !name;1
     value: x
   rhs: !bool;1
     value: true
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: false
   lhs: !name;1
     value: x
   rhs: !null;1 {}
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: false
   lhs: !name;1
     value: x
   rhs: !str;1
     value: now I'm a string
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: x
         rhs: !int;1
           value: 10
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: false
         lhs: !name;1
           value: x
         rhs: !bool;1
           value: true
-      - !assn;2
+        var: false
+      - !assn;3
         export: false
-        let: false
         lhs: !name;1
           value: x
         rhs: !null;1 {}
-      - !assn;2
+        var: false
+      - !assn;3
         export: false
-        let: false
         lhs: !name;1
           value: x
         rhs: !int;1
           value: 15
-      - !assn;2
+        var: false
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: y
         rhs: !int;1
           value: 20
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: z
         rhs: !binary;1
@@ -81,6 +79,7 @@ stmts:
           op: +
           rhs: !name;1
             value: y
+        var: true
       - !call;1
         args:
         - !name;1
@@ -90,3 +89,4 @@ stmts:
           value: print
     params: []
     rename: null
+  var: true

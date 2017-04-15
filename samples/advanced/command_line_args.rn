@@ -1,4 +1,4 @@
-let main = func()
+var main = func()
   print(env.args:length())
   for arg in env.args:values()
     print(arg)

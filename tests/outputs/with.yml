@@ -1,8 +1,7 @@
 !program;1
 stmts:
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: ctx0
   rhs: !func;2
@@ -31,9 +30,9 @@ stmts:
     params:
     - block
     rename: null
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: ctx1
   rhs: !func;2
@@ -71,9 +70,9 @@ stmts:
     params:
     - block
     rename: null
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: ctx2
   rhs: !func;2
@@ -115,9 +114,9 @@ stmts:
     params:
     - block
     rename: null
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
@@ -187,3 +186,4 @@ stmts:
         - b
     params: []
     rename: null
+  var: true

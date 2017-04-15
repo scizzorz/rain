@@ -1,19 +1,19 @@
 keyword 'import'
 name 'bits'
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'
 symbol '('
 symbol ')'
 indent
-keyword 'let'
+keyword 'var'
 name 'a'
 symbol '='
 int 38
 newline
-keyword 'let'
+keyword 'var'
 name 'b'
 symbol '='
 int 3

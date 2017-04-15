@@ -1,7 +1,7 @@
-let lname = "module local"
+var lname = "module local"
 export ename = "module export"
 
-let loc = table
+var loc = table
 loc.name = "local"
 
 loc.nest = table
@@ -13,7 +13,7 @@ exp.name = "exported"
 exp.nest = table
 exp.nest.name = "exported nest"
 
-let main = func()
+var main = func()
   print(lname)
   print(ename)
   print(loc.name)

@@ -1,18 +1,18 @@
 import types
 import except
 
-let none = func()
+var none = func()
   print("no args")
 
-let one = func(a)
+var one = func(a)
   print("one arg")
 
-let two = func(a, b)
+var two = func(a, b)
   print("two args")
 
-let main = func()
-  let a = 1
-  let b = "str"
+var main = func()
+  var a = 1
+  var b = "str"
 
   catch r
     a(b)

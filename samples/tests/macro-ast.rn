@@ -3,6 +3,6 @@ import ast
 macro expr(expr) as (expr)
   return expr
 
-let main = func()
-  let x = @expr "This better work."
+var main = func()
+  var x = @expr "This better work."
   print(x)

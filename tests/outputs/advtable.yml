@@ -1,8 +1,7 @@
 !program;1
 stmts:
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: ga
   rhs: !array;1
@@ -13,9 +12,9 @@ stmts:
       value: 2
     - !int;1
       value: 3
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: gd
   rhs: !dict;1
@@ -36,18 +35,17 @@ stmts:
         value: 1
       - !str;1
         value: One
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: la
         rhs: !array;1
@@ -58,9 +56,9 @@ stmts:
             value: 5
           - !int;1
             value: 6
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: ld
         rhs: !dict;1
@@ -84,6 +82,7 @@ stmts:
                 value: 0
             - !str;1
               value: Four
+        var: true
       - !for;3
         body: !block;2
           expr: null
@@ -188,3 +187,4 @@ stmts:
           value: print
     params: []
     rename: null
+  var: true

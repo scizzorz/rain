@@ -1,6 +1,6 @@
 import "./rain/arithmetic"
 import "./rain/conversions"
 
-let main = func()
+var main = func()
   arithmetic.main()
   conversions.main()

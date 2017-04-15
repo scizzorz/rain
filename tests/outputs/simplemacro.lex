@@ -28,7 +28,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'test'
 symbol '='
 keyword 'func'
@@ -64,7 +64,7 @@ dedent
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'

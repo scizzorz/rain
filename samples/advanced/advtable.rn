@@ -1,13 +1,13 @@
-let ga = [1, 2, 3]
-let gd = {greeting = "Good day.", ["name"] = "John", age = 24, [1] = "One"}
+var ga = [1, 2, 3]
+var gd = {greeting = "Good day.", ["name"] = "John", age = 24, [1] = "One"}
 
-let main = func()
-  let la = [
+var main = func()
+  var la = [
     4,
     5,
     6,
   ]
-  let ld = {
+  var ld = {
     greeting = "Hello!",
     ["name"] = "Phil",
     age = 27,

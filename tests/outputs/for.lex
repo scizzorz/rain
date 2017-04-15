@@ -1,4 +1,4 @@
-keyword 'let'
+keyword 'var'
 name 'range'
 symbol '='
 keyword 'func'
@@ -6,7 +6,7 @@ symbol '('
 name 'n'
 symbol ')'
 indent
-keyword 'let'
+keyword 'var'
 name 'i'
 symbol '='
 int 0
@@ -38,7 +38,7 @@ dedent
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'

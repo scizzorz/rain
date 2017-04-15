@@ -15,22 +15,21 @@ stmts:
   - expr
   types:
   - expr
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: x
         rhs: !str;1
           value: This better work.
+        var: true
       - !call;1
         args:
         - !name;1
@@ -40,3 +39,4 @@ stmts:
           value: print
     params: []
     rename: null
+  var: true

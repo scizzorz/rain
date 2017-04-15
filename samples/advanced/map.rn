@@ -1,10 +1,10 @@
 import "types/array"
 import iter
 
-let double = func(n) -> n * 2
+var double = func(n) -> n * 2
 
-let main = func()
-  let a = [10, 11, 12, 13]
+var main = func()
+  var a = [10, 11, 12, 13]
 
   print("keys from a:")
   for x in a:keys()
@@ -18,7 +18,7 @@ let main = func()
   for x in iter.map(a:values(), double)
     print(x)
 
-  let b = a:map(double)
+  var b = a:map(double)
 
   print("key/values from b:")
   for [k, v] in b:items()

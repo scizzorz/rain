@@ -7,7 +7,7 @@ export init = func()
 export test = func()
   print("moda.name = " $ name)
 
-let main = func()
+var main = func()
   print("moda.main()")
   test()
   modb.test()

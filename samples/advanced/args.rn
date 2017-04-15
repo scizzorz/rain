@@ -1,15 +1,15 @@
 # arguments are copied by value (but tables are references!)
 # so this only swaps the locals
-let swap = func(a, b)
-  let c = a
+var swap = func(a, b)
+  var c = a
   a = b
   b = c
   print(a)
   print(b)
 
-let main = func()
-  let a = 1
-  let b = 2
+var main = func()
+  var a = 1
+  var b = 2
   print(a)
   print(b)
   swap(a, b)

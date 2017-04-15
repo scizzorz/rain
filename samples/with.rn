@@ -1,21 +1,21 @@
-let ctx0 = func(block)
+var ctx0 = func(block)
   print("Initialization")
   block()
   print("Clean up")
 
-let ctx1 = func(block)
+var ctx1 = func(block)
   print("Initialization")
   block("One")
   block("Two")
   print("Clean up")
 
-let ctx2 = func(block)
+var ctx2 = func(block)
   print("Initialization")
   block("One", "1")
   block("Two", "2")
   print("Clean up")
 
-let main = func()
+var main = func()
   with ctx0
     print("Anonymous block")
 

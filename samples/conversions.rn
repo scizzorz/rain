@@ -1,10 +1,10 @@
-let main = func()
-  let a = 3.6
+var main = func()
+  var a = 3.6
   print(a:floor())
   print(a:round())
   print(a:ceil())
 
-  let b = 3.3
+  var b = 3.3
   print(b:floor())
   print(b:round())
   print(b:ceil())

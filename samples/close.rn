@@ -1,7 +1,7 @@
 import iter
 
-let main = func()
-  let r = iter.range(10)
+var main = func()
+  var r = iter.range(10)
   print("start = " $ tostr(r.next))
   for i in r
     print(tostr(i) $ " -> " $ tostr(r.next))

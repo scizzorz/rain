@@ -3,18 +3,16 @@ stmts:
 - !import;1
   name: file
   rename: null
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: f
         rhs: !call;1
@@ -29,6 +27,7 @@ stmts:
               value: file
             rhs: !str;1
               value: open
+        var: true
       - !for;3
         body: !block;2
           expr: null
@@ -58,3 +57,4 @@ stmts:
           value: close
     params: []
     rename: null
+  var: true

@@ -1,4 +1,4 @@
-keyword 'let'
+keyword 'var'
 name 'three'
 symbol '='
 keyword 'func'
@@ -12,14 +12,14 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'two'
 symbol '='
 keyword 'func'
 symbol '('
 symbol ')'
 indent
-keyword 'let'
+keyword 'var'
 name 'x'
 symbol '='
 name 'three'
@@ -39,7 +39,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'one'
 symbol '='
 keyword 'func'
@@ -67,7 +67,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'

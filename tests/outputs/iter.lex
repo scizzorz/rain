@@ -1,14 +1,14 @@
 keyword 'import'
 name 'iter'
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'
 symbol '('
 symbol ')'
 indent
-keyword 'let'
+keyword 'var'
 name 'r1'
 symbol '='
 name 'iter'
@@ -18,7 +18,7 @@ symbol '('
 int 10
 symbol ')'
 newline
-keyword 'let'
+keyword 'var'
 name 'r2'
 symbol '='
 name 'iter'
@@ -30,7 +30,7 @@ symbol ','
 int 20
 symbol ')'
 newline
-keyword 'let'
+keyword 'var'
 name 'r3'
 symbol '='
 name 'iter'
@@ -42,7 +42,7 @@ symbol ','
 int 30
 symbol ')'
 newline
-keyword 'let'
+keyword 'var'
 name 'r4'
 symbol '='
 name 'iter'

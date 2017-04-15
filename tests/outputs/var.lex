@@ -1,4 +1,4 @@
-keyword 'let'
+keyword 'var'
 name 'x'
 symbol '='
 int 0
@@ -15,14 +15,14 @@ name 'x'
 symbol '='
 string "now I'm a string"
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'
 symbol '('
 symbol ')'
 indent
-keyword 'let'
+keyword 'var'
 name 'x'
 symbol '='
 int 10
@@ -39,12 +39,12 @@ name 'x'
 symbol '='
 int 15
 newline
-keyword 'let'
+keyword 'var'
 name 'y'
 symbol '='
 int 20
 newline
-keyword 'let'
+keyword 'var'
 name 'z'
 symbol '='
 name 'x'

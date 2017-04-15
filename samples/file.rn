@@ -1,7 +1,7 @@
 import file
 
-let main = func()
-  let f = file.open("rainc", "r")
+var main = func()
+  var f = file.open("rainc", "r")
   for x in f:lines()
     print(x)
 

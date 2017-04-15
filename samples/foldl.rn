@@ -1,10 +1,10 @@
 import "types/array"
 
-let gadd = func(a, b) -> a + b
-let main = func()
-  let ladd = func(a, b) -> a + b
+var gadd = func(a, b) -> a + b
+var main = func()
+  var ladd = func(a, b) -> a + b
 
-  let a = [1, 2, 3]
+  var a = [1, 2, 3]
 
   print(a:foldl(gadd, 0))
   print(a:foldl(ladd, 0))

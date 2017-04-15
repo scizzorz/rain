@@ -1,35 +1,34 @@
 !program;1
 stmts:
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: swap
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: c
         rhs: !name;1
           value: a
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: false
         lhs: !name;1
           value: a
         rhs: !name;1
           value: b
-      - !assn;2
+        var: false
+      - !assn;3
         export: false
-        let: false
         lhs: !name;1
           value: b
         rhs: !name;1
           value: c
+        var: false
       - !call;1
         args:
         - !name;1
@@ -48,29 +47,29 @@ stmts:
     - a
     - b
     rename: null
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: a
         rhs: !int;1
           value: 1
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: b
         rhs: !int;1
           value: 2
+        var: true
       - !call;1
         args:
         - !name;1
@@ -110,3 +109,4 @@ stmts:
           value: print
     params: []
     rename: null
+  var: true

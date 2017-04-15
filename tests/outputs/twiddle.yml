@@ -3,29 +3,28 @@ stmts:
 - !import;1
   name: bits
   rename: null
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: a
         rhs: !int;1
           value: 38
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: b
         rhs: !int;1
           value: 3
+        var: true
       - !call;1
         args:
         - !call;1
@@ -128,3 +127,4 @@ stmts:
           value: print
     params: []
     rename: null
+  var: true

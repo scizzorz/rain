@@ -1,21 +1,21 @@
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'
 symbol '('
 symbol ')'
 indent
-keyword 'let'
+keyword 'var'
 name 'a'
 symbol '='
 int -3
 newline
-keyword 'let'
+keyword 'var'
 name 'b'
 symbol '='
 int 3
 newline
-keyword 'let'
+keyword 'var'
 name 'args'
 symbol '='
 'table'

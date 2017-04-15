@@ -1,2 +1,2 @@
-let main = func()
+var main = func()
   print("Hello, world.")

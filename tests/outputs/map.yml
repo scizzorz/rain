@@ -6,9 +6,8 @@ stmts:
 - !import;1
   name: iter
   rename: null
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: double
   rhs: !func;2
@@ -22,18 +21,17 @@ stmts:
     params:
     - n
     rename: null
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: a
         rhs: !array;1
@@ -46,6 +44,7 @@ stmts:
             value: 12
           - !int;1
             value: 13
+        var: true
       - !call;1
         args:
         - !str;1
@@ -137,9 +136,8 @@ stmts:
               value: map
         name: !name;1
           value: x
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: b
         rhs: !method;1
@@ -151,6 +149,7 @@ stmts:
             value: a
           rhs: !str;1
             value: map
+        var: true
       - !call;1
         args:
         - !str;1
@@ -201,3 +200,4 @@ stmts:
           value: v
     params: []
     rename: null
+  var: true

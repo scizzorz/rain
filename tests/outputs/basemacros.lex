@@ -1,7 +1,7 @@
 keyword 'import'
 name 'macros'
 newline
-keyword 'let'
+keyword 'var'
 name 'fudge'
 symbol '='
 symbol '['
@@ -12,7 +12,7 @@ symbol ','
 string 'three'
 symbol ']'
 newline
-keyword 'let'
+keyword 'var'
 name 'node'
 symbol '='
 symbol '{'
@@ -26,7 +26,7 @@ string 'body'
 symbol ','
 symbol '}'
 newline
-keyword 'let'
+keyword 'var'
 name 'person'
 symbol '='
 symbol '{'
@@ -48,7 +48,7 @@ bool True
 symbol ','
 symbol '}'
 newline
-keyword 'let'
+keyword 'var'
 name 'square'
 symbol '='
 keyword 'func'
@@ -56,7 +56,7 @@ symbol '('
 name 'n'
 symbol ')'
 indent
-keyword 'let'
+keyword 'var'
 name 'ret'
 symbol '='
 symbol '@'
@@ -96,7 +96,7 @@ name 'ret'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'

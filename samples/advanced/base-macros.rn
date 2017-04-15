@@ -1,19 +1,19 @@
 import macros
 
-let fudge = ["one", "two", "three"]
-let node = {
+var fudge = ["one", "two", "three"]
+var node = {
   tag = "node",
   body = "body",
 }
-let person = {
+var person = {
   name = "Phil",
   age = 47,
   kids = 4,
   married = true,
 }
 
-let square = func(n)
-  let ret = @macros.case n
+var square = func(n)
+  var ret = @macros.case n
     1 -> 1
     2 -> 4
     3 -> 9
@@ -24,7 +24,7 @@ let square = func(n)
   return ret
 
 
-let main = func()
+var main = func()
   @macros.print_all(fudge[0], fudge[1], fudge[2])
   @macros.print_all("----", node.tag, node.body)
 

@@ -1,8 +1,7 @@
 !program;1
 stmts:
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: add
   rhs: !func;2
@@ -20,9 +19,9 @@ stmts:
     - x
     - y
     rename: null
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: mul
   rhs: !func;2
@@ -37,9 +36,9 @@ stmts:
     - x
     - y
     rename: null
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: apply
   rhs: !func;2
@@ -61,9 +60,9 @@ stmts:
     - x
     - y
     rename: null
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
@@ -169,3 +168,4 @@ stmts:
           value: print
     params: []
     rename: null
+  var: true
