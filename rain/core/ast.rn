@@ -39,10 +39,10 @@ _block.new = func(self, stmts, expr)
   ret.expr = expr
 
 _block.empty = func(self)
-  return self:new(table, null)
+  return self:new([], null)
 
 _block.add = func(self, stmt)
-  let idx = length(self.stmts)
+  let idx = self.stmts:length()
   self.stmts[idx] = stmt
 
 _block.values = func(self)

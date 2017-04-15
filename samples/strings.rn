@@ -5,5 +5,5 @@ let main = func()
   print(sp)
 
   let a = "abc"
-  let b = a:substring(1, length(a))
+  let b = a:substring(1, a:length())
   print(b)

@@ -6,6 +6,7 @@
 void rain_init_args(int argc, char **argv) {
   box key;
   box val;
+  rain_set_env(rain_args, rain_vt_array);
 
   for(int i = 0; i < argc; ++i) {
     rain_set_int(&key, i);

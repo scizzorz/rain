@@ -4,18 +4,6 @@
 #include <string.h>
 
 
-int rain_array_length(box *table) {
-  int length = 0;
-  box i_box;
-
-  rain_set_int(&i_box, 0);
-  while(rain_has(table, &i_box)) {
-    i_box.data.si++;
-  }
-
-  return i_box.data.si;
-}
-
 void rain_print(box *val) {
   if(BOX_IS(val, STR)) {
     printf("%.*s\n", val->size, val->data.s);
@@ -27,18 +15,8 @@ void rain_print(box *val) {
   }
 }
 
-
 void rain_ext_exit(box *ret, box *val) {
   exit(rain_box_to_exit(val));
-}
-
-void rain_ext_length(box *ret, box *val) {
-  if(BOX_IS(val, STR) || BOX_IS(val, FUNC)) {
-    rain_set_int(ret, val->size);
-  }
-  else if(BOX_IS(val, TABLE)) {
-    rain_set_int(ret, rain_array_length(val));
-  }
 }
 
 void rain_ext_meta(box *ret, box *val) {

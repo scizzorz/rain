@@ -8,6 +8,10 @@
 
 box *rain_exc_str_fmt_error;
 
+void rain_ext_str_length(box *ret, box *val) {
+  rain_set_int(ret, val->size);
+}
+
 void rain_ext_str_int(box *ret, box *val) {
   if(BOX_ISNT(val, STR)) {
     rain_throw(rain_exc_arg_mismatch);

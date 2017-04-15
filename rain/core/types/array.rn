@@ -1,6 +1,8 @@
+link "./array.c"
+
 let to_str = foreign "rain_ext_to_str"(val)
 let meta = foreign "rain_ext_meta"(val)
-let length = foreign "rain_ext_length"(val)
+export length = foreign "rain_ext_array_length"(val)
 
 export values = func(self)
   let i = 0
