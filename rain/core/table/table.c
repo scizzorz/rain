@@ -95,7 +95,7 @@ void rain_get(box *ret, box *tab, box *key) {
 }
 
 void rain_put(box *tab, box *key, box *val) {
-  if(BOX_IS(tab, FUNC)) {
+  if(BOX_IS(tab, FUNC) && tab->env != NULL) {
     rain_put(tab->env, key, val);
     return;
   }
