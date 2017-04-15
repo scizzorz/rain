@@ -21,7 +21,7 @@ stmt :: 'let' let_prefix '=' compound
       | 'break' ('if' binexpr)?
       | 'continue' ('if' binexpr)?
       | 'return' compound?
-      | 'save' compound
+      | 'save' (NAME '=')? compound
       | assn_prefix ('=' compound | fnargs | ':' NAME  fnargs)
 
 import_mod :: '.'? (NAME | STRING) ('.' (NAME | STRING))*

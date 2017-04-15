@@ -235,7 +235,7 @@ def block(ctx):
 #       | 'break' ('if' binexpr)?
 #       | 'continue' ('if' binexpr)?
 #       | 'return' compound?
-#       | 'save' compound
+#       | 'save' (NAME '=')? compound
 #       | assn_prefix ('=' compound | fnargs | ':' NAME  fnargs)
 def stmt(ctx):
   if ctx.consume(K.keyword_token('let')):
@@ -393,7 +393,12 @@ def stmt(ctx):
     return A.return_node(compound(ctx))
 
   if ctx.consume(K.keyword_token('save')):
-    return A.save_node(compound(ctx))
+    val = compound(ctx)
+    if isinstance(val, A.name_node) and ctx.consume(K.symbol_token('=')):
+      rhs = compound(ctx)
+      return A.save_node(rhs, name=val.value)
+
+    return A.save_node(val)
 
   lhs = assn_prefix(ctx)
 

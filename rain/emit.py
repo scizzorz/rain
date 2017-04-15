@@ -267,6 +267,9 @@ def emit_local(self, module):
 
 @A.save_node.method
 def emit_local(self, module):
+  if self.name:
+    module[self.name] = module.ret_ptr
+
   module.store(module.emit(self.value), module.ret_ptr)
 
 

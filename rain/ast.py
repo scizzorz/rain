@@ -227,8 +227,14 @@ class return_node(value_node):
   __tag__ = 'return'
 
 
-class save_node(value_node):
+class save_node(node):
   __tag__ = 'save'
+  __version__ = 2
+  __slots__ = ['value', 'name']
+
+  def __init__(self, value, name=None):
+    self.value = value
+    self.name = name
 
 
 class until_node(node):
