@@ -10,6 +10,7 @@ void rain_print(box *val) {
   }
   else {
     box ret;
+    rain_set_null(&ret);
     rain_ext_to_str(&ret, val);
     printf("%.*s\n", ret.size, ret.data.s);
   }
@@ -62,9 +63,13 @@ void rain_ext_to_str(box *ret, box *val) {
 
     case ITYP_TABLE:
       rain_set_str(&key, "str");
+      rain_set_null(&to_str);
       rain_get(&to_str, val, &key);
       if(BOX_IS(&to_str, FUNC) && to_str.size == 1) {
         void (*func_ptr)(box *, box *) = (void (*)(box *, box *))(to_str.data.vp);
+        if(to_str.env != NULL) {
+          rain_set_box(ret, to_str.env);
+        }
         func_ptr(ret, val);
         break;
       }
