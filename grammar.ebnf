@@ -2,7 +2,7 @@ program :: (stmt NEWLINE)+ EOF
 
 block :: INDENT (stmt NEWLINE)+ DEDENT
 
-stmt :: 'let' let_prefix '=' compound
+stmt :: 'var' var_prefix '=' compound
       | 'export' NAME '=' compound
       | 'export' NAME 'as' 'foreign' (NAME | STRING)
       | 'import' import_mod ('as' NAME)?
@@ -12,7 +12,7 @@ stmt :: 'let' let_prefix '=' compound
       | 'library' STRING
       | if_stmt
       | 'catch' NAME block
-      | 'for' let_prefix 'in' binexpr block
+      | 'for' var_prefix 'in' binexpr block
       | 'with' binexpr ('as' NAME (',' NAME)*)
       | 'while' binexpr block
       | 'until' binexpr block
@@ -30,7 +30,7 @@ if_stmt :: 'if' binexpr block (NEWLINE 'else' (if_stmt | block))?
 
 macro_exp :: '@' NAME ('.' NAME)* ***
 
-let_prefix :: '[' let_prefix (',' let_prefix)* ']'
+var_prefix :: '[' var_prefix (',' var_prefix)* ']'
             | NAME
 
 assn_prefix :: '[' assn_prefix (',' assn_prefix)* ']'
