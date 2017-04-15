@@ -61,12 +61,12 @@ stmts:
           args:
           - !int;1
             value: 1
-          - !call;1
-            args:
-            - !name;1
-              value: a
+          - !method;1
+            args: []
             catch: false
-            func: !name;1
+            lhs: !name;1
+              value: a
+            rhs: !str;1
               value: length
           catch: false
           lhs: !name;1

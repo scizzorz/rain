@@ -43,9 +43,10 @@ name 'substring'
 symbol '('
 int 1
 symbol ','
+name 'a'
+symbol ':'
 name 'length'
 symbol '('
-name 'a'
 symbol ')'
 symbol ')'
 newline
