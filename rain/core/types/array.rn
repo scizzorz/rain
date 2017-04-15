@@ -29,8 +29,7 @@ export items = func(self)
     i = i + 1
 
 export map = func(self, fn)
-  let ret = table :: meta(self)
-  save ret
+  save ret = table :: meta(self)
   for i in keys(self)
     ret[i] = fn(self[i])
 
@@ -41,8 +40,7 @@ export foldl = func(self, fn, z)
   return a
 
 export concat = func(self, other)
-  let ret = table :: meta(self)
-  save ret
+  save ret = table :: meta(self)
   for i in keys(self)
     ret[i] = self[i]
   let len = length(self)
@@ -60,16 +58,14 @@ export contains = func(self, value)
       return true
 
 export from_iter = func(iter)
-  let ret = table
-  save ret
+  save ret = table
   let idx = 0
   for i in iter
     ret[idx] = i
     idx = idx + 1
 
 export slice = func(self, start, end)
-  let ret = table
-  save ret
+  save ret = table
   let to_idx = 0
   let from_idx = start
   while from_idx < end
@@ -91,8 +87,7 @@ export str = func(self)
 
 export from_iter = func(iter)
   let i = 0
-  let ret = []
-  save ret
+  save ret = []
 
   loop
     ret[i] = iter()

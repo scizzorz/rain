@@ -34,7 +34,8 @@ stmts:
                 op: ==
                 rhs: !name;1
                   value: n
-            - !save;1
+            - !save;2
+              name: null
               value: !name;1
                 value: i
             - !assn;2

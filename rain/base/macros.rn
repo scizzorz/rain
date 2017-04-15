@@ -1,7 +1,6 @@
 # Create separate print statements for each expression
 macro print_all(args) as (args)
-  let block = ast.block:empty()
-  save block
+  save block = ast.block:empty()
 
   for arg in args:values()
     block:add(ast.rain.print:call([arg]))
@@ -19,8 +18,7 @@ macro catchcall(expr, argblock) as (fn, args)
 
 # Destructures a dictionary
 macro match(expr, expr) as (lhs, rhs)
-  let block = ast.block:empty()
-  save block
+  save block = ast.block:empty()
 
   let value = ast.name:new(gensym())
   block:add(value:_let(rhs))
@@ -34,8 +32,7 @@ macro match(expr, expr) as (lhs, rhs)
 
 # Creates a switch/case-like control flow
 macro case(expr, argblock) as (var, cases)
-  let block = ast.block:empty()
-  save block
+  save block = ast.block:empty()
 
   let caseval = ast.name:new(gensym())
   let retval = ast.name:new(gensym())

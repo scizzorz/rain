@@ -59,8 +59,7 @@ macro group(namestr, argblock) as (label, exprs)
   if AST.passed == null
     return ast.error:new("Failed to initialize testing framework")
 
-  let ret = ast.block:empty()
-  save ret
+  save ret = ast.block:empty()
 
   let int1 = ast.int:new(1)
 

@@ -7,8 +7,7 @@ let ext_compile = foreign "rain_ext_pcre_compile"(val)
 
 let base = table
 base.new = func(self, pcre_ptr)
-  let ret = table :: self
-  save ret
+  save ret = table :: self
 
   ret["_pcre_ptr"] = pcre_ptr
 
