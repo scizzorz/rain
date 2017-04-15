@@ -5,6 +5,7 @@ import functools
 externs = {
   'main': T.func(T.i32, (T.i32, (T.ptr(T.ptr(T.i8))))),
   'GC_malloc': T.func(T.ptr(T.i8), [T.i32]),
+  'GC_init': T.func(T.void, []),
 
   'rain_abort': T.vfunc(),
   'rain_box_malloc': T.func(T.arg, []),
@@ -12,7 +13,6 @@ externs = {
   'rain_catch': T.vfunc(T.arg),
   'rain_check_callable': T.vfunc(T.arg, T.i32),
   'rain_init_args': T.vfunc(T.i32, T.ptr(T.ptr(T.i8))),
-  'rain_init_gc': T.func(T.i32, []),
   'rain_personality_v0': T.func(T.i32, [], var_arg=True),
   'rain_throw': T.vfunc(T.arg),
 
@@ -67,6 +67,10 @@ class Runtime:
   @property
   def personality(self):
     return self._getfunc('rain_personality_v0')
+
+  @property
+  def init_gc(self):
+    return functools.partial(self.module.call, self._getfunc('GC_init'))
 
   def __getattr__(self, key):
     key = 'rain_' + key

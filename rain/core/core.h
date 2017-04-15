@@ -48,9 +48,6 @@ typedef struct table_s {
 
 int rain_box_to_exit(box *);
 void rain_check_callable(box *, int);
-int rain_init_gc();
-int rain_disable_gc();
-int rain_enable_gc();
 box *rain_box_malloc();
 
 #endif
