@@ -663,7 +663,9 @@ def emit_local(self, module):
   val = module.emit(self.val)
 
   ret_ptr, arg = module.fnalloc(T.null, val)
-  arith[self.op](ret_ptr, arg)
+
+  with module.trace(self.coords):
+    arith[self.op](ret_ptr, arg)
 
   return module.load(ret_ptr)
 
@@ -732,7 +734,9 @@ def emit_local(self, module):
     rhs = module.emit(self.rhs)
 
     ret_ptr, *args = module.fnalloc(T.null, lhs, rhs)
-    arith[self.op](ret_ptr, *args)
+
+    with module.trace(self.coords):
+      arith[self.op](ret_ptr, *args)
 
     return module.load(ret_ptr)
 
