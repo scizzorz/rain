@@ -62,6 +62,13 @@ class Engine:
     '''Return a function address'''
     func_typ = ct.CFUNCTYPE(*types)
     func_ptr = self.engine.get_function_address(name)
+
+    if not func_ptr:
+      func_ptr = llvm.address_of_symbol(name)
+
+    if not func_ptr:
+      Q.abort('Unable to find address of {}', name)
+
     return func_typ(func_ptr)
 
   def get_global(self, name, typ):
