@@ -76,7 +76,7 @@ class Static:
 
     # don't need to do this if we're recycling a pair
     if not pair:
-      items[idx].initializer = T.item([T.i32(1), key, val])
+      items[idx].initializer = T.item([key, val])
       items[idx].initializer.key = key_node
 
     arr_ptr.initializer = arr_ptr.value_type(items)
@@ -85,7 +85,7 @@ class Static:
     lpt_ptr.initializer = lpt_ptr.value_type([T.i32(cur), T.i32(max), arr_gep])
     lpt_ptr.arr_ptr = arr_ptr
 
-    ret = items[idx].gep([T.i32(0), T.i32(2)])
+    ret = items[idx].gep([T.i32(0), T.i32(1)])
     return ret
 
   # Return a box from a static table
@@ -98,7 +98,7 @@ class Static:
     if not isinstance(items[idx], ir.GlobalVariable):
       return T.null
 
-    return items[idx].initializer.constant[2]
+    return items[idx].initializer.constant[1]
 
   # Allocate a static table
   def alloc(self, name, size=T.HASH_SIZE):

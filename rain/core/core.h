@@ -35,7 +35,6 @@ typedef struct box_s {
 } box;
 
 typedef struct item_s {
-  int valid;
   box key;
   box val;
 } item;

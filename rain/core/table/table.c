@@ -122,7 +122,6 @@ void rain_put_aux(box *tab, box *key, box *val, item *pair) {
         items[key_hash % max] = pair;
       }
 
-      items[key_hash % max]->valid = 1;
       items[key_hash % max]->key = *key;
       items[key_hash % max]->val = *val;
       tab->data.lpt->cur += 1;
