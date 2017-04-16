@@ -43,22 +43,22 @@ unsigned char rain_hash_eq(box *one, box *two) {
 item *rain_has(box *tab, box *key) {
   int cur = tab->data.lpt->cur;
   int max = tab->data.lpt->max;
-  item *items = tab->data.lpt->items;
+  item **items = tab->data.lpt->items;
   unsigned long key_hash = rain_hash(key);
 
   while(1) {
-    if(!items[key_hash % max].valid) {
+    if(items[key_hash % max] == NULL) {
       return NULL;
     }
 
-    if(rain_hash_eq(key, &(items[key_hash % max].key))) {
+    if(rain_hash_eq(key, &(items[key_hash % max]->key))) {
       break;
     }
 
     key_hash += 1;
   }
 
-  return items + (key_hash % max);
+  return items[key_hash % max];
 }
 
 box *rain_get_ptr(box *tab, box *key) {
@@ -106,21 +106,22 @@ void rain_put(box *tab, box *key, box *val) {
 
   int cur = tab->data.lpt->cur;
   int max = tab->data.lpt->max;
-  item *items = tab->data.lpt->items;
+  item **items = tab->data.lpt->items;
   unsigned long key_hash = rain_hash(key);
 
   while(1) {
-    if(!items[key_hash % max].valid) {
-      items[key_hash % max].valid = 1;
-      items[key_hash % max].key = *key;
-      items[key_hash % max].val = *val;
+    if(items[key_hash % max] == NULL) {
+      items[key_hash % max] = GC_malloc(sizeof(item));
+      items[key_hash % max]->valid = 1;
+      items[key_hash % max]->key = *key;
+      items[key_hash % max]->val = *val;
       tab->data.lpt->cur += 1;
       cur += 1;
       break;
     }
 
-    if(rain_hash_eq(&(items[key_hash % max].key), key)) {
-      items[key_hash % max].val = *val;
+    if(rain_hash_eq(&(items[key_hash % max]->key), key)) {
+      items[key_hash % max]->val = *val;
       break;
     }
 
@@ -130,16 +131,15 @@ void rain_put(box *tab, box *key, box *val) {
   if(cur > max / 2) {
     tab->data.lpt->cur = 0;
     tab->data.lpt->max = max * 2;
-    tab->data.lpt->items = (item *)GC_malloc(sizeof(item) * max * 2);
+    tab->data.lpt->items = (item **)GC_malloc(sizeof(item*) * max * 2);
 
     for(int i=0; i<max; i++) {
-      if(items[i].valid) {
-        rain_put(tab, &items[i].key, &items[i].val);
+      if(items[i] != NULL) {
+        rain_put(tab, &(items[i]->key), &(items[i]->val));
       }
     }
 
     GC_free((void *)items);
-
   }
 }
 

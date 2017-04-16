@@ -424,7 +424,7 @@ class Module(S.Scope):
     if not isinstance(self[name], ir.GlobalVariable):
       table_box = self.exports.initializer
       key_node = A.str_node(name)
-      self.static.put(table_box, key_node, value)
+      self[name] = self.static.put(table_box, key_node, value)
 
     self[name].initializer = value
 

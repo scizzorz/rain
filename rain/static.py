@@ -1,5 +1,6 @@
 from . import error as Q
 from . import types as T
+from llvmlite import ir
 
 
 class Static:
@@ -17,10 +18,10 @@ class Static:
     key_hash = key_node.hash()
 
     while True:
-      if items[key_hash % max].constant is None:
+      if not isinstance(items[key_hash % max], ir.GlobalVariable):
         break
 
-      if items[key_hash % max].key == key_node:
+      if items[key_hash % max].initializer.key == key_node:
         break
 
       key_hash += 1
@@ -37,15 +38,16 @@ class Static:
       Q.abort('Global value is opaque')
 
     arr_ptr = lpt_ptr.arr_ptr
-    item = T.item([T.i32(1), key, val])
-    item.key = key_node
+    item = self.module.add_global(T.item)
+    item.initializer = T.item([T.i32(1), key, val])
+    item.initializer.key = key_node
 
     cur = lpt_ptr.initializer.constant[0].constant
     max = lpt_ptr.initializer.constant[1].constant
     items = arr_ptr.initializer.constant
 
     idx = self.idx(table_box, key_node)
-    if items[idx].constant is None:
+    if not isinstance(items[idx], ir.GlobalVariable):
       cur += 1
 
     # TODO resize if cur > max / 2! currently, it infinite loops.
@@ -57,6 +59,10 @@ class Static:
     lpt_ptr.initializer = lpt_ptr.value_type([T.i32(cur), T.i32(max), arr_gep])
     lpt_ptr.arr_ptr = arr_ptr
 
+    ret = item.gep([T.i32(0), T.i32(2)])
+    return ret
+
+
   # Return a box from a static table
   def get(self, table_box, key_node):
     lpt_ptr = table_box.lpt_ptr
@@ -64,14 +70,14 @@ class Static:
     items = arr_ptr.initializer.constant
 
     idx = self.idx(table_box, key_node)
-    if items[idx].constant is None:
+    if not isinstance(items[idx], ir.GlobalVariable):
       return T.null
 
-    return items[idx].constant[2]
+    return items[idx].initializer.constant[2]
 
   # Allocate a static table
   def alloc(self, name):
-    arr_typ = T.arr(T.item, T.HASH_SIZE)
+    arr_typ = T.arr(T.ptr(T.item), T.HASH_SIZE)
     arr_ptr = self.module.add_global(arr_typ, name=name + '.array')
     arr_ptr.initializer = arr_typ([None] * T.HASH_SIZE)
     arr_gep = arr_ptr.gep([T.i32(0), T.i32(0)])
@@ -88,11 +94,6 @@ class Static:
     box = T._table(ptr)
     box.lpt_ptr = ptr  # save this for later!
     return box
-
-  # Return a pointer to a static table's value box
-  def get_box_ptr(self, table_box, key_node):
-    idx = self.idx(table_box, key_node)
-    return table_box.lpt_ptr.arr_ptr.gep([T.i32(0), T.i32(idx), T.i32(2)])
 
   # Repair a static table box from another one
   def repair(self, new_box, old_box):

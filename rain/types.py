@@ -35,7 +35,7 @@ def vfunc(*args, var_arg=False):
 # set struct bodies
 box.set_body(i8, i32, i64, arg)
 item.set_body(i32, box, box)
-lpt.set_body(i32, i32, ptr(item))
+lpt.set_body(i32, i32, ptr(ptr(item)))
 
 # constant aliases
 null = box(None)

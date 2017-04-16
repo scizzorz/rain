@@ -43,7 +43,7 @@ typedef struct item_s {
 typedef struct table_s {
   int cur;
   int max;
-  item *items;
+  item **items;
 } table;
 
 int rain_box_to_exit(box *);

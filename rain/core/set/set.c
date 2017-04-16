@@ -61,7 +61,7 @@ void rain_set_table(box *ret) {
   table *arr = (table *)GC_malloc(sizeof(table));
   arr->cur = 0;
   arr->max = HASH_SIZE;
-  arr->items = (item *)GC_malloc(sizeof(item) * HASH_SIZE);
+  arr->items = (item **)GC_malloc(sizeof(item *) * HASH_SIZE);
 
   ret->type = ITYP_TABLE;
   ret->data.lpt = arr;

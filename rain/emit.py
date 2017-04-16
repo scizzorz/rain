@@ -75,7 +75,8 @@ def emit_global(self, module):
     if self.export:
       table_box = module.exports.initializer
       key_node = A.str_node(self.lhs.value)
-      module[self.lhs.value] = module.static.get_box_ptr(table_box, key_node)
+      module[self.lhs.value] = None
+      module.store_global(T.null, self.lhs.value)
 
     if self.var:
       module[self.lhs] = module.find_global(T.box, name=module.mangle(self.lhs.value))
