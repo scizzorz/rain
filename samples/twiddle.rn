@@ -1,8 +1,8 @@
 import bits
 
-let main = func()
-  let a = 38
-  let b = 3
+var main = func()
+  var a = 38
+  var b = 3
 
   print(bits.lsh(a, b))
   print(bits.rsh(a, b))

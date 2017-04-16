@@ -35,7 +35,6 @@ typedef struct box_s {
 } box;
 
 typedef struct item_s {
-  int valid;
   box key;
   box val;
 } item;
@@ -43,14 +42,11 @@ typedef struct item_s {
 typedef struct table_s {
   int cur;
   int max;
-  item *items;
+  item **items;
 } table;
 
 int rain_box_to_exit(box *);
 void rain_check_callable(box *, int);
-int rain_init_gc();
-int rain_disable_gc();
-int rain_enable_gc();
 box *rain_box_malloc();
 
 #endif

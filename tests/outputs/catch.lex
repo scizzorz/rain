@@ -1,4 +1,4 @@
-keyword 'let'
+keyword 'var'
 name 'three'
 symbol '='
 keyword 'func'
@@ -12,14 +12,14 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'two'
 symbol '='
 keyword 'func'
 symbol '('
 symbol ')'
 indent
-keyword 'let'
+keyword 'var'
 name 'x'
 symbol '='
 name 'three'
@@ -39,15 +39,17 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'one'
 symbol '='
 keyword 'func'
 symbol '('
 symbol ')'
 indent
-keyword 'catch'
+keyword 'var'
 name 'x'
+symbol '='
+keyword 'catch'
 indent
 name 'two'
 symbol '('
@@ -67,7 +69,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'
@@ -79,8 +81,10 @@ symbol '('
 string '----'
 symbol ')'
 newline
-keyword 'catch'
+keyword 'var'
 name 'x'
+symbol '='
+keyword 'catch'
 indent
 name 'print'
 symbol '('
@@ -145,8 +149,9 @@ symbol '('
 string '----'
 symbol ')'
 newline
-keyword 'catch'
 name 'x'
+symbol '='
+keyword 'catch'
 indent
 name 'print'
 symbol '('

@@ -110,13 +110,13 @@ class block_node(expr_node):
 
 class assn_node(node):
   __tag__ = 'assn'
-  __version__ = 2
-  __slots__ = ['lhs', 'rhs', 'let', 'export']
+  __version__ = 3
+  __slots__ = ['lhs', 'rhs', 'var', 'export']
 
-  def __init__(self, lhs, rhs, let=False, export=False):
+  def __init__(self, lhs, rhs, var=False, export=False):
     self.lhs = lhs
     self.rhs = rhs
-    self.let = let
+    self.var = var
     self.export = export
 
 
@@ -131,11 +131,10 @@ class break_node(node):
 
 class catch_node(node):
   __tag__ = 'catch'
-  __version__ = 1
-  __slots__ = ['name', 'body']
+  __version__ = 2
+  __slots__ = ['body']
 
-  def __init__(self, name, body):
-    self.name = name
+  def __init__(self, body):
     self.body = body
 
 
@@ -227,8 +226,14 @@ class return_node(value_node):
   __tag__ = 'return'
 
 
-class save_node(value_node):
+class save_node(node):
   __tag__ = 'save'
+  __version__ = 2
+  __slots__ = ['value', 'name']
+
+  def __init__(self, value, name=None):
+    self.value = value
+    self.name = name
 
 
 class until_node(node):

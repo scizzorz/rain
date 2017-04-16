@@ -1,5 +1,5 @@
 import process
 
-let main = func()
-  let out = process.run(["echo", "hi", "there"])
+var main = func()
+  var out = process.run(["echo", "hi", "there"])
   print(out)

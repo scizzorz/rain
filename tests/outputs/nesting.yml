@@ -1,28 +1,27 @@
 !program;1
 stmts:
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: lname
   rhs: !str;1
     value: module local
-- !assn;2
+  var: true
+- !assn;3
   export: true
-  let: false
   lhs: !name;1
     value: ename
   rhs: !str;1
     value: module export
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: loc
   rhs: !table;2 {}
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: false
   lhs: !index;1
     lhs: !name;1
       value: loc
@@ -30,18 +29,18 @@ stmts:
       value: name
   rhs: !str;1
     value: local
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: false
   lhs: !index;1
     lhs: !name;1
       value: loc
     rhs: !str;1
       value: nest
   rhs: !table;2 {}
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: false
   lhs: !index;1
     lhs: !index;1
       lhs: !name;1
@@ -52,15 +51,15 @@ stmts:
       value: name
   rhs: !str;1
     value: local nest
-- !assn;2
+  var: false
+- !assn;3
   export: true
-  let: false
   lhs: !name;1
     value: exp
   rhs: !table;2 {}
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: false
   lhs: !index;1
     lhs: !name;1
       value: exp
@@ -68,18 +67,18 @@ stmts:
       value: name
   rhs: !str;1
     value: exported
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: false
   lhs: !index;1
     lhs: !name;1
       value: exp
     rhs: !str;1
       value: nest
   rhs: !table;2 {}
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: false
   lhs: !index;1
     lhs: !index;1
       lhs: !name;1
@@ -90,9 +89,9 @@ stmts:
       value: name
   rhs: !str;1
     value: exported nest
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
@@ -161,3 +160,4 @@ stmts:
           value: print
     params: []
     rename: null
+  var: true

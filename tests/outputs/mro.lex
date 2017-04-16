@@ -1,4 +1,4 @@
-keyword 'let'
+keyword 'var'
 name 's'
 symbol '='
 'table'
@@ -25,7 +25,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'a'
 symbol '='
 'table'
@@ -65,7 +65,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'b'
 symbol '='
 'table'
@@ -105,7 +105,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'c'
 symbol '='
 'table'
@@ -147,7 +147,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'

@@ -9,7 +9,7 @@ DATA = 2
 ENV = 3
 
 # sizes of things
-HASH_SIZE = 128
+HASH_SIZE = 32
 
 # all sorts of type aliases
 i8 = ir.IntType(8)
@@ -34,8 +34,8 @@ def vfunc(*args, var_arg=False):
 
 # set struct bodies
 box.set_body(i8, i32, i64, arg)
-item.set_body(i32, box, box)
-lpt.set_body(i32, i32, ptr(item))
+item.set_body(box, box)
+lpt.set_body(i32, i32, ptr(ptr(item)))
 
 # constant aliases
 null = box(None)

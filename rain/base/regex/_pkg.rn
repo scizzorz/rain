@@ -1,14 +1,13 @@
 library "pcre"
 link "regex.c"
 
-let ext_compiled_match = foreign "rain_ext_pcre_compiled_match"(pcre_ptr, to_match)
-let ext_compile = foreign "rain_ext_pcre_compile"(val)
+var ext_compiled_match = foreign "rain_ext_pcre_compiled_match"(pcre_ptr, to_match)
+var ext_compile = foreign "rain_ext_pcre_compile"(val)
 
 
-let base = table
+var base = table
 base.new = func(self, pcre_ptr)
-  let ret = table :: self
-  save ret
+  save ret = table :: self
 
   ret["_pcre_ptr"] = pcre_ptr
 

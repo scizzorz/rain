@@ -1,6 +1,5 @@
 #include "core.h"
 #include "builtins.h"
-#include "util.h"
 
 #include "env/env.h"
 #include "except/except.h"

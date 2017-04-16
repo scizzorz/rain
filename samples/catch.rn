@@ -1,18 +1,18 @@
-let three = func()
+var three = func()
   panic("three!")
 
-let two = func()
-  let x = three?()
+var two = func()
+  var x = three?()
   print("two caught " $ tostr(x))
 
-let one = func()
-  catch x
+var one = func()
+  var x = catch
     two()
   print("one caught " $ tostr(x))
 
-let main = func()
+var main = func()
   print("----")
-  catch x
+  var x = catch
     print("before")
     one()
     print("after")
@@ -25,7 +25,7 @@ let main = func()
   print("main caught " $ tostr(x))
 
   print("----")
-  catch x
+  x = catch
     print("before")
     panic("obvious")
     print("after")

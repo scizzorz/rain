@@ -1,11 +1,11 @@
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'
 symbol '('
 symbol ')'
 indent
-keyword 'let'
+keyword 'var'
 name 'a'
 symbol '='
 float 3.6
@@ -37,7 +37,7 @@ symbol '('
 symbol ')'
 symbol ')'
 newline
-keyword 'let'
+keyword 'var'
 name 'b'
 symbol '='
 float 3.3

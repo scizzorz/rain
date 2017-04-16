@@ -1,4 +1,4 @@
-keyword 'let'
+keyword 'var'
 name 'add'
 symbol '='
 keyword 'func'
@@ -15,7 +15,7 @@ name 'y'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'mul'
 symbol '='
 keyword 'func'
@@ -29,7 +29,7 @@ name 'x'
 operator '*'
 name 'y'
 newline
-keyword 'let'
+keyword 'var'
 name 'apply'
 symbol '='
 keyword 'func'
@@ -51,7 +51,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'

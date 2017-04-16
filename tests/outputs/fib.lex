@@ -1,4 +1,4 @@
-keyword 'let'
+keyword 'var'
 name 'fib'
 symbol '='
 keyword 'func'
@@ -33,7 +33,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'

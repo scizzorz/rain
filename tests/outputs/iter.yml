@@ -3,18 +3,16 @@ stmts:
 - !import;1
   name: iter
   rename: null
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: r1
         rhs: !call;1
@@ -27,9 +25,9 @@ stmts:
               value: iter
             rhs: !str;1
               value: range
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: r2
         rhs: !call;1
@@ -44,9 +42,9 @@ stmts:
               value: iter
             rhs: !str;1
               value: srange
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: r3
         rhs: !call;1
@@ -61,9 +59,9 @@ stmts:
               value: iter
             rhs: !str;1
               value: srange
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: r4
         rhs: !call;1
@@ -78,6 +76,7 @@ stmts:
               value: iter
             rhs: !str;1
               value: srange
+        var: true
       - !for;3
         body: !block;2
           expr: null
@@ -184,3 +183,4 @@ stmts:
             value: d
     params: []
     rename: null
+  var: true

@@ -1,4 +1,4 @@
-let wrapper = table
+var wrapper = table
 
 wrapper.new = func(self, value)
   return {value = value} :: self
@@ -18,13 +18,13 @@ wrapper.sub = func(self, other)
 wrapper.div = func(self, other)
   return {value = self.value / other.value} :: meta(self)
 
-let main = func()
-  let a = wrapper:new(40)
-  let b = wrapper:new(8)
-  let add = a + b
-  let mul = a * b
-  let div = a / b
-  let sub = a - b
+var main = func()
+  var a = wrapper:new(40)
+  var b = wrapper:new(8)
+  var add = a + b
+  var mul = a * b
+  var div = a / b
+  var sub = a - b
   print(a)
   print(b)
   print(add)

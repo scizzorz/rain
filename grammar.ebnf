@@ -2,7 +2,7 @@ program :: (stmt NEWLINE)+ EOF
 
 block :: INDENT (stmt NEWLINE)+ DEDENT
 
-stmt :: 'let' let_prefix '=' compound
+stmt :: 'var' var_prefix '=' compound
       | 'export' NAME '=' compound
       | 'export' NAME 'as' 'foreign' (NAME | STRING)
       | 'import' import_mod ('as' NAME)?
@@ -11,8 +11,7 @@ stmt :: 'let' let_prefix '=' compound
       | 'link' STRING
       | 'library' STRING
       | if_stmt
-      | 'catch' NAME block
-      | 'for' let_prefix 'in' binexpr block
+      | 'for' var_prefix 'in' binexpr block
       | 'with' binexpr ('as' NAME (',' NAME)*)
       | 'while' binexpr block
       | 'until' binexpr block
@@ -21,7 +20,7 @@ stmt :: 'let' let_prefix '=' compound
       | 'break' ('if' binexpr)?
       | 'continue' ('if' binexpr)?
       | 'return' compound?
-      | 'save' compound
+      | 'save' (NAME '=')? compound
       | assn_prefix ('=' compound | fnargs | ':' NAME  fnargs)
 
 import_mod :: '.'? (NAME | STRING) ('.' (NAME | STRING))*
@@ -30,7 +29,7 @@ if_stmt :: 'if' binexpr block (NEWLINE 'else' (if_stmt | block))?
 
 macro_exp :: '@' NAME ('.' NAME)* ***
 
-let_prefix :: '[' let_prefix (',' let_prefix)* ']'
+var_prefix :: '[' var_prefix (',' var_prefix)* ']'
             | NAME
 
 assn_prefix :: '[' assn_prefix (',' assn_prefix)* ']'
@@ -50,6 +49,7 @@ fnparams :: '(' (NAME (',' NAME)*)? ')'
 
 compound :: macro_exp
           | 'func' (NAME | STRING)? fnparams ('->' binexpr | block)
+          | 'catch' block
           | binexpr
 
 binexpr :: unexpr (OPERATOR unexpr)*

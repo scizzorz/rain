@@ -11,7 +11,7 @@ keyword 'func'
 symbol '('
 symbol ')'
 indent
-keyword 'let'
+keyword 'var'
 name 'match'
 symbol '='
 name 'regex'
@@ -47,7 +47,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'mycompiledregex'
 symbol '='
 name 'regex'
@@ -57,7 +57,7 @@ symbol '('
 string 'a(a*)'
 symbol ')'
 newline
-keyword 'let'
+keyword 'var'
 name 'match'
 symbol '='
 name 'mycompiledregex'
@@ -91,7 +91,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'match'
 symbol '='
 name 'regex'

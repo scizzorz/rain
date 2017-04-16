@@ -1,31 +1,29 @@
 !program;1
 stmts:
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: s
         rhs: !str;1
           value: hello
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: p
         rhs: !str;1
           value: world
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: sp
         rhs: !binary;1
@@ -38,6 +36,7 @@ stmts:
           op: $
           rhs: !name;1
             value: p
+        var: true
       - !call;1
         args:
         - !name;1
@@ -45,34 +44,34 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: a
         rhs: !str;1
           value: abc
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: b
         rhs: !method;1
           args:
           - !int;1
             value: 1
-          - !call;1
-            args:
-            - !name;1
-              value: a
+          - !method;1
+            args: []
             catch: false
-            func: !name;1
+            lhs: !name;1
+              value: a
+            rhs: !str;1
               value: length
           catch: false
           lhs: !name;1
             value: a
           rhs: !str;1
             value: substring
+        var: true
       - !call;1
         args:
         - !name;1
@@ -82,3 +81,4 @@ stmts:
           value: print
     params: []
     rename: null
+  var: true

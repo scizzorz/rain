@@ -1,13 +1,13 @@
-let x = 0 # introduce new variables using 'let'
+var x = 0 # introduce new variables using 'var'
 x = true # dynamic typing - assign away!
 x = null
 x = "now I'm a string"
 
-let main = func()
-  let x = 10 # use `let` to introduce a new variable in non-global scopes
+var main = func()
+  var x = 10 # use `var` to introduce a new variable in non-global scopes
   x = true   # this x binding will shadow the global x - changing it does
   x = null   # NOT change the global variable
   x = 15
-  let y = 20
-  let z = x + y
+  var y = 20
+  var z = x + y
   print(z) # prints 35

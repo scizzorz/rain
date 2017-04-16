@@ -1,43 +1,43 @@
 import types
 import except
 
-let none = func()
+var none = func()
   print("no args")
 
-let one = func(a)
+var one = func(a)
   print("one arg")
 
-let two = func(a, b)
+var two = func(a, b)
   print("two args")
 
-let main = func()
-  let a = 1
-  let b = "str"
+var main = func()
+  var a = 1
+  var b = "str"
 
-  catch r
+  var r = catch
     a(b)
   if types.is(r, except.error)
     print(r.msg)
 
-  catch r
+  r = catch
     for x in null
       print(x)
   if types.is(r, except.error)
     print(r.msg)
 
-  catch r
+  r = catch
     none()
     none(1)
   if types.is(r, except.error)
     print(r.msg)
 
-  catch r
+  r = catch
     one(1)
     one()
   if types.is(r, except.error)
     print(r.msg)
 
-  catch r
+  r = catch
     two(1, 2)
     two(1, 2, 3)
   if types.is(r, except.error)

@@ -1,8 +1,8 @@
-let main = func()
-  let a = -3
-  let b = 3
+var main = func()
+  var a = -3
+  var b = 3
 
-  let args = table
+  var args = table
   args[0] = "zero"
   args[1] = "one"
   args.name = "John"

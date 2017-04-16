@@ -1,8 +1,6 @@
-import "types/array"
-
-let main = func()
-  print(length(env.args))
-  for arg in array.values(env.args)
+var main = func()
+  print(env.args:length())
+  for arg in env.args:values()
     print(arg)
 
   print("$RAIN_TEST = " $ env.get("RAIN_TEST"))

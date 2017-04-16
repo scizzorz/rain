@@ -1,14 +1,13 @@
 !program;1
 stmts:
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: wrapper
   rhs: !table;2 {}
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: false
   lhs: !index;1
     lhs: !name;1
       value: wrapper
@@ -33,9 +32,9 @@ stmts:
     - self
     - value
     rename: null
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: false
   lhs: !index;1
     lhs: !name;1
       value: wrapper
@@ -67,9 +66,9 @@ stmts:
     params:
     - self
     rename: null
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: false
   lhs: !index;1
     lhs: !name;1
       value: wrapper
@@ -109,9 +108,9 @@ stmts:
     - self
     - other
     rename: null
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: false
   lhs: !index;1
     lhs: !name;1
       value: wrapper
@@ -151,9 +150,9 @@ stmts:
     - self
     - other
     rename: null
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: false
   lhs: !index;1
     lhs: !name;1
       value: wrapper
@@ -193,9 +192,9 @@ stmts:
     - self
     - other
     rename: null
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: false
   lhs: !index;1
     lhs: !name;1
       value: wrapper
@@ -235,18 +234,17 @@ stmts:
     - self
     - other
     rename: null
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: a
         rhs: !method;1
@@ -258,9 +256,9 @@ stmts:
             value: wrapper
           rhs: !str;1
             value: new
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: b
         rhs: !method;1
@@ -272,9 +270,9 @@ stmts:
             value: wrapper
           rhs: !str;1
             value: new
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: add
         rhs: !binary;1
@@ -283,9 +281,9 @@ stmts:
           op: +
           rhs: !name;1
             value: b
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: mul
         rhs: !binary;1
@@ -294,9 +292,9 @@ stmts:
           op: '*'
           rhs: !name;1
             value: b
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: div
         rhs: !binary;1
@@ -305,9 +303,9 @@ stmts:
           op: /
           rhs: !name;1
             value: b
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: sub
         rhs: !binary;1
@@ -316,6 +314,7 @@ stmts:
           op: '-'
           rhs: !name;1
             value: b
+        var: true
       - !call;1
         args:
         - !name;1
@@ -360,3 +359,4 @@ stmts:
           value: print
     params: []
     rename: null
+  var: true

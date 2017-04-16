@@ -10,7 +10,7 @@ name 'name'
 symbol '='
 string 'module b'
 newline
-keyword 'let'
+keyword 'var'
 name 'init'
 symbol '='
 keyword 'func'
@@ -40,7 +40,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'

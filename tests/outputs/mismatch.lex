@@ -4,7 +4,7 @@ newline
 keyword 'import'
 name 'except'
 newline
-keyword 'let'
+keyword 'var'
 name 'none'
 symbol '='
 keyword 'func'
@@ -18,7 +18,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'one'
 symbol '='
 keyword 'func'
@@ -33,7 +33,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'two'
 symbol '='
 keyword 'func'
@@ -50,25 +50,27 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'
 symbol '('
 symbol ')'
 indent
-keyword 'let'
+keyword 'var'
 name 'a'
 symbol '='
 int 1
 newline
-keyword 'let'
+keyword 'var'
 name 'b'
 symbol '='
 string 'str'
 newline
-keyword 'catch'
+keyword 'var'
 name 'r'
+symbol '='
+keyword 'catch'
 indent
 name 'a'
 symbol '('
@@ -98,8 +100,9 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'catch'
 name 'r'
+symbol '='
+keyword 'catch'
 indent
 keyword 'for'
 name 'x'
@@ -136,8 +139,9 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'catch'
 name 'r'
+symbol '='
+keyword 'catch'
 indent
 name 'none'
 symbol '('
@@ -171,8 +175,9 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'catch'
 name 'r'
+symbol '='
+keyword 'catch'
 indent
 name 'one'
 symbol '('
@@ -206,8 +211,9 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'catch'
 name 'r'
+symbol '='
+keyword 'catch'
 indent
 name 'two'
 symbol '('

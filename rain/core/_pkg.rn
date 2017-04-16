@@ -1,12 +1,12 @@
 link "./builtins.c"
 link "./core.c"
-link "./util.c"
 
 link "./ops/ops.c"
 link "./set/set.c"
 link "./trace/trace.c"
 link "./table/table.c"
 
+library "gcc_s"
 library "gc"
 library "unwind"
 
@@ -14,10 +14,9 @@ import .env
 import .except
 import .types
 
-let exit    = foreign "rain_ext_exit"(val)
-let length  = foreign "rain_ext_length"(val)
-let meta    = foreign "rain_ext_meta"(val)
-let panic   = foreign "rain_ext_throw"(val)
-let print   = foreign "rain_ext_print"(val)
-let to_str  = foreign "rain_ext_to_str"(val)
-let type    = foreign "rain_ext_type"(val)
+var exit    = foreign "rain_ext_exit"(val)
+var meta    = foreign "rain_ext_meta"(val)
+var panic   = foreign "rain_ext_throw"(val)
+var print   = foreign "rain_ext_print"(val)
+var to_str  = foreign "rain_ext_to_str"(val)
+var type    = foreign "rain_ext_type"(val)

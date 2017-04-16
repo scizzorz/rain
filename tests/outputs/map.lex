@@ -4,7 +4,7 @@ newline
 keyword 'import'
 name 'iter'
 newline
-keyword 'let'
+keyword 'var'
 name 'double'
 symbol '='
 keyword 'func'
@@ -16,14 +16,14 @@ name 'n'
 operator '*'
 int 2
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'
 symbol '('
 symbol ')'
 indent
-keyword 'let'
+keyword 'var'
 name 'a'
 symbol '='
 symbol '['
@@ -106,7 +106,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'b'
 symbol '='
 name 'a'

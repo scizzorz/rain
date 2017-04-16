@@ -1,4 +1,4 @@
-keyword 'let'
+keyword 'var'
 name 'rect'
 symbol '='
 'table'
@@ -66,7 +66,7 @@ name 'h'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'square'
 symbol '='
 'table'
@@ -98,14 +98,14 @@ name 's'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'
 symbol '('
 symbol ')'
 indent
-keyword 'let'
+keyword 'var'
 name 'a'
 symbol '='
 name 'rect'
@@ -132,7 +132,7 @@ symbol '('
 symbol ')'
 symbol ')'
 newline
-keyword 'let'
+keyword 'var'
 name 'b'
 symbol '='
 name 'square'

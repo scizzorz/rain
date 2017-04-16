@@ -1,4 +1,4 @@
-keyword 'let'
+keyword 'var'
 name 'swap'
 symbol '='
 keyword 'func'
@@ -8,7 +8,7 @@ symbol ','
 name 'b'
 symbol ')'
 indent
-keyword 'let'
+keyword 'var'
 name 'c'
 symbol '='
 name 'a'
@@ -33,19 +33,19 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'
 symbol '('
 symbol ')'
 indent
-keyword 'let'
+keyword 'var'
 name 'a'
 symbol '='
 int 1
 newline
-keyword 'let'
+keyword 'var'
 name 'b'
 symbol '='
 int 2

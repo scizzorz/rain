@@ -27,9 +27,8 @@ stmts:
   types:
   - expr
   - block
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: test
   rhs: !func;2
@@ -75,9 +74,9 @@ stmts:
     params:
     - n
     rename: null
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
@@ -107,3 +106,4 @@ stmts:
           value: print
     params: []
     rename: null
+  var: true

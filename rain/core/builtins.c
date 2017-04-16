@@ -4,41 +4,20 @@
 #include <string.h>
 
 
-int rain_array_length(box *table) {
-  int length = 0;
-  box i_box;
-
-  rain_set_int(&i_box, 0);
-  while(rain_has(table, &i_box)) {
-    i_box.data.si++;
-  }
-
-  return i_box.data.si;
-}
-
 void rain_print(box *val) {
   if(BOX_IS(val, STR)) {
     printf("%.*s\n", val->size, val->data.s);
   }
   else {
     box ret;
+    rain_set_null(&ret);
     rain_ext_to_str(&ret, val);
     printf("%.*s\n", ret.size, ret.data.s);
   }
 }
 
-
 void rain_ext_exit(box *ret, box *val) {
   exit(rain_box_to_exit(val));
-}
-
-void rain_ext_length(box *ret, box *val) {
-  if(BOX_IS(val, STR) || BOX_IS(val, FUNC)) {
-    rain_set_int(ret, val->size);
-  }
-  else if(BOX_IS(val, TABLE)) {
-    rain_set_int(ret, rain_array_length(val));
-  }
 }
 
 void rain_ext_meta(box *ret, box *val) {
@@ -84,9 +63,13 @@ void rain_ext_to_str(box *ret, box *val) {
 
     case ITYP_TABLE:
       rain_set_str(&key, "str");
+      rain_set_null(&to_str);
       rain_get(&to_str, val, &key);
       if(BOX_IS(&to_str, FUNC) && to_str.size == 1) {
         void (*func_ptr)(box *, box *) = (void (*)(box *, box *))(to_str.data.vp);
+        if(to_str.env != NULL) {
+          rain_set_box(ret, to_str.env);
+        }
         func_ptr(ret, val);
         break;
       }

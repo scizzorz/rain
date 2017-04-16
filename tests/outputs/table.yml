@@ -1,23 +1,21 @@
 !program;1
 stmts:
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: f
         rhs: !table;2 {}
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: false
         lhs: !index;1
           lhs: !name;1
             value: f
@@ -25,9 +23,9 @@ stmts:
             value: nottrue
         rhs: !bool;1
           value: false
-      - !assn;2
+        var: false
+      - !assn;3
         export: false
-        let: false
         lhs: !index;1
           lhs: !name;1
             value: f
@@ -35,9 +33,9 @@ stmts:
             value: one
         rhs: !int;1
           value: 1
-      - !assn;2
+        var: false
+      - !assn;3
         export: false
-        let: false
         lhs: !index;1
           lhs: !name;1
             value: f
@@ -45,9 +43,9 @@ stmts:
             value: ten
         rhs: !float;1
           value: 10.0
-      - !assn;2
+        var: false
+      - !assn;3
         export: false
-        let: false
         lhs: !index;1
           lhs: !name;1
             value: f
@@ -55,6 +53,7 @@ stmts:
             value: number
         rhs: !str;1
           value: one
+        var: false
       - !call;1
         args:
         - !index;1
@@ -90,3 +89,4 @@ stmts:
           value: print
     params: []
     rename: null
+  var: true

@@ -1,7 +1,6 @@
 # Create separate print statements for each expression
 macro print_all(args) as (args)
-  let block = ast.block:empty()
-  save block
+  save block = ast.block:empty()
 
   for arg in args:values()
     block:add(ast.rain.print:call([arg]))
@@ -19,36 +18,34 @@ macro catchcall(expr, argblock) as (fn, args)
 
 # Destructures a dictionary
 macro match(expr, expr) as (lhs, rhs)
-  let block = ast.block:empty()
-  save block
+  save block = ast.block:empty()
 
-  let value = ast.name:new(gensym())
-  block:add(value:_let(rhs))
+  var value = ast.name:new(gensym())
+  block:add(value:_var(rhs))
 
   for item in lhs.items:values()
-    let name = item[0] :: ast.name
-    let index = item[1] :: ast.str
-    let val = value:idx(index)
-    block:add(name:_let(val))
+    var name = item[0] :: ast.name
+    var index = item[1] :: ast.str
+    var val = value:idx(index)
+    block:add(name:_var(val))
 
 
 # Creates a switch/case-like control flow
-macro case(expr, argblock) as (var, cases)
-  let block = ast.block:empty()
-  save block
+macro case(expr, argblock) as (expr, cases)
+  save block = ast.block:empty()
 
-  let caseval = ast.name:new(gensym())
-  let retval = ast.name:new(gensym())
+  var caseval = ast.name:new(gensym())
+  var retval = ast.name:new(gensym())
   block.expr = retval
-  block:add(caseval:_let(var))
-  block:add(retval:_let(ast._null))
+  block:add(caseval:_var(expr))
+  block:add(retval:_var(ast._null))
 
-  let cur = null
+  var cur = null
 
   for stmt in cases:values()
     continue if stmt.op != "->"
-    let cmp = ast._binary:new(caseval, stmt.lhs, "==")
-    let ifs = cmp:_if(retval:assn(stmt.rhs), null)
+    var cmp = ast._binary:new(caseval, stmt.lhs, "==")
+    var ifs = cmp:_if(retval:assn(stmt.rhs), null)
 
     if stmt.lhs.tag == "name" & stmt.lhs.value == ""
       ifs = ifs.body

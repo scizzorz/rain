@@ -1,9 +1,9 @@
-let main = func()
-  let s = "hello"
-  let p = "world"
-  let sp = s $ " " $ p
+var main = func()
+  var s = "hello"
+  var p = "world"
+  var sp = s $ " " $ p
   print(sp)
 
-  let a = "abc"
-  let b = a:substring(1, length(a))
+  var a = "abc"
+  var b = a:substring(1, a:length())
   print(b)

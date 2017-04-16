@@ -1,14 +1,13 @@
 !program;1
 stmts:
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: rect
   rhs: !table;2 {}
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: false
   lhs: !index;1
     lhs: !name;1
       value: rect
@@ -27,9 +26,9 @@ stmts:
     params:
     - self
     rename: null
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: false
   lhs: !index;1
     lhs: !name;1
       value: rect
@@ -39,9 +38,8 @@ stmts:
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: false
         lhs: !index;1
           lhs: !name;1
             value: self
@@ -49,9 +47,9 @@ stmts:
             value: w
         rhs: !name;1
           value: w
-      - !assn;2
+        var: false
+      - !assn;3
         export: false
-        let: false
         lhs: !index;1
           lhs: !name;1
             value: self
@@ -59,14 +57,15 @@ stmts:
             value: h
         rhs: !name;1
           value: h
+        var: false
     params:
     - self
     - w
     - h
     rename: null
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: false
   lhs: !index;1
     lhs: !name;1
       value: rect
@@ -92,9 +91,9 @@ stmts:
     params:
     - self
     rename: null
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: square
   rhs: !binary;1
@@ -102,9 +101,9 @@ stmts:
     op: '::'
     rhs: !name;1
       value: rect
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: false
   lhs: !index;1
     lhs: !name;1
       value: square
@@ -114,9 +113,8 @@ stmts:
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: false
         lhs: !index;1
           lhs: !name;1
             value: self
@@ -124,9 +122,9 @@ stmts:
             value: w
         rhs: !name;1
           value: s
-      - !assn;2
+        var: false
+      - !assn;3
         export: false
-        let: false
         lhs: !index;1
           lhs: !name;1
             value: self
@@ -134,22 +132,22 @@ stmts:
             value: h
         rhs: !name;1
           value: s
+        var: false
     params:
     - self
     - s
     rename: null
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: a
         rhs: !method;1
@@ -159,6 +157,7 @@ stmts:
             value: rect
           rhs: !str;1
             value: new
+        var: true
       - !method;1
         args:
         - !int;1
@@ -182,9 +181,8 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: b
         rhs: !method;1
@@ -194,6 +192,7 @@ stmts:
             value: square
           rhs: !str;1
             value: new
+        var: true
       - !method;1
         args:
         - !int;1
@@ -217,3 +216,4 @@ stmts:
           value: print
     params: []
     rename: null
+  var: true

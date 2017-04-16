@@ -1,5 +1,5 @@
-let main = func()
-  let n = 0
+var main = func()
+  var n = 0
 
   while n < 10 # a traditional while loop
     print(n)

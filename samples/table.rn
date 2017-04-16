@@ -1,5 +1,5 @@
-let main = func()
-  let f = table # tables are the only composite data structure
+var main = func()
+  var f = table # tables are the only composite data structure
   f.not_true = false
   f.one = 1
   f.ten = 10.0

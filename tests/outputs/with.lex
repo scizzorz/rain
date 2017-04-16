@@ -1,4 +1,4 @@
-keyword 'let'
+keyword 'var'
 name 'ctx0'
 symbol '='
 keyword 'func'
@@ -22,7 +22,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'ctx1'
 symbol '='
 keyword 'func'
@@ -52,7 +52,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'ctx2'
 symbol '='
 keyword 'func'
@@ -86,7 +86,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'let'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'

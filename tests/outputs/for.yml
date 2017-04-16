@@ -1,21 +1,20 @@
 !program;1
 stmts:
-- !assn;2
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: range
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: i
         rhs: !int;1
           value: 0
+        var: true
       - !return;1
         value: !func;2
           body: !block;2
@@ -34,12 +33,12 @@ stmts:
                 op: ==
                 rhs: !name;1
                   value: n
-            - !save;1
+            - !save;2
+              name: null
               value: !name;1
                 value: i
-            - !assn;2
+            - !assn;3
               export: false
-              let: false
               lhs: !name;1
                 value: i
               rhs: !binary;1
@@ -48,14 +47,15 @@ stmts:
                 op: +
                 rhs: !int;1
                   value: 1
+              var: false
           params: []
           rename: null
     params:
     - n
     rename: null
-- !assn;2
+  var: true
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
@@ -98,3 +98,4 @@ stmts:
           value: i
     params: []
     rename: null
+  var: true

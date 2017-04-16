@@ -59,12 +59,12 @@ class macro:
     gensym = A.name_node('gensym')
     tostr = A.name_node('tostr')
 
-    A.assn_node(symcount, A.int_node(0), let=True).emit(mod)
+    A.assn_node(symcount, A.int_node(0), var=True).emit(mod)
     A.assn_node(gensym, A.func_node([], A.block_node([
       A.save_node(A.binary_node(A.str_node(':{}:'.format(self.name)),
                                 A.call_node(tostr, [symcount]), '$')),
       A.assn_node(symcount, A.binary_node(symcount, A.int_node(1), '+'))
-    ])), let=True).emit(mod)
+    ])), var=True).emit(mod)
 
     node.expand(mod, self.name)
 
@@ -216,7 +216,7 @@ def block(ctx):
   return A.block_node(stmts)
 
 
-# stmt :: 'let' let_prefix '=' compound
+# stmt :: 'var' var_prefix '=' compound
 #       | 'export' NAME '=' compound
 #       | 'export' NAME 'as' 'foreign' (NAME | STRING)
 #       | 'import' import_mod ('as' NAME)?
@@ -225,8 +225,7 @@ def block(ctx):
 #       | 'link' STRING
 #       | 'library' STRING
 #       | if_stmt
-#       | 'catch' NAME block
-#       | 'for' let_prefix 'in' binexpr block
+#       | 'for' var_prefix 'in' binexpr block
 #       | 'with' binexpr ('as' NAME (',' NAME)*)
 #       | 'while' binexpr block
 #       | 'until' binexpr block
@@ -235,14 +234,14 @@ def block(ctx):
 #       | 'break' ('if' binexpr)?
 #       | 'continue' ('if' binexpr)?
 #       | 'return' compound?
-#       | 'save' compound
+#       | 'save' (NAME '=')? compound
 #       | assn_prefix ('=' compound | fnargs | ':' NAME  fnargs)
 def stmt(ctx):
-  if ctx.consume(K.keyword_token('let')):
-    lhs = let_prefix(ctx)
+  if ctx.consume(K.keyword_token('var')):
+    lhs = var_prefix(ctx)
     ctx.require(K.symbol_token('='))
     rhs = compound(ctx)
-    return A.assn_node(lhs, rhs, let=True)
+    return A.assn_node(lhs, rhs, var=True)
 
   if ctx.consume(K.keyword_token('export')):
     name = ctx.require(K.name_token).value
@@ -322,7 +321,9 @@ def stmt(ctx):
 
   if ctx.consume(K.keyword_token('link')):
     name = ctx.require(K.string_token).value
-    return A.link_node(name)
+    node = A.link_node(name)
+    node.coords = ctx.past[-1]
+    return node
 
   if ctx.consume(K.keyword_token('library')):
     name = ctx.require(K.string_token).value
@@ -331,13 +332,8 @@ def stmt(ctx):
   if ctx.expect(K.keyword_token('if')):
     return if_stmt(ctx)
 
-  if ctx.consume(K.keyword_token('catch')):
-    name = ctx.require(K.name_token).value
-    body = block(ctx)
-    return A.catch_node(name, body)
-
   if ctx.consume(K.keyword_token('for')):
-    name = let_prefix(ctx)
+    name = var_prefix(ctx)
     ctx.require(K.keyword_token('in'))
     func = binexpr(ctx)
     body = block(ctx)
@@ -391,14 +387,19 @@ def stmt(ctx):
     return A.return_node(compound(ctx))
 
   if ctx.consume(K.keyword_token('save')):
-    return A.save_node(compound(ctx))
+    val = compound(ctx)
+    if isinstance(val, A.name_node) and ctx.consume(K.symbol_token('=')):
+      rhs = compound(ctx)
+      return A.save_node(rhs, name=val.value)
+
+    return A.save_node(val)
 
   lhs = assn_prefix(ctx)
 
   if isinstance(lhs, (A.name_node, A.idx_node, list)):
     if ctx.consume(K.symbol_token('=')):
       rhs = compound(ctx)
-      return A.assn_node(lhs, rhs, let=False)
+      return A.assn_node(lhs, rhs, var=False)
 
   if ctx.expect(K.symbol_token('(')):
     pos = ctx.token.pos(file=ctx.file)
@@ -471,15 +472,15 @@ def macro_exp(ctx):
   return res
 
 
-# let_prefix :: '[' let_prefix (',' let_prefix)* ']'
+# var_prefix :: '[' var_prefix (',' var_prefix)* ']'
 #             | NAME
-def let_prefix(ctx):
+def var_prefix(ctx):
   if ctx.consume(K.symbol_token('[')):
     lst = []
-    lst.append(let_prefix(ctx))
+    lst.append(var_prefix(ctx))
     while not ctx.consume(K.symbol_token(']')):
       ctx.require(K.symbol_token(','))
-      lst.append(let_prefix(ctx))
+      lst.append(var_prefix(ctx))
 
     return lst
 
@@ -618,6 +619,7 @@ def fnparams(ctx, parens=True, tokens=[K.name_token]):
 
 # compound :: macro_exp
 #           | 'func' (NAME | STRING)? fnparams ('->' binexpr | block)
+#           | 'catch' block
 #           | binexpr
 def compound(ctx):
   if ctx.expect(K.symbol_token('@')):
@@ -636,6 +638,10 @@ def compound(ctx):
 
     body = block(ctx)
     return A.func_node(params, body, rename)
+
+  if ctx.consume(K.keyword_token('catch')):
+    body = block(ctx)
+    return A.catch_node(body)
 
   return binexpr(ctx)
 

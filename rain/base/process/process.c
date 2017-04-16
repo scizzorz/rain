@@ -14,21 +14,31 @@ void rain_ext_process_output(box *ret, box *command) {
     return;
   }
 
-  /* create the cmd array to pass to exec */
+  box key;
+  box val;
 
-  int cmd_len = rain_array_length(command);
-
-  if (cmd_len == 0) {
-    return;
+  // find out how many parameters we have
+  int len = 0;
+  while(1) {
+    rain_set_null(&val);
+    rain_set_int(&key, len);
+    rain_get(&val, command, &key);
+    if(BOX_ISNT(&val, STR)) {
+      break;
+    }
+    len++;
   }
 
-  char **strs = rain_table_str_array_gather(command, cmd_len);
+  // pack the parameters into a char**
+  char **cmd = GC_malloc(sizeof(char*) * len);
 
-  char **cmd = GC_malloc(sizeof(char*)*(cmd_len+1));
-  for(int i = 0; i < cmd_len; ++i) {
-    cmd[i] = strs[i];
+  for(int i=0; i<len; i++) {
+    rain_set_int(&key, i);
+    rain_get(&val, command, &key);
+    cmd[i] = val.data.s;
   }
-  cmd[cmd_len] = (char*)0;
+
+  cmd[len] = (char*)0;
 
   /* fork a child to execute the command and read the output in the parent */
   /* only stdout is read */
@@ -50,8 +60,8 @@ void rain_ext_process_output(box *ret, box *command) {
     return;
   }
 
+  // child
   if(pid == 0) {
-    /* child */
     dup2(link[1], STDOUT_FILENO);
     close(link[0]);
     close(link[1]);
@@ -59,8 +69,10 @@ void rain_ext_process_output(box *ret, box *command) {
     execvp(cmd[0], cmd);
 
     return;
-  } else {
-    /* parent */
+  }
+
+  // parent
+  else {
     close(link[1]);
 
     int n = 0;

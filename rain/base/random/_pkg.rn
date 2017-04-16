@@ -1,7 +1,7 @@
 link "random.c"
 
-let rand  = foreign "rain_ext_rand"()
-let srand = foreign "rain_ext_srand"(val)
+var rand  = foreign "rain_ext_rand"()
+var srand = foreign "rain_ext_srand"(val)
 
 export seed = 0
 export next = func(self)

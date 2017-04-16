@@ -1,6 +1,6 @@
 # a trivial OO example using metatables
 
-let rect = table
+var rect = table
 rect.new = func(self)
   return table :: self   # a new instance of this object
 
@@ -11,16 +11,16 @@ rect.init = func(self, w, h)
 rect.area = func(self)
   return self.w * self.h
 
-let square = table :: rect    # inherits from rect
+var square = table :: rect    # inherits from rect
 square.init = func(self, s) # overrides rect.init
   self.w = s
   self.h = s
 
-let main = func()
-  let a = rect:new() # a:b() is syntactic sugar for a.b(a), except a is only evaluated once
+var main = func()
+  var a = rect:new() # a:b() is syntactic sugar for a.b(a), except a is only evaluated once
   a:init(3, 4)       # init isn't found in A, so it looks up the metatable list and finds rect.init
   print(a:area())    # area also looks up the metatable list
 
-  let b = square:new()
+  var b = square:new()
   b:init(4)          # square is earlier in the metatable list, so it's found first
   print(b:area())    # but square has no area, so it continues up the list

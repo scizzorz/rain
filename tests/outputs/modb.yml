@@ -3,23 +3,22 @@ stmts:
 - !import;1
   name: moda
   rename: null
-- !assn;2
+- !assn;3
   export: true
-  let: false
   lhs: !name;1
     value: name
   rhs: !str;1
     value: my bad
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: false
   lhs: !name;1
     value: name
   rhs: !str;1
     value: module b
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: init
   rhs: !func;2
@@ -35,9 +34,9 @@ stmts:
           value: print
     params: []
     rename: null
-- !assn;2
+  var: true
+- !assn;3
   export: true
-  let: false
   lhs: !name;1
     value: test
   rhs: !func;2
@@ -57,9 +56,9 @@ stmts:
           value: print
     params: []
     rename: null
-- !assn;2
+  var: false
+- !assn;3
   export: false
-  let: true
   lhs: !name;1
     value: main
   rhs: !func;2
@@ -86,9 +85,8 @@ stmts:
         catch: false
         func: !name;1
           value: test
-      - !assn;2
+      - !assn;3
         export: false
-        let: false
         lhs: !index;1
           lhs: !name;1
             value: moda
@@ -96,13 +94,14 @@ stmts:
             value: name
         rhs: !str;1
           value: new a module
-      - !assn;2
+        var: false
+      - !assn;3
         export: false
-        let: false
         lhs: !name;1
           value: name
         rhs: !str;1
           value: new b module
+        var: false
       - !call;1
         args: []
         catch: false
@@ -118,3 +117,4 @@ stmts:
           value: test
     params: []
     rename: null
+  var: true

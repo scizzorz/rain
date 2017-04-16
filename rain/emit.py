@@ -23,7 +23,7 @@ def flatten(items):
 @A.program_node.method
 def emit(self, module):
   module.exports = module.add_global(T.box, name=module.mangle('exports'))
-  module.exports.initializer = module.static.alloc(name=module.mangle('exports.table'))
+  module.exports.initializer = module.static.new_table(name=module.mangle('exports.table'))
 
   for stmt in self.stmts:
     module.emit(stmt)
@@ -75,9 +75,9 @@ def emit_global(self, module):
     if self.export:
       table_box = module.exports.initializer
       key_node = A.str_node(self.lhs.value)
-      module[self.lhs.value] = module.static.get_box_ptr(table_box, key_node)
+      module.store_global(T.null, self.lhs.value)
 
-    if self.let:
+    if self.var:
       module[self.lhs] = module.find_global(T.box, name=module.mangle(self.lhs.value))
       module[self.lhs].linkage = ''  # make sure we know it's visible here
 
@@ -105,7 +105,7 @@ def emit_local(self, module):
     # store everything
     for lhs, rhs in zip(flat_lhs, flat_rhs):
       if isinstance(lhs, A.name_node):
-        if self.let:
+        if self.var:
           with module.goto_entry():
             module[lhs] = module.alloc()
             module[lhs].bound = False
@@ -123,7 +123,7 @@ def emit_local(self, module):
         module.runtime.put(*args)
 
   elif isinstance(self.lhs, A.name_node):
-    if self.let:
+    if self.var:
       with module.goto_entry():
         module[self.lhs] = module.alloc()
         module[self.lhs].bound = False  # cheesy hack - see @func_node
@@ -216,6 +216,8 @@ def emit(self, module):
 def emit(self, module):
   base, name = os.path.split(module.file)
   file = M.find_file(self.name, paths=[base])
+  if not file:
+    Q.abort("Can't find link {!r}", self.name, pos=self.coords)
   module.links.add(file)
 
 
@@ -265,6 +267,9 @@ def emit_local(self, module):
 
 @A.save_node.method
 def emit_local(self, module):
+  if self.name:
+    module[self.name] = module.ret_ptr
+
   module.store(module.emit(self.value), module.ret_ptr)
 
 
@@ -388,7 +393,7 @@ def emit(self, module):
 @A.catch_node.method
 def emit(self, module):
   with module.goto_entry():
-    ret_ptr = module[self.name] = module.alloc(T.null, name='exc_var')
+    ret_ptr = module.alloc(T.null, name='exc_var')
 
   end = module.builder.append_basic_block('end_catch')
 
@@ -398,6 +403,7 @@ def emit(self, module):
 
   module.builder.branch(end)
   module.builder.position_at_end(end)
+  return module.load(ret_ptr)
 
 
 # Simple expressions ##########################################################
@@ -446,7 +452,7 @@ def emit(self, module):
 
 @A.table_node.method
 def emit_global(self, module):
-  return module.static.alloc(module.uniq('table'))
+  return module.static.new_table(module.uniq('table_lit'))
 
 
 @A.table_node.method
@@ -457,7 +463,7 @@ def emit_local(self, module):
 
 @A.array_node.method
 def emit_global(self, module):
-  table_box = module.static.alloc(module.uniq('array'))
+  table_box = module.static.new_table(module.uniq('array'))
 
   for i, item in enumerate(self.items):
     key_node = A.int_node(i)
@@ -487,7 +493,7 @@ def emit_local(self, module):
 
 @A.dict_node.method
 def emit_global(self, module):
-  table_box = module.static.alloc(module.uniq('array'))
+  table_box = module.static.new_table(module.uniq('array'))
 
   for key, item in self.items:
     key_node = key
@@ -661,7 +667,9 @@ def emit_local(self, module):
   val = module.emit(self.val)
 
   ret_ptr, arg = module.fnalloc(T.null, val)
-  arith[self.op](ret_ptr, arg)
+
+  with module.trace(self.coords):
+    arith[self.op](ret_ptr, arg)
 
   return module.load(ret_ptr)
 
@@ -730,7 +738,9 @@ def emit_local(self, module):
     rhs = module.emit(self.rhs)
 
     ret_ptr, *args = module.fnalloc(T.null, lhs, rhs)
-    arith[self.op](ret_ptr, *args)
+
+    with module.trace(self.coords):
+      arith[self.op](ret_ptr, *args)
 
     return module.load(ret_ptr)
 

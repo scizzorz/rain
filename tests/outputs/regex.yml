@@ -6,18 +6,16 @@ stmts:
 - !import;1
   name: types/array
   rename: null
-- !assn;2
+- !assn;3
   export: true
-  let: false
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: match
         rhs: !call;1
@@ -32,6 +30,7 @@ stmts:
               value: regex
             rhs: !str;1
               value: match
+        var: true
       - !call;1
         args:
         - !index;1
@@ -65,9 +64,8 @@ stmts:
               value: values
         name: !name;1
           value: m
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: mycompiledregex
         rhs: !call;1
@@ -80,9 +78,9 @@ stmts:
               value: regex
             rhs: !str;1
               value: compile
-      - !assn;2
+        var: true
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: match
         rhs: !method;1
@@ -94,6 +92,7 @@ stmts:
             value: mycompiledregex
           rhs: !str;1
             value: match
+        var: true
       - !call;1
         args:
         - !index;1
@@ -127,9 +126,8 @@ stmts:
               value: values
         name: !name;1
           value: m
-      - !assn;2
+      - !assn;3
         export: false
-        let: true
         lhs: !name;1
           value: match
         rhs: !call;1
@@ -144,6 +142,7 @@ stmts:
               value: regex
             rhs: !str;1
               value: match
+        var: true
       - !call;1
         args:
         - !index;1
@@ -156,3 +155,4 @@ stmts:
           value: print
     params: []
     rename: null
+  var: false
