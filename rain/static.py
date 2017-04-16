@@ -38,9 +38,6 @@ class Static:
       Q.abort('Global value is opaque')
 
     arr_ptr = lpt_ptr.arr_ptr
-    item = self.module.add_global(T.item)
-    item.initializer = T.item([T.i32(1), key, val])
-    item.initializer.key = key_node
 
     cur = lpt_ptr.initializer.constant[0].constant
     max = lpt_ptr.initializer.constant[1].constant
@@ -49,17 +46,22 @@ class Static:
     idx = self.idx(table_box, key_node)
     if not isinstance(items[idx], ir.GlobalVariable):
       cur += 1
+      items[idx] = self.module.add_global(T.item)
+      items[idx].initializer = T.item([T.i32(1), key, val])
+      items[idx].initializer.key = key_node
+    else:
+      items[idx].initializer = T.item([T.i32(1), key, val])
+      items[idx].initializer.key = key_node
 
     # TODO resize if cur > max / 2! currently, it infinite loops.
 
-    items[idx] = item
     arr_ptr.initializer = arr_ptr.value_type(items)
     arr_gep = arr_ptr.gep([T.i32(0), T.i32(0)])
 
     lpt_ptr.initializer = lpt_ptr.value_type([T.i32(cur), T.i32(max), arr_gep])
     lpt_ptr.arr_ptr = arr_ptr
 
-    ret = item.gep([T.i32(0), T.i32(2)])
+    ret = items[idx].gep([T.i32(0), T.i32(2)])
     return ret
 
 
