@@ -393,7 +393,7 @@ def emit(self, module):
 @A.catch_node.method
 def emit(self, module):
   with module.goto_entry():
-    ret_ptr = module[self.name] = module.alloc(T.null, name='exc_var')
+    ret_ptr = module.alloc(T.null, name='exc_var')
 
   end = module.builder.append_basic_block('end_catch')
 
@@ -403,6 +403,7 @@ def emit(self, module):
 
   module.builder.branch(end)
   module.builder.position_at_end(end)
+  return module.load(ret_ptr)
 
 
 # Simple expressions ##########################################################

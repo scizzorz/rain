@@ -225,7 +225,6 @@ def block(ctx):
 #       | 'link' STRING
 #       | 'library' STRING
 #       | if_stmt
-#       | 'catch' NAME block
 #       | 'for' var_prefix 'in' binexpr block
 #       | 'with' binexpr ('as' NAME (',' NAME)*)
 #       | 'while' binexpr block
@@ -332,11 +331,6 @@ def stmt(ctx):
 
   if ctx.expect(K.keyword_token('if')):
     return if_stmt(ctx)
-
-  if ctx.consume(K.keyword_token('catch')):
-    name = ctx.require(K.name_token).value
-    body = block(ctx)
-    return A.catch_node(name, body)
 
   if ctx.consume(K.keyword_token('for')):
     name = var_prefix(ctx)
@@ -625,6 +619,7 @@ def fnparams(ctx, parens=True, tokens=[K.name_token]):
 
 # compound :: macro_exp
 #           | 'func' (NAME | STRING)? fnparams ('->' binexpr | block)
+#           | 'catch' block
 #           | binexpr
 def compound(ctx):
   if ctx.expect(K.symbol_token('@')):
@@ -643,6 +638,10 @@ def compound(ctx):
 
     body = block(ctx)
     return A.func_node(params, body, rename)
+
+  if ctx.consume(K.keyword_token('catch')):
+    body = block(ctx)
+    return A.catch_node(body)
 
   return binexpr(ctx)
 

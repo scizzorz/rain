@@ -131,11 +131,10 @@ class break_node(node):
 
 class catch_node(node):
   __tag__ = 'catch'
-  __version__ = 1
-  __slots__ = ['name', 'body']
+  __version__ = 2
+  __slots__ = ['body']
 
-  def __init__(self, name, body):
-    self.name = name
+  def __init__(self, body):
     self.body = body
 
 

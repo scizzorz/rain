@@ -81,16 +81,6 @@ _break.new = func(self, cond)
   ret.cond = cond
 
 
-export _catch = table :: node
-
-_catch.tag = "catch"
-_catch.slots = ["name", "body"]
-_catch.new = func(self, name, body)
-  save ret = table :: self
-  ret.name = name
-  ret.body = body
-
-
 export _cont = table :: node
 
 _cont.tag = "continue"
@@ -295,6 +285,15 @@ _func.new = func(self, params, body, rename)
   ret.params = params
   ret.body = body
   ret.rename = rename
+
+
+export _catch = table :: expression_node
+
+_catch.tag = "catch"
+_catch.slots = ["body"]
+_catch.new = func(self, body)
+  save ret = table :: self
+  ret.body = body
 
 
 export _foreign = table :: expression_node

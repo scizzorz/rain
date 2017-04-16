@@ -14,30 +14,30 @@ var main = func()
   var a = 1
   var b = "str"
 
-  catch r
+  var r = catch
     a(b)
   if types.is(r, except.error)
     print(r.msg)
 
-  catch r
+  r = catch
     for x in null
       print(x)
   if types.is(r, except.error)
     print(r.msg)
 
-  catch r
+  r = catch
     none()
     none(1)
   if types.is(r, except.error)
     print(r.msg)
 
-  catch r
+  r = catch
     one(1)
     one()
   if types.is(r, except.error)
     print(r.msg)
 
-  catch r
+  r = catch
     two(1, 2)
     two(1, 2, 3)
   if types.is(r, except.error)

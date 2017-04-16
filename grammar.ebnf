@@ -11,7 +11,6 @@ stmt :: 'var' var_prefix '=' compound
       | 'link' STRING
       | 'library' STRING
       | if_stmt
-      | 'catch' NAME block
       | 'for' var_prefix 'in' binexpr block
       | 'with' binexpr ('as' NAME (',' NAME)*)
       | 'while' binexpr block
@@ -50,6 +49,7 @@ fnparams :: '(' (NAME (',' NAME)*)? ')'
 
 compound :: macro_exp
           | 'func' (NAME | STRING)? fnparams ('->' binexpr | block)
+          | 'catch' block
           | binexpr
 
 binexpr :: unexpr (OPERATOR unexpr)*
