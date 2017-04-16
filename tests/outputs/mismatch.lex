@@ -67,8 +67,10 @@ name 'b'
 symbol '='
 string 'str'
 newline
-keyword 'catch'
+keyword 'var'
 name 'r'
+symbol '='
+keyword 'catch'
 indent
 name 'a'
 symbol '('
@@ -98,8 +100,9 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'catch'
 name 'r'
+symbol '='
+keyword 'catch'
 indent
 keyword 'for'
 name 'x'
@@ -136,8 +139,9 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'catch'
 name 'r'
+symbol '='
+keyword 'catch'
 indent
 name 'none'
 symbol '('
@@ -171,8 +175,9 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'catch'
 name 'r'
+symbol '='
+keyword 'catch'
 indent
 name 'one'
 symbol '('
@@ -206,8 +211,9 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'catch'
 name 'r'
+symbol '='
+keyword 'catch'
 indent
 name 'two'
 symbol '('

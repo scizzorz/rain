@@ -63,16 +63,20 @@ stmts:
     body: !block;2
       expr: null
       stmts:
-      - !catch;1
-        body: !block;2
-          expr: null
-          stmts:
-          - !call;1
-            args: []
-            catch: false
-            func: !name;1
-              value: two
-        name: x
+      - !assn;3
+        export: false
+        lhs: !name;1
+          value: x
+        rhs: !catch;2
+          body: !block;2
+            expr: null
+            stmts:
+            - !call;1
+              args: []
+              catch: false
+              func: !name;1
+                value: two
+        var: true
       - !call;1
         args:
         - !binary;1
@@ -107,30 +111,34 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !catch;1
-        body: !block;2
-          expr: null
-          stmts:
-          - !call;1
-            args:
-            - !str;1
-              value: before
-            catch: false
-            func: !name;1
-              value: print
-          - !call;1
-            args: []
-            catch: false
-            func: !name;1
-              value: one
-          - !call;1
-            args:
-            - !str;1
-              value: after
-            catch: false
-            func: !name;1
-              value: print
-        name: x
+      - !assn;3
+        export: false
+        lhs: !name;1
+          value: x
+        rhs: !catch;2
+          body: !block;2
+            expr: null
+            stmts:
+            - !call;1
+              args:
+              - !str;1
+                value: before
+              catch: false
+              func: !name;1
+                value: print
+            - !call;1
+              args: []
+              catch: false
+              func: !name;1
+                value: one
+            - !call;1
+              args:
+              - !str;1
+                value: after
+              catch: false
+              func: !name;1
+                value: print
+        var: true
       - !call;1
         args:
         - !binary;1
@@ -201,32 +209,36 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !catch;1
-        body: !block;2
-          expr: null
-          stmts:
-          - !call;1
-            args:
-            - !str;1
-              value: before
-            catch: false
-            func: !name;1
-              value: print
-          - !call;1
-            args:
-            - !str;1
-              value: obvious
-            catch: false
-            func: !name;1
-              value: panic
-          - !call;1
-            args:
-            - !str;1
-              value: after
-            catch: false
-            func: !name;1
-              value: print
-        name: x
+      - !assn;3
+        export: false
+        lhs: !name;1
+          value: x
+        rhs: !catch;2
+          body: !block;2
+            expr: null
+            stmts:
+            - !call;1
+              args:
+              - !str;1
+                value: before
+              catch: false
+              func: !name;1
+                value: print
+            - !call;1
+              args:
+              - !str;1
+                value: obvious
+              catch: false
+              func: !name;1
+                value: panic
+            - !call;1
+              args:
+              - !str;1
+                value: after
+              catch: false
+              func: !name;1
+                value: print
+        var: false
       - !call;1
         args:
         - !binary;1

@@ -85,18 +85,22 @@ stmts:
         rhs: !str;1
           value: str
         var: true
-      - !catch;1
-        body: !block;2
-          expr: null
-          stmts:
-          - !call;1
-            args:
-            - !name;1
-              value: b
-            catch: false
-            func: !name;1
-              value: a
-        name: r
+      - !assn;3
+        export: false
+        lhs: !name;1
+          value: r
+        rhs: !catch;2
+          body: !block;2
+            expr: null
+            stmts:
+            - !call;1
+              args:
+              - !name;1
+                value: b
+              catch: false
+              func: !name;1
+                value: a
+        var: true
       - !if;1
         body: !block;2
           expr: null
@@ -127,25 +131,29 @@ stmts:
               value: types
             rhs: !str;1
               value: is
-      - !catch;1
-        body: !block;2
-          expr: null
-          stmts:
-          - !for;3
-            body: !block;2
-              expr: null
-              stmts:
-              - !call;1
-                args:
-                - !name;1
-                  value: x
-                catch: false
-                func: !name;1
-                  value: print
-            func: !null;1 {}
-            name: !name;1
-              value: x
-        name: r
+      - !assn;3
+        export: false
+        lhs: !name;1
+          value: r
+        rhs: !catch;2
+          body: !block;2
+            expr: null
+            stmts:
+            - !for;3
+              body: !block;2
+                expr: null
+                stmts:
+                - !call;1
+                  args:
+                  - !name;1
+                    value: x
+                  catch: false
+                  func: !name;1
+                    value: print
+              func: !null;1 {}
+              name: !name;1
+                value: x
+        var: false
       - !if;1
         body: !block;2
           expr: null
@@ -176,23 +184,27 @@ stmts:
               value: types
             rhs: !str;1
               value: is
-      - !catch;1
-        body: !block;2
-          expr: null
-          stmts:
-          - !call;1
-            args: []
-            catch: false
-            func: !name;1
-              value: none
-          - !call;1
-            args:
-            - !int;1
-              value: 1
-            catch: false
-            func: !name;1
-              value: none
-        name: r
+      - !assn;3
+        export: false
+        lhs: !name;1
+          value: r
+        rhs: !catch;2
+          body: !block;2
+            expr: null
+            stmts:
+            - !call;1
+              args: []
+              catch: false
+              func: !name;1
+                value: none
+            - !call;1
+              args:
+              - !int;1
+                value: 1
+              catch: false
+              func: !name;1
+                value: none
+        var: false
       - !if;1
         body: !block;2
           expr: null
@@ -223,23 +235,27 @@ stmts:
               value: types
             rhs: !str;1
               value: is
-      - !catch;1
-        body: !block;2
-          expr: null
-          stmts:
-          - !call;1
-            args:
-            - !int;1
-              value: 1
-            catch: false
-            func: !name;1
-              value: one
-          - !call;1
-            args: []
-            catch: false
-            func: !name;1
-              value: one
-        name: r
+      - !assn;3
+        export: false
+        lhs: !name;1
+          value: r
+        rhs: !catch;2
+          body: !block;2
+            expr: null
+            stmts:
+            - !call;1
+              args:
+              - !int;1
+                value: 1
+              catch: false
+              func: !name;1
+                value: one
+            - !call;1
+              args: []
+              catch: false
+              func: !name;1
+                value: one
+        var: false
       - !if;1
         body: !block;2
           expr: null
@@ -270,31 +286,35 @@ stmts:
               value: types
             rhs: !str;1
               value: is
-      - !catch;1
-        body: !block;2
-          expr: null
-          stmts:
-          - !call;1
-            args:
-            - !int;1
-              value: 1
-            - !int;1
-              value: 2
-            catch: false
-            func: !name;1
-              value: two
-          - !call;1
-            args:
-            - !int;1
-              value: 1
-            - !int;1
-              value: 2
-            - !int;1
-              value: 3
-            catch: false
-            func: !name;1
-              value: two
-        name: r
+      - !assn;3
+        export: false
+        lhs: !name;1
+          value: r
+        rhs: !catch;2
+          body: !block;2
+            expr: null
+            stmts:
+            - !call;1
+              args:
+              - !int;1
+                value: 1
+              - !int;1
+                value: 2
+              catch: false
+              func: !name;1
+                value: two
+            - !call;1
+              args:
+              - !int;1
+                value: 1
+              - !int;1
+                value: 2
+              - !int;1
+                value: 3
+              catch: false
+              func: !name;1
+                value: two
+        var: false
       - !if;1
         body: !block;2
           expr: null
