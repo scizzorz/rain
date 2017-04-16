@@ -64,7 +64,6 @@ class Static:
     ret = items[idx].gep([T.i32(0), T.i32(2)])
     return ret
 
-
   # Return a box from a static table
   def get(self, table_box, key_node):
     lpt_ptr = table_box.lpt_ptr

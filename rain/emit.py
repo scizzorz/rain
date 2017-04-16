@@ -75,7 +75,6 @@ def emit_global(self, module):
     if self.export:
       table_box = module.exports.initializer
       key_node = A.str_node(self.lhs.value)
-      module[self.lhs.value] = None
       module.store_global(T.null, self.lhs.value)
 
     if self.var:

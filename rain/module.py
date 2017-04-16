@@ -421,7 +421,7 @@ class Module(S.Scope):
     return self.builder.load(ptr)
 
   def store_global(self, value, name):
-    if not isinstance(self[name], ir.GlobalVariable):
+    if (name not in self) or not isinstance(self[name], ir.GlobalVariable):
       table_box = self.exports.initializer
       key_node = A.str_node(name)
       self[name] = self.static.put(table_box, key_node, value)
