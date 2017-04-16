@@ -95,6 +95,10 @@ void rain_get(box *ret, box *tab, box *key) {
 }
 
 void rain_put(box *tab, box *key, box *val) {
+  rain_put_aux(tab, key, val, NULL);
+}
+
+void rain_put_aux(box *tab, box *key, box *val, item *pair) {
   if(BOX_IS(tab, FUNC) && tab->env != NULL) {
     rain_put(tab->env, key, val);
     return;
@@ -111,7 +115,13 @@ void rain_put(box *tab, box *key, box *val) {
 
   while(1) {
     if(items[key_hash % max] == NULL) {
-      items[key_hash % max] = GC_malloc(sizeof(item));
+      if(pair == NULL) {
+        items[key_hash % max] = GC_malloc(sizeof(item));
+      }
+      else {
+        items[key_hash % max] = pair;
+      }
+
       items[key_hash % max]->valid = 1;
       items[key_hash % max]->key = *key;
       items[key_hash % max]->val = *val;
@@ -135,11 +145,8 @@ void rain_put(box *tab, box *key, box *val) {
 
     for(int i=0; i<max; i++) {
       if(items[i] != NULL) {
-        rain_put(tab, &(items[i]->key), &(items[i]->val));
+        rain_put_aux(tab, &(items[i]->key), &(items[i]->val), items[i]);
       }
     }
-
-    GC_free((void *)items);
   }
 }
-
