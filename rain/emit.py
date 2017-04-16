@@ -23,7 +23,7 @@ def flatten(items):
 @A.program_node.method
 def emit(self, module):
   module.exports = module.add_global(T.box, name=module.mangle('exports'))
-  module.exports.initializer = module.static.alloc(name=module.mangle('exports.table'))
+  module.exports.initializer = module.static.new_table(name=module.mangle('exports.table'))
 
   for stmt in self.stmts:
     module.emit(stmt)
@@ -452,7 +452,7 @@ def emit(self, module):
 
 @A.table_node.method
 def emit_global(self, module):
-  return module.static.alloc(module.uniq('table'))
+  return module.static.new_table(module.uniq('table_lit'))
 
 
 @A.table_node.method
@@ -463,7 +463,7 @@ def emit_local(self, module):
 
 @A.array_node.method
 def emit_global(self, module):
-  table_box = module.static.alloc(module.uniq('array'))
+  table_box = module.static.new_table(module.uniq('array'))
 
   for i, item in enumerate(self.items):
     key_node = A.int_node(i)
@@ -493,7 +493,7 @@ def emit_local(self, module):
 
 @A.dict_node.method
 def emit_global(self, module):
-  table_box = module.static.alloc(module.uniq('array'))
+  table_box = module.static.new_table(module.uniq('array'))
 
   for key, item in self.items:
     key_node = key
