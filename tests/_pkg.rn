@@ -1,6 +1,3 @@
-import "./rain/arithmetic"
-import "./rain/conversions"
+import .rain
 
-var main = func()
-  arithmetic.main()
-  conversions.main()
+var main = rain.main

@@ -1,0 +1,8 @@
+import .arithmetic
+import .conversion
+import .comparison
+
+export main = func()
+  arithmetic.main()
+  comparison.main()
+  conversion.main()
