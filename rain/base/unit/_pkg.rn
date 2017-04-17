@@ -33,6 +33,7 @@ macro report() as ()
   block:add(ast.rain.print:call([total_str]))
   block:add(ast.rain.print:call([collect_str]))
   block:add(ast.rain.print:call([ast.str:new("----------------------------------------")]))
+  block:add(ast._return:new(ast._binary:new(AST.passed, AST.total, "==")))
 
 # Evaluate a single expression, accepting a truthy value as passing
 macro test(expr) as (expr)
