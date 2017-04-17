@@ -17,8 +17,8 @@ import .dict
 var meta = foreign "rain_ext_meta"(val)
 
 export is = func(child, parent)
-  while meta(child) != null
-    if meta(child) == parent
+  while child != null
+    if child == parent
       return true
     child = meta(child)
 
