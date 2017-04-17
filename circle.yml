@@ -16,7 +16,7 @@ stages:
           pip3 install -r requirements.txt
 
       - type: shell
-        name: "Run tests"
+        name: "Run Python tests"
         pwd: ~/rain
         environment:
           - RAINLIB: ./core
@@ -26,6 +26,17 @@ stages:
           tests/fix.sh
           mkdir -p /tmp/results
           py.test -rap -v --tb=long --cov=rain --junit-xml=/tmp/results/py.test.xml
+
+      - type: shell
+        name: "Run Rain tests"
+        pwd: ~/rain
+        environment:
+          - RAINLIB: ./core
+          - RAINBASE: ./base
+          - PYTHONPATH: .
+        command: |
+          ./python -m rain tests
+          ./tests.out
 
       - type: shell
         name: "Run linter"
