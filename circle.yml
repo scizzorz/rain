@@ -35,7 +35,7 @@ stages:
           - RAINBASE: ./base
           - PYTHONPATH: .
         command: |
-          ./python -m rain tests
+          python -m rain tests
           ./tests.out
 
       - type: shell
