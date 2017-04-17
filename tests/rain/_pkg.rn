@@ -1,0 +1,14 @@
+import .arithmetic
+import .conversion
+import .comparison
+
+export main = func()
+  var results = [
+    arithmetic.main(),
+    comparison.main(),
+    conversion.main(),
+  ]
+
+  for res in results:values()
+    if !res
+      return res
