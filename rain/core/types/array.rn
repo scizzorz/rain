@@ -93,3 +93,16 @@ export from_iter = func(iter)
     ret[i] = iter()
     break if ret[i] == null
     i = i + 1
+
+export shallow_compare = func(l, r)
+  save true
+
+  if length(l) != length(r)
+    return false
+
+  var i = 0
+  var len = length(l)
+  while i < len
+    if l[i] != r[i]
+      return false
+    i = i + 1
