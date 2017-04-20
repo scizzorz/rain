@@ -24,6 +24,8 @@ def flatten(items):
 def emit(self, module):
   module.exports = module.add_global(T.box, name=module.mangle('exports'))
   module.exports.initializer = module.static.new_table(name=module.mangle('exports.table'))
+  module.trace_depth = module.find_global(T.i32, name='rain_trace_depth');
+  module.trace_depth.linkage = 'available_externally'
 
   for stmt in self.stmts:
     module.emit(stmt)
@@ -392,17 +394,33 @@ def emit(self, module):
 
 @A.catch_node.method
 def emit(self, module):
+  # create a pointer to save the return value of the whole node
   with module.goto_entry():
     ret_ptr = module.alloc(T.null, name='exc_var')
 
+  # add a new block after our body executes
   end = module.builder.append_basic_block('end_catch')
 
+  # make a note of the call stack depth
+  trace_depth_val = module.load(module.trace_depth)
+
   with module.add_catch():
+    # perform normal execution
     module.emit(self.body)
+
+    # in case of a panic, save its value into the return pointer
+    # and recover control at #end
     module.catch(end, into=ret_ptr)
 
+  # no panics - everything went according to plan, so branch to #end
   module.builder.branch(end)
+
+  # move to #end
   module.builder.position_at_end(end)
+
+  # restore call stack depth
+  module.store(trace_depth_val, module.trace_depth)
+
   return module.load(ret_ptr)
 
 
