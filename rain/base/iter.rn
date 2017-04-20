@@ -75,3 +75,9 @@ export drop = func(iter, num)
 export repeat = func(val)
   return func()
     return val
+
+export replicate = func(times, val)
+  return func()
+    if times > 0
+      times = times - 1
+      return val
