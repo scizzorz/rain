@@ -1,0 +1,21 @@
+link "./dict.c"
+
+# these are pseudo-closures!
+# they expect a closure environment to be present
+var keys_iter = foreign "rain_ext_dict_keys_iter"()
+var values_iter = foreign "rain_ext_dict_values_iter"()
+
+# these need to produce the closure environment for the above pseudo-closures
+export keys = func(self)
+  var env = {
+    cur = -1,
+    dict = self,
+  }
+  return keys_iter :: env
+
+export values = func(self)
+  var env = {
+    cur = -1,
+    dict = self,
+  }
+  return values_iter :: env

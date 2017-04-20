@@ -1,0 +1,13 @@
+var main = func()
+  var obj = {one="one", two="two", [3]="three", ["fo_ur"]="four"}
+
+  for a in obj:keys()
+    print("a: " $ tostr(a))
+    for b in obj:keys()
+      print("  b: " $ tostr(b))
+
+  print("----------------------------------------")
+  for a in obj:values()
+    print("a: " $ a)
+    for b in obj:values()
+      print("  b: " $ b)
