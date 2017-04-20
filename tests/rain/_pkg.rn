@@ -1,12 +1,14 @@
 import .arithmetic
 import .conversion
 import .comparison
+import .iters
 
 export main = func()
   var results = [
     arithmetic.main(),
     comparison.main(),
     conversion.main(),
+    iters.main(),
   ]
 
   for res in results:values()
