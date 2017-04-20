@@ -1,0 +1,3 @@
+link "./dict.c"
+
+export keys = foreign "rain_ext_dict_keys"(self)
