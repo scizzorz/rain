@@ -105,7 +105,7 @@ void rain_put_aux(box *tab, box *key, box *val, item *pair) {
   }
 
   if(BOX_ISNT(tab, TABLE)) {
-    rain_throw(rain_exc_arg_mismatch);
+    rain_panic(rain_exc_arg_mismatch);
   }
 
   int cur = tab->data.lpt->cur;

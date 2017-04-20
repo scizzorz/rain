@@ -16,7 +16,7 @@ import .types
 
 var exit    = foreign "rain_ext_exit"(val)
 var meta    = foreign "rain_ext_meta"(val)
-var panic   = foreign "rain_ext_throw"(val)
+var panic   = foreign "rain_ext_panic"(val)
 var print   = foreign "rain_ext_print"(val)
 var to_str  = foreign "rain_ext_to_str"(val)
 var type    = foreign "rain_ext_type"(val)

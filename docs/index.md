@@ -727,7 +727,7 @@ Define your own function:
         rain_set_int(ret, lhs->data.si % rhs->data.si);
       }
 
-      rain_throw(rain_exc_arg_mismatch);
+      rain_panic(rain_exc_arg_mismatch);
     }
 
 Link with the extension file in your Rain code and declare a `foreign`:

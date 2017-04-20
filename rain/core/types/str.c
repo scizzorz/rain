@@ -14,7 +14,7 @@ void rain_ext_str_length(box *ret, box *val) {
 
 void rain_ext_str_int(box *ret, box *val) {
   if(BOX_ISNT(val, STR)) {
-    rain_throw(rain_exc_arg_mismatch);
+    rain_panic(rain_exc_arg_mismatch);
   }
 
   // http://stackoverflow.com/questions/7021725/converting-string-to-integer-c
@@ -41,7 +41,7 @@ void rain_ext_str_int(box *ret, box *val) {
 
 void rain_ext_str_float(box *ret, box *val) {
   if(BOX_ISNT(val, STR)) {
-    rain_throw(rain_exc_arg_mismatch);
+    rain_panic(rain_exc_arg_mismatch);
   }
 
   char *end;
@@ -95,7 +95,7 @@ void rain_ext_str_fmt(box *ret, box *fmt, box *args) {
 
       // reached EOS without finding a matching }
       if(in == ins) {
-        rain_throw(rain_exc_str_fmt_error);
+        rain_panic(rain_exc_str_fmt_error);
       }
 
       else {

@@ -342,12 +342,12 @@ class Module(S.Scope):
     func_typ = self.get_type(box)
     is_func = self.builder.icmp_unsigned('!=', T.ityp.func, func_typ)
     with self.builder.if_then(is_func):
-      self.runtime.throw(self.load_exception('uncallable'))
+      self.runtime.panic(self.load_exception('uncallable'))
 
     exp_args = self.get_size(box)
     arg_match = self.builder.icmp_unsigned('!=', exp_args, T.i32(num_args))
     with self.builder.if_then(arg_match):
-      self.runtime.throw(self.load_exception('arg_mismatch'))
+      self.runtime.panic(self.load_exception('arg_mismatch'))
 
   # allocate stack space for function arguments
   def fnalloc(self, *args):

@@ -35,7 +35,7 @@ void table_from_matches(box *table, const char *matched, int *ovector, int pcre_
 // to_match : str
 void rain_ext_pcre_compiled_match(box *ret, box *val, box *to_match) {
   if(BOX_ISNT(val, CDATA) || BOX_ISNT(to_match, STR)) {
-    rain_throw(rain_exc_arg_mismatch);
+    rain_panic(rain_exc_arg_mismatch);
   }
 
   const char *match;
@@ -69,7 +69,7 @@ void rain_ext_pcre_compiled_match(box *ret, box *val, box *to_match) {
 // regex : str
 void rain_ext_pcre_compile(box *ret, box *regex) {
   if(BOX_ISNT(regex, STR)) {
-    rain_throw(rain_exc_arg_mismatch);
+    rain_panic(rain_exc_arg_mismatch);
   }
 
   pcre *compiled;
@@ -80,7 +80,7 @@ void rain_ext_pcre_compile(box *ret, box *regex) {
 
   // TODO look at error string, maybe return to user
   if(!compiled) {
-    rain_throw(rain_exc_pcre_cannot_compile);
+    rain_panic(rain_exc_pcre_cannot_compile);
   }
 
   rain_set_cdata(ret, compiled);
@@ -93,7 +93,7 @@ void rain_ext_pcre_compile(box *ret, box *regex) {
 // TODO a lot of this is reused from the other two methods, maybe recycle them?
 void rain_ext_pcre_match(box *ret, box *regex, box *to_match) {
   if(BOX_ISNT(regex, STR) || BOX_ISNT(to_match, STR)) {
-    rain_throw(rain_exc_arg_mismatch);
+    rain_panic(rain_exc_arg_mismatch);
   }
 
   pcre *compiled;
@@ -107,7 +107,7 @@ void rain_ext_pcre_match(box *ret, box *regex, box *to_match) {
 
   // TODO look at error string, maybe return to user
   if(!compiled) {
-    rain_throw(rain_exc_pcre_cannot_compile);
+    rain_panic(rain_exc_pcre_cannot_compile);
   }
 
   pcre_exec_ret = pcre_exec(compiled, NULL, to_match->data.s, to_match->size, 0, 0, ovector, 30);

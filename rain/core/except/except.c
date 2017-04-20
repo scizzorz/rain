@@ -231,7 +231,7 @@ static void set_registers(unwind_exception_t* exception, exception_context_t* co
 
 // Rain API
 
-void rain_throw(box *val) {
+void rain_panic(box *val) {
   exception.base.exception_class = 0x5261696E00000000; // "Rain"
   exception.base.exception_cleanup = exception_cleanup;
 

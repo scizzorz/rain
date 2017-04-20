@@ -14,7 +14,7 @@ externs = {
   'rain_check_callable': T.vfunc(T.arg, T.i32),
   'rain_init_args': T.vfunc(T.i32, T.ptr(T.ptr(T.i8))),
   'rain_personality_v0': T.func(T.i32, [], var_arg=True),
-  'rain_throw': T.vfunc(T.arg),
+  'rain_panic': T.vfunc(T.arg),
 
   'rain_push': T.func(T.i32, [T.ptr(T.i8), T.i32, T.i32]),
   'rain_pop': T.func(T.i32, []),
