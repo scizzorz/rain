@@ -394,11 +394,17 @@ class Module(S.Scope):
 
     # catch call
     if catch:
+      # make a note of the call stack depth
+      trace_depth_val = self.load(self.trace_depth)
+
       with self.add_catch():
         self.call(func_ptr, *ptrs)
         self.catch(self.builder.block, into=ptrs[0])
 
-        return self.load(ptrs[0])
+      # restore call stack depth
+      self.store(trace_depth_val, self.trace_depth)
+
+      return self.load(ptrs[0])
 
     # regular call
     else:
