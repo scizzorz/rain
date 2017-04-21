@@ -658,7 +658,7 @@ be a name or a string literal.
     # get a reference to `void rain_add(box *ret, box *lhs, box *rhs)`
     let add = foreign "rain_add"(lhs, rhs)
 
-#### `export..as foreign` statement
+#### `foreign` statement
 
 Exposes a global value that can be shared between Rain and extensions.
 
@@ -669,7 +669,7 @@ And:
 
     # core/except/_pkg.rn
     export arg_mismatch = table :: error
-    export arg_mismatch as foreign "rain_exc_arg_mismatch"
+    foreign "rain_exc_arg_mismatch" = arg_mismatch
 
 #### C API
 

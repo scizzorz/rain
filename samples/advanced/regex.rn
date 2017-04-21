@@ -1,5 +1,5 @@
 import regex
-import "types/array"
+import types/array
 
 export main = func()
   var match = regex.match("ab*ab*", "abbbab")

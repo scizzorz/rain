@@ -20,9 +20,9 @@ fpe.msg = "floating point error"
 export segfault = table :: error
 segfault.msg = "segmentation fault"
 
-export arg_mismatch as foreign "rain_exc_arg_mismatch"
-export error        as foreign "rain_exc_error"
-export fpe          as foreign "rain_exc_fpe"
-export interrupt    as foreign "rain_exc_interrupt"
-export segfault     as foreign "rain_exc_segfault"
-export uncallable   as foreign "rain_exc_uncallable"
+foreign "rain_exc_arg_mismatch" = arg_mismatch
+foreign "rain_exc_error" = error
+foreign "rain_exc_fpe" = fpe
+foreign "rain_exc_interrupt" = interrupt
+foreign "rain_exc_segfault" = segfault
+foreign "rain_exc_uncallable" = uncallable

@@ -1,12 +1,12 @@
 macro linux(block) as (body)
-  import "./internal"
+  import ./internal
   if internal.is_linux()
     return body
 
   return ast._null
 
 macro mac(block) as (body)
-  import "./internal"
+  import ./internal
   if internal.is_mac()
     return body
 

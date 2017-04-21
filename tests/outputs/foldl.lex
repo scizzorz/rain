@@ -1,5 +1,7 @@
 keyword 'import'
-string 'types/array'
+name 'types'
+operator '/'
+name 'array'
 newline
 keyword 'var'
 name 'gadd'

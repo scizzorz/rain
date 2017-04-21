@@ -4,8 +4,8 @@ block :: INDENT (stmt NEWLINE)+ DEDENT
 
 stmt :: 'var' var_prefix '=' compound
       | 'export' NAME '=' compound
-      | 'export' NAME 'as' 'foreign' (NAME | STRING)
-      | 'import' import_mod ('as' NAME)?
+      | 'foreign' (NAME | STRING) '=' NAME
+      | 'import' (NAME '=')? import_mod
       | 'macro' NAME fnparams 'as' fnparams block
       | macro_exp
       | 'link' STRING
@@ -23,7 +23,7 @@ stmt :: 'var' var_prefix '=' compound
       | 'save' (NAME '=')? compound
       | assn_prefix ('=' compound | fnargs | ':' NAME  fnargs)
 
-import_mod :: '.'? (NAME | STRING) ('.' (NAME | STRING))*
+import_mod :: ('.' '/')? (NAME | STRING) ('/' (NAME | STRING))*
 
 if_stmt :: 'if' binexpr block (NEWLINE 'else' (if_stmt | block))?
 

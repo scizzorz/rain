@@ -1,7 +1,7 @@
-import .arithmetic
-import .conversion
-import .comparison
-import .iters
+import ./arithmetic
+import ./conversion
+import ./comparison
+import ./iters
 
 export main = func()
   var results = [
