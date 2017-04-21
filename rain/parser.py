@@ -270,11 +270,13 @@ def stmt(ctx):
         rhs = ctx.require(K.name_token).value
         rhs = A.str_node(rhs)
         lhs = A.idx_node(lhs, rhs)
+        pos = ctx.past[-1]
 
       elif ctx.consume(K.symbol_token('[')):
         rhs = binexpr(ctx)
         ctx.require(K.symbol_token(']'))
         lhs = A.idx_node(lhs, rhs)
+        pos = ctx.past[-1]
 
       else:
         break
