@@ -1,5 +1,5 @@
 import unit
-import types.array
+import types/array
 import iter
 import ops
 
