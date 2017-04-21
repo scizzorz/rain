@@ -23,13 +23,17 @@ segfault.msg = "segmentation fault"
 var unbound_var = table :: error
 unbound_var.msg = "unbound variable"
 
-foreign "rain_exc_unbound_var" = unbound_var
+var key_error = table :: error
+key_error.msg = "key error"
+
 foreign "rain_exc_arg_mismatch" = arg_mismatch
 foreign "rain_exc_error" = error
 foreign "rain_exc_fpe" = fpe
 foreign "rain_exc_interrupt" = interrupt
 foreign "rain_exc_segfault" = segfault
 foreign "rain_exc_uncallable" = uncallable
+foreign "rain_exc_key_error" = key_error
+foreign "rain_exc_unbound_var" = unbound_var
 
 module = table {
   error = error,
@@ -38,4 +42,6 @@ module = table {
   interrupt = interrupt,
   fpe = fpe,
   segfault = segfault,
+  unbound_var = unbound_var,
+  key_error = key_error,
 }
