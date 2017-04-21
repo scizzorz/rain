@@ -76,6 +76,17 @@ _bind.new = func(self, names)
   ret.names = names
 
 
+var _use = table :: node
+
+_use.tag = "use"
+_use.slots = ["name", "lhs", "rhs"]
+_use.new = func(self, name, lhs, rhs)
+  save ret = table :: self
+  ret.name = name
+  ret.lhs = lhs
+  ret.rhs = rhs
+
+
 var _break = table :: node
 
 _break.tag = "break"
@@ -426,6 +437,7 @@ module = table {
   _assn = _assn,
   _break = _break,
   _cont = _cont,
+  _use = _use,
   _export_foreign = _export_foreign,
   _if = _if,
   _import = _import,
