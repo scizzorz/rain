@@ -29,6 +29,18 @@ export foldl = func(iter, fn, z)
     a = fn(a, v)
   return a
 
+export map_success = func(iter, f)
+  return func ()
+    var a = iter()
+    while a
+      a = f(a)
+      if a
+        return a
+      a = iter()
+
+export filter = func(iter, f)
+  return map_success(iter, func(a) -> f(a) & a | null)
+
 export enum = func(iter)
   var i = 0
   return func()
@@ -81,3 +93,7 @@ export replicate = func(times, val)
     if times > 0
       times = times - 1
       return val
+
+export force = func(iter)
+  for _ in iter
+    pass
