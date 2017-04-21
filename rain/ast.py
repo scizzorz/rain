@@ -128,6 +128,17 @@ class bind_node(node):
     self.names = names
 
 
+class use_node(expr_node):
+  __tag__ = 'use'
+  __version__ = 1
+  __slots__ = ['name', 'lhs', 'rhs']
+
+  def __init__(self, name, lhs, rhs):
+    self.name = name
+    self.lhs = lhs
+    self.rhs = rhs
+
+
 class break_node(node):
   __tag__ = 'break'
   __version__ = 1

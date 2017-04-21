@@ -220,6 +220,7 @@ def block(ctx):
 #       | 'bind' NAME (',' NAME)*
 #       | 'foreign' (NAME | STRING) '=' NAME
 #       | 'import' (NAME '=')? import_mod
+#       | 'use' NAME '=' prefix ('.' NAME | '[' binexpr ']')+
 #       | 'macro' NAME fnparams 'as' fnparams block
 #       | macro_exp
 #       | 'link' STRING
@@ -256,6 +257,37 @@ def stmt(ctx):
     node.coords = ctx.past[-1]
     return node
 
+  if ctx.consume(K.keyword_token('use')):
+    name = ctx.require(K.name_token).value
+    pos = ctx.past[-1]
+    ctx.require(K.symbol_token('='))
+    lhs = prefix(ctx)
+    rhs = None
+
+    # grab all the suffixes
+    while True:
+      if ctx.consume(K.symbol_token('.')):
+        rhs = ctx.require(K.name_token).value
+        rhs = A.str_node(rhs)
+        lhs = A.idx_node(lhs, rhs)
+
+      elif ctx.consume(K.symbol_token('[')):
+        rhs = binexpr(ctx)
+        ctx.require(K.symbol_token(']'))
+        lhs = A.idx_node(lhs, rhs)
+
+      else:
+        break
+
+    # require at least one suffix
+    if rhs is None:
+      ctx.require(K.symbol_token('.'), K.symbol_token('['))
+
+    node = A.use_node(name, lhs.lhs, lhs.rhs)
+    node.coords = pos
+    return node
+
+
   if ctx.consume(K.keyword_token('import')):
     start = []
     rename = None
@@ -282,9 +314,9 @@ def stmt(ctx):
     comp.lex()
     comp.parse()
 
-    prefix = rename or comp.mname
+    mprefix = rename or comp.mname
     for key, val in comp.parser.macros.items():
-      ctx.macros[prefix + '.' + key] = val
+      ctx.macros[mprefix + '.' + key] = val
 
     node = A.import_node(name, rename)
     node.coords = pos
@@ -511,20 +543,20 @@ def assn_prefix(ctx):
   lhs = prefix(ctx)
   rhs = None
 
+  # grab all the suffixes
   while True:
     if ctx.consume(K.symbol_token('.')):
       name = ctx.require(K.name_token).value
       rhs = A.str_node(name)
       lhs = A.idx_node(lhs, rhs)
-      continue
 
-    if ctx.consume(K.symbol_token('[')):
+    elif ctx.consume(K.symbol_token('[')):
       rhs = binexpr(ctx)
       ctx.require(K.symbol_token(']'))
       lhs = A.idx_node(lhs, rhs)
-      continue
 
-    break
+    else:
+      break
 
   return lhs
 
