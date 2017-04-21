@@ -673,12 +673,12 @@ def emit_local(self, module):
 @A.idx_node.method
 def emit_global(self, module):
   # check if LHS is a module
-  if isinstance(self.lhs, A.name_node) and getattr(module[self.lhs], 'mod', None):
-    return module[self.lhs].mod.load_global(self.rhs)
+  table_box = module.emit(self.lhs)
+  if getattr(table_box, 'mod', None):
+    return table_box.mod.load_global(self.rhs)
 
   # otherwise, do normal lookups
   else:
-    table_box = module.emit(self.lhs)
     key_node = self.rhs
 
     return module.static.get(table_box, key_node)
