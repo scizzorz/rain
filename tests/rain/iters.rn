@@ -10,4 +10,16 @@ export main = func()
     array.shallow_compare(array.from_iter(iter.replicate(3, 1)), [1,1,1])
     array.shallow_compare(array.from_iter(iter.replicate(7, 2)), [2,2,2,2,2,2,2])
 
+
+  var mk_t = {x=0}
+  var mk = func()
+    mk_t.x = mk_t.x + 1
+    return mk_t.x < 10 & true | null
+
+
+  iter.force(mk)
+
+  @unit.group forcing
+    mk_t.x == 10
+
   @unit.report
