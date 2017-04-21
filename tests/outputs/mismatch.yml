@@ -1,11 +1,5 @@
 !program;1
 stmts:
-- !import;1
-  name: types
-  rename: null
-- !import;1
-  name: except
-  rename: null
 - !assn;3
   export: false
   lhs: !name;1

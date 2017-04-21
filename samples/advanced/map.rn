@@ -1,4 +1,3 @@
-import "types/array"
 import iter
 
 var double = func(n) -> n * 2

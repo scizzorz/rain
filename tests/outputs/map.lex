@@ -1,7 +1,4 @@
 keyword 'import'
-string 'types/array'
-newline
-keyword 'import'
 name 'iter'
 newline
 keyword 'var'

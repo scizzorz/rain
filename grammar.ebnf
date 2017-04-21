@@ -23,7 +23,7 @@ stmt :: 'var' var_prefix '=' compound
       | 'save' (NAME '=')? compound
       | assn_prefix ('=' compound | fnargs | ':' NAME  fnargs)
 
-import_mod :: '.'? (NAME | STRING) ('.' (NAME | STRING))*
+import_mod :: ('.' '/')? (NAME | STRING) ('/' (NAME | STRING))*
 
 if_stmt :: 'if' binexpr block (NEWLINE 'else' (if_stmt | block))?
 

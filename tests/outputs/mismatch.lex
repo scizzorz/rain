@@ -1,9 +1,3 @@
-keyword 'import'
-name 'types'
-newline
-keyword 'import'
-name 'except'
-newline
 keyword 'var'
 name 'none'
 symbol '='

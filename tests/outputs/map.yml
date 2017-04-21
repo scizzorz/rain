@@ -1,9 +1,6 @@
 !program;1
 stmts:
 - !import;1
-  name: types/array
-  rename: null
-- !import;1
   name: iter
   rename: null
 - !assn;3

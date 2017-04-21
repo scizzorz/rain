@@ -420,16 +420,17 @@ def stmt(ctx):
   ctx.require(K.symbol_token('('), K.symbol_token(':'))
 
 
-# import_mod :: '.'? (NAME | STRING) ('.' (NAME | STRING))*
+# import_mod :: ('.' '/')? (NAME | STRING) ('/' (NAME | STRING))*
 def import_mod(ctx):
   lst = []
 
   if ctx.consume(K.symbol_token('.')):
+    ctx.require(K.operator_token('/'))
     lst.append('.')
 
   lst.append(ctx.require(K.name_token, K.string_token).value)
 
-  while ctx.consume(K.symbol_token('.')):
+  while ctx.consume(K.operator_token('/')):
     lst.append(ctx.require(K.name_token, K.string_token).value)
 
   return os.path.join(*lst)

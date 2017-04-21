@@ -1,6 +1,3 @@
-import types
-import except
-
 var none = func()
   print("no args")
 

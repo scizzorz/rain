@@ -1,4 +1,4 @@
-import "types/array"
+import types/array
 
 var gadd = func(a, b) -> a + b
 var main = func()
