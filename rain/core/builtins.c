@@ -30,8 +30,8 @@ void rain_ext_print(box *ret, box *val) {
   rain_print(val);
 }
 
-void rain_ext_throw(box *ret, box *val) {
-  rain_throw(val);
+void rain_ext_panic(box *ret, box *val) {
+  rain_panic(val);
 }
 
 void rain_ext_to_str(box *ret, box *val) {

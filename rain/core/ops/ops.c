@@ -29,7 +29,7 @@ void rain_neg(box *ret, box *val) {
     rain_set_float(ret, -(val->data.f));
   }
   else {
-    rain_throw(rain_exc_arg_mismatch);
+    rain_panic(rain_exc_arg_mismatch);
   }
 }
 
@@ -63,7 +63,7 @@ void rain_add(box *ret, box *lhs, box *rhs) {
     rain_binary_magic(ret, lhs, rhs, "add");
   }
   else {
-    rain_throw(rain_exc_arg_mismatch);
+    rain_panic(rain_exc_arg_mismatch);
   }
 }
 
@@ -90,7 +90,7 @@ void rain_sub(box *ret, box *lhs, box *rhs) {
     rain_binary_magic(ret, lhs, rhs, "sub");
   }
   else {
-    rain_throw(rain_exc_arg_mismatch);
+    rain_panic(rain_exc_arg_mismatch);
   }
 }
 
@@ -117,7 +117,7 @@ void rain_mul(box *ret, box *lhs, box *rhs) {
     rain_binary_magic(ret, lhs, rhs, "mul");
   }
   else {
-    rain_throw(rain_exc_arg_mismatch);
+    rain_panic(rain_exc_arg_mismatch);
   }
 }
 
@@ -145,7 +145,7 @@ void rain_div(box *ret, box *lhs, box *rhs) {
     rain_binary_magic(ret, lhs, rhs, "div");
   }
   else {
-    rain_throw(rain_exc_arg_mismatch);
+    rain_panic(rain_exc_arg_mismatch);
   }
 }
 
@@ -218,7 +218,7 @@ void rain_gt(box *ret, box *lhs, box *rhs) {
     rain_binary_magic(ret, lhs, rhs, "gt");
   }
   else {
-    rain_throw(rain_exc_arg_mismatch);
+    rain_panic(rain_exc_arg_mismatch);
   }
 }
 
@@ -250,7 +250,7 @@ void rain_ge(box *ret, box *lhs, box *rhs) {
     rain_binary_magic(ret, lhs, rhs, "ge");
   }
   else {
-    rain_throw(rain_exc_arg_mismatch);
+    rain_panic(rain_exc_arg_mismatch);
   }
 }
 
@@ -282,7 +282,7 @@ void rain_lt(box *ret, box *lhs, box *rhs) {
     rain_binary_magic(ret, lhs, rhs, "lt");
   }
   else {
-    rain_throw(rain_exc_arg_mismatch);
+    rain_panic(rain_exc_arg_mismatch);
   }
 }
 
@@ -314,7 +314,7 @@ void rain_le(box *ret, box *lhs, box *rhs) {
     rain_binary_magic(ret, lhs, rhs, "le");
   }
   else {
-    rain_throw(rain_exc_arg_mismatch);
+    rain_panic(rain_exc_arg_mismatch);
   }
 }
 
@@ -335,6 +335,6 @@ void rain_string_concat(box *ret, box *lhs, box *rhs) {
     rain_binary_magic(ret, lhs, rhs, "concat");
   }
   else {
-    rain_throw(rain_exc_arg_mismatch);
+    rain_panic(rain_exc_arg_mismatch);
   }
 }

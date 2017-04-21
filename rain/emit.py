@@ -109,7 +109,7 @@ def emit_local(self, module):
       if isinstance(lhs, A.name_node):
         if self.var:
           with module.goto_entry():
-            module[lhs] = module.alloc()
+            module[lhs] = module.alloc(T.null)
             module[lhs].bound = False
 
         if lhs not in module:
@@ -127,7 +127,7 @@ def emit_local(self, module):
   elif isinstance(self.lhs, A.name_node):
     if self.var:
       with module.goto_entry():
-        module[self.lhs] = module.alloc()
+        module[self.lhs] = module.alloc(T.null)
         module[self.lhs].bound = False  # cheesy hack - see @func_node
 
     rhs = module.emit(self.rhs)
@@ -358,12 +358,12 @@ def emit(self, module):
 
   # set up the return pointers
   with module.goto_entry():
-    ret_ptr = module.alloc()
+    ret_ptr = module.alloc(T.null)
     if isinstance(self.name, A.name_node):
       module[self.name.value] = ret_ptr
     elif isinstance(self.name, list):
       for name in flatten(self.name):
-        module[name.value] = module.alloc()
+        module[name.value] = module.alloc(T.null)
 
   with module.add_loop():
     with module.goto(module.before):
@@ -736,7 +736,7 @@ def emit_local(self, module):
 
   elif self.op in ('|', '&'):
     with module.goto_entry():
-      res = module.alloc()
+      res = module.alloc(T.null)
 
     lhs = module.emit(self.lhs)
     module.store(lhs, res)

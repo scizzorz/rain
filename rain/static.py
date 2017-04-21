@@ -54,9 +54,9 @@ class Static:
       lpt_ptr.initializer = T.lpt([T.i32(0), T.i32(max * 2), new_arr_gep])
 
       # reinsert everything
-      for i, pair in enumerate(old_items):
-        if isinstance(pair, ir.GlobalVariable):
-          self.put(table_box, pair.initializer.key, None, pair=pair)
+      for i, ipair in enumerate(old_items):
+        if isinstance(ipair, ir.GlobalVariable):
+          self.put(table_box, ipair.initializer.key, None, pair=ipair)
 
       # update cur/max
       cur = lpt_ptr.initializer.constant[0].constant
