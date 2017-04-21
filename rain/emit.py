@@ -167,6 +167,19 @@ def emit_local(self, module):
     module.bindings.add(name)
 
 
+@A.use_node.method
+def emit_local(self, module):
+  lhs = module.emit(self.lhs)
+  rhs = module.emit(self.rhs)
+  ptrs = module.fnalloc(lhs, rhs)
+  with module.trace(self.coords):
+    module[self.name] = module.runtime.get_ptr(*ptrs)
+
+    is_null = module.builder.icmp_unsigned('==', module[self.name], T.arg(None))
+    with module.builder.if_then(is_null):
+      module.runtime.panic(module.load_exception('key_error'))
+
+
 @A.break_node.method
 def emit(self, module):
   if not self.cond:
