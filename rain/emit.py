@@ -24,7 +24,7 @@ def flatten(items):
 def emit(self, module):
   module.exports = module.add_global(T.box, name=module.mangle('exports'))
   module.exports.initializer = module.static.new_table(name=module.mangle('exports.table'))
-  module.trace_depth = module.find_global(T.i32, name='rain_trace_depth');
+  module.trace_depth = module.find_global(T.i32, name='rain_trace_depth')
   module.trace_depth.linkage = 'available_externally'
 
   for stmt in self.stmts:

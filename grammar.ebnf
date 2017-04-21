@@ -4,7 +4,7 @@ block :: INDENT (stmt NEWLINE)+ DEDENT
 
 stmt :: 'var' var_prefix '=' compound
       | 'export' NAME '=' compound
-      | 'export' NAME 'as' 'foreign' (NAME | STRING)
+      | 'foreign' (NAME | STRING) '=' NAME
       | 'import' (NAME '=')? import_mod
       | 'macro' NAME fnparams 'as' fnparams block
       | macro_exp

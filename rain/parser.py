@@ -218,7 +218,7 @@ def block(ctx):
 
 # stmt :: 'var' var_prefix '=' compound
 #       | 'export' NAME '=' compound
-#       | 'export' NAME 'as' 'foreign' (NAME | STRING)
+#       | 'foreign' (NAME | STRING) '=' NAME
 #       | 'import' (NAME '=')? import_mod
 #       | 'macro' NAME fnparams 'as' fnparams block
 #       | macro_exp
@@ -246,17 +246,17 @@ def stmt(ctx):
   if ctx.consume(K.keyword_token('export')):
     name = ctx.require(K.name_token).value
     pos = ctx.past[-1]
+    ctx.require(K.symbol_token('='))
+    rhs = compound(ctx)
+    return A.assn_node(A.name_node(name), rhs, export=True)
 
-    if ctx.consume(K.symbol_token('=')):
-      rhs = compound(ctx)
-      return A.assn_node(A.name_node(name), rhs, export=True)
-
-    if ctx.consume(K.keyword_token('as')):
-      ctx.require(K.keyword_token('foreign'))
-      rename = ctx.require(K.string_token, K.name_token).value
-      node = A.export_foreign_node(name, rename)
-      node.coords = pos
-      return node
+  if ctx.consume(K.keyword_token('foreign')):
+    rename = ctx.require(K.string_token, K.name_token).value
+    ctx.require(K.symbol_token('='))
+    name = ctx.require(K.name_token).value
+    node = A.export_foreign_node(name, rename)
+    node.coords = ctx.past[-1]
+    return node
 
   if ctx.consume(K.keyword_token('import')):
     start = []
