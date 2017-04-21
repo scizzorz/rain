@@ -5,6 +5,7 @@ block :: INDENT (stmt NEWLINE)+ DEDENT
 stmt :: 'var' var_prefix ('=' compound)?
       | 'bind' NAME (',' NAME)*
       | 'foreign' (NAME | STRING) '=' NAME
+      | 'use' NAME '=' prefix ('.' NAME | '[' binexpr ']')+
       | 'import' (NAME '=')? import_mod
       | 'macro' NAME fnparams 'as' fnparams block
       | macro_exp
