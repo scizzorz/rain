@@ -81,3 +81,7 @@ export replicate = func(times, val)
     if times > 0
       times = times - 1
       return val
+
+export force = func(iter)
+  for _ in iter
+    pass
