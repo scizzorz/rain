@@ -219,7 +219,7 @@ def block(ctx):
 # stmt :: 'var' var_prefix '=' compound
 #       | 'export' NAME '=' compound
 #       | 'export' NAME 'as' 'foreign' (NAME | STRING)
-#       | 'import' import_mod ('as' NAME)?
+#       | 'import' (NAME '=')? import_mod
 #       | 'macro' NAME fnparams 'as' fnparams block
 #       | macro_exp
 #       | 'link' STRING
@@ -259,7 +259,15 @@ def stmt(ctx):
       return node
 
   if ctx.consume(K.keyword_token('import')):
-    name = import_mod(ctx)
+    start = []
+    rename = None
+    if ctx.expect(K.name_token):
+      rename = ctx.require(K.name_token).value
+      if not ctx.consume(K.symbol_token('=')):
+        start = [rename]
+        rename = None
+
+    name = import_mod(ctx, start=start)
     pos = ctx.past[-1]
 
     base, fname = os.path.split(ctx.file)
@@ -268,7 +276,6 @@ def stmt(ctx):
     if not file:
       Q.abort("Can't find module {!r}", name, pos=pos(file=ctx.file))
 
-    rename = None
     if ctx.consume(K.keyword_token('as')):
       rename = ctx.require(K.name_token).value
 
@@ -421,14 +428,15 @@ def stmt(ctx):
 
 
 # import_mod :: ('.' '/')? (NAME | STRING) ('/' (NAME | STRING))*
-def import_mod(ctx):
-  lst = []
+def import_mod(ctx, start=[]):
+  lst = start
 
-  if ctx.consume(K.symbol_token('.')):
-    ctx.require(K.operator_token('/'))
-    lst.append('.')
+  if not start:
+    if ctx.consume(K.symbol_token('.')):
+      ctx.require(K.operator_token('/'))
+      lst.append('.')
 
-  lst.append(ctx.require(K.name_token, K.string_token).value)
+    lst.append(ctx.require(K.name_token, K.string_token).value)
 
   while ctx.consume(K.operator_token('/')):
     lst.append(ctx.require(K.name_token, K.string_token).value)
