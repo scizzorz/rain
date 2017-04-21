@@ -289,7 +289,6 @@ def stmt(ctx):
     node.coords = pos
     return node
 
-
   if ctx.consume(K.keyword_token('import')):
     start = []
     rename = None

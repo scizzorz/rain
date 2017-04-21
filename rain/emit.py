@@ -178,7 +178,7 @@ def emit_global(self, module):
 
   else:
     module[self.name] = module.static.get_ptr(table_box, self.rhs)
-    if module[self.name] == None:
+    if module[self.name] is None:
       Q.abort('Key error', pos=self.coords)
 
 
