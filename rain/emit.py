@@ -694,9 +694,7 @@ def emit_global(self, module):
 
   # otherwise, do normal lookups
   else:
-    key_node = self.rhs
-
-    return module.static.get(table_box, key_node)
+    return module.static.get(table_box, self.rhs)
 
 
 @A.idx_node.method
