@@ -95,10 +95,28 @@ class Static:
     items = arr_ptr.initializer.constant
 
     idx = self.idx(table_box, key_node)
-    if not isinstance(items[idx], ir.GlobalVariable):
+    pair = items[idx]
+
+    # key isn't found
+    if not isinstance(pair, ir.GlobalVariable):
       return T.null
 
-    return items[idx].initializer.constant[1]
+    return pair.initializer.constant[1]
+
+  # Return a ptr to a box from a static table
+  def get_ptr(self, table_box, key_node):
+    lpt_ptr = table_box.lpt_ptr
+    arr_ptr = lpt_ptr.arr_ptr
+    items = arr_ptr.initializer.constant
+
+    idx = self.idx(table_box, key_node)
+    pair = items[idx]
+
+    # key isn't found
+    if not isinstance(pair, ir.GlobalVariable):
+      return
+
+    return pair.gep([T.i32(0), T.i32(1)])
 
   # Allocate a static table
   def alloc(self, name, size=T.HASH_SIZE):

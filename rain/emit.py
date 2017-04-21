@@ -168,6 +168,21 @@ def emit_local(self, module):
 
 
 @A.use_node.method
+def emit_global(self, module):
+  table_box = module.emit(self.lhs)
+  if getattr(table_box, 'mod', None):
+    if self.rhs not in table_box.mod:
+      Q.abort('Key error', pos=self.coords)
+
+    module[self.name] = table_box.mod[self.rhs]
+
+  else:
+    module[self.name] = module.static.get_ptr(table_box, self.rhs)
+    if module[self.name] == None:
+      Q.abort('Key error', pos=self.coords)
+
+
+@A.use_node.method
 def emit_local(self, module):
   lhs = module.emit(self.lhs)
   rhs = module.emit(self.rhs)
