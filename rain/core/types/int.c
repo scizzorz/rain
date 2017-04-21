@@ -27,3 +27,11 @@ void rain_ext_int_str(box *ret, box *val) {
   int len = sprintf(strbuf, "%ld", val->data.si);
   rain_set_strcpy(ret, strbuf, len);
 }
+
+void rain_ext_int_mod(box *ret, box *lhs, box *rhs) {
+  if(BOX_ISNT(lhs, INT) || BOX_ISNT(rhs, INT)) {
+    rain_panic(rain_exc_arg_mismatch);
+  }
+
+  rain_set_int(ret, lhs->data.si % rhs->data.si);
+}
