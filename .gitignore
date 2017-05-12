@@ -4,10 +4,6 @@ __pycache__
 dist
 *.egg-info
 
-# Python virtualenv
-env
-!rain/core/env
-
 # intermediate files
 *.bc
 *.ll
