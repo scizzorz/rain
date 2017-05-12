@@ -126,4 +126,4 @@ exports = {
   join = join,
   from_iter = from_iter,
   shallow_compare = shallow_compare,
-}
+} :: null

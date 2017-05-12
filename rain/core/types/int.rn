@@ -24,4 +24,4 @@ exports = {
   times = times,
   abs = abs,
   mod = mod,
-}
+} :: null

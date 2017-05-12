@@ -23,4 +23,4 @@ var values = func(self)
 exports = {
   keys = keys,
   values = values,
-}
+} :: null

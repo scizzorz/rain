@@ -468,4 +468,4 @@ exports = {
   _warning = _warning,
   _hint = _hint,
   rain = rain,
-}
+} :: null

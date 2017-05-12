@@ -38,4 +38,4 @@ exports = {
   interrupt = interrupt,
   fpe = fpe,
   segfault = segfault,
-}
+} :: null

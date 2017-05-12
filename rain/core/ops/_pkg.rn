@@ -14,4 +14,4 @@ exports = {
   lt  = foreign "rain_lt"(lhs, rhs),
   le  = foreign "rain_le"(lhs, rhs),
   concat = foreign "rain_string_concat"(lhs, rhs),
-}
+} :: null

@@ -20,4 +20,4 @@ exports = {
   ceil = ceil,
   round = round,
   abs = abs,
-}
+} :: null

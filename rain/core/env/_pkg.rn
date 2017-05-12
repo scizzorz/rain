@@ -8,4 +8,4 @@ var get = foreign "rain_ext_get_env"(name)
 exports = {
   args = args,
   get = get,
-}
+} :: null
