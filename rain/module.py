@@ -334,7 +334,7 @@ class Module(S.Scope):
     return self.extract(box, T.ENV)
 
   def get_vt(self, name):
-    return self.find_global(T.box, 'core.types.' + name)
+    return self.find_global(T.box, 'core.types.' + name + '.exports')
 
   def load_exception(self, name):
     glob = self.find_global(T.ptr(T.box), 'rain_exc_' + name)
@@ -442,11 +442,6 @@ class Module(S.Scope):
     return self.builder.load(ptr)
 
   def store_global(self, value, name):
-    if (name not in self) or not isinstance(self[name], ir.GlobalVariable):
-      table_box = self.exports.initializer
-      key_node = A.str_node(name)
-      self[name] = self.static.put(table_box, key_node, value)
-
     self[name].initializer = value
 
   def load_global(self, name):
