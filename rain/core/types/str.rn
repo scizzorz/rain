@@ -1,14 +1,14 @@
 link "./str.c"
 
-export bool = foreign "rain_ext_truthy"(self)
-export float = foreign "rain_ext_str_float"(self)
-export int = foreign "rain_ext_str_int"(self)
-export str = func(self) -> self
+var bool = foreign "rain_ext_truthy"(self)
+var float = foreign "rain_ext_str_float"(self)
+var int = foreign "rain_ext_str_int"(self)
+var str = func(self) -> self
 
-export length = foreign "rain_ext_str_length"(val)
-export get = foreign "rain_ext_str_char_at"(val, key)
+var length = foreign "rain_ext_str_length"(val)
+var get = foreign "rain_ext_str_char_at"(val, key)
 
-export index_of = func(s, of)
+var index_of = func(s, of)
   var i = 0
   var len = length(s)
   while i < len
@@ -16,7 +16,7 @@ export index_of = func(s, of)
       return i
     i = i + 1
 
-export stripl = func(s)
+var stripl = func(s)
   var start = 0
 
   var i = 0
@@ -27,7 +27,7 @@ export stripl = func(s)
     i = i + 1
   return s[[start, length(s)]]
 
-export split = func(s, at)
+var split = func(s, at)
   var arr = table
   var arr_idx = 0
   var recurse = func(s)
@@ -46,8 +46,23 @@ export split = func(s, at)
   recurse(s)
   return arr
 
-export fmt = foreign "rain_ext_str_fmt"(self, args)
+var fmt = foreign "rain_ext_str_fmt"(self, args)
 
-export str_fmt_error = table :: except.error
+var str_fmt_error = table :: except.error
 str_fmt_error.msg = "invalid format string"
 foreign "rain_exc_str_fmt_error" = str_fmt_error
+
+exports = {
+  bool = bool,
+  float = float,
+  int = int,
+  str = str,
+  length = length,
+  get = get,
+  substring = substring,
+  index_of = index_of,
+  stripl = stripl,
+  split = split,
+  fmt = fmt,
+  str_fmt_error = str_fmt_error,
+}

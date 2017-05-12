@@ -25,7 +25,7 @@ pred_block.new = func(self, pred, body)
 
 # structure
 
-export _block = table :: node
+var _block = table :: node
 
 _block.tag = "block"
 _block.slots = ["expr", "stmts"]
@@ -51,7 +51,7 @@ _block.values = func(self)
 
 # statements
 
-export _assn = table :: node
+var _assn = table :: node
 
 _assn.tag = "assn"
 _assn.slots = ["var", "export", "lhs", "rhs"]
@@ -63,12 +63,12 @@ _assn.new = func(self, lhs, rhs)
   ret.rhs = rhs
 
 
-export _var = table :: _assn
+var _var = table :: _assn
 
 _var._var = true
 
 
-export _export = table :: _assn
+var _export = table :: _assn
 
 _export._export = true
 
@@ -80,7 +80,7 @@ _bind.new = func(self, names)
   save ret = table :: self
   ret.names = names
 
-export _break = table :: node
+var _break = table :: node
 
 _break.tag = "break"
 _break.slots = ["cond"]
@@ -89,7 +89,7 @@ _break.new = func(self, cond)
   ret.cond = cond
 
 
-export _cont = table :: node
+var _cont = table :: node
 
 _cont.tag = "continue"
 _cont.slots = ["cond"]
@@ -98,7 +98,7 @@ _cont.new = func(self, cond)
   ret.cond = cond
 
 
-export _export_foreign = table :: node
+var _export_foreign = table :: node
 
 _export_foreign.tag = "exportforeign"
 _export_foreign.slots = ["name", "rename"]
@@ -108,7 +108,7 @@ _export_foreign.new = func(self, name, rename)
   ret.rename = rename
 
 
-export _if = table :: node
+var _if = table :: node
 
 _if.tag = "if"
 _if.slots = ["pred", "body", "els"]
@@ -119,7 +119,7 @@ _if.new = func(self, pred, body, els)
   ret._els = _els
 
 
-export _import = table :: node
+var _import = table :: node
 
 _import.tag = "import"
 _import.slots = ["name", "rename"]
@@ -129,7 +129,7 @@ _import.new = func(self, name, rename)
   ret.rename = rename
 
 
-export _link = table :: node
+var _link = table :: node
 
 _link.tag = "link"
 _link.slots = ["name"]
@@ -138,7 +138,7 @@ _link.new = func(self, name)
   ret.name = name
 
 
-export _lib = table :: node
+var _lib = table :: node
 
 _lib.tag = "library"
 _lib.slots = ["name"]
@@ -147,7 +147,7 @@ _lib.new = func(self, name)
   ret.name = name
 
 
-export _loop = table :: node
+var _loop = table :: node
 
 _loop.tag = "loop"
 _loop.slots = ["body"]
@@ -156,7 +156,7 @@ _loop.new = func(self, body)
   ret.body = body
 
 
-export _for = table :: node
+var _for = table :: node
 
 _for.tag = "for"
 _for.slots = ["names", "funcs", "body"]
@@ -167,7 +167,7 @@ _for.new = func(self, names, funcs, body)
   ret.body = body
 
 
-export _with = table :: node
+var _with = table :: node
 
 _with.tag = "with"
 _with.slots = ["expr", "params", "body"]
@@ -178,38 +178,38 @@ _with.new = func(self, expr, params, body)
   ret.body = body
 
 
-export _pass = table :: node
+var _pass = table :: node
 
 _pass.tag = "pass"
 
 
-export _return = table :: value_node
+var _return = table :: value_node
 
 _return.tag = "return"
 
 
-export _save = table :: value_node
+var _save = table :: value_node
 
 _save.tag = "save"
 _save.name = null
 
 
-export _until = table :: pred_block
+var _until = table :: pred_block
 
 _until.tag = "until"
 
 
-export _while = table :: pred_block
+var _while = table :: pred_block
 
 _while.tag = "while"
 
 
 # expressions
 
-export expression_node = table :: node
+var expression_node = table :: node
 
 
-export _index = table :: expression_node
+var _index = table :: expression_node
 
 _index.tag = "index"
 _index.slots = ["lhs", "rhs"]
@@ -222,7 +222,7 @@ _index._assn = func(self, value)
   return _assn:new(self, value)
 
 
-export _name = table :: expression_node :: value_node
+var _name = table :: expression_node :: value_node
 
 _name.tag = "name"
 
@@ -236,37 +236,37 @@ _name._export = func(self, value)
   return _export:new(self, value)
 
 
-export _null = table :: expression_node
+var _null = table :: expression_node
 
 _null.tag = "null"
 
 
-export _int = table :: expression_node :: value_node
+var _int = table :: expression_node :: value_node
 
 _int.tag = "int"
 
 
-export _float = table :: expression_node :: value_node
+var _float = table :: expression_node :: value_node
 
 _float.tag = "float"
 
 
-export _bool = table :: expression_node :: value_node
+var _bool = table :: expression_node :: value_node
 
 _bool.tag = "bool"
 
 
-export _str = table :: expression_node :: value_node
+var _str = table :: expression_node :: value_node
 
 _str.tag = "str"
 
 
-export _table = table :: expression_node
+var _table = table :: expression_node
 
 _table.tag = "table"
 
 
-export _array = table :: expression_node
+var _array = table :: expression_node
 
 _array.tag = "array"
 _array.slots = ["items"]
@@ -275,7 +275,7 @@ _array.new = func(self, items)
   self.items = items
 
 
-export _dict = table :: expression_node
+var _dict = table :: expression_node
 
 _dict.tag = "dict"
 _dict.slots = ["items"]
@@ -284,7 +284,7 @@ _dict.new = func(self, items)
   self.items = items
 
 
-export _func = table :: expression_node
+var _func = table :: expression_node
 
 _func.tag = "func"
 _func.slots = ["params", "body", "rename"]
@@ -295,7 +295,7 @@ _func.new = func(self, params, body, rename)
   ret.rename = rename
 
 
-export _catch = table :: expression_node
+var _catch = table :: expression_node
 
 _catch.tag = "catch"
 _catch.slots = ["body"]
@@ -304,7 +304,7 @@ _catch.new = func(self, body)
   ret.body = body
 
 
-export _foreign = table :: expression_node
+var _foreign = table :: expression_node
 
 _foreign.tag = "foreign"
 _foreign.slots = ["name", "params"]
@@ -314,7 +314,7 @@ _foreign.new = func(self, name, params)
   ret.params = params
 
 
-export _call = table :: expression_node
+var _call = table :: expression_node
 
 _call.tag = "call"
 _call._catch = false
@@ -325,12 +325,12 @@ _call.new = func(self, _func, args)
   ret.args = args
 
 
-export _catch_call = table :: _call
+var _catch_call = table :: _call
 
 _catch_call._catch = true
 
 
-export _method = table :: expression_node
+var _method = table :: expression_node
 
 _method.tag = "method"
 _method.slots = ["lhs", "rhs", "args", "catch"]
@@ -342,7 +342,7 @@ _method.new = func(self, lhs, rhs, args, _catch)
   ret._catch = _catch
 
 
-export _binary = table :: expression_node
+var _binary = table :: expression_node
 
 _binary.tag = "binary"
 _binary.slots = ["op", "lhs", "rhs"]
@@ -353,7 +353,7 @@ _binary.new = func(self, lhs, rhs, op)
   ret.op = op
 
 
-export _unary = table :: expression_node
+var _unary = table :: expression_node
 
 _unary.tag = "unary"
 _unary.slots = ["op", "val"]
@@ -392,7 +392,7 @@ expression_node._if = func(self, body, els)
 
 # message nodes
 
-export _message = table :: node
+var _message = table :: node
 
 _message.slots = ["msg"]
 _message.new = func(self, msg)
@@ -400,21 +400,21 @@ _message.new = func(self, msg)
   ret.msg = msg
 
 
-export _error = table :: _message
+var _error = table :: _message
 
 _error.tag = "error"
 
 
-export _warning = table :: _message
+var _warning = table :: _message
 
 _warning.tag = "warning"
 
 
-export _hint = table :: _message
+var _hint = table :: _message
 
 _hint.tag = "hint"
 
-export rain = {
+var rain = {
   exit   = {value="exit"}   :: _name,
   length = {value="length"} :: _name,
   meta   = {value="meta"}   :: _name,
@@ -426,3 +426,46 @@ export rain = {
 
 var init = func "rain.ast.init"()
   pass
+
+
+exports = {
+  _block = _block,
+  _assn = _assn,
+  _break = _break,
+  _cont = _cont,
+  _export_foreign = _export_foreign,
+  _if = _if,
+  _import = _import,
+  _link = _link,
+  _lib = _lib,
+  _loop = _loop,
+  _for = _for,
+  _with = _with,
+  _pass = _pass,
+  _return = _return,
+  _save = _save,
+  _until = _until,
+  _while = _while,
+  _index = _index,
+  _name = _name,
+  _null = _null,
+  _int = _int,
+  _float = _float,
+  _bool = _bool,
+  _str = _str,
+  _table = _table,
+  _array = _array,
+  _dict = _dict,
+  _func = _func,
+  _catch = _catch,
+  _foreign = _foreign,
+  _call = _call,
+  _catch_call = _catch_call,
+  _method = _method,
+  _binary = _binary,
+  _message = _message,
+  _error = _error,
+  _warning = _warning,
+  _hint = _hint,
+  rain = rain,
+}

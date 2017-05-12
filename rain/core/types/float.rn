@@ -1,12 +1,23 @@
 library "m"
 link "./float.c"
 
-export bool = foreign "rain_ext_truthy"(self)
-export float = func(self) -> self
-export int = foreign "rain_ext_float_int"(self)
-export str = foreign "rain_ext_float_str"(self)
+var bool = foreign "rain_ext_truthy"(self)
+var float = func(self) -> self
+var int = foreign "rain_ext_float_int"(self)
+var str = foreign "rain_ext_float_str"(self)
 
-export floor = foreign "rain_ext_float_floor"(self)
-export ceil = foreign "rain_ext_float_ceil"(self)
-export round = foreign "rain_ext_float_round"(self)
-export abs = foreign "rain_ext_float_abs"(self)
+var floor = foreign "rain_ext_float_floor"(self)
+var ceil = foreign "rain_ext_float_ceil"(self)
+var round = foreign "rain_ext_float_round"(self)
+var abs = foreign "rain_ext_float_abs"(self)
+
+exports = {
+  bool = bool,
+  float = float,
+  int = int,
+  str = str,
+  floor = floor,
+  ceil = ceil,
+  round = round,
+  abs = abs,
+}

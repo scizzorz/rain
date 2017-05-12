@@ -1,12 +1,3 @@
-export i_null = 0
-export i_int = 1
-export i_float = 2
-export i_bool = 3
-export i_str = 4
-export i_table = 5
-export i_func = 6
-export i_cdata = 7
-
 import ./int
 import ./float
 import ./bool
@@ -14,9 +5,18 @@ import ./str
 import ./array
 import ./dict
 
+var i_null = 0
+var i_int = 1
+var i_float = 2
+var i_bool = 3
+var i_str = 4
+var i_table = 5
+var i_func = 6
+var i_cdata = 7
+
 var meta = foreign "rain_ext_meta"(val)
 
-export is = func(child, parent)
+var is = func(child, parent)
   while child != null
     if child == parent
       return true
@@ -30,3 +30,15 @@ foreign "rain_vt_bool" = bool
 foreign "rain_vt_str" = str
 foreign "rain_vt_array" = array
 foreign "rain_vt_dict" = dict
+
+exports = {
+  is = is,
+  i_null = i_null,
+  i_int = i_int,
+  i_float = i_float,
+  i_bool = i_bool,
+  i_str = i_str,
+  i_table = i_table,
+  i_func = i_func,
+  i_cdata = i_cdata,
+}

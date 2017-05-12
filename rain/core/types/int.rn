@@ -1,11 +1,11 @@
 link "./int.c"
 
-export bool = foreign "rain_ext_truthy"(self)
-export float = foreign "rain_ext_int_float"(self)
-export int = func(self) -> self
-export str = foreign "rain_ext_int_str"(self)
+var bool = foreign "rain_ext_truthy"(self)
+var float = foreign "rain_ext_int_float"(self)
+var int = func(self) -> self
+var str = foreign "rain_ext_int_str"(self)
 
-export times = func(self)
+var times = func(self)
   return func(block)
     bind self
     var i = 0
@@ -13,5 +13,15 @@ export times = func(self)
       block(i)
       i = i + 1
 
-export abs = foreign "rain_ext_int_abs"(self)
-export mod = foreign "rain_ext_int_mod"(self, other)
+var abs = foreign "rain_ext_int_abs"(self)
+var mod = foreign "rain_ext_int_mod"(self, other)
+
+exports = {
+  bool = bool,
+  float = float,
+  int = int,
+  str = str,
+  times = times,
+  abs = abs,
+  mod = mod,
+}

@@ -1,16 +1,23 @@
-export bool = func(self) -> self
+var bool = func(self) -> self
 
-export float = func(self)
+var float = func(self)
   if self
     return 1.0
   return 0.0
 
-export int = func(self)
+var int = func(self)
   if self
     return 1
   return 0
 
-export str = func(self)
+var str = func(self)
   if self
     return "true"
   return "false"
+
+exports = {
+  bool = bool,
+  float = float,
+  int = int,
+  str = str,
+}

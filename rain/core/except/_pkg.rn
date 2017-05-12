@@ -1,23 +1,23 @@
 link "./except.c"
 
-export error = table
+var error = table
 error.msg = "error"
 error.str = func(self)
   return self.msg
 
-export arg_mismatch = table :: error
+var arg_mismatch = table :: error
 arg_mismatch.msg = "argument mismatch"
 
-export uncallable = table :: error
+var uncallable = table :: error
 uncallable.msg = "uncallable value"
 
-export interrupt = table :: error
+var interrupt = table :: error
 interrupt.msg = "received interrupt signal"
 
-export fpe = table :: error
+var fpe = table :: error
 fpe.msg = "floating point error"
 
-export segfault = table :: error
+var segfault = table :: error
 segfault.msg = "segmentation fault"
 
 export unbound_var = table :: error
@@ -30,3 +30,12 @@ foreign "rain_exc_fpe" = fpe
 foreign "rain_exc_interrupt" = interrupt
 foreign "rain_exc_segfault" = segfault
 foreign "rain_exc_uncallable" = uncallable
+
+exports = {
+  error = error,
+  arg_mismatch = arg_mismatch,
+  uncallable = uncallable,
+  interrupt = interrupt,
+  fpe = fpe,
+  segfault = segfault,
+}
