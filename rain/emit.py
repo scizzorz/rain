@@ -253,7 +253,7 @@ def emit(self, module):
 
 
 @A.macro_node.method
-def expand(self, module, name):
+def define(self, module, name):
   typ = T.vfunc(T.arg, *[T.arg for x in self.params])
 
   A.func_node(self.params, self.body, 'macro.func.real:' + name).emit(module)

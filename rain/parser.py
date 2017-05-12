@@ -66,7 +66,7 @@ class macro:
       A.assn_node(symcount, A.binary_node(symcount, A.int_node(1), '+'))
     ])), var=True).emit(mod)
 
-    node.expand(mod, self.name)
+    node.define(mod, self.name)
 
     for src in mod.imports:
       comp = C.get_compiler(src)
