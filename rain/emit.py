@@ -86,7 +86,12 @@ def emit_global(self, module):
     if self.lhs not in module:
       Q.abort("Undeclared global {!r}", self.lhs.value, pos=self.lhs.coords)
 
-    module.store_global(module.emit(self.rhs), self.lhs.value)
+    if self.rhs:
+      rhs = module.emit(self.rhs)
+    else:
+      rhs = T.null
+
+    module.store_global(rhs, self.lhs.value)
 
   elif isinstance(self.lhs, A.idx_node):
     table_box = module.emit(self.lhs.lhs)
@@ -130,7 +135,10 @@ def emit_local(self, module):
         module[self.lhs] = module.alloc(T.null)
         module[self.lhs].bound = False  # cheesy hack - see @func_node
 
-    rhs = module.emit(self.rhs)
+    if self.rhs:
+      rhs = module.emit(self.rhs)
+    else:
+      rhs = T.null
 
     if self.lhs not in module:
       Q.abort("Undeclared name {!r}", self.lhs.value, pos=self.lhs.coords)

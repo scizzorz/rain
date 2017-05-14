@@ -216,7 +216,7 @@ def block(ctx):
   return A.block_node(stmts)
 
 
-# stmt :: 'var' var_prefix '=' compound
+# stmt :: 'var' var_prefix ('=' compound)?
 #       | 'export' NAME '=' compound
 #       | 'foreign' (NAME | STRING) '=' NAME
 #       | 'import' (NAME '=')? import_mod
@@ -239,8 +239,9 @@ def block(ctx):
 def stmt(ctx):
   if ctx.consume(K.keyword_token('var')):
     lhs = var_prefix(ctx)
-    ctx.require(K.symbol_token('='))
-    rhs = compound(ctx)
+    rhs = None
+    if ctx.consume(K.symbol_token('=')):
+      rhs = compound(ctx)
     return A.assn_node(lhs, rhs, var=True)
 
   if ctx.consume(K.keyword_token('export')):

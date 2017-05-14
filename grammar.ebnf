@@ -2,7 +2,7 @@ program :: (stmt NEWLINE)+ EOF
 
 block :: INDENT (stmt NEWLINE)+ DEDENT
 
-stmt :: 'var' var_prefix '=' compound
+stmt :: 'var' var_prefix ('=' compound)?
       | 'export' NAME '=' compound
       | 'foreign' (NAME | STRING) '=' NAME
       | 'import' (NAME '=')? import_mod
