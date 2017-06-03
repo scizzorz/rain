@@ -44,6 +44,7 @@ _block.add = func(self, stmt)
 _block.values = func(self)
   var i = 0
   return func()
+    bind i, self
     save self.stmts[i]
     i = i + 1
 
@@ -71,6 +72,13 @@ export _export = table :: _assn
 
 _export._export = true
 
+export _bind = table :: node
+
+_bind.tag = "bind"
+_bind.slots = ["names"]
+_bind.new = func(self, names)
+  save ret = table :: self
+  ret.names = names
 
 export _break = table :: node
 

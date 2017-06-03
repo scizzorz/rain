@@ -120,6 +120,15 @@ class assn_node(node):
     self.export = export
 
 
+class bind_node(node):
+  __tag__ = 'bind'
+  __version__ = 1
+  __slots__ = ['names']
+
+  def __init__(self, names):
+    self.names = names
+
+
 class break_node(node):
   __tag__ = 'break'
   __version__ = 1

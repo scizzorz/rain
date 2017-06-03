@@ -7,12 +7,14 @@ export length = foreign "rain_ext_array_length"(val)
 export values = func(self)
   var i = 0
   return func()
+    bind i, self
     save self[i]
     i = i + 1
 
 export keys = func(self)
   var i = 0
   return func()
+    bind i, self
     if self[i] == null
       return
 
@@ -22,6 +24,7 @@ export keys = func(self)
 export items = func(self)
   var i = 0
   return func()
+    bind i, self
     if self[i] == null
       return null
 

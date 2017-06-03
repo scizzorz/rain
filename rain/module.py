@@ -124,6 +124,7 @@ class Module(S.Scope):
     self.loop = None
     self.after = None
     self.ret_ptr = None
+    self.bindings = None
 
     self.name_counter = 0
 
@@ -235,9 +236,10 @@ class Module(S.Scope):
 
   @contextmanager
   def add_func_body(self, func):
-    with self.stack('ret_ptr', 'arg_ptrs', 'landingpad'):
+    with self.stack('ret_ptr', 'arg_ptrs', 'landingpad', 'bindings'):
       entry = func.append_basic_block('entry')
       body = func.append_basic_block('body')
+      self.bindings = set()
       self.ret_ptr = func.args[0]
       self.arg_ptrs = []
       self.landingpad = None

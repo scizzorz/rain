@@ -7,6 +7,7 @@ export str = foreign "rain_ext_int_str"(self)
 
 export times = func(self)
   return func(block)
+    bind self
     var i = 0
     while i < self
       block(i)
