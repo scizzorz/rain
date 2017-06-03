@@ -20,6 +20,10 @@ fpe.msg = "floating point error"
 export segfault = table :: error
 segfault.msg = "segmentation fault"
 
+export unbound_var = table :: error
+unbound_var.msg = "unbound variable"
+
+foreign "rain_exc_unbound_var" = unbound_var
 foreign "rain_exc_arg_mismatch" = arg_mismatch
 foreign "rain_exc_error" = error
 foreign "rain_exc_fpe" = fpe

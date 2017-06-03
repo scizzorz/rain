@@ -165,6 +165,12 @@ def emit_local(self, module):
   for i, name in enumerate(self.names):
     module.store(A.str_node(name).emit(module), key_ptr)
     module[name] = module.runtime.get_ptr(env_ptr, key_ptr)
+    module[name].bound = True
+
+    is_null = module.builder.icmp_unsigned('==', module[name], T.arg(None))
+    with module.builder.if_then(is_null):
+      module.runtime.panic(module.load_exception('unbound_var'))
+
     module.bindings.add(name)
 
   module.store(T.null, module.ret_ptr)
