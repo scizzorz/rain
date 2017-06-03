@@ -16,6 +16,11 @@ keyword 'func'
 symbol '('
 symbol ')'
 indent
+keyword 'bind'
+name 'i'
+symbol ','
+name 'n'
+newline
 keyword 'if'
 name 'i'
 operator '=='

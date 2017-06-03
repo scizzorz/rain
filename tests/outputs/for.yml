@@ -20,6 +20,10 @@ stmts:
           body: !block;2
             expr: null
             stmts:
+            - !bind;1
+              names:
+              - i
+              - n
             - !if;1
               body: !block;2
                 expr: null
