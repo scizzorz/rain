@@ -160,7 +160,7 @@ def emit_local(self, module):
   with module.goto_entry():
     key_ptr = module.alloc()
 
-  env_ptr = module.ret_ptr
+  env_ptr = module.bind_ptr
 
   for i, name in enumerate(self.names):
     module.store(A.str_node(name).emit(module), key_ptr)
@@ -172,8 +172,6 @@ def emit_local(self, module):
       module.runtime.panic(module.load_exception('unbound_var'))
 
     module.bindings.add(name)
-
-  module.store(T.null, module.ret_ptr)
 
 
 @A.break_node.method
