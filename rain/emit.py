@@ -619,7 +619,7 @@ def emit(self, module):
       # cheesy hack - the only time any of these values will ever
       # have a bound value of False will be when it's the item
       # currently being bound, ie, it's this function
-      if getattr(ptr, 'bound', None) is False:
+      if getattr(module[name], 'bound', None) is False:
         module.runtime.put(env_ptr, key_ptr, self_ptr)
       else:
         module.runtime.put(env_ptr, key_ptr, module[name])
