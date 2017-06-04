@@ -124,6 +124,8 @@ class Module(S.Scope):
     self.loop = None
     self.after = None
     self.ret_ptr = None
+    self.bind_ptr = None
+    self.bindings = None
 
     self.name_counter = 0
 
@@ -235,13 +237,20 @@ class Module(S.Scope):
 
   @contextmanager
   def add_func_body(self, func):
-    with self.stack('ret_ptr', 'arg_ptrs', 'landingpad'):
+    with self.stack('ret_ptr', 'bind_ptr', 'arg_ptrs', 'landingpad', 'bindings'):
       entry = func.append_basic_block('entry')
       body = func.append_basic_block('body')
+      self.bindings = set()
       self.ret_ptr = func.args[0]
       self.arg_ptrs = []
       self.landingpad = None
       with self.add_builder(entry):
+        # create a pointer using the incoming binding data
+        if self.ret_ptr.type == T.arg:
+          self.bind_ptr = self.alloc()
+          self.store(self.load(self.ret_ptr), self.bind_ptr)
+          self.store(T.null, self.ret_ptr)
+
         self.builder.branch(body)
 
       with self.add_builder(body):

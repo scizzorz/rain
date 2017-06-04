@@ -36,6 +36,7 @@ export split = func(s, at)
   var arr = table
   var arr_idx = 0
   var recurse = func(s)
+    bind arr, arr_idx, at, recurse
     if s == null | s == ""
       return
     var i = index_of(s, at)

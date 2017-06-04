@@ -217,6 +217,7 @@ def block(ctx):
 
 
 # stmt :: 'var' var_prefix ('=' compound)?
+#       | 'bind' NAME (',' NAME)*
 #       | 'export' NAME '=' compound
 #       | 'foreign' (NAME | STRING) '=' NAME
 #       | 'import' (NAME '=')? import_mod
@@ -243,6 +244,10 @@ def stmt(ctx):
     if ctx.consume(K.symbol_token('=')):
       rhs = compound(ctx)
     return A.assn_node(lhs, rhs, var=True)
+
+  if ctx.consume(K.keyword_token('bind')):
+    names = fnparams(ctx, parens=False)
+    return A.bind_node(names)
 
   if ctx.consume(K.keyword_token('export')):
     name = ctx.require(K.name_token).value
@@ -636,6 +641,7 @@ def compound(ctx):
     return macro_exp(ctx)
 
   if ctx.consume(K.keyword_token('func')):
+    pos = ctx.past[-1]
     rename = None
     if ctx.expect(K.name_token, K.string_token):
       rename = ctx.require(K.name_token, K.string_token).value
@@ -644,10 +650,16 @@ def compound(ctx):
 
     if ctx.consume(K.operator_token('->')):
       exp = binexpr(ctx)
-      return A.func_node(params, A.return_node(exp))
+
+      node = A.func_node(params, A.return_node(exp))
+      node.coords = pos
+      return node
 
     body = block(ctx)
-    return A.func_node(params, body, rename)
+
+    node = A.func_node(params, body, rename)
+    node.coords = pos
+    return node
 
   if ctx.consume(K.keyword_token('catch')):
     body = block(ctx)
@@ -714,10 +726,14 @@ def unexpr(ctx):
 #         | primary
 def simple(ctx):
   if ctx.consume(K.keyword_token('func')):
+    pos = ctx.past[-1]
     params = fnparams(ctx)
     ctx.require(K.operator_token('->'))
     exp = binexpr(ctx)
-    return A.func_node(params, A.return_node(exp))
+
+    node = A.func_node(params, A.return_node(exp))
+    node.coords = pos
+    return node
 
   if ctx.consume(K.keyword_token('foreign')):
     name = ctx.require(K.name_token, K.string_token).value

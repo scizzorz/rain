@@ -31,7 +31,7 @@ class Scope:
     self.pop()
 
   def __getitem__(self, key):
-    for scope in self.scopes[::-1]:
+    for scope in (self.top, self.globals):
       if key in scope:
         return scope[key]
     raise KeyError('Key {!r} not found'.format(key))
@@ -40,7 +40,7 @@ class Scope:
     self.top[key] = val
 
   def __contains__(self, key):
-    for scope in self.scopes:
+    for scope in (self.top, self.globals):
       if key in scope:
         return True
     return False

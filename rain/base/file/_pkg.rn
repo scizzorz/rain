@@ -22,6 +22,7 @@ base.close = func(self)
 
 base.lines = func(self)
   return func()
+    bind self
     return self:readline()
 
 export open = func(name, mode)

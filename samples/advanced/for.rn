@@ -3,6 +3,7 @@
 var range = func(n)
   var i = 0
   return func()
+    bind i, n
     if i == n
       return
 

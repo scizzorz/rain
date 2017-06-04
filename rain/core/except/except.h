@@ -65,5 +65,6 @@ box *rain_exc_uncallable;
 box *rain_exc_interrupt;
 box *rain_exc_fpe;
 box *rain_exc_segfault;
+box *rain_exc_unbound_var;
 
 #endif

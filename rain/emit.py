@@ -155,6 +155,25 @@ def emit_local(self, module):
     module.runtime.put(*args)
 
 
+@A.bind_node.method
+def emit_local(self, module):
+  with module.goto_entry():
+    key_ptr = module.alloc()
+
+  env_ptr = module.bind_ptr
+
+  for i, name in enumerate(self.names):
+    module.store(A.str_node(name).emit(module), key_ptr)
+    module[name] = module.runtime.get_ptr(env_ptr, key_ptr)
+    module[name].bound = True
+
+    is_null = module.builder.icmp_unsigned('==', module[name], T.arg(None))
+    with module.builder.if_then(is_null):
+      module.runtime.panic(module.load_exception('unbound_var'))
+
+    module.bindings.add(name)
+
+
 @A.break_node.method
 def emit(self, module):
   if not self.cond:
@@ -182,7 +201,7 @@ def emit(self, module):
 @A.export_foreign_node.method
 def emit_global(self, module):
   if self.name not in module:
-    Q.abort("Can't export unknown name {!r}", self.name, self.rename, pos=self.coords)
+    Q.abort("Can't export unknown name {!r}", self.name, pos=self.coords)
 
   glob = module.add_global(T.ptr(T.box), name=self.rename)
   glob.initializer = module[self.name]
@@ -550,42 +569,29 @@ def emit_local(self, module):
 
 @A.func_node.method
 def emit(self, module):
-  env = OrderedDict()
-  for scope in module.scopes[1:]:
-    for nm, ptr in scope.items():
-      env[nm] = ptr
-
   typ = T.vfunc(T.arg, *[T.arg for x in self.params])
 
   func = module.add_func(typ, name=self.rename)
   func.attributes.personality = module.runtime.personality
   func.args[0].add_attribute('sret')
 
+  bindings = set()
+
   with module:
     with module.add_func_body(func):
-      if env:
-        with module.goto_entry():
-          key_ptr = module.alloc()
-
-        env_ptr = func.args[0]
-
-        for i, (name, ptr) in enumerate(env.items()):
-          module.store(A.str_node(name).emit(module), key_ptr)
-          module[name] = module.runtime.get_ptr(env_ptr, key_ptr)
-
-        module.store(T.null, func.args[0])
-
       for name, ptr in zip(self.params, func.args[1:]):
         module[name] = ptr
 
       module.emit(self.body)
+
+      bindings = module.bindings
 
       if not module.builder.block.is_terminated:
         module.builder.ret_void()
 
   func_box = T._func(func, len(self.params))
 
-  if env:
+  if bindings:
     env_ptr = module.runtime.new_table()
 
     func_box = module.insert(func_box, env_ptr, T.ENV)
@@ -596,15 +602,16 @@ def emit(self, module):
 
     module.store(func_box, self_ptr)
 
-    for i, (name, ptr) in enumerate(env.items()):
+    for i, name in enumerate(bindings):
+      module.store(A.str_node(name).emit(module), key_ptr)
+
       # cheesy hack - the only time any of these values will ever
       # have a bound value of False will be when it's the item
       # currently being bound, ie, it's this function
-      module.store(A.str_node(name).emit(module), key_ptr)
-      if getattr(ptr, 'bound', None) is False:
+      if getattr(module[name], 'bound', None) is False:
         module.runtime.put(env_ptr, key_ptr, self_ptr)
       else:
-        module.runtime.put(env_ptr, key_ptr, ptr)
+        module.runtime.put(env_ptr, key_ptr, module[name])
 
   return func_box
 
