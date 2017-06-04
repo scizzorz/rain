@@ -569,11 +569,6 @@ def emit_local(self, module):
 
 @A.func_node.method
 def emit(self, module):
-  env = OrderedDict()
-  for scope in module.scopes[1:]:
-    for nm, ptr in scope.items():
-      env[nm] = ptr
-
   typ = T.vfunc(T.arg, *[T.arg for x in self.params])
 
   func = module.add_func(typ, name=self.rename)
@@ -595,10 +590,6 @@ def emit(self, module):
         module.builder.ret_void()
 
   func_box = T._func(func, len(self.params))
-
-  if env and not bindings:
-    Q.warn('Is this function trying to implicitly close?', pos=self.coords)
-    print('  ', set(env))
 
   if bindings:
     env_ptr = module.runtime.new_table()
