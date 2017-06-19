@@ -824,6 +824,12 @@ def prefix(ctx):
   elif ctx.consume(K.table_token):
     node = A.table_node()
 
+    if ctx.expect(K.symbol_token('{')):
+      pos = ctx.past[-1]
+      node = A.dict_node(dict_expr(ctx), set_meta=False)
+      node.coords = pos
+      return node
+
   else:
     node = A.name_node(ctx.require(K.name_token).value)
 

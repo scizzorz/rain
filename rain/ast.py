@@ -363,11 +363,12 @@ class array_node(expr_node):
 
 class dict_node(expr_node):
   __tag__ = 'dict'
-  __version__ = 1
-  __slots__ = ['items']
+  __version__ = 2
+  __slots__ = ['items', 'set_meta']
 
-  def __init__(self, items):
+  def __init__(self, items, set_meta=True):
     self.items = items
+    self.set_meta = set_meta
 
 
 class func_node(expr_node):
