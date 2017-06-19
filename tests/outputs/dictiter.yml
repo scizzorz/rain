@@ -12,7 +12,7 @@ stmts:
         export: false
         lhs: !name;1
           value: obj
-        rhs: !dict;1
+        rhs: !dict;2
           items:
           - - !str;1
               value: one
@@ -30,6 +30,7 @@ stmts:
               value: fo_ur
             - !str;1
               value: four
+          set_meta: true
         var: true
       - !for;3
         body: !block;2

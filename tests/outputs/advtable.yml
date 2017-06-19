@@ -17,7 +17,7 @@ stmts:
   export: false
   lhs: !name;1
     value: gd
-  rhs: !dict;1
+  rhs: !dict;2
     items:
     - - !str;1
         value: greeting
@@ -35,6 +35,7 @@ stmts:
         value: 1
       - !str;1
         value: One
+    set_meta: true
   var: true
 - !assn;3
   export: false
@@ -61,7 +62,7 @@ stmts:
         export: false
         lhs: !name;1
           value: ld
-        rhs: !dict;1
+        rhs: !dict;2
           items:
           - - !str;1
               value: greeting
@@ -82,6 +83,7 @@ stmts:
                 value: 0
             - !str;1
               value: Four
+          set_meta: true
         var: true
       - !for;3
         body: !block;2

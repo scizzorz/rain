@@ -546,9 +546,10 @@ def emit_global(self, module):
 
     module.static.put(table_box, key_node, val)
 
-  old_box = table_box
-  table_box = T.insertvalue(table_box, module.get_vt('dict'), T.ENV)
-  module.static.repair(table_box, old_box)
+  if self.set_meta:
+    old_box = table_box
+    table_box = T.insertvalue(table_box, module.get_vt('dict'), T.ENV)
+    module.static.repair(table_box, old_box)
 
   return table_box
 
@@ -562,7 +563,9 @@ def emit_local(self, module):
     module.runtime.put(ptr, *args)
 
   ret = module.load(ptr)
-  ret = module.insert(ret, module.get_vt('dict'), T.ENV)
+
+  if self.set_meta:
+    ret = module.insert(ret, module.get_vt('dict'), T.ENV)
 
   return ret
 
