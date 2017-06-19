@@ -4,14 +4,7 @@ stmts:
   name: modb
   rename: null
 - !assn;3
-  export: true
-  lhs: !name;1
-    value: name
-  rhs: !str;1
-    value: module a
-  var: false
-- !assn;3
-  export: true
+  export: false
   lhs: !name;1
     value: init
   rhs: !func;2
@@ -27,9 +20,9 @@ stmts:
           value: print
     params: []
     rename: null
-  var: false
+  var: true
 - !assn;3
-  export: true
+  export: false
   lhs: !name;1
     value: test
   rhs: !func;2
@@ -42,14 +35,17 @@ stmts:
           lhs: !str;1
             value: 'moda.name = '
           op: $
-          rhs: !name;1
-            value: name
+          rhs: !index;1
+            lhs: !name;1
+              value: exports
+            rhs: !str;1
+              value: name
         catch: false
         func: !name;1
           value: print
     params: []
     rename: null
-  var: false
+  var: true
 - !assn;3
   export: false
   lhs: !name;1
@@ -80,8 +76,11 @@ stmts:
             value: test
       - !assn;3
         export: false
-        lhs: !name;1
-          value: name
+        lhs: !index;1
+          lhs: !name;1
+            value: exports
+          rhs: !str;1
+            value: name
         rhs: !str;1
           value: new a module
         var: false
@@ -111,3 +110,23 @@ stmts:
     params: []
     rename: null
   var: true
+- !assn;3
+  export: false
+  lhs: !name;1
+    value: exports
+  rhs: !dict;2
+    items:
+    - - !str;1
+        value: name
+      - !str;1
+        value: module a
+    - - !str;1
+        value: test
+      - !name;1
+        value: test
+    - - !str;1
+        value: main
+      - !name;1
+        value: main
+    set_meta: false
+  var: false
