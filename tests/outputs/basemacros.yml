@@ -20,7 +20,7 @@ stmts:
   export: false
   lhs: !name;1
     value: node
-  rhs: !dict;1
+  rhs: !dict;2
     items:
     - - !str;1
         value: tag
@@ -30,12 +30,13 @@ stmts:
         value: body
       - !str;1
         value: body
+    set_meta: true
   var: true
 - !assn;3
   export: false
   lhs: !name;1
     value: person
-  rhs: !dict;1
+  rhs: !dict;2
     items:
     - - !str;1
         value: name
@@ -53,6 +54,7 @@ stmts:
         value: married
       - !bool;1
         value: true
+    set_meta: true
   var: true
 - !assn;3
   export: false
