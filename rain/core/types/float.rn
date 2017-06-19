@@ -11,7 +11,7 @@ var ceil = foreign "rain_ext_float_ceil"(self)
 var round = foreign "rain_ext_float_round"(self)
 var abs = foreign "rain_ext_float_abs"(self)
 
-exports = {
+exports = table {
   bool = bool,
   float = float,
   int = int,
@@ -20,4 +20,4 @@ exports = {
   ceil = ceil,
   round = round,
   abs = abs,
-} :: null
+}

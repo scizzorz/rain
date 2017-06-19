@@ -16,7 +16,7 @@ var times = func(self)
 var abs = foreign "rain_ext_int_abs"(self)
 var mod = foreign "rain_ext_int_mod"(self, other)
 
-exports = {
+exports = table {
   bool = bool,
   float = float,
   int = int,
@@ -24,4 +24,4 @@ exports = {
   times = times,
   abs = abs,
   mod = mod,
-} :: null
+}

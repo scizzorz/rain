@@ -5,7 +5,7 @@ foreign "rain_args" = args
 
 var get = foreign "rain_ext_get_env"(name)
 
-exports = {
+exports = table {
   args = args,
   get = get,
-} :: null
+}

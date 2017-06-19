@@ -15,9 +15,9 @@ var str = func(self)
     return "true"
   return "false"
 
-exports = {
+exports = table {
   bool = bool,
   float = float,
   int = int,
   str = str,
-} :: null
+}

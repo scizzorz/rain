@@ -31,7 +31,7 @@ foreign "rain_vt_str" = str
 foreign "rain_vt_array" = array
 foreign "rain_vt_dict" = dict
 
-exports = {
+exports = table {
   is = is,
   i_null = i_null,
   i_int = i_int,
@@ -41,4 +41,4 @@ exports = {
   i_table = i_table,
   i_func = i_func,
   i_cdata = i_cdata,
-} :: null
+}

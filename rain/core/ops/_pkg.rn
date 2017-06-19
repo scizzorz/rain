@@ -1,4 +1,4 @@
-exports = {
+exports = table {
   add = foreign "rain_add"(lhs, rhs),
   sub = foreign "rain_sub"(lhs, rhs),
   mul = foreign "rain_mul"(lhs, rhs),
@@ -14,4 +14,4 @@ exports = {
   lt  = foreign "rain_lt"(lhs, rhs),
   le  = foreign "rain_le"(lhs, rhs),
   concat = foreign "rain_string_concat"(lhs, rhs),
-} :: null
+}

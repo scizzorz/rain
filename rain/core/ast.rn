@@ -72,7 +72,7 @@ var _export = table :: _assn
 
 _export._export = true
 
-export _bind = table :: node
+var _bind = table :: node
 
 _bind.tag = "bind"
 _bind.slots = ["names"]
@@ -428,7 +428,7 @@ var init = func "rain.ast.init"()
   pass
 
 
-exports = {
+exports = table {
   _block = _block,
   _assn = _assn,
   _break = _break,
@@ -468,4 +468,4 @@ exports = {
   _warning = _warning,
   _hint = _hint,
   rain = rain,
-} :: null
+}

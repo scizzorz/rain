@@ -20,7 +20,7 @@ fpe.msg = "floating point error"
 var segfault = table :: error
 segfault.msg = "segmentation fault"
 
-export unbound_var = table :: error
+var unbound_var = table :: error
 unbound_var.msg = "unbound variable"
 
 foreign "rain_exc_unbound_var" = unbound_var
@@ -31,11 +31,11 @@ foreign "rain_exc_interrupt" = interrupt
 foreign "rain_exc_segfault" = segfault
 foreign "rain_exc_uncallable" = uncallable
 
-exports = {
+exports = table {
   error = error,
   arg_mismatch = arg_mismatch,
   uncallable = uncallable,
   interrupt = interrupt,
   fpe = fpe,
   segfault = segfault,
-} :: null
+}

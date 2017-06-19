@@ -110,7 +110,7 @@ var shallow_compare = func(l, r)
       return false
     i = i + 1
 
-exports = {
+exports = table {
   length = length,
   values = values,
   keys = keys,
@@ -126,4 +126,4 @@ exports = {
   join = join,
   from_iter = from_iter,
   shallow_compare = shallow_compare,
-} :: null
+}
