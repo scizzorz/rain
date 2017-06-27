@@ -189,3 +189,18 @@ void rain_put_aux(box *tab, box *key, box *val, item *pair) {
     }
   }
 }
+
+void rain_ext_get(box *ret, box *tab, box *key) {
+  box clone;
+  rain_set_box(&clone, tab);
+  clone.env = NULL;
+  rain_get(ret, &clone, key);
+}
+
+void rain_ext_set(box *ret, box *tab, box *key, box *val) {
+  box clone;
+  rain_set_box(&clone, tab);
+  clone.env = NULL;
+
+  rain_put(&clone, key, val);
+}
