@@ -114,10 +114,27 @@ void rain_get(box *ret, box *tab, box *key) {
 }
 
 void rain_put(box *tab, box *key, box *val) {
-  rain_put_aux(tab, key, val, NULL);
-}
+  box index_ret;
+  box index_key;
+  box index_func;
 
-void rain_put_aux(box *tab, box *key, box *val, item *pair) {
+  if(rain_has_meta(tab)) {
+    rain_set_null(&index_ret);
+    rain_set_str(&index_key, "set");
+    rain_set_null(&index_func);
+    rain_get(&index_func, tab->env, &index_key);
+
+    if(BOX_IS(&index_func, FUNC) && index_func.size == 3) {
+      void (*func_ptr)(box *, box *, box *, box *) = (void (*)(box *, box *, box *, box *))(index_func.data.vp);
+      if(rain_has_meta(&index_func)) {
+        rain_set_box(&index_ret, index_func.env);
+      }
+
+      func_ptr(&index_ret, tab, key, val);
+      return;
+    }
+  }
+
   if(BOX_IS(tab, FUNC) && rain_has_meta(tab)) {
     rain_put(tab->env, key, val);
     return;
@@ -127,6 +144,10 @@ void rain_put_aux(box *tab, box *key, box *val, item *pair) {
     rain_panic(rain_exc_arg_mismatch);
   }
 
+  rain_put_aux(tab, key, val, NULL);
+}
+
+void rain_put_aux(box *tab, box *key, box *val, item *pair) {
   int cur = tab->data.lpt->cur;
   int max = tab->data.lpt->max;
   item **items = tab->data.lpt->items;
