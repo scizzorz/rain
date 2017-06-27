@@ -35,8 +35,8 @@ void rain_ext_panic(box *ret, box *val) {
 }
 
 void rain_ext_to_str(box *ret, box *val) {
-  box key;
-  box to_str;
+  box str_key;
+  box str_func;
 
   switch(val->type) {
     case ITYP_NULL:
@@ -64,14 +64,14 @@ void rain_ext_to_str(box *ret, box *val) {
     case ITYP_TABLE:
       // look up ["str"] on metatable
       if(val->env != NULL) {
-        rain_set_str(&key, "str");
-        rain_set_null(&to_str);
-        rain_get(&to_str, val->env, &key);
+        rain_set_str(&str_key, "str");
+        rain_set_null(&str_func);
+        rain_get(&str_func, val->env, &str_key);
 
-        if(BOX_IS(&to_str, FUNC) && to_str.size == 1) {
-          void (*func_ptr)(box *, box *) = (void (*)(box *, box *))(to_str.data.vp);
-          if(to_str.env != NULL) {
-            rain_set_box(ret, to_str.env);
+        if(BOX_IS(&str_func, FUNC) && str_func.size == 1) {
+          void (*func_ptr)(box *, box *) = (void (*)(box *, box *))(str_func.data.vp);
+          if(str_func.env != NULL) {
+            rain_set_box(ret, str_func.env);
           }
           func_ptr(ret, val);
           break;
