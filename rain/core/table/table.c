@@ -70,6 +70,25 @@ box *rain_get_ptr(box *tab, box *key) {
 }
 
 void rain_get(box *ret, box *tab, box *key) {
+  box index_key;
+  box index_func;
+
+  if(tab->env != NULL) {
+    rain_set_str(&index_key, "get");
+    rain_set_null(&index_func);
+    rain_get(&index_func, tab->env, &index_key);
+
+    rain_check_callable(&index_func, 2);
+
+    void (*func_ptr)(box *, box *, box *) = (void (*)(box *, box *, box *))(index_func.data.vp);
+    if(index_func.env != NULL) {
+      rain_set_box(ret, index_func.env);
+    }
+
+    func_ptr(ret, tab, key);
+    return;
+  }
+
   if(BOX_IS(tab, STR) && BOX_IS(key, INT)) {
     if(key->data.si >= 0 && key->data.si < tab->size) {
       rain_set_strcpy(ret, tab->data.s + key->data.si, 1);
