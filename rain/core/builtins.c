@@ -62,16 +62,20 @@ void rain_ext_to_str(box *ret, box *val) {
       break;
 
     case ITYP_TABLE:
-      rain_set_str(&key, "str");
-      rain_set_null(&to_str);
-      rain_get(&to_str, val, &key);
-      if(BOX_IS(&to_str, FUNC) && to_str.size == 1) {
-        void (*func_ptr)(box *, box *) = (void (*)(box *, box *))(to_str.data.vp);
-        if(to_str.env != NULL) {
-          rain_set_box(ret, to_str.env);
+      // look up ["str"] on metatable
+      if(val->env != NULL) {
+        rain_set_str(&key, "str");
+        rain_set_null(&to_str);
+        rain_get(&to_str, val->env, &key);
+
+        if(BOX_IS(&to_str, FUNC) && to_str.size == 1) {
+          void (*func_ptr)(box *, box *) = (void (*)(box *, box *))(to_str.data.vp);
+          if(to_str.env != NULL) {
+            rain_set_box(ret, to_str.env);
+          }
+          func_ptr(ret, val);
+          break;
         }
-        func_ptr(ret, val);
-        break;
       }
 
       sprintf(rain_to_str_buf, "table 0x%08lx", val->data.ui);

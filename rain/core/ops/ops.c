@@ -8,6 +8,7 @@
 void rain_binary_magic(box *ret, box *lhs, box *rhs, char *meth) {
   box key;
   box val;
+
   if(lhs->env == NULL) {
     return;
   }
