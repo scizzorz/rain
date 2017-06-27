@@ -12,4 +12,7 @@ void rain_get(box *, box *, box *);
 void rain_put(box *, box *, box *);
 void rain_put_aux(box *, box *, box *, item *);
 
+void rain_ext_get(box *, box *, box *);
+void rain_ext_set(box *, box *, box *, box *);
+
 #endif

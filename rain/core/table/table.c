@@ -70,6 +70,25 @@ box *rain_get_ptr(box *tab, box *key) {
 }
 
 void rain_get(box *ret, box *tab, box *key) {
+  box index_key;
+  box index_func;
+
+  if(rain_has_meta(tab)) {
+    rain_set_str(&index_key, "get");
+    rain_set_null(&index_func);
+    rain_get(&index_func, tab->env, &index_key);
+
+    if(BOX_IS(&index_func, FUNC) && index_func.size == 2) {
+      void (*func_ptr)(box *, box *, box *) = (void (*)(box *, box *, box *))(index_func.data.vp);
+      if(rain_has_meta(&index_func)) {
+        rain_set_box(ret, index_func.env);
+      }
+
+      func_ptr(ret, tab, key);
+      return;
+    }
+  }
+
   if(BOX_IS(tab, STR) && BOX_IS(key, INT)) {
     if(key->data.si >= 0 && key->data.si < tab->size) {
       rain_set_strcpy(ret, tab->data.s + key->data.si, 1);
@@ -88,18 +107,35 @@ void rain_get(box *ret, box *tab, box *key) {
     }
   }
 
-  if(tab->env != NULL) {
+  if(rain_has_meta(tab)) {
     rain_get(ret, tab->env, key);
     return;
   }
 }
 
 void rain_put(box *tab, box *key, box *val) {
-  rain_put_aux(tab, key, val, NULL);
-}
+  box index_ret;
+  box index_key;
+  box index_func;
 
-void rain_put_aux(box *tab, box *key, box *val, item *pair) {
-  if(BOX_IS(tab, FUNC) && tab->env != NULL) {
+  if(rain_has_meta(tab)) {
+    rain_set_null(&index_ret);
+    rain_set_str(&index_key, "set");
+    rain_set_null(&index_func);
+    rain_get(&index_func, tab->env, &index_key);
+
+    if(BOX_IS(&index_func, FUNC) && index_func.size == 3) {
+      void (*func_ptr)(box *, box *, box *, box *) = (void (*)(box *, box *, box *, box *))(index_func.data.vp);
+      if(rain_has_meta(&index_func)) {
+        rain_set_box(&index_ret, index_func.env);
+      }
+
+      func_ptr(&index_ret, tab, key, val);
+      return;
+    }
+  }
+
+  if(BOX_IS(tab, FUNC) && rain_has_meta(tab)) {
     rain_put(tab->env, key, val);
     return;
   }
@@ -108,6 +144,10 @@ void rain_put_aux(box *tab, box *key, box *val, item *pair) {
     rain_panic(rain_exc_arg_mismatch);
   }
 
+  rain_put_aux(tab, key, val, NULL);
+}
+
+void rain_put_aux(box *tab, box *key, box *val, item *pair) {
   int cur = tab->data.lpt->cur;
   int max = tab->data.lpt->max;
   item **items = tab->data.lpt->items;
@@ -148,4 +188,19 @@ void rain_put_aux(box *tab, box *key, box *val, item *pair) {
       }
     }
   }
+}
+
+void rain_ext_get(box *ret, box *tab, box *key) {
+  box clone;
+  rain_set_box(&clone, tab);
+  clone.env = NULL;
+  rain_get(ret, &clone, key);
+}
+
+void rain_ext_set(box *ret, box *tab, box *key, box *val) {
+  box clone;
+  rain_set_box(&clone, tab);
+  clone.env = NULL;
+
+  rain_put(&clone, key, val);
 }
