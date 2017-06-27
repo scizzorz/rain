@@ -78,15 +78,15 @@ void rain_get(box *ret, box *tab, box *key) {
     rain_set_null(&index_func);
     rain_get(&index_func, tab->env, &index_key);
 
-    rain_check_callable(&index_func, 2);
+    if(BOX_IS(&index_func, FUNC) && index_func.size == 2) {
+      void (*func_ptr)(box *, box *, box *) = (void (*)(box *, box *, box *))(index_func.data.vp);
+      if(rain_has_meta(&index_func)) {
+        rain_set_box(ret, index_func.env);
+      }
 
-    void (*func_ptr)(box *, box *, box *) = (void (*)(box *, box *, box *))(index_func.data.vp);
-    if(rain_has_meta(&index_func)) {
-      rain_set_box(ret, index_func.env);
+      func_ptr(ret, tab, key);
+      return;
     }
-
-    func_ptr(ret, tab, key);
-    return;
   }
 
   if(BOX_IS(tab, STR) && BOX_IS(key, INT)) {
