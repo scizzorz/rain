@@ -21,7 +21,7 @@ void rain_ext_exit(box *ret, box *val) {
 }
 
 void rain_ext_meta(box *ret, box *val) {
-  if(val->env != NULL) {
+  if(rain_has_meta(val)) {
     rain_set_box(ret, val->env);
   }
 }
@@ -63,14 +63,14 @@ void rain_ext_to_str(box *ret, box *val) {
 
     case ITYP_TABLE:
       // look up ["str"] on metatable
-      if(val->env != NULL) {
+      if(rain_has_meta(val)) {
         rain_set_str(&str_key, "str");
         rain_set_null(&str_func);
         rain_get(&str_func, val->env, &str_key);
 
         if(BOX_IS(&str_func, FUNC) && str_func.size == 1) {
           void (*func_ptr)(box *, box *) = (void (*)(box *, box *))(str_func.data.vp);
-          if(str_func.env != NULL) {
+          if(rain_has_meta(&str_func)) {
             rain_set_box(ret, str_func.env);
           }
           func_ptr(ret, val);

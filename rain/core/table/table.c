@@ -73,7 +73,7 @@ void rain_get(box *ret, box *tab, box *key) {
   box index_key;
   box index_func;
 
-  if(tab->env != NULL) {
+  if(rain_has_meta(tab)) {
     rain_set_str(&index_key, "get");
     rain_set_null(&index_func);
     rain_get(&index_func, tab->env, &index_key);
@@ -81,7 +81,7 @@ void rain_get(box *ret, box *tab, box *key) {
     rain_check_callable(&index_func, 2);
 
     void (*func_ptr)(box *, box *, box *) = (void (*)(box *, box *, box *))(index_func.data.vp);
-    if(index_func.env != NULL) {
+    if(rain_has_meta(&index_func)) {
       rain_set_box(ret, index_func.env);
     }
 
@@ -107,7 +107,7 @@ void rain_get(box *ret, box *tab, box *key) {
     }
   }
 
-  if(tab->env != NULL) {
+  if(rain_has_meta(tab)) {
     rain_get(ret, tab->env, key);
     return;
   }
@@ -118,7 +118,7 @@ void rain_put(box *tab, box *key, box *val) {
 }
 
 void rain_put_aux(box *tab, box *key, box *val, item *pair) {
-  if(BOX_IS(tab, FUNC) && tab->env != NULL) {
+  if(BOX_IS(tab, FUNC) && rain_has_meta(tab)) {
     rain_put(tab->env, key, val);
     return;
   }
