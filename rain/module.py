@@ -117,6 +117,12 @@ class Module(S.Scope):
     ptr.initializer = typ(bytearray(self.qname + '\0', 'utf-8'))
     self.name_ptr = ptr.gep([T.i32(0), T.i32(0)])
 
+    self.exports = self.add_global(T.box, name=self.mangle('exports'))
+    self.exports.initializer = self.static.new_table(name=self.mangle('exports.table'))
+
+    self.trace_depth = self.find_global(T.i32, name='rain_trace_depth')
+    self.trace_depth.linkage = 'available_externally'
+
     self.builder = None
     self.arg_ptrs = None
     self.landingpad = None
