@@ -6,7 +6,7 @@ name 'types'
 operator '/'
 name 'array'
 newline
-keyword 'export'
+keyword 'var'
 name 'main'
 symbol '='
 keyword 'func'

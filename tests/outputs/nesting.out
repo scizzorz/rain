@@ -1,6 +1,3 @@
-module local
-module export
+local
 local
 local nest
-exported
-exported nest

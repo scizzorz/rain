@@ -1,5 +1,4 @@
-var lname = "module local"
-export ename = "module export"
+var lname = "local"
 
 var loc = table
 loc.name = "local"
@@ -7,16 +6,7 @@ loc.name = "local"
 loc.nest = table
 loc.nest.name = "local nest"
 
-export exp = table
-exp.name = "exported"
-
-exp.nest = table
-exp.nest.name = "exported nest"
-
 var main = func()
   print(lname)
-  print(ename)
   print(loc.name)
   print(loc.nest.name)
-  print(exp.name)
-  print(exp.nest.name)

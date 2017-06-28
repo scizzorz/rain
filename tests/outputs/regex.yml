@@ -7,7 +7,7 @@ stmts:
   name: types/array
   rename: null
 - !assn;3
-  export: true
+  export: false
   lhs: !name;1
     value: main
   rhs: !func;2
@@ -155,4 +155,4 @@ stmts:
           value: print
     params: []
     rename: null
-  var: false
+  var: true

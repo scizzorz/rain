@@ -1,7 +1,7 @@
 import regex
 import types/array
 
-export main = func()
+var main = func()
   var match = regex.match("ab*ab*", "abbbab")
   print(match.count)
   for m in array.values(match)
