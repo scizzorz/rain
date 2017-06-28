@@ -6,8 +6,8 @@ foreign "rain_args" = args
 var get = foreign "rain_ext_get_env"(name)
 
 var init = func()
-  exports.args = args
+  module.args = args
 
-exports = table {
+module = table {
   get = get,
 }

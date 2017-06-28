@@ -52,7 +52,7 @@ var str_fmt_error = table :: except.error
 str_fmt_error.msg = "invalid format string"
 foreign "rain_exc_str_fmt_error" = str_fmt_error
 
-exports = table {
+module = table {
   bool = bool,
   float = float,
   int = int,

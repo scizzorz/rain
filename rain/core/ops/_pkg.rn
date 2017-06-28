@@ -1,4 +1,4 @@
-exports = table {
+module = table {
   add = foreign "rain_add"(lhs, rhs),
   sub = foreign "rain_sub"(lhs, rhs),
   mul = foreign "rain_mul"(lhs, rhs),

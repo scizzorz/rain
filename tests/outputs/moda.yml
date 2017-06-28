@@ -37,7 +37,7 @@ stmts:
           op: $
           rhs: !index;1
             lhs: !name;1
-              value: exports
+              value: module
             rhs: !str;1
               value: name
         catch: false
@@ -78,7 +78,7 @@ stmts:
         export: false
         lhs: !index;1
           lhs: !name;1
-            value: exports
+            value: module
           rhs: !str;1
             value: name
         rhs: !str;1
@@ -113,7 +113,7 @@ stmts:
 - !assn;3
   export: false
   lhs: !name;1
-    value: exports
+    value: module
   rhs: !dict;2
     items:
     - - !str;1

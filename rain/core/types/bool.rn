@@ -15,7 +15,7 @@ var str = func(self)
     return "true"
   return "false"
 
-exports = table {
+module = table {
   bool = bool,
   float = float,
   int = int,

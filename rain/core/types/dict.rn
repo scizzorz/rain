@@ -20,7 +20,7 @@ var values = func(self)
   }
   return values_iter :: env
 
-exports = table {
+module = table {
   keys = keys,
   values = values,
 }

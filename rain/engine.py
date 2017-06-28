@@ -145,7 +145,7 @@ class Engine:
       table_box = T.cbox.to_rain(None)
       self.rain_set_table(table_box)
 
-      meta_ptr = self.get_global('core.types.array.exports', T.carg)
+      meta_ptr = self.get_global('core.types.array.module', T.carg)
       self.rain_set_env(table_box, meta_ptr)
 
       for i, n in enumerate(val):
@@ -157,7 +157,7 @@ class Engine:
       table_box = T.cbox.to_rain(None)
       self.rain_set_table(table_box)
 
-      ast_ptr = self.get_global('core.ast.exports', T.carg)
+      ast_ptr = self.get_global('core.ast.module', T.carg)
       meta_ptr = self.rain_get_ptr_py(ast_ptr, val.__tag__)
       if not ct.cast(meta_ptr, ct.c_void_p).value:
         Q.abort('Unable to look up core.ast.{}'.format(val.__tag__))

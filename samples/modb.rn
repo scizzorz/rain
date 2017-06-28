@@ -4,7 +4,7 @@ var init = func()
   print("modb init()")
 
 var test = func()
-  print("modb.name = " $ exports.name)
+  print("modb.name = " $ module.name)
 
 var main = func()
   print("modb.main()")
@@ -12,12 +12,12 @@ var main = func()
   test()
 
   moda.name = "new a module"
-  exports.name = "new b module"
+  module.name = "new b module"
 
   moda.test()
   test()
 
-exports = table {
+module = table {
   name = "module b",
   test = test,
   main = main,

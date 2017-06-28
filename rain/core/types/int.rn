@@ -16,7 +16,7 @@ var times = func(self)
 var abs = foreign "rain_ext_int_abs"(self)
 var mod = foreign "rain_ext_int_mod"(self, other)
 
-exports = table {
+module = table {
   bool = bool,
   float = float,
   int = int,

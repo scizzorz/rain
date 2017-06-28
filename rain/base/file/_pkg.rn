@@ -36,6 +36,6 @@ base.lines = func(self)
 var open = func(name, mode)
   return base:new(fopen(name, mode))
 
-exports = table {
+module = table {
   open = open
 }

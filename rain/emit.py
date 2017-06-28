@@ -22,9 +22,9 @@ def flatten(items):
 
 @A.program_node.method
 def emit(self, module):
-  module['exports'] = module.exports = module.find_global(T.box, name=module.mangle('exports'))
-  module.exports.initializer = T.null
-  module.exports.linkage = ''
+  module['module'] = module.find_global(T.box, name=module.mangle('module'))
+  module['module'].initializer = T.null
+  module['module'].linkage = ''
 
   for stmt in self.stmts:
     module.emit(stmt)
@@ -229,7 +229,7 @@ def emit(self, module):
 
   rename = self.rename or comp.mname
 
-  module[rename] = module.find_global(T.box, comp.mod.mangle('exports'))
+  module[rename] = module.find_global(T.box, comp.mod.mangle('module'))
   module[rename].linkage = 'available_externally'  # make sure we know it's visible here
 
   #module[rename].initializer = module.static.from_ptr(glob)

@@ -331,7 +331,7 @@ class Module(S.Scope):
     return self.extract(box, T.ENV)
 
   def get_vt(self, name):
-    return self.find_global(T.box, 'core.types.' + name + '.exports')
+    return self.find_global(T.box, 'core.types.' + name + '.module')
 
   def load_exception(self, name):
     glob = self.find_global(T.ptr(T.box), 'rain_exc_' + name)

@@ -110,7 +110,7 @@ var shallow_compare = func(l, r)
       return false
     i = i + 1
 
-exports = table {
+module = table {
   length = length,
   values = values,
   keys = keys,

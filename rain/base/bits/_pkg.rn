@@ -1,7 +1,7 @@
 link "bits.c"
 
 
-exports = table {
+module = table {
   lsh = foreign "rain_ext_lsh"(val, amt),
   rsh = foreign "rain_ext_rsh"(val, amt),
   or  = foreign "rain_ext_bor"(lhs, rhs),

@@ -1,5 +1,5 @@
 link "process.c"
 
-exports = {
+module = {
   run = foreign "rain_ext_process_output"(cmd),
 }

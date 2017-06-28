@@ -112,7 +112,7 @@ var force = func(iter)
   for _ in iter
     pass
 
-exports = {
+module = {
   count_by = count_by,
   count = count,
   srange_by = srange_by,

@@ -428,7 +428,7 @@ var init = func "rain.ast.init"()
   pass
 
 
-exports = table {
+module = table {
   _block = _block,
   _assn = _assn,
   _break = _break,

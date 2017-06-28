@@ -31,7 +31,7 @@ foreign "rain_exc_interrupt" = interrupt
 foreign "rain_exc_segfault" = segfault
 foreign "rain_exc_uncallable" = uncallable
 
-exports = table {
+module = table {
   error = error,
   arg_mismatch = arg_mismatch,
   uncallable = uncallable,
