@@ -463,6 +463,7 @@ module = table {
   _catch_call = _catch_call,
   _method = _method,
   _binary = _binary,
+  _unary = _unary,
   _message = _message,
   _error = _error,
   _warning = _warning,
