@@ -22,6 +22,10 @@ def flatten(items):
 
 @A.program_node.method
 def emit(self, module):
+  module['exports'] = module.exports = module.find_global(T.box, name=module.mangle('exports'))
+  module.exports.initializer = T.null
+  module.exports.linkage = ''
+
   for stmt in self.stmts:
     module.emit(stmt)
 
