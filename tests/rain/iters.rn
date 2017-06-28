@@ -3,7 +3,7 @@ import types/array
 import iter
 import ops
 
-export main = func()
+var main = func()
   @unit.init
 
   @unit.group replication
@@ -50,3 +50,5 @@ export main = func()
     mk.x == 10
 
   @unit.report
+
+module = main

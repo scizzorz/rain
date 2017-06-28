@@ -1,6 +1,6 @@
 import unit
 
-export main = func()
+var main = func()
   @unit.init
 
   @unit.group "less than"
@@ -94,3 +94,5 @@ export main = func()
     2 != 2.0
 
   @unit.report
+
+module = main
