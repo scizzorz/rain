@@ -19,8 +19,6 @@ stages:
         name: "Run Python tests"
         pwd: ~/rain
         environment:
-          - RAINLIB: ./core
-          - RAINBASE: ./base
           - PYTHONPATH: .
         command: |
           tests/fix.sh
@@ -31,8 +29,6 @@ stages:
         name: "Run Rain tests"
         pwd: ~/rain
         environment:
-          - RAINLIB: ./core
-          - RAINBASE: ./base
           - PYTHONPATH: .
         command: |
           python3 -m rain tests
@@ -42,8 +38,6 @@ stages:
         name: "Run linter"
         pwd: ~/rain
         environment:
-          - RAINLIB: ./core
-          - RAINBASE: ./base
           - PYTHONPATH: .
         command: |
           ./flake
