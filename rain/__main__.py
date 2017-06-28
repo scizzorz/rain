@@ -43,7 +43,6 @@ if 'RAINLIB' not in os.environ:
 if 'RAINBASE' not in os.environ:
   os.environ['RAINBASE'] = os.path.join(os.environ['RAINHOME'], 'base')
 
-
 src = M.find_rain(args.file, paths=['.'])
 if not src:
   Q.abort("Can't find module {!r}".format(args.file))
