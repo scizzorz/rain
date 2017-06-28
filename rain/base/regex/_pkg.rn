@@ -15,11 +15,17 @@ base.match = func(self, to_match)
   return ext_compiled_match(self["_pcre_ptr"], to_match)
 
 
-export match = foreign "rain_ext_pcre_match"(val, to_match)
-export compile = func(val)
+var match = foreign "rain_ext_pcre_match"(val, to_match)
+var compile = func(val)
   return base:new(ext_compile(val))
 
 
-export pcre_cannot_compile = table :: except.error
+var pcre_cannot_compile = table :: except.error
 pcre_cannot_compile.msg = "cannot compile pcre regular expression"
 foreign "rain_exc_pcre_cannot_compile" = pcre_cannot_compile
+
+exports = {
+  match = match,
+  compile = compile,
+  pcre_cannot_compile = pcre_cannot_compile,
+}

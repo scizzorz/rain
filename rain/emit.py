@@ -74,7 +74,7 @@ def emit_global(self, module):
 
   elif isinstance(self.lhs, A.name_node):
     if self.export:
-      Q.abort("Can't export anymore.", pos=self.lhs.coords)
+      Q.abort("Can't export anymore.")
 
     if self.var:
       module[self.lhs] = module.find_global(T.box, name=module.mangle(self.lhs.value))

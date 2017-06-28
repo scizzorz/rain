@@ -1,8 +1,11 @@
 link "bits.c"
 
-export lsh = foreign "rain_ext_lsh"(val, amt)
-export rsh = foreign "rain_ext_rsh"(val, amt)
-export or  = foreign "rain_ext_bor"(lhs, rhs)
-export and = foreign "rain_ext_band"(lhs, rhs)
-export xor = foreign "rain_ext_bxor"(lhs, rhs)
-export not = foreign "rain_ext_bnot"(val)
+
+exports = table {
+  lsh = foreign "rain_ext_lsh"(val, amt),
+  rsh = foreign "rain_ext_rsh"(val, amt),
+  or  = foreign "rain_ext_bor"(lhs, rhs),
+  and = foreign "rain_ext_band"(lhs, rhs),
+  xor = foreign "rain_ext_bxor"(lhs, rhs),
+  not = foreign "rain_ext_bnot"(val),
+}

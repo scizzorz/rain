@@ -33,5 +33,9 @@ base.lines = func(self)
     bind self
     return self:readline()
 
-export open = func(name, mode)
+var open = func(name, mode)
   return base:new(fopen(name, mode))
+
+exports = table {
+  open = open
+}
