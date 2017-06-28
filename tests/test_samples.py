@@ -1,10 +1,23 @@
 import os
 import os.path
 import subprocess
+import sys
 import pytest
 import rain.compiler as C
 
-os.putenv('RAIN_TEST', 'testing') # for command line args test
+
+if 'RAIN_TEST' not in os.environ:
+  os.environ['RAIN_TEST'] = 'testing'
+
+if 'RAINHOME' not in os.environ:
+  os.environ['RAINHOME'] = os.path.normpath(os.path.join(__file__, '../../'))
+
+if 'RAINLIB' not in os.environ:
+  os.environ['RAINLIB'] = os.path.join(os.environ['RAINHOME'], 'core')
+
+if 'RAINBASE' not in os.environ:
+  os.environ['RAINBASE'] = os.path.join(os.environ['RAINHOME'], 'base')
+
 
 C.Compiler.quiet = True
 
