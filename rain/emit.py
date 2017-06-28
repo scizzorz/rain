@@ -4,7 +4,6 @@ from . import error as Q
 from . import module as M
 from . import token as K
 from . import types as T
-from collections import OrderedDict
 import os.path
 
 
@@ -232,7 +231,6 @@ def emit(self, module):
   module[rename] = module.find_global(T.box, comp.mod.mangle('module'))
   module[rename].linkage = 'available_externally'  # make sure we know it's visible here
 
-  #module[rename].initializer = module.static.from_ptr(glob)
   module[rename].mod = comp.mod
   module.imports.add(file)
 
