@@ -343,7 +343,8 @@ def emit(self, module):
 
     with module.goto(module.loop):
       module.emit(self.body)
-      module.builder.branch(module.loop)
+      if not module.builder.block.is_terminated:
+        module.builder.branch(module.loop)
 
 
 @A.until_node.method
@@ -354,7 +355,8 @@ def emit(self, module):
 
     with module.goto(module.loop):
       module.emit(self.body)
-      module.builder.branch(module.before)
+      if not module.builder.block.is_terminated:
+        module.builder.branch(module.before)
 
 
 @A.while_node.method
@@ -365,7 +367,8 @@ def emit(self, module):
 
     with module.goto(module.loop):
       module.emit(self.body)
-      module.builder.branch(module.before)
+      if not module.builder.block.is_terminated:
+        module.builder.branch(module.before)
 
 
 @A.for_node.method
@@ -411,7 +414,8 @@ def emit(self, module):
           module.store(rhs, module[lhs.value])
 
       module.emit(self.body)
-      module.builder.branch(module.before)
+      if not module.builder.block.is_terminated:
+        module.builder.branch(module.before)
 
 
 @A.catch_node.method
