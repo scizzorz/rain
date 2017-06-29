@@ -1,9 +1,20 @@
 var main = func()
-  var s = "hello"
+  var s = "Hello"
   var p = "world"
-  var sp = s $ " " $ p
+  var sp = s $ ", " $ p
   print(sp)
 
-  var a = "abc"
-  var b = a:substring(1, a:length())
-  print(b)
+  var i = -sp:length() - 1
+  while i < sp:length() + 1
+    print("[" $ tostr(i) $ "] = " $ tostr(sp[i]))
+    i = i + 1
+
+  print(sp[[0, 4]])
+  print(sp[[2, 6]])
+  print(sp[[2, -1]])
+  print(sp[[-4, -1]])
+  print(sp[[-8, 8]])
+  print(sp[[2, sp:length()]])
+  print(sp[[2, sp:length() + 2]])
+  print(sp[[15, 12]])
+  print(sp[[4, 3]])
