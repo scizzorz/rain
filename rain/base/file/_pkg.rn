@@ -1,6 +1,7 @@
 link "file.c"
 
 var fopen = foreign "rain_ext_fopen"(name, mode)
+var fread = foreign "rain_ext_fread"(handle, size)
 var freadline = foreign "rain_ext_freadline"(handle)
 var fwriteline = foreign "rain_ext_fwriteline"(handle, line)
 var fclose = foreign "rain_ext_fclose"(handle)
@@ -13,6 +14,9 @@ base.new = func(self, handle)
 
 base.readline = func(self)
   return freadline(self["_file"])
+
+base.read = func(self, size)
+  return fread(self["_file"], size)
 
 base.writeline = func(self, line)
   fwriteline(self["_file"], line)
