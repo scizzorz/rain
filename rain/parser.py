@@ -474,12 +474,14 @@ def if_stmt(ctx):
   body = block(ctx)
   els = None
 
-  if ctx.peek == K.keyword_token('else'):
-    if not braces:
-      ctx.require(newline)
-    else:
-      ctx.require(K.symbol_token(';'))
+  take_else = False
+  if braces and ctx.expect(K.keyword_token('else')):
+    take_else = True
+  elif not braces and ctx.peek == K.keyword_token('else'):
+    take_else = True
+    ctx.require(newline)
 
+  if take_else:
     ctx.require(K.keyword_token('else'))
     if ctx.expect(K.keyword_token('if')):
       els = if_stmt(ctx)
