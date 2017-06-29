@@ -791,7 +791,7 @@ def primary(ctx):
 
 
 # prefix :: '(' binexpr ')'
-#         | NAME | INT | FLOAT | BOOL | STRING | NULL | TABLE
+#         | NAME | INT | FLOAT | BOOL | STRING | NULL | (TABLE dict_expr?)
 def prefix(ctx):
   if ctx.consume(K.symbol_token('(')):
     node = binexpr(ctx)

@@ -4,7 +4,6 @@ block :: INDENT (stmt NEWLINE)+ DEDENT
 
 stmt :: 'var' var_prefix ('=' compound)?
       | 'bind' NAME (',' NAME)*
-      | 'export' NAME '=' compound
       | 'foreign' (NAME | STRING) '=' NAME
       | 'import' (NAME '=')? import_mod
       | 'macro' NAME fnparams 'as' fnparams block
@@ -67,4 +66,4 @@ simple :: 'func' fnparams '->' binexpr
 primary :: prefix ('?'? fnargs | ':' NAME '?'? fnargs | '.' NAME | '[' binexpr ']')*
 
 prefix :: '(' binexpr ')'
-        | NAME | INT | FLOAT | BOOL | STRING | NULL | TABLE
+        | NAME | INT | FLOAT | BOOL | STRING | NULL | (TABLE dict_expr?)
