@@ -56,7 +56,6 @@ var _assn = table :: node
 _assn.tag = "assn"
 _assn.slots = ["var", "export", "lhs", "rhs"]
 _assn._var = false
-_assn._export = false
 _assn.new = func(self, lhs, rhs)
   save ret = table :: self
   ret.lhs = lhs
@@ -68,10 +67,6 @@ var _var = table :: _assn
 _var._var = true
 
 
-var _export = table :: _assn
-
-_export._export = true
-
 var _bind = table :: node
 
 _bind.tag = "bind"
@@ -79,6 +74,7 @@ _bind.slots = ["names"]
 _bind.new = func(self, names)
   save ret = table :: self
   ret.names = names
+
 
 var _break = table :: node
 
@@ -231,9 +227,6 @@ _name._assn = func(self, value)
 
 _name._var = func(self, value)
   return _var:new(self, value)
-
-_name._export = func(self, value)
-  return _export:new(self, value)
 
 
 var _null = table :: expression_node
