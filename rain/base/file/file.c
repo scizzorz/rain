@@ -11,12 +11,19 @@ void rain_ext_fwriteline(box *, box *, box *);
 void rain_ext_freadline(box *, box *);
 void rain_ext_fclose(box *, box *);
 
+box *rain_exc_file_not_found;
+
+
 void rain_ext_fopen(box *ret, box *fname, box *mode) {
   if(BOX_ISNT(fname, STR) || BOX_ISNT(mode, STR))
     return;
 
   FILE *fp = fopen(fname->data.s, mode->data.s);
   box key, val;
+
+  if(fp == NULL) {
+    rain_panic(rain_exc_file_not_found);
+  }
 
   rain_set_cdata(ret, (void*)fp);
 }

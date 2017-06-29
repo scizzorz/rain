@@ -6,6 +6,10 @@ var freadline = foreign "rain_ext_freadline"(handle)
 var fwriteline = foreign "rain_ext_fwriteline"(handle, line)
 var fclose = foreign "rain_ext_fclose"(handle)
 
+export file_not_found = table :: except.error
+file_not_found.msg = "cannot open file"
+foreign "rain_exc_file_not_found" = file_not_found
+
 var base = table
 base.new = func(self, handle)
   save ret = table :: self
