@@ -1,4 +1,5 @@
 #include "rain.h"
+#include <gc.h>
 #include <stdio.h>
 
 
@@ -36,7 +37,7 @@ void rain_ext_freadline(box *ret, box *this) {
 
   FILE *fp = (FILE *)this->data.vp;
   int bufsize = 4096;
-  char *fbuf = GC_malloc(bufsize);
+  char *fbuf = (char *)GC_malloc(bufsize);
 
   int i = 0;
   char cur;
@@ -52,7 +53,7 @@ void rain_ext_freadline(box *ret, box *this) {
 
     if(i >= bufsize) {
       bufsize *= 2;
-      fbuf = GC_realloc(fbuf, bufsize);
+      fbuf = (char *)GC_realloc(fbuf, bufsize);
     }
 
     fbuf[i] = cur;
@@ -83,7 +84,7 @@ void rain_ext_fread(box *ret, box *this, box *length) {
     fseek(fp, restore, SEEK_SET);
   }
 
-  char *fbuf = GC_malloc(size + 1);
+  char *fbuf = (char *)GC_malloc(size + 1);
 
   long i;
   char cur;
