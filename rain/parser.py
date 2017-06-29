@@ -187,6 +187,7 @@ class context:
     else:
       msg = 'Unexpected {!s}; expected {!s}'.format(self.token, tokens[0])
 
+    msg = msg.replace('{', '{{').replace('}', '}}')
     Q.abort(msg, pos=self.token.pos(file=self.file))
 
 
@@ -203,15 +204,31 @@ def program(ctx):
 
 
 # block :: INDENT (stmt NEWLINE)+ DEDENT
+braces = False
 def block(ctx):
+  global braces
   stmts = []
-  ctx.require(indent)
 
-  while not ctx.expect(dedent):
-    stmts.append(stmt(ctx))
-    ctx.require(newline)
+  if ctx.expect(K.symbol_token('{')) or braces:
+    origin = braces
+    braces = True
+    ctx.require(K.symbol_token('{'))
 
-  ctx.require(dedent)
+    while not ctx.expect(K.symbol_token('}')):
+      stmts.append(stmt(ctx))
+      ctx.require(K.symbol_token(';'))
+
+    ctx.require(K.symbol_token('}'))
+    braces = origin
+
+  else:
+    ctx.require(indent)
+
+    while not ctx.expect(dedent):
+      stmts.append(stmt(ctx))
+      ctx.require(newline)
+
+    ctx.require(dedent)
 
   return A.block_node(stmts)
 
@@ -394,7 +411,7 @@ def stmt(ctx):
     return A.cont_node()
 
   if ctx.consume(K.keyword_token('return')):
-    if ctx.expect(newline):
+    if ctx.expect(newline) or (braces and ctx.expect(K.symbol_token(';'))):
       return A.return_node()
 
     return A.return_node(compound(ctx))
@@ -458,7 +475,11 @@ def if_stmt(ctx):
   els = None
 
   if ctx.peek == K.keyword_token('else'):
-    ctx.require(newline)
+    if not braces:
+      ctx.require(newline)
+    else:
+      ctx.require(K.symbol_token(';'))
+
     ctx.require(K.keyword_token('else'))
     if ctx.expect(K.keyword_token('if')):
       els = if_stmt(ctx)
