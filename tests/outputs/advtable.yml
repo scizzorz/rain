@@ -1,7 +1,6 @@
 !program;1
 stmts:
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: ga
   rhs: !array;1
@@ -13,8 +12,7 @@ stmts:
     - !int;1
       value: 3
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: gd
   rhs: !dict;2
@@ -37,16 +35,14 @@ stmts:
         value: One
     set_meta: true
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: la
         rhs: !array;1
@@ -58,8 +54,7 @@ stmts:
           - !int;1
             value: 6
         var: true
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: ld
         rhs: !dict;2

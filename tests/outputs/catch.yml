@@ -1,7 +1,6 @@
 !program;1
 stmts:
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: three
   rhs: !func;2
@@ -18,16 +17,14 @@ stmts:
     params: []
     rename: null
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: two
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: x
         rhs: !call;1
@@ -55,16 +52,14 @@ stmts:
     params: []
     rename: null
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: one
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: x
         rhs: !catch;2
@@ -96,8 +91,7 @@ stmts:
     params: []
     rename: null
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: main
   rhs: !func;2
@@ -111,8 +105,7 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: x
         rhs: !catch;2
@@ -169,8 +162,7 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: x
         rhs: !call;1
@@ -209,8 +201,7 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: x
         rhs: !catch;2
@@ -269,8 +260,7 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: x
         rhs: !call;1

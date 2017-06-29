@@ -1,13 +1,11 @@
 !program;1
 stmts:
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: s
   rhs: !table;2 {}
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: s
@@ -16,8 +14,7 @@ stmts:
   rhs: !str;1
     value: s
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: s
@@ -38,8 +35,7 @@ stmts:
     - self
     rename: null
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: a
   rhs: !binary;1
@@ -48,8 +44,7 @@ stmts:
     rhs: !name;1
       value: s
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: a
@@ -58,8 +53,7 @@ stmts:
   rhs: !str;1
     value: a
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: a
@@ -92,8 +86,7 @@ stmts:
     - self
     rename: null
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: b
   rhs: !binary;1
@@ -102,8 +95,7 @@ stmts:
     rhs: !name;1
       value: s
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: b
@@ -112,8 +104,7 @@ stmts:
   rhs: !str;1
     value: b
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: b
@@ -146,8 +137,7 @@ stmts:
     - self
     rename: null
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: c
   rhs: !binary;1
@@ -160,8 +150,7 @@ stmts:
       rhs: !name;1
         value: a
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: c
@@ -170,8 +159,7 @@ stmts:
   rhs: !str;1
     value: c
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: c
@@ -204,8 +192,7 @@ stmts:
     - self
     rename: null
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: main
   rhs: !func;2

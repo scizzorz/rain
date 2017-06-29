@@ -1,15 +1,13 @@
 !program;1
 stmts:
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: range
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: i
         rhs: !int;1
@@ -41,8 +39,7 @@ stmts:
               name: null
               value: !name;1
                 value: i
-            - !assn;3
-              export: false
+            - !assn;4
               lhs: !name;1
                 value: i
               rhs: !binary;1
@@ -58,8 +55,7 @@ stmts:
     - n
     rename: null
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: main
   rhs: !func;2

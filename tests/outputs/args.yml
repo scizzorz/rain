@@ -1,29 +1,25 @@
 !program;1
 stmts:
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: swap
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: c
         rhs: !name;1
           value: a
         var: true
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: a
         rhs: !name;1
           value: b
         var: false
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: b
         rhs: !name;1
@@ -48,23 +44,20 @@ stmts:
     - b
     rename: null
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: a
         rhs: !int;1
           value: 1
         var: true
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: b
         rhs: !int;1

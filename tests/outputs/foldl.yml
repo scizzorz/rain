@@ -3,8 +3,7 @@ stmts:
 - !import;1
   name: types/array
   rename: null
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: gadd
   rhs: !func;2
@@ -20,16 +19,14 @@ stmts:
     - b
     rename: null
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: ladd
         rhs: !func;2
@@ -45,8 +42,7 @@ stmts:
           - b
           rename: null
         var: true
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: a
         rhs: !array;1
