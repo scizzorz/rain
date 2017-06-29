@@ -76,17 +76,17 @@ export slice = func(self, start, end)
     from_idx = from_idx + 1
     to_idx = to_idx + 1
 
-export str = func(self)
-  var ret = "["
+export join = func(self, sep)
+  save ret = ""
   var i = 0
   while self[i] != null
     ret = ret $ tostr(self[i])
     i = i + 1
     if self[i] != null
-      ret = ret $ ", "
+      ret = ret $ sep
 
-  ret = ret $ "]"
-  return ret
+export str = func(self)
+  return "[" $ join(self, ", ") $ "]"
 
 export from_iter = func(iter)
   var i = 0
