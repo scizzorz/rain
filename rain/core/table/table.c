@@ -89,16 +89,6 @@ void rain_get(box *ret, box *tab, box *key) {
     }
   }
 
-  if(BOX_IS(tab, STR) && BOX_IS(key, INT)) {
-    if(key->data.si >= 0 && key->data.si < tab->size) {
-      rain_set_strcpy(ret, tab->data.s + key->data.si, 1);
-    }
-    else if(key->data.si < 0 && key->data.si >= -(tab->size)) {
-      rain_set_strcpy(ret, tab->data.s + tab->size + key->data.si, 1);
-    }
-    return;
-  }
-
   if(BOX_IS(tab, TABLE)) {
     item *row = rain_has(tab, key);
     if(row != NULL) {

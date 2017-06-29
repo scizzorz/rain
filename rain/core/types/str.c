@@ -149,3 +149,27 @@ void rain_ext_str_fmt(box *ret, box *fmt, box *args) {
   rain_set_strcpy(ret, new, out);
   GC_free(new);
 }
+
+void rain_ext_str_char_at(box *ret, box *val, box *key) {
+  if(BOX_ISNT(val, STR)) {
+    rain_panic(rain_exc_arg_mismatch);
+  }
+
+  // pass non-int keys up to the metatable
+  if(BOX_ISNT(key, INT)) {
+    if(rain_has_meta(val)) {
+      rain_get(ret, val->env, key);
+      return;
+    }
+  }
+
+  // positive ints
+  if(key->data.si >= 0 && key->data.si < val->size) {
+    rain_set_strcpy(ret, val->data.s + key->data.si, 1);
+  }
+
+  // negative ints
+  else if(key->data.si < 0 && key->data.si >= -(val->size)) {
+    rain_set_strcpy(ret, val->data.s + val->size + key->data.si, 1);
+  }
+}

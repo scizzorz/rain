@@ -13,6 +13,8 @@ export substring = func(s, start, end)
     return ""
   return s[start] $ substring(s, start+1, end)
 
+export get = foreign "rain_ext_str_char_at"(val, key)
+
 export index_of = func(s, of)
   var i = 0
   var len = length(s)
