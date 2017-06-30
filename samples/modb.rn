@@ -1,12 +1,10 @@
 import moda
-export name = "my bad"
-name = "module b"
 
 var init = func()
   print("modb init()")
 
-export test = func()
-  print("modb.name = " $ name)
+var test = func()
+  print("modb.name = " $ module.name)
 
 var main = func()
   print("modb.main()")
@@ -14,7 +12,13 @@ var main = func()
   test()
 
   moda.name = "new a module"
-  name = "new b module"
+  module.name = "new b module"
 
   moda.test()
   test()
+
+module = table {
+  name = "module b",
+  test = test,
+  main = main,
+}

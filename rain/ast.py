@@ -110,14 +110,13 @@ class block_node(expr_node):
 
 class assn_node(node):
   __tag__ = 'assn'
-  __version__ = 3
-  __slots__ = ['lhs', 'rhs', 'var', 'export']
+  __version__ = 4
+  __slots__ = ['lhs', 'rhs', 'var']
 
-  def __init__(self, lhs, rhs, var=False, export=False):
+  def __init__(self, lhs, rhs, var=False):
     self.lhs = lhs
     self.rhs = rhs
     self.var = var
-    self.export = export
 
 
 class bind_node(node):

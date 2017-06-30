@@ -1,12 +1,7 @@
 keyword 'import'
 name 'modb'
 newline
-keyword 'export'
-name 'name'
-symbol '='
-string 'module a'
-newline
-keyword 'export'
+keyword 'var'
 name 'init'
 symbol '='
 keyword 'func'
@@ -20,7 +15,7 @@ symbol ')'
 newline
 dedent
 newline
-keyword 'export'
+keyword 'var'
 name 'test'
 symbol '='
 keyword 'func'
@@ -31,6 +26,8 @@ name 'print'
 symbol '('
 string 'moda.name = '
 operator '$'
+name 'module'
+symbol '.'
 name 'name'
 symbol ')'
 newline
@@ -58,6 +55,8 @@ name 'test'
 symbol '('
 symbol ')'
 newline
+name 'module'
+symbol '.'
 name 'name'
 symbol '='
 string 'new a module'
@@ -79,5 +78,23 @@ symbol '('
 symbol ')'
 newline
 dedent
+newline
+name 'module'
+symbol '='
+'table'
+symbol '{'
+name 'name'
+symbol '='
+string 'module a'
+symbol ','
+name 'test'
+symbol '='
+name 'test'
+symbol ','
+name 'main'
+symbol '='
+name 'main'
+symbol ','
+symbol '}'
 newline
 EOF

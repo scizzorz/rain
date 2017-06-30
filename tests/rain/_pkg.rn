@@ -3,14 +3,16 @@ import ./conversion
 import ./comparison
 import ./iters
 
-export main = func()
+var main = func()
   var results = [
-    arithmetic.main(),
-    comparison.main(),
-    conversion.main(),
-    iters.main(),
+    arithmetic(),
+    comparison(),
+    conversion(),
+    iters(),
   ]
 
   for res in results:values()
     if !res
       return res
+
+module = main

@@ -1,76 +1,65 @@
 !program;1
 stmts:
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: x
   rhs: !int;1
     value: 0
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: x
   rhs: !bool;1
     value: true
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: x
   rhs: !null;1 {}
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: x
   rhs: !str;1
     value: now I'm a string
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: x
         rhs: !int;1
           value: 10
         var: true
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: x
         rhs: !bool;1
           value: true
         var: false
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: x
         rhs: !null;1 {}
         var: false
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: x
         rhs: !int;1
           value: 15
         var: false
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: y
         rhs: !int;1
           value: 20
         var: true
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: z
         rhs: !binary;1

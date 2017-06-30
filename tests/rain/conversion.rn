@@ -1,6 +1,6 @@
 import unit
 
-export main = func()
+var main = func()
   @unit.init
 
   @unit.group int
@@ -69,3 +69,5 @@ export main = func()
     (-3.3):str() == "-3.300000"
 
   @unit.report
+
+module = main

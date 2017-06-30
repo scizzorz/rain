@@ -66,7 +66,7 @@ class macro:
       A.assn_node(symcount, A.binary_node(symcount, A.int_node(1), '+'))
     ])), var=True).emit(mod)
 
-    node.expand(mod, self.name)
+    node.define(mod, self.name)
 
     for src in mod.imports:
       comp = C.get_compiler(src)
@@ -218,7 +218,6 @@ def block(ctx):
 
 # stmt :: 'var' var_prefix ('=' compound)?
 #       | 'bind' NAME (',' NAME)*
-#       | 'export' NAME '=' compound
 #       | 'foreign' (NAME | STRING) '=' NAME
 #       | 'import' (NAME '=')? import_mod
 #       | 'macro' NAME fnparams 'as' fnparams block
@@ -248,13 +247,6 @@ def stmt(ctx):
   if ctx.consume(K.keyword_token('bind')):
     names = fnparams(ctx, parens=False)
     return A.bind_node(names)
-
-  if ctx.consume(K.keyword_token('export')):
-    name = ctx.require(K.name_token).value
-    pos = ctx.past[-1]
-    ctx.require(K.symbol_token('='))
-    rhs = compound(ctx)
-    return A.assn_node(A.name_node(name), rhs, export=True)
 
   if ctx.consume(K.keyword_token('foreign')):
     rename = ctx.require(K.string_token, K.name_token).value
@@ -799,7 +791,7 @@ def primary(ctx):
 
 
 # prefix :: '(' binexpr ')'
-#         | NAME | INT | FLOAT | BOOL | STRING | NULL | TABLE
+#         | NAME | INT | FLOAT | BOOL | STRING | NULL | (TABLE dict_expr?)
 def prefix(ctx):
   if ctx.consume(K.symbol_token('(')):
     node = binexpr(ctx)

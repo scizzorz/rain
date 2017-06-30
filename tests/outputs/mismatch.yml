@@ -1,7 +1,6 @@
 !program;1
 stmts:
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: none
   rhs: !func;2
@@ -18,8 +17,7 @@ stmts:
     params: []
     rename: null
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: one
   rhs: !func;2
@@ -37,8 +35,7 @@ stmts:
     - a
     rename: null
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: two
   rhs: !func;2
@@ -57,30 +54,26 @@ stmts:
     - b
     rename: null
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: a
         rhs: !int;1
           value: 1
         var: true
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: b
         rhs: !str;1
           value: str
         var: true
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: r
         rhs: !catch;2
@@ -125,8 +118,7 @@ stmts:
               value: types
             rhs: !str;1
               value: is
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: r
         rhs: !catch;2
@@ -178,8 +170,7 @@ stmts:
               value: types
             rhs: !str;1
               value: is
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: r
         rhs: !catch;2
@@ -229,8 +220,7 @@ stmts:
               value: types
             rhs: !str;1
               value: is
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: r
         rhs: !catch;2
@@ -280,8 +270,7 @@ stmts:
               value: types
             rhs: !str;1
               value: is
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: r
         rhs: !catch;2

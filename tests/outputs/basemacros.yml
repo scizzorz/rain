@@ -3,8 +3,7 @@ stmts:
 - !import;1
   name: macros
   rename: null
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: fudge
   rhs: !array;1
@@ -16,8 +15,7 @@ stmts:
     - !str;1
       value: three
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: node
   rhs: !dict;2
@@ -32,8 +30,7 @@ stmts:
         value: body
     set_meta: true
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: person
   rhs: !dict;2
@@ -56,69 +53,60 @@ stmts:
         value: true
     set_meta: true
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: square
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: ret
         rhs: !block;2
           expr: !name;1
             value: :base.macros:case:1
           stmts:
-          - !assn;3
-            export: false
+          - !assn;4
             lhs: !name;1
               value: :base.macros:case:0
             rhs: !name;1
               value: n
             var: true
-          - !assn;3
-            export: false
+          - !assn;4
             lhs: !name;1
               value: :base.macros:case:1
             rhs: !null;1 {}
             var: true
           - !if;1
-            body: !assn;3
-              export: false
+            body: !assn;4
               lhs: !name;1
                 value: :base.macros:case:1
               rhs: !int;1
                 value: 1
               var: false
             els: !if;1
-              body: !assn;3
-                export: false
+              body: !assn;4
                 lhs: !name;1
                   value: :base.macros:case:1
                 rhs: !int;1
                   value: 4
                 var: false
               els: !if;1
-                body: !assn;3
-                  export: false
+                body: !assn;4
                   lhs: !name;1
                     value: :base.macros:case:1
                   rhs: !int;1
                     value: 9
                   var: false
                 els: !if;1
-                  body: !assn;3
-                    export: false
+                  body: !assn;4
                     lhs: !name;1
                       value: :base.macros:case:1
                     rhs: !int;1
                       value: 16
                     var: false
-                  els: !assn;3
-                    export: false
+                  els: !assn;4
                     lhs: !name;1
                       value: :base.macros:case:1
                     rhs: !int;1
@@ -156,8 +144,7 @@ stmts:
     - n
     rename: null
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: main
   rhs: !func;2
@@ -237,15 +224,13 @@ stmts:
       - !block;2
         expr: null
         stmts:
-        - !assn;3
-          export: false
+        - !assn;4
           lhs: !name;1
             value: :base.macros:match:0
           rhs: !name;1
             value: person
           var: true
-        - !assn;3
-          export: false
+        - !assn;4
           lhs: !name;1
             value: string
           rhs: !index;1
@@ -254,8 +239,7 @@ stmts:
             rhs: !str;1
               value: name
           var: true
-        - !assn;3
-          export: false
+        - !assn;4
           lhs: !name;1
             value: number
           rhs: !index;1

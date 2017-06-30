@@ -1,6 +1,13 @@
 link "./env.c"
 
-export args = table
+var args = {}
 foreign "rain_args" = args
 
-export get = foreign "rain_ext_get_env"(name)
+var get = foreign "rain_ext_get_env"(name)
+
+var init = func()
+  module.args = args
+
+module = table {
+  get = get,
+}

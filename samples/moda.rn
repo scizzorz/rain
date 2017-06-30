@@ -1,19 +1,24 @@
 import modb
-export name = "module a"
 
-export init = func()
+var init = func()
   print("moda init()")
 
-export test = func()
-  print("moda.name = " $ name)
+var test = func()
+  print("moda.name = " $ module.name)
 
 var main = func()
   print("moda.main()")
   test()
   modb.test()
 
-  name = "new a module"
+  module.name = "new a module"
   modb.name = "new b module"
 
   test()
   modb.test()
+
+module = table {
+  name = "module a",
+  test = test,
+  main = main,
+}

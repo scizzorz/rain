@@ -1,6 +1,6 @@
 import unit
 
-export main = func()
+var main = func()
   @unit.init
 
   @unit.group addition
@@ -53,3 +53,5 @@ export main = func()
     #@unit.raises except.arg_mismatch - false
 
   @unit.report
+
+module = main

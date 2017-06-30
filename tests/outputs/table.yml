@@ -1,21 +1,18 @@
 !program;1
 stmts:
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: f
         rhs: !table;2 {}
         var: true
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !index;1
           lhs: !name;1
             value: f
@@ -24,8 +21,7 @@ stmts:
         rhs: !bool;1
           value: false
         var: false
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !index;1
           lhs: !name;1
             value: f
@@ -34,8 +30,7 @@ stmts:
         rhs: !int;1
           value: 1
         var: false
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !index;1
           lhs: !name;1
             value: f
@@ -44,8 +39,7 @@ stmts:
         rhs: !float;1
           value: 10.0
         var: false
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !index;1
           lhs: !name;1
             value: f

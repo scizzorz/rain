@@ -1,13 +1,13 @@
-export count_by = func(step)
+var count_by = func(step)
   var next = 0
   return func()
     bind next, step
     save next
     next = next + step
 
-export count = func() -> count_by(1)
+var count = func() -> count_by(1)
 
-export srange_by = func(start, end, step)
+var srange_by = func(start, end, step)
   var next = start
   return func()
     bind next, end, step
@@ -15,24 +15,24 @@ export srange_by = func(start, end, step)
       save next
     next = next + step
 
-export srange = func(start, end) -> srange_by(start, end, 1)
+var srange = func(start, end) -> srange_by(start, end, 1)
 
-export range = func(end) -> srange_by(0, end, 1)
+var range = func(end) -> srange_by(0, end, 1)
 
-export map = func(iter, fn)
+var map = func(iter, fn)
   return func()
     bind iter, fn
     var val = iter()
     if val != null
       return fn(val)
 
-export foldl = func(iter, fn, z)
+var foldl = func(iter, fn, z)
   var a = z
   for v in iter
     a = fn(a, v)
   return a
 
-export map_success = func(iter, f)
+var map_success = func(iter, f)
   return func ()
     bind iter, f
     var a = iter()
@@ -42,14 +42,14 @@ export map_success = func(iter, f)
         return a
       a = iter()
 
-export filter = func(iter, f)
+var filter = func(iter, f)
   var test = func(a)
     bind f
     return f(a) & a | null
 
   return map_success(iter, test)
 
-export enum = func(iter)
+var enum = func(iter)
   var i = 0
   return func()
     bind i, iter
@@ -60,7 +60,7 @@ export enum = func(iter)
     save [i, next]
     i = i + 1
 
-export zip = func(one, two)
+var zip = func(one, two)
   return func()
     bind one, two
     var n1 = one()
@@ -70,7 +70,7 @@ export zip = func(one, two)
 
     return [n1, n2]
 
-export zip_with = func(one, two, fn)
+var zip_with = func(one, two, fn)
   return func()
     bind one, two, fn
     var n1 = one()
@@ -80,7 +80,7 @@ export zip_with = func(one, two, fn)
 
     return fn(n1, n2)
 
-export take = func(iter, end)
+var take = func(iter, end)
   var next = 0
   return func()
     bind next, iter, end
@@ -88,7 +88,7 @@ export take = func(iter, end)
       save iter()
     next = next + 1
 
-export drop = func(iter, num)
+var drop = func(iter, num)
   var i = 0
   while i < num
     iter()
@@ -96,18 +96,38 @@ export drop = func(iter, num)
 
   return iter
 
-export repeat = func(val)
+var repeat = func(val)
   return func()
     bind val
     return val
 
-export replicate = func(times, val)
+var replicate = func(times, val)
   return func()
     bind times, val
     if times > 0
       times = times - 1
       return val
 
-export force = func(iter)
+var force = func(iter)
   for _ in iter
     pass
+
+module = {
+  count_by = count_by,
+  count = count,
+  srange_by = srange_by,
+  srange = srange,
+  range = range,
+  map = map,
+  foldl = foldl,
+  map_success = map_success,
+  filter = filter,
+  enum = enum,
+  zip = zip,
+  zip_with = zip_with,
+  take = take,
+  drop = drop,
+  repeat = repeat,
+  replicate = replicate,
+  force = force,
+}

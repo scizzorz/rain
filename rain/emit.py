@@ -4,7 +4,6 @@ from . import error as Q
 from . import module as M
 from . import token as K
 from . import types as T
-from collections import OrderedDict
 import os.path
 
 
@@ -22,6 +21,10 @@ def flatten(items):
 
 @A.program_node.method
 def emit(self, module):
+  module['module'] = module.find_global(T.box, name=module.mangle('module'))
+  module['module'].initializer = T.null
+  module['module'].linkage = ''
+
   for stmt in self.stmts:
     module.emit(stmt)
 
@@ -69,11 +72,6 @@ def emit_global(self, module):
     Q.abort("Unable to unpack at global scope")
 
   elif isinstance(self.lhs, A.name_node):
-    if self.export:
-      table_box = module.exports.initializer
-      key_node = A.str_node(self.lhs.value)
-      module.store_global(T.null, self.lhs.value)
-
     if self.var:
       module[self.lhs] = module.find_global(T.box, name=module.mangle(self.lhs.value))
       module[self.lhs].linkage = ''  # make sure we know it's visible here
@@ -224,14 +222,12 @@ def emit(self, module):
   comp.build()
 
   module.import_llvm(comp.mod)
-  glob = module.get_global(comp.mod.mangle('exports.table'))
 
   rename = self.rename or comp.mname
 
-  module[rename] = module.find_global(T.box, module.mangle(rename))
-  module[rename].linkage = ''  # make sure we know it's visible here
+  module[rename] = module.find_global(T.box, comp.mod.mangle('module'))
+  module[rename].linkage = 'available_externally'  # make sure we know it's visible here
 
-  module[rename].initializer = module.static.from_ptr(glob)
   module[rename].mod = comp.mod
   module.imports.add(file)
 
@@ -256,7 +252,7 @@ def emit(self, module):
 
 
 @A.macro_node.method
-def expand(self, module, name):
+def define(self, module, name):
   typ = T.vfunc(T.arg, *[T.arg for x in self.params])
 
   A.func_node(self.params, self.body, 'macro.func.real:' + name).emit(module)

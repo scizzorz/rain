@@ -3,23 +3,20 @@ stmts:
 - !import;1
   name: bits
   rename: null
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: a
         rhs: !int;1
           value: 38
         var: true
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: b
         rhs: !int;1

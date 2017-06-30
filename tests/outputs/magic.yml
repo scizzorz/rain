@@ -1,13 +1,11 @@
 !program;1
 stmts:
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: wrapper
   rhs: !table;2 {}
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: wrapper
@@ -34,8 +32,7 @@ stmts:
     - value
     rename: null
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: wrapper
@@ -68,8 +65,7 @@ stmts:
     - self
     rename: null
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: wrapper
@@ -111,8 +107,7 @@ stmts:
     - other
     rename: null
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: wrapper
@@ -154,8 +149,7 @@ stmts:
     - other
     rename: null
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: wrapper
@@ -197,8 +191,7 @@ stmts:
     - other
     rename: null
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: wrapper
@@ -240,16 +233,14 @@ stmts:
     - other
     rename: null
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: a
         rhs: !method;1
@@ -262,8 +253,7 @@ stmts:
           rhs: !str;1
             value: new
         var: true
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: b
         rhs: !method;1
@@ -276,8 +266,7 @@ stmts:
           rhs: !str;1
             value: new
         var: true
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: add
         rhs: !binary;1
@@ -287,8 +276,7 @@ stmts:
           rhs: !name;1
             value: b
         var: true
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: mul
         rhs: !binary;1
@@ -298,8 +286,7 @@ stmts:
           rhs: !name;1
             value: b
         var: true
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: div
         rhs: !binary;1
@@ -309,8 +296,7 @@ stmts:
           rhs: !name;1
             value: b
         var: true
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: sub
         rhs: !binary;1

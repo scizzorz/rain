@@ -3,22 +3,7 @@ stmts:
 - !import;1
   name: moda
   rename: null
-- !assn;3
-  export: true
-  lhs: !name;1
-    value: name
-  rhs: !str;1
-    value: my bad
-  var: false
-- !assn;3
-  export: false
-  lhs: !name;1
-    value: name
-  rhs: !str;1
-    value: module b
-  var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: init
   rhs: !func;2
@@ -35,8 +20,7 @@ stmts:
     params: []
     rename: null
   var: true
-- !assn;3
-  export: true
+- !assn;4
   lhs: !name;1
     value: test
   rhs: !func;2
@@ -49,16 +33,18 @@ stmts:
           lhs: !str;1
             value: 'modb.name = '
           op: $
-          rhs: !name;1
-            value: name
+          rhs: !index;1
+            lhs: !name;1
+              value: module
+            rhs: !str;1
+              value: name
         catch: false
         func: !name;1
           value: print
     params: []
     rename: null
-  var: false
-- !assn;3
-  export: false
+  var: true
+- !assn;4
   lhs: !name;1
     value: main
   rhs: !func;2
@@ -85,8 +71,7 @@ stmts:
         catch: false
         func: !name;1
           value: test
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !index;1
           lhs: !name;1
             value: moda
@@ -95,10 +80,12 @@ stmts:
         rhs: !str;1
           value: new a module
         var: false
-      - !assn;3
-        export: false
-        lhs: !name;1
-          value: name
+      - !assn;4
+        lhs: !index;1
+          lhs: !name;1
+            value: module
+          rhs: !str;1
+            value: name
         rhs: !str;1
           value: new b module
         var: false
@@ -118,3 +105,22 @@ stmts:
     params: []
     rename: null
   var: true
+- !assn;4
+  lhs: !name;1
+    value: module
+  rhs: !dict;2
+    items:
+    - - !str;1
+        value: name
+      - !str;1
+        value: module b
+    - - !str;1
+        value: test
+      - !name;1
+        value: test
+    - - !str;1
+        value: main
+      - !name;1
+        value: main
+    set_meta: false
+  var: false

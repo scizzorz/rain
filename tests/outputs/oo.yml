@@ -1,13 +1,11 @@
 !program;1
 stmts:
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: rect
   rhs: !table;2 {}
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: rect
@@ -27,8 +25,7 @@ stmts:
     - self
     rename: null
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: rect
@@ -38,8 +35,7 @@ stmts:
     body: !block;2
       expr: null
       stmts:
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !index;1
           lhs: !name;1
             value: self
@@ -48,8 +44,7 @@ stmts:
         rhs: !name;1
           value: w
         var: false
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !index;1
           lhs: !name;1
             value: self
@@ -64,8 +59,7 @@ stmts:
     - h
     rename: null
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: rect
@@ -92,8 +86,7 @@ stmts:
     - self
     rename: null
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: square
   rhs: !binary;1
@@ -102,8 +95,7 @@ stmts:
     rhs: !name;1
       value: rect
   var: true
-- !assn;3
-  export: false
+- !assn;4
   lhs: !index;1
     lhs: !name;1
       value: square
@@ -113,8 +105,7 @@ stmts:
     body: !block;2
       expr: null
       stmts:
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !index;1
           lhs: !name;1
             value: self
@@ -123,8 +114,7 @@ stmts:
         rhs: !name;1
           value: s
         var: false
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !index;1
           lhs: !name;1
             value: self
@@ -138,16 +128,14 @@ stmts:
     - s
     rename: null
   var: false
-- !assn;3
-  export: false
+- !assn;4
   lhs: !name;1
     value: main
   rhs: !func;2
     body: !block;2
       expr: null
       stmts:
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: a
         rhs: !method;1
@@ -181,8 +169,7 @@ stmts:
         catch: false
         func: !name;1
           value: print
-      - !assn;3
-        export: false
+      - !assn;4
         lhs: !name;1
           value: b
         rhs: !method;1
