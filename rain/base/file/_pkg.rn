@@ -6,7 +6,7 @@ var freadline = foreign "rain_ext_freadline"(handle)
 var fwriteline = foreign "rain_ext_fwriteline"(handle, line)
 var fclose = foreign "rain_ext_fclose"(handle)
 
-export file_not_found = table :: except.error
+var file_not_found = table :: except.error
 file_not_found.msg = "cannot open file"
 foreign "rain_exc_file_not_found" = file_not_found
 
@@ -37,5 +37,6 @@ var open = func(name, mode)
   return base:new(fopen(name, mode))
 
 module = table {
-  open = open
+  open = open,
+  file_not_found = file_not_found,
 }
