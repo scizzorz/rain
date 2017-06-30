@@ -6,12 +6,7 @@ export int = foreign "rain_ext_str_int"(self)
 export str = func(self) -> self
 
 export length = foreign "rain_ext_str_length"(val)
-
-export substring = func(s, start, end)
-  var len = length(s)
-  if start >= end | end > len
-    return ""
-  return s[start] $ substring(s, start+1, end)
+export get = foreign "rain_ext_str_char_at"(val, key)
 
 export index_of = func(s, of)
   var i = 0
@@ -30,7 +25,7 @@ export stripl = func(s)
     break if !(s[i] == " " | s[i] == "\n" | s[i] == "\t")
     start = start + 1
     i = i + 1
-  return substring(s, start, length(s))
+  return s[[start, length(s)]]
 
 export split = func(s, at)
   var arr = table
@@ -41,8 +36,8 @@ export split = func(s, at)
       return
     var i = index_of(s, at)
     if i != null
-      var cur = substring(s, 0, i)
-      var rest = substring(s, i+1, length(s))
+      var cur = s[[0, i]]
+      var rest = s[[i+1, length(s)]]
       arr[arr_idx] = cur
       arr_idx = arr_idx + 1
       recurse(rest)

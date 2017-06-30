@@ -149,3 +149,82 @@ void rain_ext_str_fmt(box *ret, box *fmt, box *args) {
   rain_set_strcpy(ret, new, out);
   GC_free(new);
 }
+
+int rain_str_offset(int length, int idx) {
+  if(idx >= length) {
+    idx = length - 1;
+  }
+
+  if(idx < 0) {
+    idx = length + idx;
+  }
+
+  return idx;
+}
+
+int rain_str_valid_offset(int length, int idx) {
+  return idx >= -length && idx < length;
+}
+
+void rain_ext_str_char_at(box *ret, box *val, box *key) {
+  if(BOX_ISNT(val, STR)) {
+    rain_panic(rain_exc_arg_mismatch);
+  }
+
+  if(BOX_IS(key, INT)) {
+    int offset = key->data.si;
+
+    if(offset >= -(val->size) && offset < val->size) {
+      if(offset < 0) {
+        offset += val->size;
+      }
+
+      rain_set_strcpy(ret, val->data.s + offset, 1);
+      return;
+    }
+  }
+
+  if(BOX_IS(key, TABLE)) {
+    box pair_key;
+    box pair_fst;
+    box pair_snd;
+
+    rain_set_int(&pair_key, 0);
+    rain_get(&pair_fst, key, &pair_key);
+    rain_set_int(&pair_key, 1);
+    rain_get(&pair_snd, key, &pair_key);
+
+    if(BOX_IS(&pair_fst, INT) && BOX_IS(&pair_snd, INT)) {
+      int start = pair_fst.data.si;
+      int end = pair_snd.data.si;
+
+      if(start < 0)
+        start += val->size;
+
+      if(start < 0)
+        start = 0;
+
+      if(end < 0)
+        end += val->size;
+
+      if(end < 0)
+        end = 0;
+
+      if(end > val->size)
+        end = val->size;
+
+      if(start >= val->size || start >= end) {
+        rain_set_str(ret, "");
+        return;
+      }
+
+      rain_set_strcpy(ret, val->data.s + start, end - start);
+      return;
+    }
+  }
+
+  // pass unused keys up to the metatable
+  if(rain_has_meta(val)) {
+    rain_get(ret, val->env, key);
+  }
+}

@@ -1,16 +1,18 @@
 #include "rain.h"
+#include <gc.h>
 #include <stdio.h>
 
 
 // TODO this whole thing is just a temporary proof-of-concept
 // it's bad
 
-static char rain_fbuf[4096]; // static buffer
-
 void rain_ext_fopen(box *, box *, box *);
 void rain_ext_fwriteline(box *, box *, box *);
 void rain_ext_freadline(box *, box *);
 void rain_ext_fclose(box *, box *);
+
+box *rain_exc_file_not_found;
+
 
 void rain_ext_fopen(box *ret, box *fname, box *mode) {
   if(BOX_ISNT(fname, STR) || BOX_ISNT(mode, STR))
@@ -18,6 +20,10 @@ void rain_ext_fopen(box *ret, box *fname, box *mode) {
 
   FILE *fp = fopen(fname->data.s, mode->data.s);
   box key, val;
+
+  if(fp == NULL) {
+    rain_panic(rain_exc_file_not_found);
+  }
 
   rain_set_cdata(ret, (void*)fp);
 }
@@ -37,6 +43,8 @@ void rain_ext_freadline(box *ret, box *this) {
     return;
 
   FILE *fp = (FILE *)this->data.vp;
+  int bufsize = 4096;
+  char *fbuf = (char *)GC_malloc(bufsize);
 
   int i = 0;
   char cur;
@@ -50,15 +58,58 @@ void rain_ext_freadline(box *ret, box *this) {
     if(cur == '\n')
       break;
 
-    rain_fbuf[i] = cur; // what's a buffer overflow?
+    if(i >= bufsize) {
+      bufsize *= 2;
+      fbuf = (char *)GC_realloc(fbuf, bufsize);
+    }
+
+    fbuf[i] = cur;
     i++;
   }
 
   if(i == 0 && cur == EOF)
     return;
 
-  rain_fbuf[i] = 0;
-  rain_set_strcpy(ret, rain_fbuf, i);
+  fbuf[i] = 0;
+  rain_set_str(ret, fbuf);
+}
+
+void rain_ext_fread(box *ret, box *this, box *length) {
+  if(BOX_ISNT(this, CDATA))
+    return;
+
+  if(BOX_ISNT(length, INT))
+    return;
+
+  FILE *fp = (FILE *)this->data.vp;
+  long size = length->data.si;
+
+  if(size < 0) {
+    long restore = ftell(fp);
+    fseek(fp, 0L, SEEK_END);
+    size = ftell(fp);
+    fseek(fp, restore, SEEK_SET);
+  }
+
+  char *fbuf = (char *)GC_malloc(size + 1);
+
+  long i;
+  char cur;
+
+  for(i=0; i<size; i++) {
+    cur = fgetc(fp);
+
+    if(cur == EOF)
+      break;
+
+    fbuf[i] = cur;
+  }
+
+  if(i == 0 && cur == EOF)
+    return;
+
+  fbuf[size] = 0;
+  rain_set_str(ret, fbuf);
 }
 
 void rain_ext_fclose(box *ret, box *this) {
