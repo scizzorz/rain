@@ -259,35 +259,51 @@ def stmt(ctx):
 
   if ctx.consume(K.keyword_token('use')):
     name = ctx.require(K.name_token).value
-    pos = ctx.past[-1]
-    ctx.require(K.symbol_token('='))
-    lhs = prefix(ctx)
+    lhs = None
     rhs = None
+    pos = ctx.past[-1]
 
-    # grab all the suffixes
-    while True:
-      if ctx.consume(K.symbol_token('.')):
-        if rhs is not None:
-          lhs = A.idx_node(lhs, rhs)
+    def suffix():
+      nonlocal lhs, rhs, pos, name
 
-        rhs = ctx.require(K.name_token).value
-        rhs = A.str_node(rhs)
-        pos = ctx.past[-1]
+      # grab all the suffixes
+      while True:
+        if ctx.consume(K.symbol_token('.')):
+          if rhs is not None:
+            lhs = A.idx_node(lhs, rhs)
 
-      elif ctx.consume(K.symbol_token('[')):
-        if rhs is not None:
-          lhs = A.idx_node(lhs, rhs)
+          rhs = A.str_node(ctx.require(K.name_token).value)
+          pos = ctx.past[-1]
 
-        rhs = binexpr(ctx)
-        ctx.require(K.symbol_token(']'))
-        pos = ctx.past[-1]
+        elif ctx.consume(K.symbol_token('[')):
+          if rhs is not None:
+            lhs = A.idx_node(lhs, rhs)
 
-      else:
-        break
+          rhs = binexpr(ctx)
+          pos = ctx.past[-1]
+          ctx.require(K.symbol_token(']'))
 
-    # require at least one suffix
-    if rhs is None:
-      ctx.require(K.symbol_token('.'), K.symbol_token('['))
+        else:
+          break
+
+      # require at least one suffix
+      if rhs is None:
+        ctx.require(K.symbol_token('.'), K.symbol_token('['))
+
+    if ctx.expect(K.symbol_token('.'), K.symbol_token('[')):
+      lhs = A.name_node(name)
+      suffix()
+      name = rhs
+
+      print(name)
+      if not isinstance(name, A.str_node):
+        print('hfufeeee')
+        Q.abort("RHS of use must be a valid identifier", pos=pos)
+
+    else:
+      ctx.require(K.symbol_token('='))
+      lhs = prefix(ctx)
+      suffix()
 
     node = A.use_node(name, lhs, rhs)
     node.coords = pos
