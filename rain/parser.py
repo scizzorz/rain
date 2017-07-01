@@ -267,15 +267,19 @@ def stmt(ctx):
     # grab all the suffixes
     while True:
       if ctx.consume(K.symbol_token('.')):
+        if rhs is not None:
+          lhs = A.idx_node(lhs, rhs)
+
         rhs = ctx.require(K.name_token).value
         rhs = A.str_node(rhs)
-        lhs = A.idx_node(lhs, rhs)
         pos = ctx.past[-1]
 
       elif ctx.consume(K.symbol_token('[')):
+        if rhs is not None:
+          lhs = A.idx_node(lhs, rhs)
+
         rhs = binexpr(ctx)
         ctx.require(K.symbol_token(']'))
-        lhs = A.idx_node(lhs, rhs)
         pos = ctx.past[-1]
 
       else:
@@ -285,7 +289,7 @@ def stmt(ctx):
     if rhs is None:
       ctx.require(K.symbol_token('.'), K.symbol_token('['))
 
-    node = A.use_node(name, lhs.lhs, lhs.rhs)
+    node = A.use_node(name, lhs, rhs)
     node.coords = pos
     return node
 
