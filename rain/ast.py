@@ -60,7 +60,8 @@ class node(metaclass=metanode):
     Q.abort("Can't emit code in global scope for {!r}", self, pos=self.coords)
 
   def __str__(self):
-    return (type(self).__name__) + '()'
+    args = ', '.join(['{!s}={!s}'.format(key, getattr(self, key)) for key in self.__slots__])
+    return '{!s}({!s})'.format(type(self).__name__, args)
 
   def __repr__(self):
     return '<{!s}>'.format(self)
