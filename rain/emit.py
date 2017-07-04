@@ -225,10 +225,12 @@ def emit(self, module):
 
   rename = self.rename or comp.mname
 
+  # copy over all the goodies
   module[rename] = module.find_global(T.box, comp.mod.mangle('module'))
-  module[rename].linkage = 'available_externally'  # make sure we know it's visible here
+  module[rename].linkage = 'available_externally'
+  module[rename].initializer = comp.mod['module'].initializer
+  module.static.repair(module[rename], comp.mod['module'])
 
-  module[rename].mod = comp.mod
   module.imports.add(file)
 
 
