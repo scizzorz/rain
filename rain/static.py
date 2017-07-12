@@ -30,6 +30,9 @@ class Static:
 
   # Insert a box into a static table
   def put(self, table_box, key_node, val, pair=None):
+    if getattr(table_box, 'lpt_ptr', None) is None:
+      Q.abort('Global value is not table')
+
     lpt_ptr = table_box.lpt_ptr
     cur = lpt_ptr.initializer.constant[0].constant
     max = lpt_ptr.initializer.constant[1].constant
