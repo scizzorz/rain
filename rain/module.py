@@ -5,6 +5,7 @@ from . import static
 from . import token as K
 from . import types as T
 from contextlib import contextmanager
+import rvmpy
 from llvmlite import binding
 from llvmlite import ir
 from os.path import isdir, isfile
@@ -101,24 +102,7 @@ class Module(S.Scope):
       self.file = file
       self.qname, self.mname = find_name(self.file)
 
-    self.llvm = ir.Module(name=self.qname)
-    self.llvm.triple = binding.get_default_triple()
-    self.imports = set()
-    self.links = set()
-    self.libs = set()
-
-    self.runtime = runtime.Runtime(self)
-    self.static = static.Static(self)
-
-    self.runtime.declare()
-
-    typ = T.arr(T.i8, len(self.qname) + 1)
-    ptr = self.add_global(typ, name=self.mangle('_name'))
-    ptr.initializer = typ(bytearray(self.qname + '\0', 'utf-8'))
-    self.name_ptr = ptr.gep([T.i32(0), T.i32(0)])
-
-    self.trace_depth = self.find_global(T.i32, name='rain_trace_depth')
-    self.trace_depth.linkage = 'available_externally'
+    self.rvm = rvmpy.Module(name=self.qname)
 
     self.builder = None
     self.arg_ptrs = None
@@ -147,22 +131,6 @@ class Module(S.Scope):
   def __contains__(self, key):
     return super().__contains__(self.dekey(key))
 
-  # wrapper to emit IR for a node
-  def emit(self, node):
-    return node.emit(self)
-
-  @property
-  def ir(self):
-    return str(self.llvm)
-
-  @property
-  def is_global(self):
-    return (not self.builder)
-
-  @property
-  def is_local(self):
-    return bool(self.builder)
-
   # save and restore some module attributes around a code block
   @contextmanager
   def stack(self, *attrs):
@@ -170,10 +138,6 @@ class Module(S.Scope):
     yield
     for attr, val in zip(attrs, saved):
       setattr(self, attr, val)
-
-  # mangle a name
-  def mangle(self, name):
-    return self.qname + '.' + name
 
   # generate a unique name
   def uniq(self, name):

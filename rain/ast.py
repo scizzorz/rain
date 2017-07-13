@@ -48,16 +48,7 @@ class node(metaclass=metanode):
     self._coords = value
 
   def emit(self, module):
-    if module.is_local:
-      return self.emit_local(module)
-    elif module.is_global:
-      return self.emit_global(module)
-
-  def emit_local(self, module):
-    Q.abort("Can't emit code in non-global scope for {!r}", self, pos=self.coords)
-
-  def emit_global(self, module):
-    Q.abort("Can't emit code in global scope for {!r}", self, pos=self.coords)
+    Q.abort("Can't emit bytecode for {!r}", self, pos=self.coords)
 
   def __str__(self):
     args = ', '.join(['{!s}={!s}'.format(key, getattr(self, key)) for key in self.__slots__])

@@ -193,41 +193,8 @@ class Compiler:
     self.mod = M.Module(self.file)
     self.mods.add(self.mod)
 
-    # always link with lib/_pkg.rn
-    builtin = get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
-    if self is not builtin:  # unless we ARE lib/_pkg.rn
-      builtin.build()
-
-      self.link_with(builtin)
-
-      # import globals
-      self.mod.import_scope(builtin.mod)
-      self.mod.import_llvm(builtin.mod)
-
     # compile the imports
     self.ast.emit(self.mod)
-
-    for mod in self.mod.imports:
-      comp = get_compiler(mod)
-      self.vprint('           {} imports {}', X(self.qname, 'green'), X(comp.qname, 'blue'))
-      comp.build()  # should be done during import but might as well be safe
-
-      # add the module's IR as well as all of its imports' IR
-      self.link_with(comp)
-      self.mods.add(comp.mod)
-
-    for link in self.mod.links:
-      self.vprint('           {} links {}', X(self.qname, 'green'), X(link, 'blue'))
-
-    for lib in self.mod.libs:
-      self.vprint('           {} shares {}', X(self.qname, 'green'), X(lib, 'blue'))
-
-    self.links |= self.mod.links
-    self.libs |= self.mod.libs
-
-    # only spit out the main if this is the main file
-    if self.main:
-      self.ast.emit_main(self.mod, mods=self.mods)
 
   def write(self):
     '''Write data based on what the latest compilation step is.'''
@@ -235,27 +202,7 @@ class Compiler:
       return
     self.written = True
 
-    if self.built:
-      tempdir = tempfile.gettempdir()
-      name = join(tempdir, self.qname + '.ll')
-      with open(name, 'w') as tmp:
-        tmp.write(self.mod.ir)
-
-      self.ll = name
-
-    elif self.emitted:
-      with open(self.target or self.qname + '.ll', 'w') as tmp:
-        tmp.write(self.mod.ir)
-
-    elif self.parsed:
-      with open(self.target or self.qname + '.yml', 'w') as tmp:
-        tmp.write(A.machine.dump(self.ast))
-
-    elif self.lexed:
-      with open(self.target or self.qname + '.lex', 'w') as tmp:
-        for token in self.stream:
-          tmp.write(str(token))
-          tmp.write('\n')
+    self.mod.rvm.write()
 
   def build(self):
     '''Emit code and write it to a file.'''
@@ -271,24 +218,6 @@ class Compiler:
       self.emit()
       self.write()
 
-  def compile_links(self):
-    '''Compile all additional link files into LLVM IR.'''
-    drop = set()
-    add = set()
-
-    for link in self.links:
-      target = compile_link(link)
-
-      if target != link:
-        drop.add(link)
-        add.add(target)
-
-    self.links = (self.links | add) - drop
-
-  def compile_libs(self):
-    '''Compile all shared libraries into a .so file.'''
-    return compile_so(self.libs)
-
   def compile(self):
     '''Compile a full program into an executable.'''
     self.build()
@@ -296,31 +225,6 @@ class Compiler:
     if self.compiled:
       return
     self.compiled = True
-
-    self.compile_links()
-
-    with self.okay('compiling'):
-      target = self.target or self.qname
-      if os.path.isdir(target):
-        if self.target:
-          Q.warn('Target {!r} is a directory; appending .out suffix', target)
-        target = target + '.out'
-
-      clang = os.getenv('CLANG', 'clang')
-      flags = ['-O2']
-      libs = ['-l' + lib for lib in self.libs]
-      cmd = [clang, '-o', target, self.ll] + flags + libs + list(self.links)
-
-      self.vprint('{:>10} {}', 'target', X(target, 'yellow'))
-      self.vprint('{:>10} {}', 'flags', X('  '.join(flags), 'yellow'))
-      self.vprint('{:>10} {}', 'main', X(self.ll, 'yellow'))
-      for link in self.links:
-        self.vprint('{:>10} {}', 'link', X(link, 'yellow'))
-
-      for lib in libs:
-        self.vprint('{:>10} {}', 'lib', X(lib, 'yellow'))
-
-      subprocess.check_call(cmd)
 
   def share(self):
     '''Compile a single Rain file into a shared object file.'''
@@ -330,25 +234,7 @@ class Compiler:
       return
     self.compiled = True
 
-    self.compile_links()
-
-    with self.okay('sharing'):
-      target = self.target or self.qname + '.so'
-      clang = os.getenv('CLANG', 'clang')
-      flags = ['-O2', '-shared', '-fPIC']
-      cmd = [clang, '-o', target, self.ll] + flags
-
-      self.vprint('{:>10} {}', 'target', X(target, 'yellow'))
-      self.vprint('{:>10} {}', 'flags', X('  '.join(flags), 'yellow'))
-      self.vprint('{:>10} {}', 'src', X(self.ll, 'yellow'))
-
-      subprocess.check_call(cmd)
-
   def run(self):
     '''Execute a generated executable.'''
     with self.okay('running'):
-      target = self.target or self.qname
-      if os.path.isdir(target):
-        target = target + '.out'
-
-      subprocess.check_call([os.path.abspath(target)])
+      pass
