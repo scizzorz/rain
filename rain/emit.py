@@ -124,6 +124,10 @@ def emit(self, module):
 
   fn_ptr = module.rvm.add_const(lambda: fn.addr)
   module.rvm.push_const(fn_ptr)
+  module.rvm.push_table()
+  module.rvm.push_scope()
+  module.rvm.set_meta()
+  module.rvm.set_meta()
 
 
 # Compound expressions ########################################################
