@@ -24,6 +24,7 @@ def emit(self, module):
   with module.rvm.goto(module.rvm.main):
     for stmt in self.stmts:
       stmt.emit(module)
+    module.rvm.ret()
 
 
 @A.block_node.method
@@ -114,24 +115,15 @@ def emit(self, module):
   module.rvm.push_table()
 
 
-@A.array_node.method
-def emit(self, module):
-  pass
-
-
-@A.dict_node.method
-def emit(self, module):
-  pass
-
-
 @A.func_node.method
 def emit(self, module):
-  pass
+  fn = module.rvm.add_block()
+  with module.rvm.goto(fn):
+    self.body.emit(module)
+    module.rvm.ret()
 
-
-@A.foreign_node.method
-def emit(self, module):
-  pass
+  fn_ptr = module.rvm.add_const(lambda: fn.addr)
+  module.rvm.push_const(fn_ptr)
 
 
 # Compound expressions ########################################################
