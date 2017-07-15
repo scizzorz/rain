@@ -32,12 +32,6 @@ def emit(self, module):
   for stmt in self.stmts:
     stmt.emit(module)
 
-  if self.expr:
-    return self.expr.emit(module)
-
-  else:
-    return T.null
-
 
 # Simple statements ###########################################################
 
@@ -73,6 +67,8 @@ def emit(self, module):
     self.value.emit(module)
   else:
     A.null_node().emit(module)
+
+  module.rvm.save()
 
 
 # Simple expressions ##########################################################
