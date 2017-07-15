@@ -154,6 +154,12 @@ def emit(self, module):
     '-': module.rvm.sub,
     '*': module.rvm.mul,
     '/': module.rvm.div,
+    '<': module.rvm.lt,
+    '>': module.rvm.gt,
+    '<=': module.rvm.le,
+    '>=': module.rvm.ge,
+    '!=': module.rvm.ne,
+    '==': module.rvm.eq,
   }
 
   self.lhs.emit(module)
