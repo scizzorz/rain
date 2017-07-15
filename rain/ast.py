@@ -364,13 +364,12 @@ class dict_node(expr_node):
 
 class func_node(expr_node):
   __tag__ = 'func'
-  __version__ = 2
-  __slots__ = ['params', 'body', 'rename']
+  __version__ = 3
+  __slots__ = ['params', 'body']
 
-  def __init__(self, params, body, rename=None):
+  def __init__(self, params, body):
     self.params = params
     self.body = body
-    self.rename = rename
 
 
 class foreign_node(expr_node):

@@ -634,9 +634,6 @@ def compound(ctx):
 
   if ctx.consume(K.keyword_token('func')):
     pos = ctx.past[-1]
-    rename = None
-    if ctx.expect(K.name_token, K.string_token):
-      rename = ctx.require(K.name_token, K.string_token).value
 
     params = fnparams(ctx)
 
@@ -649,7 +646,7 @@ def compound(ctx):
 
     body = block(ctx)
 
-    node = A.func_node(params, body, rename)
+    node = A.func_node(params, body)
     node.coords = pos
     return node
 
