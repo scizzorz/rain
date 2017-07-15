@@ -152,7 +152,7 @@ def emit(self, module):
     arg.emit(module)
 
   self.func.emit(module)
-  module.rvm.call()
+  module.rvm.call(len(self.args))
 
 
 @A.binary_node.method
