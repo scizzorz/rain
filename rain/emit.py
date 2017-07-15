@@ -175,6 +175,7 @@ def emit(self, module):
     '>=': module.rvm.ge,
     '!=': module.rvm.ne,
     '==': module.rvm.eq,
+    '::': module.rvm.set_meta,
   }
 
   self.lhs.emit(module)
