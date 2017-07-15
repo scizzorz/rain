@@ -129,6 +129,14 @@ def emit(self, module):
 def emit(self, module):
   fn = module.rvm.add_block()
   with module.rvm.goto(fn):
+    module.rvm.fit(len(self.params))
+
+    for param in reversed(self.params):
+      param_name = module.rvm.add_const(param)
+      module.rvm.push_const(param_name)
+      module.rvm.push_scope()
+      module.rvm.set()
+
     self.body.emit(module)
     module.rvm.ret()
 
