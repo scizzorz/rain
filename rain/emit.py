@@ -60,6 +60,13 @@ def emit(self, module):
     module.rvm.push_scope()
     module.rvm.set()
 
+  elif isinstance(self.lhs, A.idx_node):
+    self.rhs.emit(module)
+    self.lhs.rhs.emit(module)
+    self.lhs.lhs.emit(module)
+    module.rvm.set()
+
+
 @A.return_node.method
 def emit(self, module):
   if self.value:
@@ -147,6 +154,7 @@ def emit(self, module):
   self.func.emit(module)
   module.rvm.call()
 
+
 @A.binary_node.method
 def emit(self, module):
   ops = {
@@ -169,6 +177,13 @@ def emit(self, module):
     Q.abort("Invalid binary operator", pos=self.coords)
 
   ops[self.op]()
+
+
+@A.idx_node.method
+def emit(self, module):
+  self.rhs.emit(module)
+  self.lhs.emit(module)
+  module.rvm.get()
 
 
 # Warning statements ##########################################################
