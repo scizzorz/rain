@@ -158,6 +158,9 @@ def emit(self, module):
   self.func.emit(module)
   module.rvm.call(len(self.args))
 
+  if self.pop:
+    module.rvm.pop()
+
 
 @A.binary_node.method
 def emit(self, module):

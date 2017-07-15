@@ -384,13 +384,14 @@ class foreign_node(expr_node):
 
 class call_node(expr_node):
   __tag__ = 'call'
-  __version__ = 1
-  __slots__ = ['func', 'args', 'catch']
+  __version__ = 2
+  __slots__ = ['func', 'args', 'catch', 'pop']
 
-  def __init__(self, func, args, catch=False):
+  def __init__(self, func, args, catch=False, pop=False):
     self.func = func
     self.args = args
     self.catch = catch
+    self.pop = pop
 
 
 class meth_node(expr_node):

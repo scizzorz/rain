@@ -409,7 +409,7 @@ def stmt(ctx):
   if ctx.expect(K.symbol_token('(')):
     pos = ctx.token.pos(file=ctx.file)
     args = fnargs(ctx)
-    node = A.call_node(lhs, args)
+    node = A.call_node(lhs, args, pop=True)
     node.coords = pos
     return node
 
