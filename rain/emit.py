@@ -60,6 +60,13 @@ def emit(self, module):
     module.rvm.push_scope()
     module.rvm.set()
 
+@A.return_node.method
+def emit(self, module):
+  if self.value:
+    self.value.emit(module)
+  else:
+    A.null_node().emit(module)
+
 
 # Simple expressions ##########################################################
 
