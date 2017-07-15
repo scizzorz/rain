@@ -147,6 +147,23 @@ def emit(self, module):
   self.func.emit(module)
   module.rvm.call()
 
+@A.binary_node.method
+def emit(self, module):
+  ops = {
+    '+': module.rvm.add,
+    '-': module.rvm.sub,
+    '*': module.rvm.mul,
+    '/': module.rvm.div,
+  }
+
+  self.lhs.emit(module)
+  self.rhs.emit(module)
+
+  if self.op not in ops:
+    Q.abort("Invalid binary operator", pos=self.coords)
+
+  ops[self.op]()
+
 
 # Warning statements ##########################################################
 
