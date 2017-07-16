@@ -71,6 +71,39 @@ def emit(self, module):
   module.rvm.save()
 
 
+# Compound statements #########################################################
+
+@A.if_node.method
+def emit(self, module):
+  self.pred.emit(module)
+
+  if self.els:
+    body = module.rvm.ins_block()
+    after = module.rvm.ins_block()
+    module.rvm.jump_if(body)
+    self.els.emit(module)
+    module.rvm.jump(after)
+
+    with module.rvm.goto(body):
+      self.body.emit(module)
+      module.rvm.jump(after)
+
+    module.rvm.block = after
+
+  else:
+    body = module.rvm.ins_block()
+    after = module.rvm.ins_block()
+    module.rvm.jump_if(body)
+    module.rvm.jump(after)
+
+    with module.rvm.goto(body):
+      self.body.emit(module)
+      module.rvm.jump(after)
+
+    module.rvm.block = after
+
+
+
 # Simple expressions ##########################################################
 
 @A.name_node.method
