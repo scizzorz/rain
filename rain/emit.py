@@ -90,6 +90,21 @@ def emit(self, module):
     module.block = after
 
 
+@A.while_node.method
+def emit(self, module):
+  entry = module.ins_block()
+  exit = module.ins_block()
+  module.jump(entry)
+
+  with module.goto(entry):
+    self.pred.emit(module)
+    module.jump_ne(exit)
+    self.body.emit(module)
+    module.jump(entry)
+
+  module.block = exit
+
+
 # Simple expressions ##########################################################
 
 @A.name_node.method
