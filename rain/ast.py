@@ -147,14 +147,15 @@ class cont_node(node):
     self.cond = cond
 
 
-class export_foreign_node(node):
-  __tag__ = 'exportforeign'
-  __version__ = 1
-  __slots__ = ['name', 'rename']
+class for_node(node):
+  __tag__ = 'for'
+  __version__ = 3
+  __slots__ = ['name', 'func', 'body']
 
-  def __init__(self, name, rename):
+  def __init__(self, name, func, body):
     self.name = name
-    self.rename = rename
+    self.func = func
+    self.body = body
 
 
 class if_node(node):
@@ -178,42 +179,12 @@ class import_node(node):
     self.rename = rename
 
 
-class link_node(node):
-  __tag__ = 'link'
-  __version__ = 1
-  __slots__ = ['name']
-
-  def __init__(self, name):
-    self.name = name
-
-
-class lib_node(node):
-  __tag__ = 'library'
-  __version__ = 1
-  __slots__ = ['name']
-
-  def __init__(self, name):
-    self.name = name
-
-
 class loop_node(node):
   __tag__ = 'loop'
   __version__ = 1
   __slots__ = ['body']
 
   def __init__(self, body):
-    self.body = body
-
-
-class macro_node(node):
-  __tag__ = 'macro'
-  __version__ = 1
-  __slots__ = ['name', 'types', 'params', 'body']
-
-  def __init__(self, name, types, params, body):
-    self.name = name
-    self.types = types
-    self.params = params
     self.body = body
 
 
@@ -236,16 +207,6 @@ class save_node(node):
     self.name = name
 
 
-class until_node(node):
-  __tag__ = 'until'
-  __version__ = 1
-  __slots__ = ['pred', 'body']
-
-  def __init__(self, pred, body):
-    self.pred = pred
-    self.body = body
-
-
 class while_node(node):
   __tag__ = 'while'
   __version__ = 1
@@ -253,28 +214,6 @@ class while_node(node):
 
   def __init__(self, pred, body):
     self.pred = pred
-    self.body = body
-
-
-class for_node(node):
-  __tag__ = 'for'
-  __version__ = 3
-  __slots__ = ['name', 'func', 'body']
-
-  def __init__(self, name, func, body):
-    self.name = name
-    self.func = func
-    self.body = body
-
-
-class with_node(node):
-  __tag__ = 'with'
-  __version__ = 1
-  __slots__ = ['expr', 'params', 'body']
-
-  def __init__(self, expr, params, body):
-    self.expr = expr
-    self.params = params
     self.body = body
 
 
@@ -370,16 +309,6 @@ class func_node(expr_node):
   def __init__(self, params, body):
     self.params = params
     self.body = body
-
-
-class foreign_node(expr_node):
-  __tag__ = 'foreign'
-  __version__ = 1
-  __slots__ = ['name', 'params']
-
-  def __init__(self, name, params):
-    self.name = name
-    self.params = params
 
 
 class call_node(expr_node):
