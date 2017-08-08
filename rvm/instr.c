@@ -26,6 +26,7 @@ void (*R_INSTR_TABLE[NUM_INSTRS])(R_vm *, R_op *) = {
   R_LOAD,
   R_SAVE,
   R_FIT,
+  R_JUMPNE,
 };
 
 
@@ -53,6 +54,7 @@ const char *R_INSTR_NAMES[NUM_INSTRS] = {
   "LOAD",
   "SAVE",
   "FIT",
+  "JUMPNE",
 };
 
 void R_PRINT(R_vm *vm, R_op *instr) {
@@ -317,4 +319,14 @@ void R_SAVE(R_vm *vm, R_op *instr) {
 
 void R_FIT(R_vm *vm, R_op *instr) {
   vm_fit(vm, R_UI(instr));
+}
+
+
+void R_JUMPNE(R_vm *vm, R_op *instr) {
+  R_box top = vm_pop(vm);
+
+  if(top.type == R_TYPE_NULL || (top.type == R_TYPE_BOOL && top.i64 == 0)) {
+    vm->instr_ptr += R_SI(instr);
+    // TODO: what if IP goes out of bounds?
+  }
 }

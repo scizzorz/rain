@@ -67,27 +67,25 @@ def emit(self, module):
   self.pred.emit(module)
 
   if self.els:
-    body = module.ins_block()
+    els = module.ins_block()
     after = module.ins_block()
-    module.jump_if(body)
-    self.els.emit(module)
+
+    module.jump_ne(els)
+
+    self.body.emit(module)
     module.jump(after)
 
-    with module.goto(body):
-      self.body.emit(module)
+    with module.goto(els):
+      self.els.emit(module)
       module.jump(after)
 
     module.block = after
 
   else:
-    body = module.ins_block()
     after = module.ins_block()
-    module.jump_if(body)
+    module.jump_ne(after)
+    self.body.emit(module)
     module.jump(after)
-
-    with module.goto(body):
-      self.body.emit(module)
-      module.jump(after)
 
     module.block = after
 

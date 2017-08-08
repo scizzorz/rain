@@ -35,6 +35,7 @@ class Instr:
   LOAD       = 0x14
   SAVE       = 0x15
   FIT        = 0x16
+  JUMPNE     = 0x17
 
   def __init__(self):
     pass
@@ -111,6 +112,10 @@ class Jump(SBx):
 
 class JumpIf(SBx):
   op = Instr.JUMPIF
+
+
+class JumpNe(SBx):
+  op = Instr.JUMPNE
 
 
 class Dup(Nx):

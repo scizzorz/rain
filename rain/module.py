@@ -166,7 +166,7 @@ class Block:
       if isinstance(instr, I.CallTo):
         instr.x = instr.block.addr
 
-      elif isinstance(instr, (I.Jump, I.JumpIf)):
+      elif isinstance(instr, (I.Jump, I.JumpIf, I.JumpNe)):
         instr.x = instr.block.addr - (self.addr + i) - 1
 
 
@@ -259,6 +259,9 @@ class Module:
 
   def jump_if(self, offset):
     self.add_instr(I.JumpIf(offset))
+
+  def jump_ne(self, offset):
+    self.add_instr(I.JumpNe(offset))
 
   def call_to(self, instr):
     self.add_instr(I.CallTo(instr))
