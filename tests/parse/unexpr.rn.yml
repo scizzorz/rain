@@ -1,0 +1,18 @@
+!program;1
+stmts:
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !unary;1
+    op: '-'
+    val: !name;1
+      value: a
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !unary;1
+    op: '!'
+    val: !name;1
+      value: a
+  var: false
