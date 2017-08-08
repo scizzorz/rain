@@ -1,6 +1,6 @@
 from setuptools import setup
 
-setup(name='rainlang',
+setup(name='rain',
       version='0.1',
       description='A programming language.',
       url='https://github.com/scizzorz/rain',

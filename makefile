@@ -9,7 +9,7 @@ LDFLAGS=-Llib
 CFLAGS=-Iinclude
 LIBS=-lrain -lgc -ldl
 
-all: build lib $(LIB) $(EXECS)
+all: build lib env $(LIB) $(EXECS)
 
 build:
 	mkdir -p build
@@ -31,3 +31,15 @@ $(EXECS): bin/rain-%: build/%.o $(LIB)
 
 clean:
 	rm -f $(EXECS) $(LIB) $(LIB_OBJS) $(EXEC_OBJS)
+
+env:
+	python3 -m venv env
+	env/bin/pip install --upgrade pip wheel
+	env/bin/pip install -r requirements.txt
+	env/bin/pip install -e .
+
+test:
+	@env/bin/py.test -v
+
+lint:
+	@env/bin/flake8 rain --max-line-length=100 --ignore=E11,E114,E121,E221

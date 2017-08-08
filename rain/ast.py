@@ -1,7 +1,5 @@
 from . import error as Q
 import camel
-import fixedint
-import struct
 
 registry = camel.CamelRegistry()
 machine = camel.Camel([registry])
@@ -233,48 +231,24 @@ class name_node(value_node, expr_node):
   __tag__ = 'name'
 
 
-class literal_node(expr_node):
-  def hash(self):
-    raise Exception("Can't hash {!s}".format(self))
-
-
-class null_node(literal_node):
+class null_node(expr_node):
   __tag__ = 'null'
 
-  def hash(self):
-    return 0
 
-
-class int_node(value_node, literal_node):
+class int_node(value_node, expr_node):
   __tag__ = 'int'
 
-  def hash(self):
-    return int(fixedint.UInt64(self.value))
 
-
-class float_node(value_node, literal_node):
+class float_node(value_node, expr_node):
   __tag__ = 'float'
 
-  def hash(self):
-    raw = struct.pack('d', self.value)
-    return struct.unpack('Q', raw)[0]
 
-
-class bool_node(value_node, literal_node):
+class bool_node(value_node, expr_node):
   __tag__ = 'bool'
 
-  def hash(self):
-    return int(self.value)
 
-
-class str_node(value_node, literal_node):
+class str_node(value_node, expr_node):
   __tag__ = 'str'
-
-  def hash(self):
-    val = fixedint.MutableUInt64(5381)
-    for char in self.value:
-      val += (val * 32) + ord(char)
-    return int(val)
 
 
 class table_node(expr_node):
