@@ -10,7 +10,6 @@ setup(name='rain',
       packages=['rain'],
       scripts=[
         'bin/rain',
-        'bin/rainc',
         'bin/rain-help',
         'bin/rain-compile'
       ],
