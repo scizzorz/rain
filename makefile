@@ -7,7 +7,7 @@ EXEC_OBJS=build/run.o build/dis.o build/step.o
 
 LDFLAGS=-Llib
 CFLAGS=-Iinclude
-LIBS=-lrain -lgc -ldl
+LIBS=$(LIB) -lgc -ldl
 
 all: build lib env $(LIB) $(EXECS)
 
@@ -37,6 +37,7 @@ env:
 	env/bin/pip install --upgrade pip wheel
 	env/bin/pip install -r requirements.txt
 	env/bin/pip install -e .
+	for x in $(EXECS); do ln -s $$(pwd)/$$x env/$$x; done
 
 test:
 	@env/bin/py.test -v
