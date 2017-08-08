@@ -21,31 +21,31 @@ def test_factory():
 
 
 @stream_test(K.keyword_token, L.KEYWORDS)
-def test_keywords(src):
+def test_keyword(src):
   pass
 
 @stream_test(K.operator_token, L.KW_OPERATORS + L.OPERATORS)
-def test_operators(src):
+def test_operator(src):
   pass
 
 
 @stream_test(K.float_token, ['0.0', '0.1', '0.12', '0.123', '12.34'])
-def test_floats(src):
+def test_float(src):
   pass
 
 
 @stream_test(K.int_token, ['0', '1', '10'])
-def test_ints(src):
+def test_int(src):
   pass
 
 
 @stream_test(K.bool_token, ['true', 'false'])
-def test_bools(src):
+def test_bool(src):
   pass
 
 
 @stream_test(K.string_token, ['"string"', r'"\"escaped string\""', r'"before \"escape\""', r'"\"after\" escape"'])
-def test_strings(src):
+def test_string(src):
   pass
 
 
