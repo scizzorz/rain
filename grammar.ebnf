@@ -2,32 +2,20 @@ program :: (stmt NEWLINE)+ EOF
 
 block :: INDENT (stmt NEWLINE)+ DEDENT
 
-stmt :: 'var' var_prefix ('=' compound)?
-      | 'bind' NAME (',' NAME)*
-      | 'foreign' (NAME | STRING) '=' NAME
-      | 'import' (NAME '=')? import_mod
-      | 'macro' NAME fnparams 'as' fnparams block
-      | macro_exp
-      | 'link' STRING
-      | 'library' STRING
-      | if_stmt
-      | 'for' var_prefix 'in' binexpr block
-      | 'with' binexpr ('as' NAME (',' NAME)*)
-      | 'while' binexpr block
-      | 'until' binexpr block
-      | 'loop' block
-      | 'pass'
+stmt :: 'bind' NAME (',' NAME)*
       | 'break' ('if' binexpr)?
       | 'continue' ('if' binexpr)?
+      | 'for' var_prefix 'in' binexpr block
+      | if_stmt
+      | 'loop' block
+      | 'pass'
       | 'return' compound?
       | 'save' (NAME '=')? compound
+      | 'var' var_prefix ('=' compound)?
+      | 'while' binexpr block
       | assn_prefix ('=' compound | fnargs | ':' NAME  fnargs)
 
-import_mod :: ('.' '/')? (NAME | STRING) ('/' (NAME | STRING))*
-
 if_stmt :: 'if' binexpr block (NEWLINE 'else' (if_stmt | block))?
-
-macro_exp :: '@' NAME ('.' NAME)* ***
 
 var_prefix :: '[' var_prefix (',' var_prefix)* ']'
             | NAME
@@ -43,12 +31,9 @@ dict_expr :: '{' (dict_item (',' dict_item)*)? ','? '}'
 
 fnargs :: '(' (binexpr (',' binexpr)*)? ')'
 
-fnargblock :: INDENT (compound NEWLINE)+ DEDENT
-
 fnparams :: '(' (NAME (',' NAME)*)? ')'
 
-compound :: macro_exp
-          | 'func' (NAME | STRING)? fnparams ('->' binexpr | block)
+compound :: 'func' fnparams ('->' binexpr | block)
           | 'catch' block
           | binexpr
 
@@ -58,7 +43,6 @@ unexpr :: ('-' | '!') simple
         | simple
 
 simple :: 'func' fnparams '->' binexpr
-        | 'foreign' (NAME | STRING) fnparams
         | array_expr
         | dict_expr
         | primary
