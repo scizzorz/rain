@@ -6,9 +6,10 @@ else
   subc="help"
 fi
 
-path=$(which rain-"$subc");
+target=rain-"$subc"
+path=$(which "$target");
 if [ -x "$path" ]; then
   "$path" "$@"
 else
-  echo "Command not found: rain-$subc"
+  echo "Command not found: $target"
 fi
