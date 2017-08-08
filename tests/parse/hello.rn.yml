@@ -1,0 +1,10 @@
+!program;1
+stmts:
+- !call;2
+  args:
+  - !str;1
+    value: Hello.
+  catch: false
+  func: !name;1
+    value: print
+  pop: true
