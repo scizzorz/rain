@@ -6,7 +6,17 @@ machine = camel.Camel([registry])
 tag_registry = {}
 
 
-# Base classes
+# flatten arbitrarily nested lists
+# oh come on what is this doing here go find a new home
+def flatten(items):
+  for x in items:
+    if isinstance(x, list):
+      yield from flatten(x)
+    else:
+      yield x
+
+
+# Base classes ################################################################
 
 class metanode(type):
   def method(cls, func):
@@ -75,7 +85,7 @@ class expr_node(node):
   __slots__ = []
 
 
-# structure
+# Structure ###################################################################
 
 class program_node(node):
   __tag__ = 'program'
@@ -84,6 +94,12 @@ class program_node(node):
 
   def __init__(self, stmts=[]):
     self.stmts = stmts
+
+  def emit(self, module):
+    with module.goto(module.main):
+      for stmt in self.stmts:
+        stmt.emit(module)
+      module.ret()
 
 
 class block_node(expr_node):
@@ -95,8 +111,12 @@ class block_node(expr_node):
     self.stmts = stmts
     self.expr = expr
 
+  def emit(self, module):
+    for stmt in self.stmts:
+      stmt.emit(module)
 
-# statements
+
+# Statements ##################################################################
 
 class assn_node(node):
   __tag__ = 'assn'
@@ -107,6 +127,24 @@ class assn_node(node):
     self.lhs = lhs
     self.rhs = rhs
     self.var = var
+
+  def emit(self, module):
+    if isinstance(self.lhs, name_node):
+      if self.rhs:
+        self.rhs.emit(module)
+      else:
+        null_node().emit(module)
+
+      name = module.add_const(self.lhs.value)
+      module.push_const(name)
+      module.push_scope()
+      module.set()
+
+    elif isinstance(self.lhs, idx_node):
+      self.rhs.emit(module)
+      self.lhs.rhs.emit(module)
+      self.lhs.lhs.emit(module)
+      module.set()
 
 
 class bind_node(node):
@@ -166,6 +204,32 @@ class if_node(node):
     self.body = body
     self.els = els
 
+  def emit(self, module):
+    self.pred.emit(module)
+
+    if self.els:
+      els = module.ins_block()
+      after = module.ins_block()
+
+      module.jump_ne(els)
+
+      self.body.emit(module)
+      module.jump(after)
+
+      with module.goto(els):
+        self.els.emit(module)
+        module.jump(after)
+
+      module.block = after
+
+    else:
+      after = module.ins_block()
+      module.jump_ne(after)
+      self.body.emit(module)
+      module.jump(after)
+
+      module.block = after
+
 
 class import_node(node):
   __tag__ = 'import'
@@ -194,6 +258,15 @@ class pass_node(node):
 class return_node(value_node):
   __tag__ = 'return'
 
+  def emit(self, module):
+    if self.value:
+      self.value.emit(module)
+    else:
+      null_node().emit(module)
+
+    module.save()
+    module.ret()
+
 
 class save_node(node):
   __tag__ = 'save'
@@ -214,8 +287,21 @@ class while_node(node):
     self.pred = pred
     self.body = body
 
+  def emit(self, module):
+    entry = module.ins_block()
+    exit = module.ins_block()
+    module.jump(entry)
 
-# expressions
+    with module.goto(entry):
+      self.pred.emit(module)
+      module.jump_ne(exit)
+      self.body.emit(module)
+      module.jump(entry)
+
+    module.block = exit
+
+
+# Expressions #################################################################
 
 class idx_node(expr_node):
   __tag__ = 'index'
@@ -226,34 +312,73 @@ class idx_node(expr_node):
     self.lhs = lhs
     self.rhs = rhs
 
+  def emit(self, module):
+    self.rhs.emit(module)
+    self.lhs.emit(module)
+    module.get()
+
 
 class name_node(value_node, expr_node):
   __tag__ = 'name'
+
+  def emit(self, module):
+    name = module.add_const(self.value)
+    module.push_const(name)
+    module.push_scope()
+    module.get()
 
 
 class null_node(expr_node):
   __tag__ = 'null'
 
+  def emit(self, module):
+    idx = module.add_const(None)
+    module.push_const(idx)
+    return idx
+
 
 class int_node(value_node, expr_node):
   __tag__ = 'int'
+
+  def emit(self, module):
+    idx = module.add_const(self.value)
+    module.push_const(idx)
+    return idx
 
 
 class float_node(value_node, expr_node):
   __tag__ = 'float'
 
+  def emit(self, module):
+    idx = module.add_const(self.value)
+    module.push_const(idx)
+    return idx
+
 
 class bool_node(value_node, expr_node):
   __tag__ = 'bool'
+
+  def emit(self, module):
+    idx = module.add_const(self.value)
+    module.push_const(idx)
+    return idx
 
 
 class str_node(value_node, expr_node):
   __tag__ = 'str'
 
+  def emit(self, module):
+    idx = module.add_const(self.value)
+    module.push_const(idx)
+    return idx
+
 
 class table_node(expr_node):
   __tag__ = 'table'
   __version__ = 2
+
+  def emit(self, module):
+    module.push_table()
 
 
 class array_node(expr_node):
@@ -284,6 +409,27 @@ class func_node(expr_node):
     self.params = params
     self.body = body
 
+  def emit(self, module):
+    fn = module.add_block()
+    with module.goto(fn):
+      module.fit(len(self.params))
+
+      for param in reversed(self.params):
+        param_name = module.add_const(param)
+        module.push_const(param_name)
+        module.push_scope()
+        module.set()
+
+      self.body.emit(module)
+      module.ret()
+
+    fn_ptr = module.add_const(lambda: fn.addr)
+    module.push_const(fn_ptr)
+    module.push_table()
+    module.push_scope()
+    module.set_meta()
+    module.set_meta()
+
 
 class call_node(expr_node):
   __tag__ = 'call'
@@ -295,6 +441,16 @@ class call_node(expr_node):
     self.args = args
     self.catch = catch
     self.pop = pop
+
+  def emit(self, module):
+    for arg in self.args:
+      arg.emit(module)
+
+    self.func.emit(module)
+    module.call(len(self.args))
+
+    if self.pop:
+      module.pop()
 
 
 class meth_node(expr_node):
@@ -319,6 +475,29 @@ class binary_node(expr_node):
     self.rhs = rhs
     self.op = op
 
+  def emit(self, module):
+    ops = {
+      '+': module.add,
+      '-': module.sub,
+      '*': module.mul,
+      '/': module.div,
+      '<': module.lt,
+      '>': module.gt,
+      '<=': module.le,
+      '>=': module.ge,
+      '!=': module.ne,
+      '==': module.eq,
+      '::': module.set_meta,
+    }
+
+    self.lhs.emit(module)
+    self.rhs.emit(module)
+
+    if self.op not in ops:
+      Q.abort("Invalid binary operator", pos=self.coords)
+
+    ops[self.op]()
+
 
 class unary_node(expr_node):
   __tag__ = 'unary'
@@ -340,6 +519,9 @@ class error_node(node):
   def __init__(self, msg):
     self.msg = msg
 
+  def emit(self, module):
+    Q.abort(self.msg)
+
 
 class warning_node(node):
   __tag__ = 'warning'
@@ -349,6 +531,9 @@ class warning_node(node):
   def __init__(self, msg):
     self.msg = msg
 
+  def emit(self, module):
+    Q.warn(self.msg)
+
 
 class hint_node(node):
   __tag__ = 'hint'
@@ -357,3 +542,6 @@ class hint_node(node):
 
   def __init__(self, msg):
     self.msg = msg
+
+  def emit(self, module):
+    Q.hint(self.msg)

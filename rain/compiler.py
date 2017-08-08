@@ -1,4 +1,3 @@
-from . import emit  # imported to apply decorations
 from . import error as Q
 from . import lexer as L
 from . import module as M
