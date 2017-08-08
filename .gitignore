@@ -8,9 +8,15 @@ dist
 *.bc
 *.ll
 *.o
+*.so
 *.out
 !tests/**/*.out
 tests/outputs/commandlineargs.out
+
+# built binaries
+bin/rain-dis
+bin/rain-run
+bin/rain-step
 
 # a mystery!
 .cache
