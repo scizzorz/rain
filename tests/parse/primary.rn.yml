@@ -1,0 +1,267 @@
+!program;1
+stmts:
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !call;2
+    args: []
+    catch: false
+    func: !name;1
+      value: a
+    pop: false
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !call;2
+    args:
+    - !int;1
+      value: 1
+    catch: false
+    func: !name;1
+      value: a
+    pop: false
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !call;2
+    args:
+    - !int;1
+      value: 1
+    catch: false
+    func: !name;1
+      value: a
+    pop: false
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !call;2
+    args:
+    - !int;1
+      value: 1
+    - !int;1
+      value: 2
+    catch: false
+    func: !name;1
+      value: a
+    pop: false
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !call;2
+    args:
+    - !int;1
+      value: 1
+    - !int;1
+      value: 2
+    - !int;1
+      value: 3
+    catch: false
+    func: !name;1
+      value: a
+    pop: false
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !call;2
+    args:
+    - !int;1
+      value: 1
+    - !int;1
+      value: 2
+    - !int;1
+      value: 3
+    catch: true
+    func: !name;1
+      value: a
+    pop: false
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !method;1
+    args:
+    - !int;1
+      value: 1
+    - !int;1
+      value: 2
+    - !int;1
+      value: 3
+    catch: false
+    lhs: !name;1
+      value: a
+    rhs: !str;1
+      value: b
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !method;1
+    args:
+    - !int;1
+      value: 1
+    - !int;1
+      value: 2
+    - !int;1
+      value: 3
+    catch: true
+    lhs: !name;1
+      value: a
+    rhs: !str;1
+      value: b
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !index;1
+    lhs: !name;1
+      value: a
+    rhs: !str;1
+      value: b
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !index;1
+    lhs: !name;1
+      value: a
+    rhs: !str;1
+      value: b
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !index;1
+    lhs: !name;1
+      value: a
+    rhs: !int;1
+      value: 0
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !index;1
+    lhs: !index;1
+      lhs: !name;1
+        value: a
+      rhs: !int;1
+        value: 0
+    rhs: !int;1
+      value: 1
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !index;1
+    lhs: !index;1
+      lhs: !name;1
+        value: a
+      rhs: !int;1
+        value: 0
+    rhs: !str;1
+      value: b
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !index;1
+    lhs: !index;1
+      lhs: !name;1
+        value: a
+      rhs: !str;1
+        value: b
+    rhs: !int;1
+      value: 0
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !index;1
+    lhs: !index;1
+      lhs: !name;1
+        value: a
+      rhs: !str;1
+        value: b
+    rhs: !int;1
+      value: 0
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !call;2
+    args:
+    - !int;1
+      value: 1
+    - !int;1
+      value: 2
+    - !int;1
+      value: 3
+    catch: false
+    func: !index;1
+      lhs: !name;1
+        value: a
+      rhs: !str;1
+        value: b
+    pop: false
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !call;2
+    args:
+    - !int;1
+      value: 1
+    - !int;1
+      value: 2
+    - !int;1
+      value: 3
+    catch: false
+    func: !index;1
+      lhs: !name;1
+        value: a
+      rhs: !name;1
+        value: b
+    pop: false
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !call;2
+    args:
+    - !int;1
+      value: 1
+    - !int;1
+      value: 2
+    - !int;1
+      value: 3
+    catch: false
+    func: !index;1
+      lhs: !name;1
+        value: a
+      rhs: !str;1
+        value: b
+    pop: false
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !call;2
+    args:
+    - !int;1
+      value: 1
+    - !int;1
+      value: 2
+    - !int;1
+      value: 3
+    catch: false
+    func: !index;1
+      lhs: !name;1
+        value: a
+      rhs: !name;1
+        value: b
+    pop: false
+  var: false

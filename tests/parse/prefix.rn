@@ -1,0 +1,17 @@
+a = a
+a = 0
+a = 1
+a = 10
+a = 0.0
+a = 0.1
+a = 0.12
+a = 0.123
+a = 12.34
+a = true
+a = false
+a = "string"
+a = "\"escaped string\""
+a = "before \"escape\""
+a = "\"after\" escape"
+a = null
+a = table

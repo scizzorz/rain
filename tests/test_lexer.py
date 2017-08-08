@@ -1,6 +1,6 @@
-import pytest
 import rain.lexer as L
 import rain.token as K
+import pytest
 
 def stream_test(typ, ls):
   def wrapper(fn):

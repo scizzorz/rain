@@ -1,0 +1,228 @@
+!program;1
+stmts:
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !func;3
+    body: !return;1
+      value: !int;1
+        value: 0
+    params: []
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !func;3
+    body: !return;1
+      value: !int;1
+        value: 0
+    params:
+    - a
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !func;3
+    body: !return;1
+      value: !int;1
+        value: 0
+    params:
+    - a
+    - b
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !array;1
+    items: []
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !array;1
+    items:
+    - !int;1
+      value: 1
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !array;1
+    items:
+    - !int;1
+      value: 1
+    - !int;1
+      value: 2
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !array;1
+    items:
+    - !int;1
+      value: 1
+    - !int;1
+      value: 2
+    - !int;1
+      value: 3
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !array;1
+    items:
+    - !int;1
+      value: 1
+    - !int;1
+      value: 2
+    - !int;1
+      value: 3
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !dict;2
+    items: []
+    set_meta: true
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !dict;2
+    items:
+    - - !str;1
+        value: a
+      - !int;1
+        value: 0
+    set_meta: true
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !dict;2
+    items:
+    - - !str;1
+        value: a
+      - !int;1
+        value: 0
+    - - !str;1
+        value: b
+      - !int;1
+        value: 0
+    set_meta: true
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !dict;2
+    items:
+    - - !str;1
+        value: a
+      - !int;1
+        value: 0
+    set_meta: true
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !dict;2
+    items:
+    - - !str;1
+        value: a
+      - !int;1
+        value: 0
+    - - !str;1
+        value: b
+      - !int;1
+        value: 0
+    set_meta: true
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !dict;2
+    items:
+    - - !str;1
+        value: a
+      - !int;1
+        value: 0
+    - - !name;1
+        value: a
+      - !int;1
+        value: 0
+    set_meta: true
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !dict;2
+    items: []
+    set_meta: false
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !dict;2
+    items:
+    - - !str;1
+        value: a
+      - !int;1
+        value: 0
+    set_meta: false
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !dict;2
+    items:
+    - - !str;1
+        value: a
+      - !int;1
+        value: 0
+    - - !str;1
+        value: b
+      - !int;1
+        value: 0
+    set_meta: false
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !dict;2
+    items:
+    - - !str;1
+        value: a
+      - !int;1
+        value: 0
+    set_meta: false
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !dict;2
+    items:
+    - - !str;1
+        value: a
+      - !int;1
+        value: 0
+    - - !str;1
+        value: b
+      - !int;1
+        value: 0
+    set_meta: false
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !dict;2
+    items:
+    - - !str;1
+        value: a
+      - !int;1
+        value: 0
+    - - !name;1
+        value: a
+      - !int;1
+        value: 0
+    set_meta: false
+  var: false

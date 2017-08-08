@@ -1,0 +1,102 @@
+!program;1
+stmts:
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !name;1
+    value: a
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !int;1
+    value: 0
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !int;1
+    value: 1
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !int;1
+    value: 10
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !float;1
+    value: 0.0
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !float;1
+    value: 0.1
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !float;1
+    value: 0.12
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !float;1
+    value: 0.123
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !float;1
+    value: 12.34
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !bool;1
+    value: true
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !bool;1
+    value: false
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !str;1
+    value: string
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !str;1
+    value: '"escaped string"'
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !str;1
+    value: before "escape"
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !str;1
+    value: '"after" escape'
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !null;1 {}
+  var: false
+- !assn;4
+  lhs: !name;1
+    value: a
+  rhs: !table;2 {}
+  var: false

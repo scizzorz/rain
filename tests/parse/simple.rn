@@ -1,0 +1,23 @@
+a = func() -> 0
+a = func(a) -> 0
+a = func(a, b) -> 0
+
+a = []
+a = [1]
+a = [1, 2]
+a = [1, 2, 3]
+a = [1, 2, 3,]
+
+a = {}
+a = {a=0}
+a = {a=0, b=0}
+a = {["a"]=0}
+a = {["a"]=0, ["b"]=0}
+a = {a=0, [a]=0}
+
+a = table {}
+a = table {a=0}
+a = table {a=0, b=0}
+a = table {["a"]=0}
+a = table {["a"]=0, ["b"]=0}
+a = table {a=0, [a]=0}
