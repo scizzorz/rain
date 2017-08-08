@@ -1,9 +1,5 @@
 from . import ast as A
-from . import compiler as C
 from . import error as Q
-from . import module as M
-from . import token as K
-import os.path
 
 
 # flatten arbitrarily nested lists
@@ -20,10 +16,10 @@ def flatten(items):
 
 @A.program_node.method
 def emit(self, module):
-  with module.rvm.goto(module.rvm.main):
+  with module.goto(module.main):
     for stmt in self.stmts:
       stmt.emit(module)
-    module.rvm.ret()
+    module.ret()
 
 
 @A.block_node.method
@@ -38,20 +34,20 @@ def emit(self, module):
 def emit(self, module):
   if isinstance(self.lhs, A.name_node):
     if self.rhs:
-      rhs = self.rhs.emit(module)
+      self.rhs.emit(module)
     else:
-      rhs = A.null_node().emit(module)
+      A.null_node().emit(module)
 
-    name = module.rvm.add_const(self.lhs.value)
-    module.rvm.push_const(name)
-    module.rvm.push_scope()
-    module.rvm.set()
+    name = module.add_const(self.lhs.value)
+    module.push_const(name)
+    module.push_scope()
+    module.set()
 
   elif isinstance(self.lhs, A.idx_node):
     self.rhs.emit(module)
     self.lhs.rhs.emit(module)
     self.lhs.lhs.emit(module)
-    module.rvm.set()
+    module.set()
 
 
 @A.return_node.method
@@ -61,7 +57,7 @@ def emit(self, module):
   else:
     A.null_node().emit(module)
 
-  module.rvm.save()
+  module.save()
 
 
 # Compound statements #########################################################
@@ -71,103 +67,102 @@ def emit(self, module):
   self.pred.emit(module)
 
   if self.els:
-    body = module.rvm.ins_block()
-    after = module.rvm.ins_block()
-    module.rvm.jump_if(body)
+    body = module.ins_block()
+    after = module.ins_block()
+    module.jump_if(body)
     self.els.emit(module)
-    module.rvm.jump(after)
+    module.jump(after)
 
-    with module.rvm.goto(body):
+    with module.goto(body):
       self.body.emit(module)
-      module.rvm.jump(after)
+      module.jump(after)
 
-    module.rvm.block = after
+    module.block = after
 
   else:
-    body = module.rvm.ins_block()
-    after = module.rvm.ins_block()
-    module.rvm.jump_if(body)
-    module.rvm.jump(after)
+    body = module.ins_block()
+    after = module.ins_block()
+    module.jump_if(body)
+    module.jump(after)
 
-    with module.rvm.goto(body):
+    with module.goto(body):
       self.body.emit(module)
-      module.rvm.jump(after)
+      module.jump(after)
 
-    module.rvm.block = after
-
+    module.block = after
 
 
 # Simple expressions ##########################################################
 
 @A.name_node.method
 def emit(self, module):
-  name = module.rvm.add_const(self.value)
-  module.rvm.push_const(name)
-  module.rvm.push_scope()
-  module.rvm.get()
+  name = module.add_const(self.value)
+  module.push_const(name)
+  module.push_scope()
+  module.get()
 
 
 @A.null_node.method
 def emit(self, module):
-  idx = module.rvm.add_const(None)
-  module.rvm.push_const(idx)
+  idx = module.add_const(None)
+  module.push_const(idx)
   return idx
 
 
 @A.int_node.method
 def emit(self, module):
-  idx = module.rvm.add_const(self.value)
-  module.rvm.push_const(idx)
+  idx = module.add_const(self.value)
+  module.push_const(idx)
   return idx
 
 
 @A.float_node.method
 def emit(self, module):
-  idx = module.rvm.add_const(self.value)
-  module.rvm.push_const(idx)
+  idx = module.add_const(self.value)
+  module.push_const(idx)
   return idx
 
 
 @A.bool_node.method
 def emit(self, module):
-  idx = module.rvm.add_const(self.value)
-  module.rvm.push_const(idx)
+  idx = module.add_const(self.value)
+  module.push_const(idx)
   return idx
 
 
 @A.str_node.method
 def emit(self, module):
-  idx = module.rvm.add_const(self.value)
-  module.rvm.push_const(idx)
+  idx = module.add_const(self.value)
+  module.push_const(idx)
   return idx
 
 
 @A.table_node.method
 def emit(self, module):
-  module.rvm.push_table()
+  module.push_table()
 
 
 @A.func_node.method
 def emit(self, module):
-  fn = module.rvm.add_block()
-  with module.rvm.goto(fn):
-    module.rvm.fit(len(self.params))
+  fn = module.add_block()
+  with module.goto(fn):
+    module.fit(len(self.params))
 
     for param in reversed(self.params):
-      param_name = module.rvm.add_const(param)
-      module.rvm.push_const(param_name)
-      module.rvm.push_scope()
-      module.rvm.set()
+      param_name = module.add_const(param)
+      module.push_const(param_name)
+      module.push_scope()
+      module.set()
 
     self.body.emit(module)
-    module.rvm.ret()
+    module.ret()
 
-  fn_ptr = module.rvm.add_const(lambda: fn.addr)
-  module.rvm.push_const(fn_ptr)
-  module.rvm.push_table()
-  module.rvm.push_scope()
-  module.rvm.set_meta()
-  module.rvm.set_meta()
+  fn_ptr = module.add_const(lambda: fn.addr)
+  module.push_const(fn_ptr)
+  module.push_table()
+  module.push_scope()
+  module.set_meta()
+  module.set_meta()
 
 
 # Compound expressions ########################################################
@@ -178,26 +173,26 @@ def emit(self, module):
     arg.emit(module)
 
   self.func.emit(module)
-  module.rvm.call(len(self.args))
+  module.call(len(self.args))
 
   if self.pop:
-    module.rvm.pop()
+    module.pop()
 
 
 @A.binary_node.method
 def emit(self, module):
   ops = {
-    '+': module.rvm.add,
-    '-': module.rvm.sub,
-    '*': module.rvm.mul,
-    '/': module.rvm.div,
-    '<': module.rvm.lt,
-    '>': module.rvm.gt,
-    '<=': module.rvm.le,
-    '>=': module.rvm.ge,
-    '!=': module.rvm.ne,
-    '==': module.rvm.eq,
-    '::': module.rvm.set_meta,
+    '+': module.add,
+    '-': module.sub,
+    '*': module.mul,
+    '/': module.div,
+    '<': module.lt,
+    '>': module.gt,
+    '<=': module.le,
+    '>=': module.ge,
+    '!=': module.ne,
+    '==': module.eq,
+    '::': module.set_meta,
   }
 
   self.lhs.emit(module)
@@ -213,7 +208,7 @@ def emit(self, module):
 def emit(self, module):
   self.rhs.emit(module)
   self.lhs.emit(module)
-  module.rvm.get()
+  module.get()
 
 
 # Warning statements ##########################################################

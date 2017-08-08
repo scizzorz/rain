@@ -1,4 +1,3 @@
-from . import ast as A
 from . import emit  # imported to apply decorations
 from . import error as Q
 from . import lexer as L
@@ -6,7 +5,6 @@ from . import module as M
 from . import parser as P
 from contextlib import contextmanager
 from orderedset import OrderedSet
-from os import environ as ENV
 from os.path import join
 from termcolor import colored as X
 import os.path
@@ -202,7 +200,7 @@ class Compiler:
       return
     self.written = True
 
-    self.mod.rvm.write()
+    self.mod.write()
 
   def build(self):
     '''Emit code and write it to a file.'''
