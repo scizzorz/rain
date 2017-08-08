@@ -1,5 +1,4 @@
 from . import ast as A
-from . import scope as S
 from . import token as K
 from contextlib import contextmanager
 import rvmpy
@@ -79,18 +78,8 @@ def find_name(src):
   return (qname, mname)
 
 
-class Module(S.Scope):
-  @staticmethod
-  def dekey(key):
-    if isinstance(key, (A.name_node, A.str_node)):
-      key = key.value
-    if isinstance(key, (K.name_token, K.string_token)):
-      key = key.value
-    return normalize_name(key)
-
+class Module:
   def __init__(self, file=None, name=None):
-    S.Scope.__init__(self)
-
     if name:
       self.qname = self.mname = name
     else:
@@ -117,15 +106,6 @@ class Module(S.Scope):
   def __repr__(self):
     return '<{!s}>'.format(self)
 
-  def __getitem__(self, key):
-    return super().__getitem__(self.dekey(key))
-
-  def __setitem__(self, key, val):
-    super().__setitem__(self.dekey(key), val)
-
-  def __contains__(self, key):
-    return super().__contains__(self.dekey(key))
-
   # save and restore some module attributes around a code block
   @contextmanager
   def stack(self, *attrs):
@@ -133,9 +113,3 @@ class Module(S.Scope):
     yield
     for attr, val in zip(attrs, saved):
       setattr(self, attr, val)
-
-  # generate a unique name
-  def uniq(self, name):
-    ret = self.mangle('{}.{}'.format(name, self.name_counter))
-    self.name_counter += 1
-    return ret

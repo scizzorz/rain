@@ -37,12 +37,6 @@ def emit(self, module):
 @A.assn_node.method
 def emit(self, module):
   if isinstance(self.lhs, A.name_node):
-    if self.var:
-      module[self.lhs] = True
-
-    if self.lhs not in module:
-      Q.abort('Undeclared variable {!r}', self.lhs.value, pos=self.lhs.coords)
-
     if self.rhs:
       rhs = self.rhs.emit(module)
     else:
@@ -107,10 +101,6 @@ def emit(self, module):
 
 @A.name_node.method
 def emit(self, module):
-  if self.value not in module:
-    #Q.abort("Unknown name {!r}", self.value, pos=self.coords)
-    pass
-
   name = module.rvm.add_const(self.value)
   module.rvm.push_const(name)
   module.rvm.push_scope()
