@@ -58,6 +58,7 @@ def emit(self, module):
     A.null_node().emit(module)
 
   module.save()
+  module.ret()
 
 
 # Compound statements #########################################################
