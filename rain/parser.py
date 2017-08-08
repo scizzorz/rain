@@ -1,14 +1,7 @@
 from . import ast as A
-from . import compiler as C
-from . import engine as E
 from . import error as Q
 from . import module as M
 from . import token as K
-from . import types as T
-from ctypes import byref
-from os import environ as ENV
-from os.path import join
-import os.path
 
 end = K.end_token()
 indent = K.indent_token()
@@ -41,65 +34,6 @@ rassoc = {
 }
 
 
-class macro:
-  def __init__(self, ctx, name, node, parses):
-    self.name = name
-    self.parses = parses
-    self.ctx = ctx  # save this as our "source" context
-
-    mod = M.Module(self.name)
-    mod.file = ctx.file
-
-    mod.import_scope(ctx.builtin_mod.mod)
-    mod.import_llvm(ctx.builtin_mod.mod)
-    A.import_node('ast').emit(mod)
-
-    # define gensym
-    symcount = A.name_node(':symcount')
-    gensym = A.name_node('gensym')
-    tostr = A.name_node('tostr')
-
-    A.assn_node(symcount, A.int_node(0), var=True).emit(mod)
-    A.assn_node(gensym, A.func_node([], A.block_node([
-      A.save_node(A.binary_node(A.str_node(':{}:'.format(self.name)),
-                                A.call_node(tostr, [symcount]), '$')),
-      A.assn_node(symcount, A.binary_node(symcount, A.int_node(1), '+'))
-    ])), var=True).emit(mod)
-
-    node.define(mod, self.name)
-
-    for src in mod.imports:
-      comp = C.get_compiler(src)
-      comp.build()
-      comp.compile_links()
-      ctx.eng.add_file(comp.ll, *comp.links)
-
-    for src in mod.links:
-      target = C.compile_link(src)
-      ctx.eng.add_file(target)
-
-    ctx.eng.add_ir(mod.ir)
-    ctx.eng.finalize()
-
-  def parse(self, ctx):
-    return [fn(ctx) for fn in self.parses]
-
-  def expand(self, ctx):
-    args = self.parse(ctx)
-
-    arg_boxes = [self.ctx.eng.to_rain(arg) for arg in args]
-
-    ret_box = T.cbox(0, 0, 0)
-    args = [T.carg] * (len(self.parses) + 1)
-
-    func = self.ctx.eng.get_func('macro.func.main:' + self.name, None, *args)
-    func(byref(ret_box), *[byref(arg) for arg in arg_boxes])
-
-    new_node = self.ctx.eng.to_py(ret_box)
-
-    return new_node
-
-
 class context:
   def __init__(self, stream, *, file=None):
     self.file = file
@@ -126,45 +60,6 @@ class context:
       self.peek = next(self.stream)
     except StopIteration:
       self.peek = K.end_token()
-
-  @property
-  def builtin_mod(self):
-    if self._builtin is None:
-      # compile builtins
-      self._builtin = C.get_compiler(join(ENV['RAINLIB'], '_pkg.rn'))
-      self._builtin.build()
-      self._builtin.compile_links()
-
-    return self._builtin
-
-  @property
-  def libs(self):
-    if self._so is None:
-      self._so = self.builtin_mod.compile_libs()
-
-    return self._so
-
-  @property
-  def eng(self):
-    if not self._eng:
-      self._eng = E.Engine()
-      self._eng.add_lib(self.libs)
-
-      self._eng.add_file(self.builtin_mod.ll, *self.builtin_mod.links)
-      self._eng.finalize()
-      self._eng.init_gc()
-
-      # the GC needs to be disabled for some reason, otherwise it will
-      # sometimes collect things from inside other modules
-      self._eng.disable_gc()
-
-    return self._eng
-
-  def register_macro(self, name, node, parses):
-    self.macros[name] = macro(self, self.qname + ':' + name, node, parses)
-
-  def expand_macro(self, name):
-    return self.macros[name].expand(self)
 
   def expect(self, *tokens):
     return self.token in tokens
@@ -216,162 +111,22 @@ def block(ctx):
   return A.block_node(stmts)
 
 
-# stmt :: 'var' var_prefix ('=' compound)?
-#       | 'bind' NAME (',' NAME)*
-#       | 'foreign' (NAME | STRING) '=' NAME
-#       | 'import' (NAME '=')? import_mod
-#       | 'macro' NAME fnparams 'as' fnparams block
-#       | macro_exp
-#       | 'link' STRING
-#       | 'library' STRING
-#       | if_stmt
-#       | 'for' var_prefix 'in' binexpr block
-#       | 'with' binexpr ('as' NAME (',' NAME)*)
-#       | 'while' binexpr block
-#       | 'until' binexpr block
-#       | 'loop' block
-#       | 'pass'
+# stmt :: 'bind' NAME (',' NAME)*
 #       | 'break' ('if' binexpr)?
 #       | 'continue' ('if' binexpr)?
+#       | 'for' var_prefix 'in' binexpr block
+#       | if_stmt
+#       | 'loop' block
+#       | 'pass'
 #       | 'return' compound?
 #       | 'save' (NAME '=')? compound
+#       | 'var' var_prefix ('=' compound)?
+#       | 'while' binexpr block
 #       | assn_prefix ('=' compound | fnargs | ':' NAME  fnargs)
 def stmt(ctx):
-  if ctx.consume(K.keyword_token('var')):
-    lhs = var_prefix(ctx)
-    rhs = None
-    if ctx.consume(K.symbol_token('=')):
-      rhs = compound(ctx)
-    return A.assn_node(lhs, rhs, var=True)
-
   if ctx.consume(K.keyword_token('bind')):
     names = fnparams(ctx, parens=False)
     return A.bind_node(names)
-
-  if ctx.consume(K.keyword_token('foreign')):
-    rename = ctx.require(K.string_token, K.name_token).value
-    ctx.require(K.symbol_token('='))
-    name = ctx.require(K.name_token).value
-    node = A.export_foreign_node(name, rename)
-    node.coords = ctx.past[-1]
-    return node
-
-  if ctx.consume(K.keyword_token('import')):
-    start = []
-    rename = None
-    if ctx.expect(K.name_token):
-      rename = ctx.require(K.name_token).value
-      if not ctx.consume(K.symbol_token('=')):
-        start = [rename]
-        rename = None
-
-    name = import_mod(ctx, start=start)
-    pos = ctx.past[-1]
-
-    base, fname = os.path.split(ctx.file)
-    file = M.find_rain(name, paths=[base])
-
-    if not file:
-      Q.abort("Can't find module {!r}", name, pos=pos(file=ctx.file))
-
-    if ctx.consume(K.keyword_token('as')):
-      rename = ctx.require(K.name_token).value
-
-    comp = C.get_compiler(file)
-    comp.read()
-    comp.lex()
-    comp.parse()
-
-    prefix = rename or comp.mname
-    for key, val in comp.parser.macros.items():
-      ctx.macros[prefix + '.' + key] = val
-
-    node = A.import_node(name, rename)
-    node.coords = pos
-    return node
-
-  if ctx.consume(K.keyword_token('macro')):
-    type_options = {
-      'compound': compound,
-      'expr': binexpr,
-      'args': fnargs,
-      'params': fnparams,
-      'block': block,
-      'argblock': fnargblock,
-      'stmt': stmt,
-      'name': lambda x: x.require(K.name_token).value,
-      'namestr': lambda x: x.require(K.name_token, K.string_token).value,
-      'str': lambda x: x.require(K.string_token).value,
-      'int': lambda x: x.require(K.int_token).value,
-      'float': lambda x: x.require(K.float_token).value,
-      'bool': lambda x: x.require(K.bool_token).value,
-    }
-
-    name = ctx.require(K.name_token)
-    if name.value in ctx.macros:
-      Q.abort('Redefinition of macro {!r}', name.value, pos=name.pos(file=ctx.file))
-
-    name = name.value
-    types = fnparams(ctx, tokens=[K.name_token(n) for n in type_options])
-    ctx.require(K.keyword_token('as'))
-    params = fnparams(ctx)
-    body = block(ctx)
-
-    node = A.macro_node(name, types, params, body)
-    ctx.register_macro(name, node, [type_options[x] for x in types])
-    return node
-
-  if ctx.expect(K.symbol_token('@')):
-    return macro_exp(ctx)
-
-  if ctx.consume(K.keyword_token('link')):
-    name = ctx.require(K.string_token).value
-    node = A.link_node(name)
-    node.coords = ctx.past[-1]
-    return node
-
-  if ctx.consume(K.keyword_token('library')):
-    name = ctx.require(K.string_token).value
-    return A.lib_node(name)
-
-  if ctx.expect(K.keyword_token('if')):
-    return if_stmt(ctx)
-
-  if ctx.consume(K.keyword_token('for')):
-    name = var_prefix(ctx)
-    ctx.require(K.keyword_token('in'))
-    func = binexpr(ctx)
-    body = block(ctx)
-
-    return A.for_node(name, func, body)
-
-  if ctx.consume(K.keyword_token('with')):
-    func = binexpr(ctx)
-
-    if ctx.consume(K.keyword_token('as')):
-      params = fnparams(ctx, parens=False)
-    else:
-      params = []
-
-    body = block(ctx)
-    return A.with_node(func, params, body)
-
-  if ctx.consume(K.keyword_token('while')):
-    pred = binexpr(ctx)
-    body = block(ctx)
-    return A.while_node(pred, body)
-
-  if ctx.consume(K.keyword_token('until')):
-    pred = binexpr(ctx)
-    body = block(ctx)
-    return A.until_node(pred, body)
-
-  if ctx.consume(K.keyword_token('loop')):
-    body = block(ctx)
-    return A.loop_node(body)
-
-  if ctx.consume(K.keyword_token('pass')):
-    return A.pass_node()
 
   if ctx.consume(K.keyword_token('break')):
     if ctx.consume(K.keyword_token('if')):
@@ -384,6 +139,24 @@ def stmt(ctx):
       return A.cont_node(binexpr(ctx))
 
     return A.cont_node()
+
+  if ctx.consume(K.keyword_token('for')):
+    name = var_prefix(ctx)
+    ctx.require(K.keyword_token('in'))
+    func = binexpr(ctx)
+    body = block(ctx)
+
+    return A.for_node(name, func, body)
+
+  if ctx.expect(K.keyword_token('if')):
+    return if_stmt(ctx)
+
+  if ctx.consume(K.keyword_token('loop')):
+    body = block(ctx)
+    return A.loop_node(body)
+
+  if ctx.consume(K.keyword_token('pass')):
+    return A.pass_node()
 
   if ctx.consume(K.keyword_token('return')):
     if ctx.expect(newline):
@@ -398,6 +171,18 @@ def stmt(ctx):
       return A.save_node(rhs, name=val.value)
 
     return A.save_node(val)
+
+  if ctx.consume(K.keyword_token('var')):
+    lhs = var_prefix(ctx)
+    rhs = None
+    if ctx.consume(K.symbol_token('=')):
+      rhs = compound(ctx)
+    return A.assn_node(lhs, rhs, var=True)
+
+  if ctx.consume(K.keyword_token('while')):
+    pred = binexpr(ctx)
+    body = block(ctx)
+    return A.while_node(pred, body)
 
   lhs = assn_prefix(ctx)
 
@@ -425,23 +210,6 @@ def stmt(ctx):
   ctx.require(K.symbol_token('('), K.symbol_token(':'))
 
 
-# import_mod :: ('.' '/')? (NAME | STRING) ('/' (NAME | STRING))*
-def import_mod(ctx, start=[]):
-  lst = start
-
-  if not start:
-    if ctx.consume(K.symbol_token('.')):
-      ctx.require(K.operator_token('/'))
-      lst.append('.')
-
-    lst.append(ctx.require(K.name_token, K.string_token).value)
-
-  while ctx.consume(K.operator_token('/')):
-    lst.append(ctx.require(K.name_token, K.string_token).value)
-
-  return os.path.join(*lst)
-
-
 # if_stmt :: 'if' binexpr block (NEWLINE 'else' (if_stmt | block))?
 def if_stmt(ctx):
   ctx.require(K.keyword_token('if'))
@@ -458,25 +226,6 @@ def if_stmt(ctx):
       els = block(ctx)
 
   return A.if_node(pred, body, els)
-
-
-# macro_exp :: '@' NAME ('.' NAME)* ***
-def macro_exp(ctx):
-  ctx.require(K.symbol_token('@'))
-  name = ctx.require(K.name_token)
-  pos = name.pos(file=ctx.file)
-  name = name.value
-
-  while ctx.consume(K.symbol_token('.')):
-    name += '.' + ctx.require(K.name_token).value
-    pos.len = len(name)
-
-  if name not in ctx.macros:
-    Q.abort('Unknown macro {!r}', name, pos=pos)
-
-  res = ctx.expand_macro(name)
-  res.coords = pos
-  return res
 
 
 # var_prefix :: '[' var_prefix (',' var_prefix)* ']'
@@ -624,14 +373,10 @@ def fnparams(ctx, parens=True, tokens=[K.name_token]):
   return params
 
 
-# compound :: macro_exp
-#           | 'func' (NAME | STRING)? fnparams ('->' binexpr | block)
+# compound :: 'func' fnparams ('->' binexpr | block)
 #           | 'catch' block
 #           | binexpr
 def compound(ctx):
-  if ctx.expect(K.symbol_token('@')):
-    return macro_exp(ctx)
-
   if ctx.consume(K.keyword_token('func')):
     pos = ctx.past[-1]
 
@@ -709,7 +454,6 @@ def unexpr(ctx):
 
 
 # simple :: 'func' fnparams '->' binexpr
-#         | 'foreign' (NAME | STRING) fnparams
 #         | array_expr
 #         | dict_expr
 #         | primary
