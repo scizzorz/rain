@@ -1,5 +1,2 @@
 include LICENSE
-include PONY-LICENSE
 include requirements.txt
-recursive-include rain/core *
-recursive-include rain/base *

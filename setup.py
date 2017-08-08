@@ -17,8 +17,6 @@ setup(name='rainlang',
       include_package_data=True,
       install_requires=[
         'camel',
-        'fixedint',
-        'llvmlite',
         'orderedset',
         'termcolor',
       ],
