@@ -19,23 +19,32 @@ def show_line(pos, hi=lambda x: X(x, 'red', attrs=['bold'])):
         break
 
 
-def abort(fmt, *args, pos=coord()):
+def abort(fmt, *args, pos=None):
   err = X('error', 'red')
+
+  if pos is None:
+    pos = coord()
 
   print('{}: {!s}{}'.format(err, pos, fmt.format(*args)))
   show_line(pos)
   sys.exit(1)
 
 
-def warn(fmt, *args, pos=coord()):
+def warn(fmt, *args, pos=None):
   err = X('warning', 'blue')
+
+  if pos is None:
+    pos = coord()
 
   print('{}: {!s}{}'.format(err, pos, fmt.format(*args)))
   show_line(pos, hi=lambda x: X(x, 'blue', attrs=['bold']))
 
 
-def hint(fmt, *args, pos=coord()):
+def hint(fmt, *args, pos=None):
   err = X('hint', 'green')
+
+  if pos is None:
+    pos = coord()
 
   print('{}: {!s}{}'.format(err, pos, fmt.format(*args)))
   show_line(pos, hi=lambda x: X(x, 'green', attrs=['bold']))
