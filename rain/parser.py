@@ -342,20 +342,6 @@ def fnargs(ctx):
   return args
 
 
-# fnargblock :: INDENT (compound NEWLINE)+ DEDENT
-def fnargblock(ctx):
-  exprs = []
-  ctx.require(indent)
-
-  while not ctx.expect(dedent):
-    exprs.append(compound(ctx))
-    ctx.require(newline)
-
-  ctx.require(dedent)
-
-  return exprs
-
-
 # fnparams :: '(' (NAME (',' NAME)*)? ')'
 def fnparams(ctx, parens=True, tokens=[K.name_token]):
   if parens:
