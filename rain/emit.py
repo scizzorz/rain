@@ -3,7 +3,6 @@ from . import compiler as C
 from . import error as Q
 from . import module as M
 from . import token as K
-from . import types as T
 import os.path
 
 
