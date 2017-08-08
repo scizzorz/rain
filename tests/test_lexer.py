@@ -1,43 +1,64 @@
+import functools
 import rain.lexer as L
 import rain.token as K
 import pytest
+
+def stream_test(typ, ls):
+  def wrapper(fn):
+    @pytest.mark.parametrize('src', ls)
+    def inner(src):
+      stream = L.stream(src)
+      assert next(stream) == typ(src)
+      assert next(stream) == K.end_token()
+
+    return inner
+
+  return wrapper
 
 def test_factory():
   assert L.factory('return') == K.keyword_token('return')
   assert L.factory('this') == K.name_token('this')
   assert L.factory('Multi_Word') == K.name_token('multiword')
 
-def test_keywords():
-  stream = L.stream(' '.join(L.KEYWORDS))
-  for token, keyword in zip(stream, L.KEYWORDS):
-    assert token == K.keyword_token(keyword)
 
-def test_operators():
-  stream = L.stream(' '.join(L.KW_OPERATORS))
-  for token, keyword in zip(stream, L.KW_OPERATORS):
-    assert token == K.operator_token(keyword)
+@stream_test(K.keyword_token, L.KEYWORDS)
+def test_keywords(src):
+  pass
 
-  stream = L.stream(' '.join(L.OPERATORS))
-  for token, keyword in zip(stream, L.OPERATORS):
-    assert token == K.operator_token(keyword)
+@stream_test(K.operator_token, L.KW_OPERATORS + L.OPERATORS)
+def test_operators(src):
+  pass
 
-def test_literals():
-  stream = L.stream('0 10 0.0 0.1 0.12 1.23 12.34 true false "string" "escaped \\"string\\"" null table')
 
-  assert next(stream) == K.int_token(0)
-  assert next(stream) == K.int_token(10)
-  assert next(stream) == K.float_token(0.0)
-  assert next(stream) == K.float_token(0.1)
-  assert next(stream) == K.float_token(0.12)
-  assert next(stream) == K.float_token(1.23)
-  assert next(stream) == K.float_token(12.34)
-  assert next(stream) == K.bool_token('true')
-  assert next(stream) == K.bool_token('false')
-  assert next(stream) == K.string_token('"string"')
-  assert next(stream) == K.string_token('"escaped \\"string\\""')
-  assert next(stream) == K.null_token('null')
-  assert next(stream) == K.table_token('table')
-  assert next(stream) == K.end_token()
+@stream_test(K.float_token, ['0.0', '0.1', '0.12', '0.123', '12.34'])
+def test_floats(src):
+  pass
+
+
+@stream_test(K.int_token, ['0', '1', '10'])
+def test_ints(src):
+  pass
+
+
+@stream_test(K.bool_token, ['true', 'false'])
+def test_bools(src):
+  pass
+
+
+@stream_test(K.string_token, ['"string"', r'"\"escaped string\""', r'"before \"escape\""', r'"\"after\" escape"'])
+def test_strings(src):
+  pass
+
+
+@stream_test(K.null_token, ['null'])
+def test_null(src):
+  pass
+
+
+@stream_test(K.table_token, ['table'])
+def test_table(src):
+  pass
+
 
 def test_whitespace():
   stream = L.stream('1\n'
@@ -95,6 +116,7 @@ def test_whitespace():
   assert next(stream) == K.newline_token()
   assert next(stream) == K.end_token()
 
+
 def test_comments():
   stream = L.stream('# full line\n'
                     '1 # end of line\n'
@@ -115,6 +137,7 @@ def test_comments():
   assert next(stream) == K.int_token(4)
   assert next(stream) == K.newline_token()
   assert next(stream) == K.end_token()
+
 
 def test_prints():
   assert str(K.end_token) == 'EOF'
