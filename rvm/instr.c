@@ -186,7 +186,7 @@ void R_JUMPIF(R_vm *vm, R_op *instr) {
 
 
 void R_DUP(R_vm *vm, R_op *instr) {
-  R_box *top = &vm->stack[vm->stack_ptr - 1];
+  R_box *top = &vm->stack[vm->stack_ptr - 1 - R_UI(instr)];
   vm_push(vm, top);
 }
 

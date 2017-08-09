@@ -242,8 +242,8 @@ class Module:
   def pop(self):
     self.add_instr(I.Pop())
 
-  def dup(self):
-    self.add_instr(I.Dup())
+  def dup(self, x=0):
+    self.add_instr(I.Dup(x))
 
   def print(self):
     self.add_instr(I.Print())

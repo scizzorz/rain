@@ -118,7 +118,7 @@ class JumpNe(SBx):
   op = Instr.JUMPNE
 
 
-class Dup(Nx):
+class Dup(Ux):
   op = Instr.DUP
 
 

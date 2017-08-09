@@ -137,6 +137,7 @@ void R_op_print(R_op *instr) {
     case CMP:
     case CALL:
     case FIT:
+    case DUP:
       printf("%s (%d)\n", R_INSTR_NAMES[R_OP(instr)], R_UI(instr));
       break;
     case JUMP:
