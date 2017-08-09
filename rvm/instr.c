@@ -125,7 +125,7 @@ void R_CMP(R_vm *vm, R_op *instr) {
   R_box *top = &vm->stack[vm->stack_ptr - 1];
 
   if(lhs.type != rhs.type) {
-    R_set_bool(top, false);
+    R_set_bool(top, R_UI(instr) == CMP_NE);
     return;
   }
 
