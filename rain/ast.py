@@ -277,6 +277,16 @@ class save_node(node):
     self.value = value
     self.name = name
 
+  def emit(self, module):
+    if self.value:
+      self.value.emit(module)
+    else:
+      null_node().emit(module)
+
+    module.save()
+
+    # TODO fix `save VAR = VAL`
+
 
 class while_node(node):
   __tag__ = 'while'
@@ -421,7 +431,6 @@ class dict_node(expr_node):
       module.set()
 
     # TODO set metatable (or don't!)
-
 
 
 class func_node(expr_node):
