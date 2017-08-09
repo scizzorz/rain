@@ -1,6 +1,7 @@
 #include "rain.h"
 
 #include <limits.h>
+#include <string.h>
 
 R_vm *vm_new() {
   GC_init();
@@ -87,6 +88,11 @@ bool vm_load(R_vm *this, FILE *fp) {
   rv = fread(&header, sizeof(R_header), 1, fp);
   if(rv != 1) {
     fprintf(stderr, "Unable to read header\n");
+    return false;
+  }
+
+  if(strncmp(header.rain, "RAIN", 4) != 0) {
+    fprintf(stderr, "Invalid magic string: %.4s\n", header.rain);
     return false;
   }
 

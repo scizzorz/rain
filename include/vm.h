@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 typedef struct R_header {
+  char rain[4];
   uint32_t num_consts;
   uint32_t num_instrs;
   uint32_t num_strings;

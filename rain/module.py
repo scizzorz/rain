@@ -327,6 +327,7 @@ class Module:
     self.finalize()
 
     with open('{0.qname}.rnc'.format(self), 'wb') as fp:
+      fp.write(b'RAIN')
       fp.write(struct.pack('<I', len(self.consts)))
       fp.write(struct.pack('<I', self.instr_count))
       fp.write(struct.pack('<I', len(Box._strings_)))
