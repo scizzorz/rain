@@ -231,16 +231,6 @@ class if_node(node):
       module.block = after
 
 
-class import_node(node):
-  __tag__ = 'import'
-  __version__ = 1
-  __slots__ = ['name', 'rename']
-
-  def __init__(self, name, rename=None):
-    self.name = name
-    self.rename = rename
-
-
 class loop_node(node):
   __tag__ = 'loop'
   __version__ = 1
