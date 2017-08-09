@@ -399,6 +399,8 @@ class array_node(expr_node):
       module.dup(2)
       module.set()
 
+    # TODO set metatable
+
 
 class dict_node(expr_node):
   __tag__ = 'dict'
@@ -408,6 +410,18 @@ class dict_node(expr_node):
   def __init__(self, items, set_meta=True):
     self.items = items
     self.set_meta = set_meta
+
+  def emit(self, module):
+    module.push_table()
+
+    for key, value in self.items:
+      value.emit(module)
+      key.emit(module)
+      module.dup(2)
+      module.set()
+
+    # TODO set metatable (or don't!)
+
 
 
 class func_node(expr_node):
