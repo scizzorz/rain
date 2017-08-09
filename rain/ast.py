@@ -389,6 +389,16 @@ class array_node(expr_node):
   def __init__(self, items):
     self.items = items
 
+  def emit(self, module):
+    module.push_table()
+
+    for i, item in enumerate(self.items):
+      item.emit(module)
+      idx = module.add_const(i)
+      module.push_const(idx)
+      module.dup(2)
+      module.set()
+
 
 class dict_node(expr_node):
   __tag__ = 'dict'
