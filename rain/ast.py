@@ -478,14 +478,28 @@ class call_node(expr_node):
 
 class meth_node(expr_node):
   __tag__ = 'method'
-  __version__ = 1
-  __slots__ = ['lhs', 'rhs', 'args', 'catch']
+  __version__ = 2
+  __slots__ = ['lhs', 'rhs', 'args', 'catch', 'pop']
 
-  def __init__(self, lhs, rhs, args, catch=False):
+  def __init__(self, lhs, rhs, args, catch=False, pop=False):
     self.lhs = lhs
     self.rhs = rhs
     self.args = args
     self.catch = catch
+    self.pop = pop
+
+  def emit(self, module):
+    self.lhs.emit(module)
+    for arg in self.args:
+      arg.emit(module)
+
+    self.rhs.emit(module)
+    module.dup(len(self.args) + 1)
+    module.get()
+    module.call(len(self.args) + 1)
+
+    if self.pop:
+      module.pop()
 
 
 class binary_node(expr_node):
