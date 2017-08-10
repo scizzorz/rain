@@ -203,7 +203,7 @@ def stmt(ctx):
     pos = ctx.past[-1]
     rhs = A.str_node(name)
     args = fnargs(ctx)
-    node = A.meth_node(lhs, rhs, args)
+    node = A.meth_node(lhs, rhs, args, pop=True)
     node.coords = pos
     return node
 
