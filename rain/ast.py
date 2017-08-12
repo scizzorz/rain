@@ -6,16 +6,6 @@ machine = camel.Camel([registry])
 tag_registry = {}
 
 
-# flatten arbitrarily nested lists
-# oh come on what is this doing here go find a new home
-def flatten(items):
-  for x in items:
-    if isinstance(x, list):
-      yield from flatten(x)
-    else:
-      yield x
-
-
 # Base classes ################################################################
 
 class metanode(type):
