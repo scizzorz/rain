@@ -271,6 +271,9 @@ class pass_node(node):
   __tag__ = 'pass'
   __slots__ = []
 
+  def emit(self, module):
+    pass  # beautiful
+
 
 class return_node(value_node):
   __tag__ = 'return'
