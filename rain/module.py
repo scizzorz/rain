@@ -359,3 +359,24 @@ class Module:
     self.block = block
     yield
     self.block = temp
+
+
+  def unpack(self, ls):
+    '''Unpack the TOS into the list of names `ls`
+
+    Pops the TOS after completion'''
+    for i, key in enumerate(ls):
+      i_const = self.add_const(i)
+      self.push_const(i_const)
+      self.dup(1)
+      self.get()
+
+      if isinstance(key, list):
+        unpack(key)
+      else:
+        key_const = self.add_const(key.value)
+        self.push_const(key_const)
+        self.push_scope()
+        self.set()
+
+    self.pop()
