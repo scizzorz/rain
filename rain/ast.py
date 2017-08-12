@@ -146,6 +146,28 @@ class assn_node(node):
       self.lhs.lhs.emit(module)
       module.set()
 
+    elif isinstance(self.lhs, list):
+      self.rhs.emit(module)
+      def unpack(ls):
+        for i, key in enumerate(ls):
+          i_const = module.add_const(i)
+          module.push_const(i_const)
+          module.dup(1)
+          module.get()
+          if isinstance(key, list):
+            unpack(key)
+          else:
+            key_const = module.add_const(key.value)
+            module.push_const(key_const)
+            module.push_scope()
+            module.set()
+        module.pop()
+
+      unpack(self.lhs)
+
+    else:
+      Q.abort('Not able to handle assignment')
+
 
 class bind_node(node):
   __tag__ = 'bind'
