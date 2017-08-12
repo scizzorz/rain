@@ -2,6 +2,8 @@
 
 #include <limits.h>
 #include <string.h>
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
 
 R_vm *vm_new() {
   GC_init();
@@ -200,8 +202,10 @@ void vm_dump(R_vm *this) {
     R_box_print(this->consts + i);
   }
 
-  printf("Instructions (%d):\n", this->num_instrs);
-  for(uint32_t i=0; i<this->num_instrs; i++) {
+  uint32_t low = this->instr_ptr < 10 ? 0 : MAX(0, this->instr_ptr - 10);
+  uint32_t high = MIN(this->num_instrs, this->instr_ptr + 10);
+  printf("Instructions (%d, %d-%d):\n", this->num_instrs, low, high);
+  for(uint32_t i=low; i<high; i++) {
     printf("%02x", i);
     printf(i == this->instr_ptr ? " > " : "   ");
     R_op_print(this->instrs + i);
