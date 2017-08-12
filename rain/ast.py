@@ -200,6 +200,36 @@ class for_node(node):
     self.func = func
     self.body = body
 
+  def emit(self, module):
+    entry = module.ins_block()
+    exit = module.ins_block()
+
+    none_const = module.add_const(None)
+    self.func.emit(module)
+    module.jump(entry)
+
+    with module.goto(entry):
+      module.dup()
+      module.call(0)
+      module.dup()
+      module.push_const(none_const)
+      module.eq()
+      module.jump_if(exit)
+
+      if isinstance(self.name, list):
+        module.unpack(self.name)
+      else:
+        name_const = module.add_const(self.name.value)
+        module.push_const(name_const)
+        module.push_scope()
+        module.set()
+
+      self.body.emit(module)
+      module.jump(entry)
+
+    module.block = exit
+    module.pop()
+
 
 class if_node(node):
   __tag__ = 'if'
