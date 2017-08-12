@@ -166,6 +166,18 @@ void R_CMP(R_vm *vm, R_op *instr) {
     return;
   }
 
+  else if(R_TYPE_IS(&lhs, NULL) && R_TYPE_IS(&rhs, NULL)) {
+    switch(R_UI(instr)) {
+      case CMP_LT: R_set_bool(top, false); break;
+      case CMP_LE: R_set_bool(top, true); break;
+      case CMP_GT: R_set_bool(top, false); break;
+      case CMP_GE: R_set_bool(top, true); break;
+      case CMP_EQ: R_set_bool(top, true); break;
+      case CMP_NE: R_set_bool(top, true); break;
+    }
+    return;
+  }
+
   R_set_null(top);
 }
 
