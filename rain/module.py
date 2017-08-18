@@ -305,6 +305,15 @@ class Module:
   def cat(self):
     self.add_instr(I.BinOp(I.BinOp.CAT))
 
+  def neg(self):
+    self.add_instr(I.UnOp(I.UnOp.NEG))
+
+  def _not(self):
+    self.add_instr(I.UnOp(I.UnOp.NOT))
+
+  def str(self):
+    self.add_instr(I.UnOp(I.UnOp.STR))
+
   def lt(self):
     self.add_instr(I.CmpOp(I.CmpOp.LT))
 

@@ -47,6 +47,7 @@
 
 #define UN_NEG     0x00
 #define UN_NOT     0x01
+#define UN_STR     0x02
 
 void R_PUSH_CONST(R_vm *vm, R_op *instr);
 void R_PRINT(R_vm *vm, R_op *instr);

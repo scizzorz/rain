@@ -78,6 +78,30 @@ void R_PUSH_SCOPE(R_vm *vm, R_op *instr) {
 }
 
 void R_UN_OP(R_vm *vm, R_op *instr) {
+  R_box *val = &vm->stack[vm->stack_ptr - 1];
+
+  if(R_UI(instr) == UN_NEG) {
+    switch(val->type) {
+      case R_TYPE_INT:
+        val->i64 = -val->i64;
+        return;
+      case R_TYPE_FLOAT:
+        val->f64 = -val->f64;
+        return;
+    }
+  }
+
+  if(R_UI(instr) == UN_NOT) {
+    R_set_bool(val, val->type == R_TYPE_NULL || (val->type == R_TYPE_BOOL && val->i64 == 0));
+    return;
+  }
+
+  if(R_UI(instr) == UN_STR) {
+    R_box_to_str(val, val);
+    return;
+  }
+
+  R_set_null(val);
 }
 
 void R_BIN_OP(R_vm *vm, R_op *instr) {

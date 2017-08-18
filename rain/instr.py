@@ -205,8 +205,9 @@ class BinOp(Ux):
 class UnOp(Ux):
   op = Instr.UN_OP
 
-  UN_NEG     = 0x00
-  UN_NOT     = 0x01
+  NEG     = 0x00
+  NOT     = 0x01
+  STR     = 0x02
 
 
 class CmpOp(Ux):
