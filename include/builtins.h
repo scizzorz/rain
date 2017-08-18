@@ -8,5 +8,6 @@ void R_builtin_print(R_vm *vm);
 void R_builtin_scope(R_vm *vm);
 void R_builtin_meta(R_vm *vm);
 void R_builtin_import(R_vm *vm);
+void R_builtin_panic(R_vm *vm);
 
 #endif

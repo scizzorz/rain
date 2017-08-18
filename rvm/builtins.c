@@ -60,3 +60,12 @@ void R_builtin_import(R_vm *vm) {
     vm->frame->return_to = module_start - 1;
   }
 }
+
+void R_builtin_panic(R_vm *vm) {
+  R_box pop = vm_pop(vm);
+
+  vm_recover(vm);
+
+  vm_call(vm, 0, &vm->frame->scope, 0);
+  vm->frame->ret = pop;
+}

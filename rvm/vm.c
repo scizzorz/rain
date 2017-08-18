@@ -74,6 +74,10 @@ bool vm_import(R_vm *this, const char *fname) {
   R_set_cfunc(&val, R_builtin_import);
   R_table_set(&builtins, &key, &val);
 
+  R_set_str(&key, "panic");
+  R_set_cfunc(&val, R_builtin_panic);
+  R_table_set(&builtins, &key, &val);
+
   vm_call(this, module_start, &builtins, 0);
   return true;
 }
