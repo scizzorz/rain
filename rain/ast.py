@@ -584,12 +584,11 @@ class binary_node(expr_node):
 
       return
 
+    if self.op not in ops:
+      Q.abort("Invalid binary operator", pos=self.coords)
 
     self.lhs.emit(module)
     self.rhs.emit(module)
-
-    if self.op not in ops:
-      Q.abort("Invalid binary operator", pos=self.coords)
 
     ops[self.op]()
 
@@ -602,6 +601,20 @@ class unary_node(expr_node):
   def __init__(self, op, val):
     self.op = op
     self.val = val
+
+  def emit(self, module):
+    ops = {
+      '!': module._not,
+      '-': module.neg,
+      '$': module.str,
+    }
+
+    if self.op not in ops:
+      Q.abort("Invalid unary operator", pos=self.coords)
+
+    self.val.emit(module)
+
+    ops[self.op]()
 
 
 # message nodes
