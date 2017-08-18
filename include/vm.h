@@ -52,7 +52,6 @@ void vm_dump(R_vm *this);
 R_box vm_pop(R_vm *this);
 R_box vm_top(R_vm *this);
 R_box *vm_push(R_vm *this, R_box *val);
-R_box *vm_alloc(R_vm *this);
 void vm_set(R_vm *this, R_box *val);
 void vm_call(R_vm *this, uint32_t to, R_box *scope, uint32_t argc);
 void vm_ret(R_vm *this);

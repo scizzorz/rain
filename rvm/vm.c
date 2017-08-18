@@ -265,18 +265,6 @@ void vm_set(R_vm *this, R_box *val) {
   this->stack[this->stack_ptr - 1] = *val;
 }
 
-R_box *vm_alloc(R_vm *this) {
-  if(this->stack_ptr >= this->stack_size) {
-    this->stack_size *= 2;
-    this->stack = GC_realloc(this->stack, sizeof(R_box) * this->stack_size);
-  }
-
-  R_set_null(&this->stack[this->stack_ptr]);
-  this->stack_ptr += 1;
-
-  return &this->stack[this->stack_ptr - 1];
-}
-
 R_box *vm_push(R_vm *this, R_box *val) {
   if(this->stack_ptr >= this->stack_size) {
     this->stack_size *= 2;
