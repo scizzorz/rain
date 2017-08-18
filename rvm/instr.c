@@ -27,6 +27,8 @@ void (*R_INSTR_TABLE[NUM_INSTRS])(R_vm *, R_op *) = {
   R_SAVE,
   R_FIT,
   R_JUMPNE,
+  R_CATCH_PUSH,
+  R_CATCH_POP,
 };
 
 
@@ -55,6 +57,8 @@ const char *R_INSTR_NAMES[NUM_INSTRS] = {
   "SAVE",
   "FIT",
   "JUMPNE",
+  "CATCH_PUSH",
+  "CATCH_POP",
 };
 
 void R_PRINT(R_vm *vm, R_op *instr) {
@@ -344,4 +348,12 @@ void R_JUMPNE(R_vm *vm, R_op *instr) {
     vm->instr_ptr += R_SI(instr);
     // TODO: what if IP goes out of bounds?
   }
+}
+
+void R_CATCH_PUSH(R_vm *vm, R_op *instr) {
+  vm_catch_push(vm);
+}
+
+void R_CATCH_POP(R_vm *vm, R_op *instr) {
+  vm_catch_pop(vm);
 }

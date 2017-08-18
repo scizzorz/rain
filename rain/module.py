@@ -323,6 +323,12 @@ class Module:
   def nop(self):
     self.add_instr(I.NOP())
 
+  def catch_push(self):
+    self.add_instr(I.CatchPush())
+
+  def catch_pop(self):
+    self.add_instr(I.CatchPop())
+
   def write(self):
     self.finalize()
 

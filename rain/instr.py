@@ -36,6 +36,8 @@ class Instr:
   SAVE       = 0x15
   FIT        = 0x16
   JUMPNE     = 0x17
+  CATCH_PUSH = 0x18
+  CATCH_POP  = 0x19
 
   def __init__(self):
     pass
@@ -116,6 +118,14 @@ class JumpIf(SBx):
 
 class JumpNe(SBx):
   op = Instr.JUMPNE
+
+
+class CatchPush(Nx):
+  op = Instr.CATCH_PUSH
+
+
+class CatchPop(Nx):
+  op = Instr.CATCH_POP
 
 
 class Dup(Ux):
