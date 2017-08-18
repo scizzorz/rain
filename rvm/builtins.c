@@ -40,6 +40,7 @@ void R_builtin_scope(R_vm *vm) {
 void R_builtin_meta(R_vm *vm) {
   R_box pop = vm_pop(vm);
   R_box *ret = &vm->frame->ret;
+
   if(R_has_meta(&pop)) {
     *ret = *(pop.meta);
   }
@@ -51,9 +52,16 @@ void R_builtin_meta(R_vm *vm) {
 void R_builtin_import(R_vm *vm) {
   R_box pop = vm_pop(vm);
   R_box_print(&pop);
+
   if(R_TYPE_IS(&pop, STR)) {
     uint32_t module_start = vm->num_instrs;
     vm_import(vm, pop.str);
+
+    // after importing, we need to manipulate the top two frames
+    // the runtime will implicitly return after this function, which means
+    // we need to trick it into returning to our newly loaded module code.
+    // then the loaded module code should return back to where this import()
+    // call should return.
     R_frame top = *vm->frame;
     *vm->frame = vm->frames[vm->frame_ptr - 2];
     vm->frames[vm->frame_ptr - 2] = top;
@@ -66,6 +74,11 @@ void R_builtin_panic(R_vm *vm) {
 
   vm_recover(vm);
 
+  // after recovering, the VM state is where it was when the catch state was
+  // pushed, which means this panic() call's stack frame is gone. because the
+  // runtime implicitly returns after this function, we need that stack frame
+  // back, and we need to trick it to return to where we want to recover to and
+  // what we want to return.
   vm_call(vm, 0, &vm->frame->scope, 0);
-  vm->frame->ret = pop;
+  vm_save(vm, &pop);
 }
