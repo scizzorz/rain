@@ -426,13 +426,14 @@ def bin_merge(lhs, pairs):
   return node
 
 
-# unexpr :: ('-' | '!') simple
+# unexpr :: ('-' | '!' | '$') unexpr
 #         | simple
 def unexpr(ctx):
-  if ctx.expect(K.operator_token('-'), K.operator_token('!')):
+  ops = ('-', '!', '$')
+  if ctx.expect(*(K.operator_token(op) for op in ops)):
     op = ctx.require(K.operator_token).value
     pos = ctx.past[-1]
-    node = A.unary_node(op, simple(ctx))
+    node = A.unary_node(op, unexpr(ctx))
     node.coords = pos
     return node
 

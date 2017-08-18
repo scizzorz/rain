@@ -39,7 +39,7 @@ compound :: 'func' fnparams ('->' binexpr | block)
 
 binexpr :: unexpr (OPERATOR unexpr)*
 
-unexpr :: ('-' | '!') simple
+unexpr :: ('-' | '!') unexpr
         | simple
 
 simple :: 'func' fnparams '->' binexpr
