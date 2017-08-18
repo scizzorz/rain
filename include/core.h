@@ -60,6 +60,7 @@ typedef struct R_table {
 } R_table;
 
 void R_box_print(R_box *val);
+void R_box_to_str(R_box *ret, R_box *val);
 void R_op_print(R_op *instr);
 
 bool R_has_meta(R_box *val);

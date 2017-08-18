@@ -37,6 +37,44 @@ void R_box_print(R_box *val) {
   }
 }
 
+void R_box_to_str(R_box *ret, R_box *val) {
+  char strbuf[24];
+
+  switch(val->type) {
+    case R_TYPE_NULL:
+      R_set_str(ret, "null");
+      return;
+    case R_TYPE_INT:
+      snprintf(strbuf, 24, "%ld", val->i64);
+      break;
+    case R_TYPE_FLOAT:
+      snprintf(strbuf, 24, "%f", val->f64);
+      break;
+    case R_TYPE_BOOL:
+      R_set_str(ret, val->i64 != 0 ? "true" : "false");
+      return;
+    case R_TYPE_STR:
+      R_set_strcpy(ret, val->str);
+      return;
+    case R_TYPE_TABLE:
+      snprintf(strbuf, 24, "table 0x%08lx", (unsigned long)val->ptr);
+      break;
+    case R_TYPE_FUNC:
+      snprintf(strbuf, 24, "func 0x%04lx", val->u64);
+      break;
+    case R_TYPE_CFUNC:
+      snprintf(strbuf, 24, "cfunc 0x%08lx", (unsigned long)val->ptr);
+      break;
+    case R_TYPE_CDATA:
+      snprintf(strbuf, 24, "cdata 0x%08lx", (unsigned long)val->ptr);
+      break;
+    default:
+      snprintf(strbuf, 24, "unknown\n");
+  }
+
+  R_set_strcpy(ret, strbuf);
+}
+
 bool R_has_meta(R_box *val) {
   return (val->meta != NULL) && (R_TYPE_ISNT(val->meta, NULL));
 }
