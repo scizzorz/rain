@@ -170,6 +170,16 @@ class catch_node(node):
   def __init__(self, body):
     self.body = body
 
+  def emit(self, module):
+    exit = module.ins_block()
+    module.catch_push()
+    module.jump(exit)
+    self.body.emit(module)
+    null_const = module.add_const(None)
+    module.push_const(null_const)
+    module.catch_pop()
+    module.block = exit
+
 
 class cont_node(node):
   __tag__ = 'continue'
