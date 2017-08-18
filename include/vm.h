@@ -19,6 +19,13 @@ typedef struct R_frame {
   R_box ret;
 } R_frame;
 
+typedef struct R_catch {
+  uint32_t instr_ptr;
+  uint32_t stack_ptr;
+  uint32_t frame_ptr;
+} R_catch;
+
+
 typedef struct R_vm {
   uint32_t instr_ptr;
   uint32_t num_consts;
@@ -28,8 +35,8 @@ typedef struct R_vm {
   uint32_t stack_ptr;
   uint32_t stack_size;
 
-  uint32_t scope_ptr;
-  uint32_t scope_size;
+  uint32_t catch_ptr;
+  uint32_t catch_size;
 
   uint32_t frame_ptr;
   uint32_t frame_size;
@@ -40,6 +47,7 @@ typedef struct R_vm {
   R_box *stack;
   R_frame *frames;
   R_frame *frame;
+  R_catch *catches;
 } R_vm;
 
 R_vm *vm_new();
@@ -57,5 +65,9 @@ void vm_call(R_vm *this, uint32_t to, R_box *scope, uint32_t argc);
 void vm_ret(R_vm *this);
 void vm_save(R_vm *this, R_box *val);
 void vm_fit(R_vm *this, uint32_t want);
+void vm_catch_push(R_vm *this);
+void vm_catch_pop(R_vm *this);
+void vm_recover(R_vm *this);
+
 
 #endif

@@ -16,11 +16,11 @@ R_vm *vm_new() {
 
   this->instr_ptr = UINT32_MAX - 1;
   this->stack_ptr = 0;
-  this->scope_ptr = 0;
+  this->catch_ptr = 0;
   this->frame_ptr = 0;
 
   this->stack_size = 10;
-  this->scope_size = 10;
+  this->catch_size = 10;
   this->frame_size = 10;
 
   this->consts = GC_malloc(sizeof(R_box));
@@ -29,6 +29,7 @@ R_vm *vm_new() {
 
   this->stack = GC_malloc(sizeof(R_box) * this->stack_size);
   this->frames = GC_malloc(sizeof(R_frame) * this->frame_size);
+  this->catches = GC_malloc(sizeof(R_catch) * this->catch_size);
 
   return this;
 }
@@ -280,6 +281,47 @@ R_box *vm_push(R_vm *this, R_box *val) {
   this->stack_ptr += 1;
 
   return &this->stack[this->stack_ptr - 1];
+}
+
+void vm_catch_push(R_vm *this) {
+  if(this->catch_ptr >= this->catch_size) {
+    this->catch_size *= 2;
+    this->catches = GC_realloc(this->catches, sizeof(R_box) * this->catch_size);
+  }
+
+  R_catch *catch = &this->catches[this->catch_ptr];
+  catch->instr_ptr = this->instr_ptr;
+  catch->stack_ptr = this->stack_ptr;
+  catch->frame_ptr = this->frame_ptr;
+  this->catch_ptr += 1;
+  this->instr_ptr += 1;
+}
+
+void vm_catch_pop(R_vm *this) {
+  if(this->catch_ptr == 0) {
+    fprintf(stderr, "Unable to remove a catch\n");
+    this->instr_ptr = 0xFFFFFFFE;
+    return;
+  }
+
+  this->catch_ptr -= 1;
+}
+
+void vm_recover(R_vm *this) {
+  if(this->catch_ptr == 0) {
+    fprintf(stderr, "Unable to recover\n");
+    this->frame->return_to = 0xFFFFFFFE;
+    return;
+  }
+
+  this->catch_ptr -= 1;
+
+  R_catch *catch = &this->catches[this->catch_ptr];
+  this->frame_ptr = catch->frame_ptr;
+  this->stack_ptr = catch->stack_ptr;
+  this->instr_ptr = catch->instr_ptr;
+
+  this->frame = &this->frames[this->frame_ptr - 1];
 }
 
 void vm_call(R_vm *this, uint32_t to, R_box *scope, uint32_t argc) {
