@@ -26,7 +26,7 @@ void (*R_INSTR_TABLE[NUM_INSTRS])(R_vm *, R_op *) = {
   R_LOAD,
   R_SAVE,
   R_FIT,
-  R_JUMPNE,
+  R_JUMPNOT,
   R_CATCH_PUSH,
   R_CATCH_POP,
 };
@@ -56,7 +56,7 @@ const char *R_INSTR_NAMES[NUM_INSTRS] = {
   "LOAD",
   "SAVE",
   "FIT",
-  "JUMPNE",
+  "JUMPNOT",
   "CATCH_PUSH",
   "CATCH_POP",
 };
@@ -341,7 +341,7 @@ void R_FIT(R_vm *vm, R_op *instr) {
 }
 
 
-void R_JUMPNE(R_vm *vm, R_op *instr) {
+void R_JUMPNOT(R_vm *vm, R_op *instr) {
   R_box top = vm_pop(vm);
 
   if(top.type == R_TYPE_NULL || (top.type == R_TYPE_BOOL && top.i64 == 0)) {

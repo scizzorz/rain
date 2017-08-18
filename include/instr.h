@@ -28,7 +28,7 @@
 #define LOAD       0x14
 #define SAVE       0x15
 #define FIT        0x16
-#define JUMPNE     0x17
+#define JUMPNOT    0x17
 #define CATCH_PUSH 0x18
 #define CATCH_POP  0x19
 
@@ -70,7 +70,7 @@ void R_GET_META(R_vm *vm, R_op *instr);
 void R_LOAD(R_vm *vm, R_op *instr);
 void R_SAVE(R_vm *vm, R_op *instr);
 void R_FIT(R_vm *vm, R_op *instr);
-void R_JUMPNE(R_vm *vm, R_op *instr);
+void R_JUMPNOT(R_vm *vm, R_op *instr);
 void R_CATCH_PUSH(R_vm *vm, R_op *instr);
 void R_CATCH_POP(R_vm *vm, R_op *instr);
 

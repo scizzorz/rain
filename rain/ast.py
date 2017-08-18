@@ -248,7 +248,7 @@ class if_node(node):
       els = module.ins_block()
       after = module.ins_block()
 
-      module.jump_ne(els)
+      module.jump_not(els)
 
       self.body.emit(module)
       module.jump(after)
@@ -261,7 +261,7 @@ class if_node(node):
 
     else:
       after = module.ins_block()
-      module.jump_ne(after)
+      module.jump_not(after)
       self.body.emit(module)
       module.jump(after)
 
@@ -334,7 +334,7 @@ class while_node(node):
 
     with module.goto(entry):
       self.pred.emit(module)
-      module.jump_ne(exit)
+      module.jump_not(exit)
       self.body.emit(module)
       module.jump(entry)
 

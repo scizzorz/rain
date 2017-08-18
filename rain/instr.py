@@ -35,7 +35,7 @@ class Instr:
   LOAD       = 0x14
   SAVE       = 0x15
   FIT        = 0x16
-  JUMPNE     = 0x17
+  JUMPNOT    = 0x17
   CATCH_PUSH = 0x18
   CATCH_POP  = 0x19
 
@@ -116,8 +116,8 @@ class JumpIf(SBx):
   op = Instr.JUMPIF
 
 
-class JumpNe(SBx):
-  op = Instr.JUMPNE
+class JumpNot(SBx):
+  op = Instr.JUMPNOT
 
 
 class CatchPush(Nx):
