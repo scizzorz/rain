@@ -214,13 +214,26 @@ void vm_dump(R_vm *this) {
   printf("Stack (%d / %d):\n", this->stack_ptr, this->stack_size);
   for(uint32_t i=0; i<this->stack_size; i++) {
     if(i + 1 > this->stack_ptr) {
-      printf("     ");
-    }
-    else if(i + 1 == this->stack_ptr) {
-      printf("% 2d > ", i);
+      printf("   ");
     }
     else {
-      printf("% 2d   ", i);
+      printf("% 2d ", i);
+    }
+
+    for(uint32_t j=1; j<this->frame_ptr; j++) {
+      if(i + 1 > this->frames[j].base_ptr && i + 1 <= this->stack_ptr) {
+        printf(" |");
+      }
+      else {
+        printf("  ");
+      }
+    }
+
+    if(i + 1 == this->stack_ptr) {
+      printf(" > ");
+    }
+    else {
+    printf("   ");
     }
 
     R_box_print(this->stack + i);
