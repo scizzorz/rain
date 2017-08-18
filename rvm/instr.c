@@ -58,6 +58,7 @@ const char *R_INSTR_NAMES[NUM_INSTRS] = {
 };
 
 void R_PRINT(R_vm *vm, R_op *instr) {
+  fprintf(stderr, "Deprecated use of PRINT instruction\n");
   R_box val = vm_pop(vm);
   R_box_print(&val);
 }
@@ -258,6 +259,7 @@ void R_RETURN(R_vm *vm, R_op *instr) {
 }
 
 void R_IMPORT(R_vm *vm, R_op *instr) {
+  fprintf(stderr, "Deprecated use of IMPORT instruction\n");
   R_box pop = vm_pop(vm);
   if(R_TYPE_IS(&pop, STR)) {
     vm_import(vm, pop.str);
@@ -310,6 +312,7 @@ void R_GET_META(R_vm *vm, R_op *instr) {
 }
 
 void R_LOAD(R_vm *vm, R_op *instr) {
+  fprintf(stderr, "Deprecated use of LOAD instruction\n");
   R_box name = vm_pop(vm);
   R_box lib = vm_top(vm);
   R_box *top = &vm->stack[vm->stack_ptr - 1];
