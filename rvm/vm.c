@@ -278,6 +278,11 @@ R_box *vm_push(R_vm *this, R_box *val) {
 }
 
 void vm_call(R_vm *this, uint32_t to, R_box *scope, uint32_t argc) {
+  if(this->frame_ptr >= this->frame_size) {
+    this->frame_size *= 2;
+    this->frames = GC_realloc(this->frames, sizeof(R_frame) * this->frame_size);
+  }
+
   this->frame = &this->frames[this->frame_ptr];
   this->frame->return_to = this->instr_ptr;
   this->frame->argc = argc;
