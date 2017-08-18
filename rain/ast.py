@@ -567,6 +567,23 @@ class binary_node(expr_node):
       '::': module.set_meta,
     }
 
+    if self.op in ('&', '|'):
+      exit = module.ins_block()
+      self.lhs.emit(module)
+
+      module.dup()
+      if self.op == '|':
+        module.jump_if(exit)
+      else:
+        module.jump_not(exit)
+
+      module.pop()
+      self.rhs.emit(module)
+      module.block = exit
+
+      return
+
+
     self.lhs.emit(module)
     self.rhs.emit(module)
 
