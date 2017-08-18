@@ -271,7 +271,12 @@ R_box *vm_push(R_vm *this, R_box *val) {
     this->stack = GC_realloc(this->stack, sizeof(R_box) * this->stack_size);
   }
 
-  this->stack[this->stack_ptr] = *val;
+  if(val == NULL) {
+    R_set_null(&this->stack[this->stack_ptr]);
+  }
+  else {
+    this->stack[this->stack_ptr] = *val;
+  }
   this->stack_ptr += 1;
 
   return &this->stack[this->stack_ptr - 1];
