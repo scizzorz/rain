@@ -1,6 +1,7 @@
 #include "rain.h"
 #define __USE_GNU
 #include <dlfcn.h>
+#include <string.h>
 
 void (*R_INSTR_TABLE[NUM_INSTRS])(R_vm *, R_op *) = {
   R_PUSH_CONST,
@@ -85,6 +86,18 @@ void R_BIN_OP(R_vm *vm, R_op *instr) {
   R_box *top = &vm->stack[vm->stack_ptr - 1];
   bool do_float = false;
   double lhs_f, rhs_f;
+
+  if(R_UI(instr) == BIN_CAT) {
+    R_box_to_str(&lhs, &lhs);
+    R_box_to_str(&rhs, &rhs);
+    char *cat = GC_malloc(lhs.size + rhs.size + 1);
+
+    strcat(cat, lhs.str);
+    strcat(cat + lhs.size, rhs.str);
+    R_set_str(top, cat);
+
+    return;
+  }
 
   if(R_TYPE_IS(&lhs, INT) && R_TYPE_IS(&rhs, INT)) {
     switch(R_UI(instr)) {

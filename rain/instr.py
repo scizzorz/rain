@@ -199,6 +199,7 @@ class BinOp(Ux):
   SUB    = 0x01
   MUL    = 0x02
   DIV    = 0x03
+  CAT    = 0x04
 
 
 class UnOp(Ux):

@@ -302,6 +302,9 @@ class Module:
   def div(self):
     self.add_instr(I.BinOp(I.BinOp.DIV))
 
+  def cat(self):
+    self.add_instr(I.BinOp(I.BinOp.CAT))
+
   def lt(self):
     self.add_instr(I.CmpOp(I.CmpOp.LT))
 

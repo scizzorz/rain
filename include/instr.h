@@ -43,6 +43,7 @@
 #define BIN_SUB    0x01
 #define BIN_MUL    0x02
 #define BIN_DIV    0x03
+#define BIN_CAT    0x04
 
 #define UN_NEG     0x00
 #define UN_NOT     0x01

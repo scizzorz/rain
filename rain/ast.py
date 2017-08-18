@@ -558,6 +558,7 @@ class binary_node(expr_node):
       '-': module.sub,
       '*': module.mul,
       '/': module.div,
+      '$': module.cat,
       '<': module.lt,
       '>': module.gt,
       '<=': module.le,
