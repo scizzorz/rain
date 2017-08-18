@@ -51,7 +51,6 @@ void R_builtin_meta(R_vm *vm) {
 
 void R_builtin_import(R_vm *vm) {
   R_box pop = vm_pop(vm);
-  R_box_print(&pop);
 
   if(R_TYPE_IS(&pop, STR)) {
     uint32_t module_start = vm->num_instrs;
