@@ -1,3 +1,4 @@
+from . import ast as A
 from . import error as Q
 from . import lexer as L
 from . import module as M
@@ -199,7 +200,19 @@ class Compiler:
       return
     self.written = True
 
-    self.mod.write()
+    if self.emitted:
+      with open(self.target or self.qname + '.rnc', 'wb') as tmp:
+        self.mod.write(tmp)
+
+    elif self.parsed:
+      with open(self.target or self.qname + '.yml', 'w') as tmp:
+        tmp.write(A.machine.dump(self.ast))
+
+    elif self.lexed:
+      with open(self.target or self.qname + '.lex', 'w') as tmp:
+        for token in self.stream:
+          tmp.write(str(token))
+          tmp.write('\n')
 
   def build(self):
     '''Emit code and write it to a file.'''

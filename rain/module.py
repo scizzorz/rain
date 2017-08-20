@@ -341,24 +341,23 @@ class Module:
   def catch_pop(self):
     self.add_instr(I.CatchPop())
 
-  def write(self):
+  def write(self, fp):
     self.finalize()
 
-    with open('{0.qname}.rnc'.format(self), 'wb') as fp:
-      fp.write(b'RAIN')
-      fp.write(struct.pack('<I', len(self.consts)))
-      fp.write(struct.pack('<I', self.instr_count))
-      fp.write(struct.pack('<I', len(Box._strings_)))
+    fp.write(b'RAIN')
+    fp.write(struct.pack('<I', len(self.consts)))
+    fp.write(struct.pack('<I', self.instr_count))
+    fp.write(struct.pack('<I', len(Box._strings_)))
 
-      for string in Box._strings_:
-        fp.write(struct.pack('<I', len(string)))
-        fp.write(string.encode('utf-8'))
+    for string in Box._strings_:
+      fp.write(struct.pack('<I', len(string)))
+      fp.write(string.encode('utf-8'))
 
-      for const in self.consts:
-        fp.write(const)
+    for const in self.consts:
+      fp.write(const)
 
-      for block in self.blocks:
-        block.write(fp)
+    for block in self.blocks:
+      block.write(fp)
 
   def add_block(self):
     block = Block()
