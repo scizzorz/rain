@@ -426,10 +426,10 @@ def bin_merge(lhs, pairs):
   return node
 
 
-# unexpr :: ('-' | '!' | '$') unexpr
+# unexpr :: ('-' | '!' | '$' | '~') unexpr
 #         | simple
 def unexpr(ctx):
-  ops = ('-', '!', '$')
+  ops = ('-', '!', '$', '~')
   if ctx.expect(*(K.operator_token(op) for op in ops)):
     op = ctx.require(K.operator_token).value
     pos = ctx.past[-1]

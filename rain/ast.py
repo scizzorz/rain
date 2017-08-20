@@ -607,6 +607,7 @@ class unary_node(expr_node):
       '!': module._not,
       '-': module.neg,
       '$': module.str,
+      '~': module.get_meta,
     }
 
     if self.op not in ops:
