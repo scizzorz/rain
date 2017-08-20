@@ -106,6 +106,19 @@ class block_node(expr_node):
       stmt.emit(module)
 
 
+class stmt_node(node):
+  __tag__ = 'stmt'
+  __version__ = 1
+  __slots__ = ['expr']
+
+  def __init__(self, expr):
+    self.expr = expr
+
+  def emit(self, module):
+    self.expr.emit(module)
+    module.pop()
+
+
 # Statements ##################################################################
 
 class assn_node(node):
