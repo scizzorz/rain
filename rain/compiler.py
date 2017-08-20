@@ -28,60 +28,6 @@ def get_compiler(src, target=None, main=False):
   return compilers[abspath]
 
 
-def compile_link(src):
-  if src.endswith('.ll') or src.endswith('.so'):
-    return src
-
-  if src not in c_files:
-    if not src.endswith('.c'):
-      Q.warn('unknown file type: {}', src)
-      Q.warn('passing through clang anyway')
-
-    clang = os.getenv('CLANG', 'clang')
-
-    src_mtime = os.path.getmtime(src)
-    tempdir = tempfile.gettempdir()
-    rn_mod, _ = M.find_name(src)
-    target = join(tempdir, rn_mod + '.c.ll')
-    make = True
-
-    # if the target exists and is newer than the source, don't remake
-    if os.path.exists(target):
-      target_mtime = os.path.getmtime(target)
-      if target_mtime > src_mtime:
-        make = False
-
-    if make:
-      flags = ['-O2', '-S', '-emit-llvm', '-I' + os.environ['RAINLIB']]
-
-      cmd = [clang, '-o', target, src] + flags
-      subprocess.check_call(cmd)
-
-    c_files[src] = target
-
-  return c_files[src]
-
-
-def compile_so(libs):
-  # I don't know how else to find these .so files other than just asking clang
-  # to make a .so file out of all of them
-
-  clang = os.getenv('CLANG', 'clang')
-
-  tempdir = tempfile.gettempdir()
-  libname = '.'.join(sorted(libs))
-  target = join(tempdir, 'lib' + libname + '.so')
-
-  if not os.path.exists(target):
-    libs = ['-l' + lib for lib in libs]
-    flags = ['-shared']
-
-    cmd = [clang, '-o', target] + flags + libs
-    subprocess.check_call(cmd)
-
-  return target
-
-
 def reset_compilers():
   global compilers
   global c_files
@@ -99,10 +45,6 @@ class Compiler:
 
     self.target = target
     self.main = main
-
-    self.mods = OrderedSet()
-    self.links = set()
-    self.libs = set()
 
     self.stream = None  # set after lexing
     self.ast = None     # set after parsing
@@ -141,15 +83,6 @@ class Compiler:
 
       sys.exit(1)
 
-  def link_with(self, other):
-    '''Copy all of the links, libraries, and modules from another module.'''
-    if other.ll:
-      self.links.add(other.ll)
-
-    self.links |= other.links
-    self.libs |= other.libs
-    self.mods |= other.mods
-
   def read(self):
     '''Read the primary source file.'''
     if self.readen:
@@ -181,7 +114,7 @@ class Compiler:
     self.ast = P.program(self.parser)
 
   def emit(self):
-    '''Emit LLVM IR for the module.'''
+    '''Emit RVM bytecode for the module.'''
     self.parse()
 
     if self.emitted:
@@ -189,7 +122,6 @@ class Compiler:
     self.emitted = True
 
     self.mod = M.Module(self.file)
-    self.mods.add(self.mod)
 
     # compile the imports
     self.ast.emit(self.mod)
@@ -230,14 +162,6 @@ class Compiler:
 
   def compile(self):
     '''Compile a full program into an executable.'''
-    self.build()
-
-    if self.compiled:
-      return
-    self.compiled = True
-
-  def share(self):
-    '''Compile a single Rain file into a shared object file.'''
     self.build()
 
     if self.compiled:
