@@ -122,7 +122,7 @@ def block(ctx):
 #       | 'save' (NAME '=')? compound
 #       | 'var' var_prefix ('=' compound)?
 #       | 'while' binexpr block
-#       | assn_prefix ('=' compound | fnargs | ':' NAME  fnargs)
+#       | assn_prefix ('=' compound)?
 def stmt(ctx):
   if ctx.consume(K.keyword_token('bind')):
     names = fnparams(ctx, parens=False)
@@ -186,28 +186,11 @@ def stmt(ctx):
 
   lhs = assn_prefix(ctx)
 
-  if isinstance(lhs, (A.name_node, A.idx_node, list)):
-    if ctx.consume(K.symbol_token('=')):
-      rhs = compound(ctx)
-      return A.assn_node(lhs, rhs, var=False)
+  if ctx.consume(K.symbol_token('=')):
+    rhs = compound(ctx)
+    return A.assn_node(lhs, rhs, var=False)
 
-  if ctx.expect(K.symbol_token('(')):
-    pos = ctx.token.pos(file=ctx.file)
-    args = fnargs(ctx)
-    node = A.call_node(lhs, args, pop=True)
-    node.coords = pos
-    return node
-
-  if ctx.consume(K.symbol_token(':')):
-    name = ctx.require(K.name_token).value
-    pos = ctx.past[-1]
-    rhs = A.str_node(name)
-    args = fnargs(ctx)
-    node = A.meth_node(lhs, rhs, args, pop=True)
-    node.coords = pos
-    return node
-
-  ctx.require(K.symbol_token('('), K.symbol_token(':'))
+  return A.stmt_node(lhs)
 
 
 # if_stmt :: 'if' binexpr block (NEWLINE 'else' (if_stmt | block))?
@@ -246,7 +229,7 @@ def var_prefix(ctx):
 
 
 # assn_prefix :: '[' assn_prefix (',' assn_prefix)* ']'
-#              | prefix ('.' NAME | '[' binexpr ']')*
+#              | binexpr
 def assn_prefix(ctx):
   if ctx.consume(K.symbol_token('[')):
     lst = []
@@ -257,25 +240,7 @@ def assn_prefix(ctx):
 
     return lst
 
-  lhs = prefix(ctx)
-  rhs = None
-
-  while True:
-    if ctx.consume(K.symbol_token('.')):
-      name = ctx.require(K.name_token).value
-      rhs = A.str_node(name)
-      lhs = A.idx_node(lhs, rhs)
-      continue
-
-    if ctx.consume(K.symbol_token('[')):
-      rhs = binexpr(ctx)
-      ctx.require(K.symbol_token(']'))
-      lhs = A.idx_node(lhs, rhs)
-      continue
-
-    break
-
-  return lhs
+  return binexpr(ctx)
 
 
 # array_expr :: '[' (binexpr (',' binexpr)*)? ','? ']'
