@@ -190,6 +190,9 @@ def stmt(ctx):
     rhs = compound(ctx)
     return A.assn_node(lhs, rhs, var=False)
 
+  if isinstance(lhs, list):
+    lhs = A.array_node(lhs)
+
   return A.stmt_node(lhs)
 
 

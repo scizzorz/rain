@@ -1,3 +1,4 @@
+from . import error as Q
 from . import instr as I
 from contextlib import contextmanager
 from os.path import isdir, isfile
@@ -388,12 +389,17 @@ class Module:
       self.dup(1)
       self.get()
 
+      # gotta import here instead of at the start
+      from . import ast as A
+
       if isinstance(key, list):
         unpack(key)
-      else:
+      elif isinstance(key, A.name_node):
         key_const = self.add_const(key.value)
         self.push_const(key_const)
         self.push_scope()
         self.set()
+      else:
+        Q.abort('Unable to unpack into variable {}', key, pos=key.coords)
 
     self.pop()
