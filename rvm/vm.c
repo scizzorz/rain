@@ -238,7 +238,7 @@ void vm_dump(R_vm *this) {
       printf(" > ");
     }
     else {
-    printf("   ");
+      printf("   ");
     }
 
     R_box_print(this->stack + i);

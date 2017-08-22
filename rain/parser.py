@@ -434,18 +434,11 @@ def simple(ctx):
   return primary(ctx)
 
 
-# primary :: prefix ('?'? fnargs | ':' NAME '?'? fnargs | '.' NAME | '[' binexpr ']')*
+# primary :: prefix (fnargs | ':' NAME fnargs | '.' NAME | '[' binexpr ']')*
 def primary(ctx):
   node = prefix(ctx)
 
   while True:
-    if ctx.consume(K.symbol_token('?')):
-      pos = ctx.token.pos(file=ctx.file)
-      args = fnargs(ctx)
-      node = A.call_node(node, args, catch=True)
-      node.coords = pos
-      continue
-
     if ctx.expect(K.symbol_token('(')):
       pos = ctx.token.pos(file=ctx.file)
       args = fnargs(ctx)
@@ -458,10 +451,8 @@ def primary(ctx):
       pos = ctx.past[-1]
       rhs = A.str_node(name)
 
-      catch = bool(ctx.consume(K.symbol_token('?')))
-
       args = fnargs(ctx)
-      node = A.meth_node(node, rhs, args, catch=catch)
+      node = A.meth_node(node, rhs, args)
       node.coords = pos
 
       continue

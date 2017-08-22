@@ -47,7 +47,7 @@ simple :: 'func' fnparams '->' binexpr
         | dict_expr
         | primary
 
-primary :: prefix ('?'? fnargs | ':' NAME '?'? fnargs | '.' NAME | '[' binexpr ']')*
+primary :: prefix (fnargs | ':' NAME fnargs | '.' NAME | '[' binexpr ']')*
 
 prefix :: '(' binexpr ')'
         | NAME | INT | FLOAT | BOOL | STRING | NULL | (TABLE dict_expr?)
