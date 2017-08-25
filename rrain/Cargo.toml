@@ -1,0 +1,6 @@
+[package]
+name = "rrain"
+version = "0.1.0"
+authors = ["Philip Dexter <philip.dexter@gmail.com>"]
+
+[dependencies]
